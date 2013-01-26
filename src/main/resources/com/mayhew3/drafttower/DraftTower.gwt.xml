@@ -12,6 +12,7 @@
 
   <!-- Other module inherits                                      -->
   <inherits name="com.sksamuel.gwt.GwtWebsockets"/>
+  <inherits name="com.google.gwt.inject.Inject"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='com.mayhew3.drafttower.client.DraftTower'/>

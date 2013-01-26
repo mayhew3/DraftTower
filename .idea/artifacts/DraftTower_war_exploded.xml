@@ -19,6 +19,11 @@
           <element id="library" level="project" name="Maven: com.sksamuel.gwt:gwt-websockets:1.0.0" />
           <element id="library" level="project" name="Maven: com.google.guava:guava:10.0.1" />
           <element id="library" level="project" name="Maven: com.google.code.findbugs:jsr305:1.3.9" />
+          <element id="library" level="project" name="Maven: com.google.gwt.inject:gin:2.0.0" />
+          <element id="library" level="project" name="Maven: com.google.inject:guice:3.0" />
+          <element id="library" level="project" name="Maven: javax.inject:javax.inject:1" />
+          <element id="library" level="project" name="Maven: aopalliance:aopalliance:1.0" />
+          <element id="library" level="project" name="Maven: com.google.inject.extensions:guice-assistedinject:3.0" />
         </element>
       </element>
       <element id="gwt-compiler-output" facet="DraftTower/gwt/GWT" />
