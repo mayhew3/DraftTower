@@ -1,0 +1,11 @@
+.clock {
+  font-size: 24px;
+}
+
+.lowTime {
+  color: red;
+}
+
+.paused {
+  color: grey;
+}
