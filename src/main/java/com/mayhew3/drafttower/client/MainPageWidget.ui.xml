@@ -1,0 +1,11 @@
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+    xmlns:g="urn:import:com.google.gwt.user.client.ui"
+    xmlns:d="urn:import:com.mayhew3.drafttower.client">
+  <g:HTMLPanel>
+    <d:DraftClock ui:field="clock"/>
+    <g:Button text="Start" ui:field="start"/>
+    <g:Button text="Pause" ui:field="pause"/>
+    <g:Button text="Resume" ui:field="resume"/>
+    <g:Button text="Simulate pick" ui:field="pick"/>
+  </g:HTMLPanel>
+</ui:UiBinder>
