@@ -4,6 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanFactory;
+import com.mayhew3.drafttower.shared.DraftStatus;
 import com.sksamuel.gwt.websockets.Websocket;
 import com.sksamuel.gwt.websockets.WebsocketListener;
 
@@ -17,15 +20,17 @@ public class DraftSocketHandler implements WebsocketListener {
 
   public interface DraftStatusListener {
     public void onConnect();
-    public void onMessage(String msg);
+    public void onMessage(DraftStatus status);
     public void onDisconnect();
   }
 
+  private final AutoBeanFactory beanFactory;
   private final Websocket socket;
   private final List<DraftStatusListener> listeners = Lists.newArrayList();
 
   @Inject
-  public DraftSocketHandler() {
+  public DraftSocketHandler(AutoBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
     String socketUrl = Window.Location.createUrlBuilder()
         .setProtocol("ws")
         .setPath("socket")
@@ -43,8 +48,7 @@ public class DraftSocketHandler implements WebsocketListener {
 
   public void onMessage(String msg) {
     for (DraftStatusListener listener : listeners) {
-      // TODO: parse structured message.
-      listener.onMessage(msg);
+      listener.onMessage(AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as());
     }
   }
 
@@ -53,5 +57,9 @@ public class DraftSocketHandler implements WebsocketListener {
       listener.onDisconnect();
     }
     // TODO: attempt reconnect?
+  }
+
+  public void addListener(DraftStatusListener listener) {
+    listeners.add(listener);
   }
 }
