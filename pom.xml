@@ -70,8 +70,18 @@
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>10.0.1</version>
+      <artifactId>guava-gwt</artifactId>
+      <version>13.0.1</version>
+    </dependency>
+    <dependency>
+    	<groupId>com.google.gwt.inject</groupId>
+    	<artifactId>gin</artifactId>
+    	<version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20090211</version>
     </dependency>
   </dependencies>
 
