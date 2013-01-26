@@ -9,4 +9,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 public interface BeanFactory extends AutoBeanFactory {
   AutoBean<DraftStatus> createDraftStatus();
   AutoBean<DraftCommand> createDraftCommand();
+  AutoBean<UnclaimedPlayerListRequest> createUnclaimedPlayerListRequest();
+  AutoBean<UnclaimedPlayerListResponse> createUnclaimedPlayerListResponse();
+  AutoBean<Player> createPlayer();
 }

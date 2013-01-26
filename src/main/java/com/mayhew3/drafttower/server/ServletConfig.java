@@ -17,6 +17,7 @@ public class ServletConfig extends GuiceServletContextListener {
       protected void configureServlets() {
         super.configureServlets();
         serve("/socket").with(DraftTowerWebSocketServlet.class);
+        serve("/unclaimed").with(UnclaimedPlayerLookupServlet.class);
       }
     }, new ServerModule());
   }
