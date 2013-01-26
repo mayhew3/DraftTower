@@ -24,6 +24,7 @@ public class MainPageWidget extends Composite {
 
   private final DraftSocketHandler socketHandler;
   private final BeanFactory beanFactory;
+  @UiField(provided = true) final ConnectivityIndicator connectivityIndicator;
   @UiField(provided = true) final DraftClock clock;
 
   // Temporary.
@@ -33,9 +34,11 @@ public class MainPageWidget extends Composite {
   @UiField Button pick;
 
   @Inject
-  public MainPageWidget(DraftClock clock,
+  public MainPageWidget(ConnectivityIndicator connectivityIndicator,
+      DraftClock clock,
       final DraftSocketHandler socketHandler,
       final BeanFactory beanFactory) {
+    this.connectivityIndicator = connectivityIndicator;
     this.socketHandler = socketHandler;
     this.beanFactory = beanFactory;
     this.clock = clock;
