@@ -14,6 +14,7 @@
   <inherits name="com.sksamuel.gwt.GwtWebsockets"/>
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+  <inherits name="com.google.common.collect.Collect"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='com.mayhew3.drafttower.client.DraftTower'/>

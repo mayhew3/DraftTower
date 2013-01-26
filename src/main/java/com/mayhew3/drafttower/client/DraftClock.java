@@ -25,11 +25,12 @@ public class DraftClock extends Composite implements DraftSocketHandler.DraftSta
     socketHandler.addListener(this);
     Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
       public boolean execute() {
-        if (!status.isPaused()) {
+        if (status != null && !status.isPaused()) {
           long timeLeftMs = status.getCurrentPickDeadline() - System.currentTimeMillis();
-          clockDisplay.setText((timeLeftMs / MILLIS_PER_MINUTE)
-              + ":"
-              + (timeLeftMs / MILLIS_PER_SECOND));
+          timeLeftMs = Math.max(0, timeLeftMs);
+          long minutes = timeLeftMs / MILLIS_PER_MINUTE;
+          long seconds = (timeLeftMs % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND;
+          clockDisplay.setText(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
         }
         return true;
       }

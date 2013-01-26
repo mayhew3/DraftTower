@@ -9,7 +9,6 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Set;
@@ -29,7 +28,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
   private boolean paused;
   private long pausedPickTime;
   private ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
-  @Nullable private ScheduledFuture currentPickTimer;
+  private ScheduledFuture currentPickTimer;
 
   private class DraftTowerWebSocket implements WebSocket.OnTextMessage {
 
@@ -38,6 +37,9 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     public void onOpen(Connection connection) {
       openSockets.add(this);
       this.connection = connection;
+      if (currentPickDeadline > 0) {
+        sendMessage(createStatusBean());
+      }
     }
 
     public void sendMessage(String data) {
@@ -96,6 +98,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     cancelPickTimer();
     currentPickTimer = pickTimer.schedule(new Runnable() {
       public void run() {
+        currentPickTimer = null;
         newPick();
       }
     }, timeMs, TimeUnit.MILLISECONDS);
@@ -108,13 +111,18 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
   }
 
   private void sendStatusUpdates() {
+    AutoBean<DraftStatus> statusBean = createStatusBean();
+    for (DraftTowerWebSocket socket : openSockets) {
+      socket.sendMessage(statusBean);
+    }
+  }
+
+  private AutoBean<DraftStatus> createStatusBean() {
     AutoBean<DraftStatus> statusBean = beanFactory.createDraftStatus();
     DraftStatus status = statusBean.as();
     status.setCurrentPickDeadline(currentPickDeadline);
     status.setPaused(paused);
-    for (DraftTowerWebSocket socket : openSockets) {
-      socket.sendMessage(statusBean);
-    }
+    return statusBean;
   }
 
   private Set<DraftTowerWebSocket> openSockets = Sets.newHashSet();

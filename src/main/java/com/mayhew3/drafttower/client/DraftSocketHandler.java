@@ -5,7 +5,7 @@ import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.google.web.bindery.autobean.shared.AutoBeanFactory;
+import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.sksamuel.gwt.websockets.Websocket;
 import com.sksamuel.gwt.websockets.WebsocketListener;
@@ -24,12 +24,12 @@ public class DraftSocketHandler implements WebsocketListener {
     public void onDisconnect();
   }
 
-  private final AutoBeanFactory beanFactory;
+  private final BeanFactory beanFactory;
   private final Websocket socket;
   private final List<DraftStatusListener> listeners = Lists.newArrayList();
 
   @Inject
-  public DraftSocketHandler(AutoBeanFactory beanFactory) {
+  public DraftSocketHandler(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
     String socketUrl = Window.Location.createUrlBuilder()
         .setProtocol("ws")
@@ -61,5 +61,9 @@ public class DraftSocketHandler implements WebsocketListener {
 
   public void addListener(DraftStatusListener listener) {
     listeners.add(listener);
+  }
+
+  public void sendMessage(String msg) {
+    socket.send(msg);
   }
 }
