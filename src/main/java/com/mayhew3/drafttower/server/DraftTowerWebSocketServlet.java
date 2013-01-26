@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.Sets;
+import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Servlet for WebSocket communication with clients.
  */
+@Singleton
 public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   // TODO: factor out draft status to a dependency.
