@@ -53,15 +53,17 @@ public class DraftClock extends Composite implements DraftSocketHandler.DraftSta
   }
 
   private void update() {
-    if (status != null && !status.isPaused()) {
-      long timeLeftMs = status.getCurrentPickDeadline() - System.currentTimeMillis();
-      timeLeftMs = Math.max(0, timeLeftMs);
-      long minutes = timeLeftMs / MILLIS_PER_MINUTE;
-      long seconds = (timeLeftMs % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND;
-      clockDisplay.setText(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
-      clockDisplay.setStyleName(CSS.lowTime(), timeLeftMs < LOW_TIME_MS);
+    if (status != null) {
+      if (!status.isPaused()) {
+        long timeLeftMs = status.getCurrentPickDeadline() - System.currentTimeMillis();
+        timeLeftMs = Math.max(0, timeLeftMs);
+        long minutes = timeLeftMs / MILLIS_PER_MINUTE;
+        long seconds = (timeLeftMs % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND;
+        clockDisplay.setText(minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
+        clockDisplay.setStyleName(CSS.lowTime(), timeLeftMs < LOW_TIME_MS);
+      }
+      clockDisplay.setStyleName(CSS.paused(), status.isPaused());
     }
-    clockDisplay.setStyleName(CSS.paused(), status.isPaused());
   }
 
   public void onConnect() {
