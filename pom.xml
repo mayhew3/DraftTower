@@ -10,7 +10,7 @@
     <artifactId>draft-tower</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>GWT Maven Archetype</name>
+    <name>Draft Tower</name>
 
     <properties>
         <!-- Convenience property to set the GWT version -->
@@ -18,6 +18,7 @@
         <!-- GWT needs at least java 1.5 -->
         <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty-server.version>8.1.8.v20121106</jetty-server.version>
     </properties>
 
     <dependencies>
@@ -55,7 +56,22 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>8.1.8.v20121106</version>
+            <version>${jetty-server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-websocket</artifactId>
+            <version>${jetty-server.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sksamuel.gwt</groupId>
+            <artifactId>gwt-websockets</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>10.0.1</version>
         </dependency>
     </dependencies>
 
