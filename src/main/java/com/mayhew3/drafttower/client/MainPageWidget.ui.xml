@@ -2,6 +2,7 @@
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
     xmlns:d="urn:import:com.mayhew3.drafttower.client">
   <g:HTMLPanel>
+    <d:ConnectivityIndicator ui:field="connectivityIndicator"/>
     <d:DraftClock ui:field="clock"/>
     <g:Button text="Start" ui:field="start"/>
     <g:Button text="Pause" ui:field="pause"/>
