@@ -18,6 +18,6 @@ public class ServletConfig extends GuiceServletContextListener {
         super.configureServlets();
         serve("/socket").with(DraftTowerWebSocketServlet.class);
       }
-    });
+    }, new ServerModule());
   }
 }
