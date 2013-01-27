@@ -6,6 +6,7 @@ package com.mayhew3.drafttower.shared;
 public enum PlayerColumn {
   NAME("Name", "Name"),
   POS("Pos", "Position"),
+  ELIG("Elig", "Eligible Positions"),
   OBP("OBP", "On-Base Percentage"),
   SLG("SLG", "Slugging Percentage"),
   RHR("R-HR", "Runs - Home Runs"),
@@ -17,7 +18,9 @@ public enum PlayerColumn {
   WHIP("WHIP", "Walks and Hits per Inning Pitched"),
   WL("W-L", "Wins - Losses"),
   K("K", "Strikeouts (Pitcher)"),
-  S("S", "Saves");
+  S("S", "Saves"),
+  RANK("Rank", "Rank"),
+  RATING("Rating", "Rating");
 
   private final String shortName;
   private final String longName;

@@ -32,12 +32,15 @@ public class UnclaimedPlayerDataSource {
       player.setColumnValues(ImmutableMap.<PlayerColumn, String>builder()
           .put(PlayerColumn.NAME, "Joakim Soria " + (request.getRowStart() + i + 1))
           .put(PlayerColumn.POS, "RP")
+          .put(PlayerColumn.ELIG, "P")
           .put(PlayerColumn.INN, "50")
           .put(PlayerColumn.K, "53")
           .put(PlayerColumn.ERA, "2.70")
           .put(PlayerColumn.WHIP, "1.12")
           .put(PlayerColumn.WL, "2")
           .put(PlayerColumn.S, "33")
+          .put(PlayerColumn.RANK, "142")
+          .put(PlayerColumn.RATING, "-0.65")
           .build());
       players.add(player);
     }

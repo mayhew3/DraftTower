@@ -34,20 +34,14 @@ public class PlayerTable extends CellTable<Player> {
     }
   }
 
-  public static final PlayerColumn PITCHER_COLUMNS[] = {
-      NAME, POS, INN, K, ERA, WHIP, WL, S
-  };
-  public static final PlayerColumn BATTER_COLUMNS[] = {
-      NAME, POS, HR, RBI, OBP, SLG, RHR, SBCS
+  public static final PlayerColumn COLUMNS[] = {
+      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING
   };
 
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
       DraftSocketHandler socketHandler) {
-    // TODO
-    PlayerColumn[] columns = PITCHER_COLUMNS;
-
-    for (PlayerColumn column : columns) {
+    for (PlayerColumn column : COLUMNS) {
       addColumn(new PlayerTableColumn(column), column.getShortName());
     }
 
