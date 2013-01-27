@@ -9,6 +9,7 @@ import com.mayhew3.drafttower.client.DraftSocketHandler.DraftStatusListener;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
+import com.mayhew3.drafttower.shared.Position;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
@@ -39,9 +40,13 @@ public class PlayerTable extends CellTable<Player> {
       NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING
   };
 
+  private Position positionFilter;
+
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
       DraftSocketHandler socketHandler) {
+    setPageSize(20);
+
     for (PlayerColumn column : COLUMNS) {
       addColumn(new PlayerTableColumn(column),
           new SafeHtmlBuilder()
@@ -72,4 +77,12 @@ public class PlayerTable extends CellTable<Player> {
     });
   }
 
+  public Position getPositionFilter() {
+    return positionFilter;
+  }
+
+  public void setPositionFilter(Position positionFilter) {
+    this.positionFilter = positionFilter;
+    setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
 }
