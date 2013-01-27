@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -42,7 +43,14 @@ public class PlayerTable extends CellTable<Player> {
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
       DraftSocketHandler socketHandler) {
     for (PlayerColumn column : COLUMNS) {
-      addColumn(new PlayerTableColumn(column), column.getShortName());
+      addColumn(new PlayerTableColumn(column),
+          new SafeHtmlBuilder()
+              .appendHtmlConstant("<span title=\"")
+              .appendEscaped(column.getLongName())
+              .appendHtmlConstant("\">")
+              .appendEscaped(column.getShortName())
+              .appendHtmlConstant("</span>")
+              .toSafeHtml());
     }
 
     dataProvider.addDataDisplay(this);
