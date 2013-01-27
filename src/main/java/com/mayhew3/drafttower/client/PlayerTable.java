@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -8,6 +9,7 @@ import com.mayhew3.drafttower.client.DraftSocketHandler.DraftStatusListener;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
+import com.mayhew3.drafttower.shared.Position;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
@@ -34,21 +36,26 @@ public class PlayerTable extends CellTable<Player> {
     }
   }
 
-  public static final PlayerColumn PITCHER_COLUMNS[] = {
-      NAME, POS, INN, K, ERA, WHIP, WL, S
+  public static final PlayerColumn COLUMNS[] = {
+      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING
   };
-  public static final PlayerColumn BATTER_COLUMNS[] = {
-      NAME, POS, HR, RBI, OBP, SLG, RHR, SBCS
-  };
+
+  private Position positionFilter;
 
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
       DraftSocketHandler socketHandler) {
-    // TODO
-    PlayerColumn[] columns = PITCHER_COLUMNS;
+    setPageSize(20);
 
-    for (PlayerColumn column : columns) {
-      addColumn(new PlayerTableColumn(column), column.getShortName());
+    for (PlayerColumn column : COLUMNS) {
+      addColumn(new PlayerTableColumn(column),
+          new SafeHtmlBuilder()
+              .appendHtmlConstant("<span title=\"")
+              .appendEscaped(column.getLongName())
+              .appendHtmlConstant("\">")
+              .appendEscaped(column.getShortName())
+              .appendHtmlConstant("</span>")
+              .toSafeHtml());
     }
 
     dataProvider.addDataDisplay(this);
@@ -70,4 +77,12 @@ public class PlayerTable extends CellTable<Player> {
     });
   }
 
+  public Position getPositionFilter() {
+    return positionFilter;
+  }
+
+  public void setPositionFilter(Position positionFilter) {
+    this.positionFilter = positionFilter;
+    setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
 }

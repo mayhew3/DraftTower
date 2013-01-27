@@ -12,7 +12,11 @@ public enum Position {
   TB("3B", "Third Base"),
   SS("SS", "Shortstop"),
   OF("OF", "Outfield"),
-  DH("DH", "Designated Hitter");
+  DH("DH", "Designated Hitter"),
+
+  // Filtering:
+  P("P", "All Pitchers"),
+  UNF("Unfilled", "Unfilled Positions");
 
   private final String shortName;
   private final String longName;
