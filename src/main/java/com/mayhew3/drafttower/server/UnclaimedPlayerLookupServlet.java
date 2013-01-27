@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -32,7 +33,7 @@ public class UnclaimedPlayerLookupServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String requestStr = req.getParameter("request");
+    String requestStr = CharStreams.toString(req.getReader());
     UnclaimedPlayerListRequest request =
         AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListRequest.class, requestStr).as();
     UnclaimedPlayerListResponse response = unclaimedPlayerDataSource.lookup(request);

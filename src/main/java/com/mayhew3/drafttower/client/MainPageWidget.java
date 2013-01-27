@@ -7,6 +7,7 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
@@ -48,18 +49,24 @@ public class MainPageWidget extends Composite {
   @UiField Button pause;
   @UiField Button resume;
   @UiField Button pick;
+  @UiField(provided = true) PlayerTable unclaimedPlayers;
+  @UiField SimplePager pager;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       DraftClock clock,
+      PlayerTable unclaimedPlayers,
       final DraftSocketHandler socketHandler,
       final BeanFactory beanFactory) {
     this.connectivityIndicator = connectivityIndicator;
     this.socketHandler = socketHandler;
     this.beanFactory = beanFactory;
     this.clock = clock;
+    this.unclaimedPlayers = unclaimedPlayers;
 
     initWidget(uiBinder.createAndBindUi(this));
+
+    pager.setDisplay(unclaimedPlayers);
   }
 
   // Temporary.

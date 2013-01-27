@@ -1,10 +1,10 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.common.collect.Lists;
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.DraftSocketUrl;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.sksamuel.gwt.websockets.Websocket;
@@ -29,12 +29,9 @@ public class DraftSocketHandler implements WebsocketListener {
   private final List<DraftStatusListener> listeners = Lists.newArrayList();
 
   @Inject
-  public DraftSocketHandler(BeanFactory beanFactory) {
+  public DraftSocketHandler(BeanFactory beanFactory,
+      @DraftSocketUrl String socketUrl) {
     this.beanFactory = beanFactory;
-    String socketUrl = Window.Location.createUrlBuilder()
-        .setProtocol("ws")
-        .setPath("socket")
-        .buildString();
     socket = new Websocket(socketUrl);
     socket.addListener(this);
     socket.open();
