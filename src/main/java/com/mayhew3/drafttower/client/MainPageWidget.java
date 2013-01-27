@@ -2,9 +2,12 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
@@ -19,6 +22,20 @@ import com.mayhew3.drafttower.shared.DraftCommand;
  */
 public class MainPageWidget extends Composite {
 
+  interface Resources extends ClientBundle {
+    interface Css extends CssResource {
+      String connectivityIndicator();
+    }
+
+    @Source("MainPageWidget.css")
+    Css css();
+  }
+
+  private static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
+  static {
+    CSS.ensureInjected();
+  }
+
   interface MyUiBinder extends UiBinder<Widget, MainPageWidget> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
@@ -32,18 +49,24 @@ public class MainPageWidget extends Composite {
   @UiField Button pause;
   @UiField Button resume;
   @UiField Button pick;
+  @UiField(provided = true) PlayerTable unclaimedPlayers;
+  @UiField SimplePager pager;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       DraftClock clock,
+      PlayerTable unclaimedPlayers,
       final DraftSocketHandler socketHandler,
       final BeanFactory beanFactory) {
     this.connectivityIndicator = connectivityIndicator;
     this.socketHandler = socketHandler;
     this.beanFactory = beanFactory;
     this.clock = clock;
+    this.unclaimedPlayers = unclaimedPlayers;
 
     initWidget(uiBinder.createAndBindUi(this));
+
+    pager.setDisplay(unclaimedPlayers);
   }
 
   // Temporary.
