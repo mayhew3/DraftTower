@@ -8,6 +8,9 @@ import com.mayhew3.drafttower.shared.*;
 
 import java.util.List;
 
+import static com.mayhew3.drafttower.shared.Position.P;
+import static com.mayhew3.drafttower.shared.Position.RP;
+
 /**
  * Looks up unclaimed players in the database.
  */
@@ -31,13 +34,16 @@ public class UnclaimedPlayerDataSource {
       player.setPlayerId(1);
       player.setColumnValues(ImmutableMap.<PlayerColumn, String>builder()
           .put(PlayerColumn.NAME, "Joakim Soria " + (request.getRowStart() + i + 1))
-          .put(PlayerColumn.POS, "RP")
+          .put(PlayerColumn.POS, RP.getShortName())
+          .put(PlayerColumn.ELIG, P.getShortName())
           .put(PlayerColumn.INN, "50")
           .put(PlayerColumn.K, "53")
           .put(PlayerColumn.ERA, "2.70")
           .put(PlayerColumn.WHIP, "1.12")
           .put(PlayerColumn.WL, "2")
           .put(PlayerColumn.S, "33")
+          .put(PlayerColumn.RANK, "142")
+          .put(PlayerColumn.RATING, "-0.65")
           .build());
       players.add(player);
     }
