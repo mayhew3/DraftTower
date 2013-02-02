@@ -10,9 +10,6 @@ import javax.servlet.ServletException;
 import java.sql.*;
 import java.util.List;
 
-import static com.mayhew3.drafttower.shared.Position.P;
-import static com.mayhew3.drafttower.shared.Position.RP;
-
 /**
  * Looks up unclaimed players in the database.
  */
@@ -39,19 +36,19 @@ public class UnclaimedPlayerDataSource {
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
-        player.setColumnValues(ImmutableMap.<PlayerColumn, String>builder()
-            .put(PlayerColumn.NAME, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"))
-            .put(PlayerColumn.POS, resultSet.getString("Position"))
-            .put(PlayerColumn.ELIG, resultSet.getString("Eligibility"))
-            .put(PlayerColumn.INN, resultSet.getString("INN"))
-            .put(PlayerColumn.K, resultSet.getString("K"))
-            .put(PlayerColumn.ERA, resultSet.getString("ERA"))
-            .put(PlayerColumn.WHIP, resultSet.getString("WHIP"))
-            .put(PlayerColumn.WL, resultSet.getString("WL"))
-            .put(PlayerColumn.S, resultSet.getString("S"))
-            .put(PlayerColumn.RANK, resultSet.getString("Rank"))
-            .put(PlayerColumn.RATING, resultSet.getString("Total"))
+        ImmutableMap.Builder<PlayerColumn, String> columnMap = ImmutableMap.builder();
+
+        PlayerColumn[] playerColumns = PlayerColumn.values();
+        for (PlayerColumn playerColumn : playerColumns) {
+          String columnString = resultSet.getString(playerColumn.getColumnName());
+          if (columnString != null) {
+            columnMap.put(playerColumn, columnString);
+          }
+        }
+
+        player.setColumnValues(columnMap
             .build());
+
         players.add(player);
       }
     } catch (SQLException e) {
@@ -79,8 +76,7 @@ public class UnclaimedPlayerDataSource {
   private int getTotalPlayerCount() throws ServletException {
     String sql = "select count(1) as TotalPlayers " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where Year = 2012 " +
-        "and Eligibility = 'P'";
+        "where Year = 2012";
 
     ResultSet resultSet = executeQuery(sql);
 
@@ -97,7 +93,6 @@ public class UnclaimedPlayerDataSource {
     String sql = "select * " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
         "where Year = 2012 " +
-        "and Eligibility = 'P' " +
         "order by total desc " +
         "limit " + rowStart + ", " + rowCount;
 

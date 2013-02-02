@@ -1,33 +1,37 @@
 package com.mayhew3.drafttower.shared;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Player column values.
  */
 public enum PlayerColumn {
-  NAME("Name", "Name"),
-  POS("Pos", "Position"),
-  ELIG("Elig", "Eligible Positions"),
-  OBP("OBP", "On-Base Percentage"),
-  SLG("SLG", "Slugging Percentage"),
-  RHR("R-HR", "Runs - Home Runs"),
-  RBI("RBI", "Runs Batted In"),
-  HR("HR", "Home Runs"),
-  SBCS("SB-CS", "Stolen Bases - Caught Stealing"),
-  INN("INN", "Innings Pitched"),
-  ERA("ERA", "Earned Run Average"),
-  WHIP("WHIP", "Walks and Hits per Inning Pitched"),
-  WL("W-L", "Wins - Losses"),
-  K("K", "Strikeouts (Pitcher)"),
-  S("S", "Saves"),
-  RANK("Rank", "Rank"),
-  RATING("Rating", "Rating");
+  NAME("Name", "Name", "Player"),
+  POS("Pos", "Position", "Position"),
+  ELIG("Elig", "Eligible Positions", "Eligibility"),
+  OBP("OBP", "On-Base Percentage", "OBP"),
+  SLG("SLG", "Slugging Percentage", "SLG"),
+  RHR("R-HR", "Runs - Home Runs", "RHR"),
+  RBI("RBI", "Runs Batted In", "RBI"),
+  HR("HR", "Home Runs", "HR"),
+  SBCS("SB-CS", "Stolen Bases - Caught Stealing", "SBC"),
+  INN("INN", "Innings Pitched", "INN"),
+  ERA("ERA", "Earned Run Average", "ERA"),
+  WHIP("WHIP", "Walks and Hits per Inning Pitched", "WHIP"),
+  WL("W-L", "Wins - Losses", "WL"),
+  K("K", "Strikeouts (Pitcher)", "K"),
+  S("S", "Saves", "S"),
+  RANK("Rank", "Rank", "Rank"),
+  RATING("Rating", "Rating", "Total");
 
   private final String shortName;
   private final String longName;
+  private final String columnName;
 
-  PlayerColumn(String shortName, String longName) {
+  PlayerColumn(String shortName, String longName, String columnName) {
     this.shortName = shortName;
     this.longName = longName;
+    this.columnName = columnName;
   }
 
   public String getShortName() {
@@ -36,5 +40,9 @@ public enum PlayerColumn {
 
   public String getLongName() {
     return longName;
+  }
+
+  public String getColumnName() {
+    return columnName;
   }
 }
