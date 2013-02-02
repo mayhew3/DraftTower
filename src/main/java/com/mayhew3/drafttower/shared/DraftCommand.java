@@ -6,6 +6,7 @@ package com.mayhew3.drafttower.shared;
 public interface DraftCommand {
 
   public enum Command {
+    IDENTIFY,
     START_DRAFT,
     DO_PICK,
     PAUSE,
@@ -14,4 +15,10 @@ public interface DraftCommand {
 
   Command getCommandType();
   void setCommandType(Command command);
+
+  String getTeamToken();
+  void setTeamToken(String teamToken);
+
+  long getPlayerId();
+  void setPlayerId(long playerId);
 }
