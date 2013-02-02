@@ -62,9 +62,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     try {
       switch (cmd.getCommandType()) {
         case IDENTIFY:
-          if (connectedTeams.contains(teamTokens.get(cmd.getTeamToken()))) {
+          Integer team = teamTokens.get(cmd.getTeamToken());
+          if (connectedTeams.contains(team)) {
             return false;
           }
+          connectedTeams.add(team);
         case START_DRAFT:
           newPick();
           break;

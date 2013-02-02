@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.user.client.Window;
 import com.google.inject.BindingAnnotation;
@@ -22,12 +24,30 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
+  public static @interface LoginUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
   public static @interface DraftSocketUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface UnclaimedPlayerInfoUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface TeamToken {}
+
+  @Provides @LoginUrl
+  public String getLoginUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.LOGIN_ENDPOINT)
+        .buildString();
+  }
 
   @Provides @DraftSocketUrl
   public String getDraftSocketUrl() {
@@ -49,5 +69,10 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @Override
   protected void configure() {
     bind(BeanFactory.class).in(Singleton.class);
+    bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
+    bind(StringHolder.class)
+        .annotatedWith(TeamToken.class)
+        .to(StringHolder.class)
+        .in(Singleton.class);
   }
 }

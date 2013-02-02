@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 
 import javax.servlet.ServletException;
@@ -14,6 +15,7 @@ import java.util.UUID;
 /**
  * Servlet for logins.
  */
+@Singleton
 public class LoginServlet extends HttpServlet {
 
   private final Map<String, Integer> teamTokens;

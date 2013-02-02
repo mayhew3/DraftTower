@@ -31,7 +31,7 @@ public class UnclaimedPlayerDataSource {
     List<Player> players = Lists.newArrayList();
     for (int i = 0; i < request.getRowCount() && request.getRowStart() + i < 300; i++) {
       Player player = beanFactory.createPlayer().as();
-      player.setPlayerId(1);
+      player.setPlayerId(i);
       player.setColumnValues(ImmutableMap.<PlayerColumn, String>builder()
           .put(PlayerColumn.NAME, "Joakim Soria " + (request.getRowStart() + i + 1))
           .put(PlayerColumn.POS, RP.getShortName())

@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.google.web.bindery.autobean.shared.AutoBeanFactory;
+import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
@@ -73,13 +73,13 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     }
   }
 
-  private final AutoBeanFactory beanFactory;
+  private final BeanFactory beanFactory;
 
   private List<DraftCommandListener> listeners = Lists.newArrayList();
   private Set<DraftTowerWebSocket> openSockets = Sets.newHashSet();
 
   @Inject
-  public DraftTowerWebSocketServlet(AutoBeanFactory beanFactory) {
+  public DraftTowerWebSocketServlet(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 

@@ -5,12 +5,15 @@
   <ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
 
   <g:HTMLPanel>
-    <d:ConnectivityIndicator ui:field="connectivityIndicator" addStyleNames="{style.css.connectivityIndicator}"/>
-    <d:DraftClock ui:field="clock"/>
-    <g:Button text="Start" ui:field="start"/>
-    <g:Button text="Pause" ui:field="pause"/>
-    <g:Button text="Resume" ui:field="resume"/>
-    <g:Button text="Simulate pick" ui:field="pick"/>
-    <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
+    <d:LoginWidget ui:field="loginWidget"/>
+    <div ui:field="mainPage">
+      <d:ConnectivityIndicator ui:field="connectivityIndicator" addStyleNames="{style.css.connectivityIndicator}"/>
+      <d:DraftClock ui:field="clock"/>
+      <g:Button text="Start" ui:field="start"/>
+      <g:Button text="Pause" ui:field="pause"/>
+      <g:Button text="Resume" ui:field="resume"/>
+      <g:Button text="Simulate pick" ui:field="pick"/>
+      <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
+    </div>
   </g:HTMLPanel>
 </ui:UiBinder>
