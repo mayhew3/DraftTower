@@ -5,6 +5,9 @@ package com.mayhew3.drafttower.shared;
  */
 public interface UnclaimedPlayerListRequest {
 
+  String getTeamToken();
+  void setTeamToken(String teamToken);
+
   int getRowStart();
   void setRowStart(int rowStart);
 

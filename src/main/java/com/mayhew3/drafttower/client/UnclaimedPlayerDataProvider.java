@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamToken;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.PlayerTable.PlayerTableColumn;
 import com.mayhew3.drafttower.shared.BeanFactory;
@@ -23,13 +24,16 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
 
   private final BeanFactory beanFactory;
   private final String playerInfoUrl;
+  private final StringHolder teamToken;
 
   @Inject
   public UnclaimedPlayerDataProvider(
       BeanFactory beanFactory,
-      @UnclaimedPlayerInfoUrl String playerInfoUrl) {
+      @UnclaimedPlayerInfoUrl String playerInfoUrl,
+      @TeamToken StringHolder teamToken) {
     this.beanFactory = beanFactory;
     this.playerInfoUrl = playerInfoUrl;
+    this.teamToken = teamToken;
   }
 
   @Override
@@ -40,6 +44,8 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
       AutoBean<UnclaimedPlayerListRequest> requestBean =
           beanFactory.createUnclaimedPlayerListRequest();
       UnclaimedPlayerListRequest request = requestBean.as();
+      request.setTeamToken(teamToken.getValue());
+
       final int rowStart = display.getVisibleRange().getStart();
       int rowCount = display.getVisibleRange().getLength();
       request.setRowCount(rowCount);

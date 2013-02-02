@@ -4,9 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.mayhew3.drafttower.shared.Position.P;
 import static com.mayhew3.drafttower.shared.Position.RP;
@@ -18,14 +20,19 @@ import static com.mayhew3.drafttower.shared.Position.RP;
 public class UnclaimedPlayerDataSource {
 
   private final BeanFactory beanFactory;
+  private final Map<String, Integer> teamTokens;
 
   @Inject
-  public UnclaimedPlayerDataSource(BeanFactory beanFactory) {
+  public UnclaimedPlayerDataSource(BeanFactory beanFactory,
+      @TeamTokens Map<String, Integer> teamTokens) {
     this.beanFactory = beanFactory;
+    this.teamTokens = teamTokens;
   }
 
   public UnclaimedPlayerListResponse lookup(UnclaimedPlayerListRequest request) {
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
+
+    Integer team = teamTokens.get(request.getTeamToken());
 
     // TODO(m3)
     List<Player> players = Lists.newArrayList();
