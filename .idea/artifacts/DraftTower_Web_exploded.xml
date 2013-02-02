@@ -7,6 +7,9 @@
         <element id="directory" name="classes">
           <element id="module-output" name="DraftTower" />
         </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="mysql:mysql-connector-java:5.1.22" />
+        </element>
       </element>
       <element id="gwt-compiler-output" facet="DraftTower/gwt/GWT" />
     </root>
