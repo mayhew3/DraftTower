@@ -8,28 +8,28 @@ import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-
-import static com.mayhew3.drafttower.shared.Position.P;
-import static com.mayhew3.drafttower.shared.Position.RP;
 
 /**
  * Looks up unclaimed players in the database.
  */
 @Singleton
 public class UnclaimedPlayerDataSource {
-  Connection _connection;
 
+  private final DataSource db;
   private final BeanFactory beanFactory;
   private final Map<String, Integer> teamTokens;
 
   @Inject
-  public UnclaimedPlayerDataSource(BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens) throws ServletException {
-    initConnection();
-
+  public UnclaimedPlayerDataSource(DataSource db,
+      BeanFactory beanFactory,
+      @TeamTokens Map<String, Integer> teamTokens) {
+    this.db = db;
     this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
   }
@@ -39,7 +39,6 @@ public class UnclaimedPlayerDataSource {
 
     Integer team = teamTokens.get(request.getTeamToken());
 
-    // TODO(m3)
     List<Player> players = Lists.newArrayList();
 
     ResultSet resultSet = getResultSetForRows(request.getRowCount(), request.getRowStart());
@@ -72,18 +71,6 @@ public class UnclaimedPlayerDataSource {
     return response;
   }
 
-
-  private void initConnection() throws ServletException {
-    try {
-      Class.forName("com.mysql.jdbc.Driver");
-      _connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/uncharted", "root", "m3mysql");
-    } catch (ClassNotFoundException e) {
-      throw new ServletException("JDBC Driver not found.", e);
-    } catch (SQLException e) {
-      throw new ServletException("Could not connect to database.", e);
-    }
-  }
-
   private int getTotalPlayerCount() throws ServletException {
     String sql = "select count(1) as TotalPlayers " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
@@ -114,7 +101,7 @@ public class UnclaimedPlayerDataSource {
 
   private ResultSet executeQuery(String sql) throws ServletException {
     try {
-      Statement statement = _connection.createStatement();
+      Statement statement = db.getConnection().createStatement();
 
       return statement.executeQuery(sql);
 

@@ -5,6 +5,10 @@ import com.google.inject.*;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.BeanFactory;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Map;
@@ -25,6 +29,13 @@ public class ServerModule extends AbstractModule {
   @Provides @Singleton
   public BeanFactory getBeanFactory() {
     return AutoBeanFactorySource.create(BeanFactory.class);
+  }
+
+  @Provides
+  public DataSource getDatabase() throws NamingException {
+    Context initCtx = new InitialContext();
+    Context envCtx = (Context) initCtx.lookup("java:comp/env");
+    return (DataSource) envCtx.lookup("jdbc/MySQL");
   }
 
   @Override
