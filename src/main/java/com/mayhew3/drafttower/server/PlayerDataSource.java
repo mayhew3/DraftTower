@@ -66,7 +66,11 @@ public class PlayerDataSource {
     } catch (SQLException e) {
       throw new ServletException("Error getting next element of results.", e);
     } finally {
-      close(resultSet);
+      try {
+        close(resultSet);
+      } catch (SQLException e) {
+        throw new ServletException("Error closing DB resources.", e);
+      }
     }
 
     response.setPlayers(players);
@@ -88,7 +92,11 @@ public class PlayerDataSource {
     } catch (SQLException e) {
       throw new ServletException("Couldn't find number of rows in table.", e);
     } finally {
-      close(resultSet);
+      try {
+        close(resultSet);
+      } catch (SQLException e) {
+        throw new ServletException("Error closing DB resources.", e);
+      }
     }
   }
 
@@ -110,8 +118,27 @@ public class PlayerDataSource {
         "where ID = " + playerId;
 
     ResultSet resultSet = executeQuery(sql);
-    resultSet.next();
-    return resultSet.getString("FirstName") + " " + resultSet.getString("LastName");
+    try {
+      resultSet.next();
+      return resultSet.getString("FirstName") + " " + resultSet.getString("LastName");
+    } finally {
+      close(resultSet);
+    }
+  }
+
+  public long getBestPlayerId() throws SQLException {
+    String sql = "select ID " +
+        "from AllPlayers " +
+        "where FirstName = 'Joakim' and LastName = 'Soria'";
+
+    ResultSet resultSet = null;
+    try {
+      resultSet = executeQuery(sql);
+      resultSet.next();
+      return resultSet.getLong("ID");
+    } finally {
+      close(resultSet);
+    }
   }
 
   private ResultSet executeQuery(String sql) throws SQLException {
@@ -119,18 +146,14 @@ public class PlayerDataSource {
     return statement.executeQuery(sql);
   }
 
-  private static void close(ResultSet resultSet) throws ServletException {
+  private static void close(ResultSet resultSet) throws SQLException {
     if (resultSet == null) {
       return;
     }
-    try {
-      Statement statement = resultSet.getStatement();
-      Connection connection = statement.getConnection();
-      resultSet.close();
-      statement.close();
-      connection.close();
-    } catch (SQLException e) {
-      throw new ServletException("Error closing DB resources.", e);
-    }
+    Statement statement = resultSet.getStatement();
+    Connection connection = statement.getConnection();
+    resultSet.close();
+    statement.close();
+    connection.close();
   }
 }

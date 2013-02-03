@@ -7,10 +7,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftCommand;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
@@ -118,6 +115,15 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void doPick(Integer team, long playerId, boolean auto) {
+    if (playerId == Player.BEST_DRAFT_PICK) {
+      try {
+        playerId = playerDataSource.getBestPlayerId();
+      } catch (SQLException e) {
+        logger.log(SEVERE, "SQL error looking up the best draft pick", e);
+        return;
+      }
+    }
+
     logger.info("Team " + team
         + (auto ? " auto-picked" : " picked")
         + " player " + playerId);

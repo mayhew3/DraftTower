@@ -24,6 +24,7 @@ public class MainPageWidget extends Composite
       String connectivityIndicator();
       String leftColumn();
       String rightColumn();
+      String shortcuts();
     }
 
     @Source("MainPageWidget.css")
