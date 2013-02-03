@@ -59,9 +59,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   @Override
   public void onClientConnected() {
-    if (status.getCurrentPickDeadline() > 0) {
-      socketServlet.sendMessage(getEncodedStatus());
-    }
+    socketServlet.sendMessage(getEncodedStatus());
   }
 
   @Override
@@ -94,6 +92,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           resumePick();
           break;
       }
+      sendStatusUpdates();
     } finally {
       lock.unlock();
     }
@@ -110,14 +109,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setCurrentPickDeadline(System.currentTimeMillis() + PICK_LENGTH_MS);
     status.setPaused(false);
     startPickTimer(PICK_LENGTH_MS);
-    sendStatusUpdates();
   }
 
   private void pausePick() {
     cancelPickTimer();
     status.setPaused(true);
     pausedPickTime = status.getCurrentPickDeadline() - System.currentTimeMillis();
-    sendStatusUpdates();
   }
 
   private void resumePick() {
@@ -125,7 +122,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setPaused(false);
     startPickTimer(pausedPickTime);
     pausedPickTime = 0;
-    sendStatusUpdates();
   }
 
   private void startPickTimer(long timeMs) {
@@ -137,6 +133,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         try {
           currentPickTimer = null;
           newPick();
+          sendStatusUpdates();
         } finally {
           lock.unlock();
         }

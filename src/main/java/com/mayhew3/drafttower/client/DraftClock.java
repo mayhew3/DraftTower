@@ -85,7 +85,9 @@ public class DraftClock extends Composite implements
 
   private void update() {
     if (status != null) {
-      if (!status.isPaused()) {
+      if (status.getCurrentPickDeadline() == 0) {
+        clockDisplay.setText(" ");
+      } else if (!status.isPaused()) {
         long timeLeftMs = status.getCurrentPickDeadline() - System.currentTimeMillis();
         timeLeftMs = Math.max(0, timeLeftMs);
         long minutes = timeLeftMs / MILLIS_PER_MINUTE;
@@ -94,7 +96,8 @@ public class DraftClock extends Composite implements
         clockDisplay.setStyleName(CSS.lowTime(), timeLeftMs < LOW_TIME_MS);
       }
       clockDisplay.setStyleName(CSS.paused(), status.isPaused());
-      playPause.setText(status.isPaused() ? "▸" : "❙❙");
+      playPause.setText((status.getCurrentPickDeadline() == 0 || status.isPaused())
+          ? "▸" : "❙❙");
     }
   }
 
@@ -116,6 +119,6 @@ public class DraftClock extends Composite implements
 
   @Override
   public void onDisconnect(SocketDisconnectEvent event) {
-    clockDisplay.setText("");
+    clockDisplay.setText(" ");
   }
 }
