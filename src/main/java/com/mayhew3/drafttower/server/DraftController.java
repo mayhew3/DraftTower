@@ -10,6 +10,7 @@ import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -36,6 +37,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Map<String, Integer> teamTokens;
 
   private final int commissionerTeam;
+  private final int numTeams;
 
   private DraftStatus status;
   private long pausedPickTime;
@@ -47,10 +49,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   public DraftController(DraftTowerWebSocketServlet socketServlet,
       BeanFactory beanFactory,
       @TeamTokens Map<String, Integer> teamTokens,
-      @Commissioner int commissionerTeam) {
+      @Commissioner int commissionerTeam,
+      @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
     this.teamTokens = teamTokens;
     this.commissionerTeam = commissionerTeam;
+    this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
     status.setCurrentTeam(1);
@@ -82,8 +86,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           newPick();
           break;
         case DO_PICK:
-          logger.info("Team " + team + " picked player " + cmd.getPlayerId());
-          newPick();
+          if (team == status.getCurrentTeam()) {
+            doPick(team, cmd.getPlayerId(), false);
+          }
           break;
         case PAUSE:
           pausePick();
@@ -96,6 +101,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     } finally {
       lock.unlock();
     }
+  }
+
+  private void doPick(Integer team, long playerId, boolean auto) {
+    logger.info("Team " + team
+        + (auto ? " auto-picked" : " picked")
+        + " player " + playerId);
+    advanceTeam();
+    newPick();
   }
 
   @Override
@@ -111,6 +124,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     startPickTimer(PICK_LENGTH_MS);
   }
 
+  private void advanceTeam() {
+    int currentTeam = status.getCurrentTeam() + 1;
+    if (currentTeam > numTeams) {
+      currentTeam -= numTeams;
+    }
+    status.setCurrentTeam(currentTeam);
+  }
+
   private void pausePick() {
     cancelPickTimer();
     status.setPaused(true);
@@ -124,6 +145,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     pausedPickTime = 0;
   }
 
+  private void autoPick() {
+    // TODO(m3)
+    doPick(status.getCurrentTeam(), 0, true);
+  }
+
   private void startPickTimer(long timeMs) {
     cancelPickTimer();
     currentPickTimer = pickTimer.schedule(new Runnable() {
@@ -132,7 +158,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         lock.lock();
         try {
           currentPickTimer = null;
-          newPick();
+          autoPick();
           sendStatusUpdates();
         } finally {
           lock.unlock();

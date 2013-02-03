@@ -123,6 +123,4 @@ public class UnclaimedPlayerDataSource {
       throw new ServletException("Error closing DB resources.", e);
     }
   }
-
-
 }

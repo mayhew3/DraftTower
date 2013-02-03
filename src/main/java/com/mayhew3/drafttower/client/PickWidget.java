@@ -76,13 +76,16 @@ public class PickWidget extends Composite implements
   @Override
   public void onPlayerSelected(PlayerSelectedEvent event) {
     selectedPlayer = event.getPlayer();
-    selectedPlayerLabel.setText(selectedPlayer.getColumnValues().get(NAME));
+    selectedPlayerLabel.setText(selectedPlayer == null ? "" :
+        selectedPlayer.getColumnValues().get(NAME));
     updatePickEnabled();
   }
 
   @UiHandler("pick")
   public void handlePick(ClickEvent e) {
     eventBus.fireEvent(new PickPlayerEvent(selectedPlayer.getPlayerId()));
+    selectedPlayer = null;
+    selectedPlayerLabel.setText("");
   }
 
   private void updatePickEnabled() {
