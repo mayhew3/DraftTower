@@ -17,17 +17,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Looks up unclaimed players in the database.
+ * Looks up players in the database.
  */
 @Singleton
-public class UnclaimedPlayerDataSource {
+public class PlayerDataSource {
 
   private final DataSource db;
   private final BeanFactory beanFactory;
   private final Map<String, Integer> teamTokens;
 
   @Inject
-  public UnclaimedPlayerDataSource(DataSource db,
+  public PlayerDataSource(DataSource db,
       BeanFactory beanFactory,
       @TeamTokens Map<String, Integer> teamTokens) {
     this.db = db;
@@ -35,15 +35,17 @@ public class UnclaimedPlayerDataSource {
     this.teamTokens = teamTokens;
   }
 
-  public UnclaimedPlayerListResponse lookup(UnclaimedPlayerListRequest request) throws ServletException {
+  public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request)
+      throws ServletException {
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
     Integer team = teamTokens.get(request.getTeamToken());
 
     List<Player> players = Lists.newArrayList();
 
-    ResultSet resultSet = getResultSetForRows(request.getRowCount(), request.getRowStart());
+    ResultSet resultSet = null;
     try {
+      resultSet = getResultSetForUnclaimedPlayerRows(request.getRowCount(), request.getRowStart());
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -68,19 +70,19 @@ public class UnclaimedPlayerDataSource {
     }
 
     response.setPlayers(players);
-    response.setTotalPlayers(getTotalPlayerCount());
+    response.setTotalPlayers(getTotalUnclaimedPlayerCount());
 
     return response;
   }
 
-  private int getTotalPlayerCount() throws ServletException {
+  private int getTotalUnclaimedPlayerCount() throws ServletException {
     String sql = "select count(1) as TotalPlayers " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
         "where Year = 2012";
 
-    ResultSet resultSet = executeQuery(sql);
-
+    ResultSet resultSet = null;
     try {
+      resultSet = executeQuery(sql);
       resultSet.next();
       return resultSet.getInt("TotalPlayers");
     } catch (SQLException e) {
@@ -90,7 +92,8 @@ public class UnclaimedPlayerDataSource {
     }
   }
 
-  private ResultSet getResultSetForRows(int rowCount, int rowStart) throws ServletException {
+  private ResultSet getResultSetForUnclaimedPlayerRows(int rowCount, int rowStart)
+      throws SQLException {
 
     String sql = "select * " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
@@ -101,18 +104,25 @@ public class UnclaimedPlayerDataSource {
     return executeQuery(sql);
   }
 
-  private ResultSet executeQuery(String sql) throws ServletException {
-    try {
-      Statement statement = db.getConnection().createStatement();
+  public String getPlayerName(long playerId) throws SQLException {
+    String sql = "select FirstName,LastName " +
+        "from AllPlayers " +
+        "where ID = " + playerId;
 
-      return statement.executeQuery(sql);
+    ResultSet resultSet = executeQuery(sql);
+    resultSet.next();
+    return resultSet.getString("FirstName") + " " + resultSet.getString("LastName");
+  }
 
-    } catch (SQLException e) {
-      throw new ServletException("Error executing SQL query.", e);
-    }
+  private ResultSet executeQuery(String sql) throws SQLException {
+    Statement statement = db.getConnection().createStatement();
+    return statement.executeQuery(sql);
   }
 
   private static void close(ResultSet resultSet) throws ServletException {
+    if (resultSet == null) {
+      return;
+    }
     try {
       Statement statement = resultSet.getStatement();
       Connection connection = statement.getConnection();
