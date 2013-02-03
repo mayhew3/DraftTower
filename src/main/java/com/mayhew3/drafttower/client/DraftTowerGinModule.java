@@ -37,11 +37,6 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @Retention(RUNTIME)
   public static @interface UnclaimedPlayerInfoUrl {}
 
-  @BindingAnnotation
-  @Target({FIELD, PARAMETER, METHOD})
-  @Retention(RUNTIME)
-  public static @interface TeamToken {}
-
   @Provides @LoginUrl
   public String getLoginUrl() {
     return Window.Location.createUrlBuilder()
@@ -71,6 +66,7 @@ public class DraftTowerGinModule extends AbstractGinModule {
   protected void configure() {
     install(new SharedModule());
     bind(BeanFactory.class).in(Singleton.class);
+    bind(DraftSocketHandler.class).asEagerSingleton();
     bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
   }
 }

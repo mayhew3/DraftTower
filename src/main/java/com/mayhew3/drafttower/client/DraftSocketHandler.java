@@ -1,21 +1,17 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.common.collect.Lists;
 import com.google.gwt.event.shared.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.DraftSocketUrl;
-import com.mayhew3.drafttower.client.events.LoginEvent;
-import com.mayhew3.drafttower.client.events.PlayPauseEvent;
+import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.sksamuel.gwt.websockets.Websocket;
 import com.sksamuel.gwt.websockets.WebsocketListener;
-
-import java.util.List;
 
 import static com.mayhew3.drafttower.shared.DraftCommand.Command.*;
 
@@ -28,16 +24,10 @@ public class DraftSocketHandler implements
     LoginEvent.Handler,
     PlayPauseEvent.Handler {
 
-  public interface DraftStatusListener {
-    public void onConnect();
-    public void onMessage(DraftStatus status);
-    public void onDisconnect();
-  }
-
   private final BeanFactory beanFactory;
   private final Websocket socket;
-  private final List<DraftStatusListener> listeners = Lists.newArrayList();
   private final TeamInfo teamInfo;
+  private final EventBus eventBus;
 
   private DraftStatus draftStatus;
 
@@ -52,32 +42,23 @@ public class DraftSocketHandler implements
     socket.addListener(this);
     socket.open();
 
+    this.eventBus = eventBus;
     eventBus.addHandler(LoginEvent.TYPE, this);
     eventBus.addHandler(PlayPauseEvent.TYPE, this);
   }
 
   public void onOpen() {
-    for (DraftStatusListener listener : listeners) {
-      listener.onConnect();
-    }
+    eventBus.fireEvent(new SocketConnectEvent());
   }
 
   public void onMessage(String msg) {
-    for (DraftStatusListener listener : listeners) {
-      draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
-      listener.onMessage(draftStatus);
-    }
+    draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
+    eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
   }
 
   public void onClose() {
-    for (DraftStatusListener listener : listeners) {
-      listener.onDisconnect();
-    }
+    eventBus.fireEvent(new SocketDisconnectEvent());
     // TODO: attempt reconnect?
-  }
-
-  public void addListener(DraftStatusListener listener) {
-    listeners.add(listener);
   }
 
   private void sendDraftCommand(DraftCommand.Command commandType) {

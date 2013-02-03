@@ -13,14 +13,17 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.SocketDisconnectEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
 /**
  * Widget for displaying the draft clock.
  */
 public class DraftClock extends Composite implements
-    DraftSocketHandler.DraftStatusListener,
+    DraftStatusChangedEvent.Handler,
+    SocketDisconnectEvent.Handler,
     LoginEvent.Handler {
 
   interface Resources extends ClientBundle {
@@ -64,7 +67,6 @@ public class DraftClock extends Composite implements
 
     playPause.setVisible(false);
 
-    socketHandler.addListener(this);
     Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
       public boolean execute() {
         update();
@@ -73,6 +75,8 @@ public class DraftClock extends Composite implements
     }, MILLIS_PER_SECOND / 4);
 
     eventBus.addHandler(LoginEvent.TYPE, this);
+    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
+    eventBus.addHandler(SocketDisconnectEvent.TYPE, this);
   }
 
   private void update() {
@@ -90,19 +94,7 @@ public class DraftClock extends Composite implements
     }
   }
 
-  public void onConnect() {
-    // No-op.
-  }
-
-  public void onMessage(DraftStatus status) {
-    this.status = status;
-    update();
-  }
-
-  public void onDisconnect() {
-    clockDisplay.setText("");
-  }
-
+  @Override
   public void onLogin(LoginEvent event) {
     playPause.setVisible(teamInfo.isCommissionerTeam());
   }
@@ -110,5 +102,16 @@ public class DraftClock extends Composite implements
   @UiHandler("playPause")
   public void handlePlayPause(ClickEvent e) {
 
+  }
+
+  @Override
+  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
+    this.status = event.getStatus();
+    update();
+  }
+
+  @Override
+  public void onDisconnect(SocketDisconnectEvent event) {
+    clockDisplay.setText("");
   }
 }

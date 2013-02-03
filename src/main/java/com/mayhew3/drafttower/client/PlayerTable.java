@@ -1,12 +1,12 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.DraftSocketHandler.DraftStatusListener;
-import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.Position;
@@ -16,7 +16,8 @@ import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 /**
  * Table widget for displaying player stats.
  */
-public class PlayerTable extends CellTable<Player> {
+public class PlayerTable extends CellTable<Player> implements
+    DraftStatusChangedEvent.Handler {
 
   public class PlayerTableColumn extends TextColumn<Player> {
     private final PlayerColumn column;
@@ -44,7 +45,7 @@ public class PlayerTable extends CellTable<Player> {
 
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
-      DraftSocketHandler socketHandler) {
+      EventBus eventBus) {
     setPageSize(20);
 
     for (PlayerColumn column : COLUMNS) {
@@ -61,20 +62,7 @@ public class PlayerTable extends CellTable<Player> {
     dataProvider.addDataDisplay(this);
     addColumnSortHandler(new AsyncHandler(this));
 
-    socketHandler.addListener(new DraftStatusListener() {
-      public void onConnect() {
-        // No-op.
-      }
-
-      public void onMessage(DraftStatus status) {
-        // TODO: limit to status updates that change player list?
-        setVisibleRangeAndClearData(getVisibleRange(), true);
-      }
-
-      public void onDisconnect() {
-        // No-op.
-      }
-    });
+    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
   }
 
   public Position getPositionFilter() {
@@ -83,6 +71,12 @@ public class PlayerTable extends CellTable<Player> {
 
   public void setPositionFilter(Position positionFilter) {
     this.positionFilter = positionFilter;
+    setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
+
+  @Override
+  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
+    // TODO: limit to status updates that change player list?
     setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 }
