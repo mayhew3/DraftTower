@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import com.google.inject.*;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
@@ -26,6 +28,11 @@ public class ServerModule extends AbstractModule {
   @Retention(RUNTIME)
   public static @interface TeamTokens {}
 
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface Commissioner {}
+
   @Provides @Singleton
   public BeanFactory getBeanFactory() {
     return AutoBeanFactorySource.create(BeanFactory.class);
@@ -44,5 +51,8 @@ public class ServerModule extends AbstractModule {
     bind(new TypeLiteral<Map<String, Integer>>() {})
         .annotatedWith(TeamTokens.class)
         .toInstance(Maps.<String, Integer>newHashMap());
+    bind(new TypeLiteral<Supplier<Integer>>() {})
+        .annotatedWith(Commissioner.class)
+        .toInstance(Suppliers.ofInstance(5));  // TODO(m3): commisioner's team goes here
   }
 }

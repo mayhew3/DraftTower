@@ -25,7 +25,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   public interface DraftCommandListener {
     void onClientConnected();
-    boolean onDraftCommand(DraftCommand cmd);
+    void onDraftCommand(DraftCommand cmd) throws TerminateSocketException;
     void onClientDisconnected(String playerToken);
   }
 
@@ -56,10 +56,12 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
       if (cmd.getCommandType() == IDENTIFY) {
         teamToken = cmd.getTeamToken();
       }
-      for (DraftCommandListener listener : listeners) {
-        if (!listener.onDraftCommand(cmd)) {
-          connection.close(1008, "Team already connected!");
+      try {
+        for (DraftCommandListener listener : listeners) {
+            listener.onDraftCommand(cmd);
         }
+      } catch (TerminateSocketException e) {
+        connection.close(1008, e.getMessage());
       }
     }
 

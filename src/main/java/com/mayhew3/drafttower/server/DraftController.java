@@ -1,10 +1,12 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.mayhew3.drafttower.server.ServerModule.Commissioner;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
@@ -35,6 +37,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Map<String, Integer> teamTokens;
   private final Set<Integer> connectedTeams = Sets.newHashSet();
 
+  private final Supplier<Integer> commissionerTeamSupplier;
+
+  private int currentTeam;
   private long currentPickDeadline;
   private boolean paused;
   private long pausedPickTime;
@@ -44,10 +49,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   @Inject
   public DraftController(DraftTowerWebSocketServlet socketServlet, BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens) {
+      @TeamTokens Map<String, Integer> teamTokens,
+      @Commissioner Supplier<Integer> commissionerTeamSupplier) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
+    this.commissionerTeamSupplier = commissionerTeamSupplier;
     socketServlet.addListener(this);
   }
 
@@ -57,14 +64,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  public boolean onDraftCommand(DraftCommand cmd) {
+  public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
+    Integer team = teamTokens.get(cmd.getTeamToken());
+    if (cmd.getCommandType().isCommissionerOnly()
+        && !team.equals(commissionerTeamSupplier.get())) {
+      return;
+    }
     try {
       switch (cmd.getCommandType()) {
         case IDENTIFY:
-          Integer team = teamTokens.get(cmd.getTeamToken());
           if (connectedTeams.contains(team)) {
-            return false;
+            throw new TerminateSocketException("Team already connected!");
           }
           connectedTeams.add(team);
         case START_DRAFT:
@@ -83,7 +94,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     } finally {
       lock.unlock();
     }
-    return true;
   }
 
   public void onClientDisconnected(String teamToken) {
