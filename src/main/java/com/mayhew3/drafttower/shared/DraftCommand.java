@@ -10,7 +10,8 @@ public interface DraftCommand {
     START_DRAFT(true),
     DO_PICK(false),
     PAUSE(true),
-    RESUME(true);
+    RESUME(true),
+    BACK_OUT(true);
 
     private final boolean commissionerOnly;
 

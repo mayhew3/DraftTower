@@ -107,6 +107,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         case RESUME:
           resumePick();
           break;
+        case BACK_OUT:
+          backOutLastPick();
+          break;
       }
       sendStatusUpdates();
     } finally {
@@ -163,6 +166,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setCurrentTeam(currentTeam);
   }
 
+  private void goBackOneTeam() {
+    int currentTeam = status.getCurrentTeam() - 1;
+    if (currentTeam < 1) {
+      currentTeam += numTeams;
+    }
+    status.setCurrentTeam(currentTeam);
+  }
+
   private void pausePick() {
     cancelPickTimer();
     status.setPaused(true);
@@ -176,9 +187,16 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     pausedPickTime = 0;
   }
 
+  private void backOutLastPick() {
+    logger.info("Backed out pick " + status.getPicks().size());
+    status.getPicks().remove(status.getPicks().size() - 1);
+    goBackOneTeam();
+    newPick();
+  }
+
   private void autoPick() {
     // TODO(m3)
-    doPick(status.getCurrentTeam(), 0, true);
+    doPick(status.getCurrentTeam(), 10648, true);
   }
 
   private void startPickTimer(long timeMs) {

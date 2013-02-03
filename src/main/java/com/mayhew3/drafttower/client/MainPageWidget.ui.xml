@@ -11,6 +11,9 @@
       <div class="{style.css.rightColumn}">
         <d:DraftClock ui:field="clock"/>
         <d:PickWidget ui:field="pickWidget"/>
+        <g:ScrollPanel height="200px">
+          <d:PickHistoryTablePanel ui:field="pickHistoryTable"/>
+        </g:ScrollPanel>
       </div>
       <div class="{style.css.leftColumn}">
         <d:TeamOrderWidget ui:field="teamOrder"/>
