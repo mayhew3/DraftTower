@@ -87,6 +87,9 @@ public class PickWidget extends Composite implements
 
   private void updatePickEnabled() {
     pick.setEnabled(selectedPlayerLabel != null
+        && status != null
+        && status.getCurrentPickDeadline() > 0
+        && !status.isPaused()
         && teamInfo.isLoggedIn()
         && teamInfo.getTeam() == status.getCurrentTeam());
   }

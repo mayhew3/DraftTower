@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.PlayPauseEvent;
 import com.mayhew3.drafttower.client.events.SocketDisconnectEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
@@ -52,6 +53,7 @@ public class DraftClock extends Composite implements
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   private final TeamInfo teamInfo;
+  private final EventBus eventBus;
 
   @UiField Label clockDisplay;
   @UiField Label playPause;
@@ -62,6 +64,7 @@ public class DraftClock extends Composite implements
       TeamInfo teamInfo,
       EventBus eventBus) {
     this.teamInfo = teamInfo;
+    this.eventBus = eventBus;
 
     initWidget(uiBinder.createAndBindUi(this));
 
@@ -102,7 +105,7 @@ public class DraftClock extends Composite implements
 
   @UiHandler("playPause")
   public void handlePlayPause(ClickEvent e) {
-
+    eventBus.fireEvent(new PlayPauseEvent());
   }
 
   @Override

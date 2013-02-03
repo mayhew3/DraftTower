@@ -97,7 +97,9 @@ public class DraftSocketHandler implements
 
   @Override
   public void onPlayPause(PlayPauseEvent event) {
-    if (draftStatus.isPaused()) {
+    if (draftStatus.getCurrentPickDeadline() == 0) {
+      sendDraftCommand(START_DRAFT);
+    } else if (draftStatus.isPaused()) {
       sendDraftCommand(RESUME);
     } else {
       sendDraftCommand(PAUSE);
