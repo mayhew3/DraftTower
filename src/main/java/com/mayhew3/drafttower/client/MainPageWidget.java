@@ -41,6 +41,7 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) final ConnectivityIndicator connectivityIndicator;
   @UiField(provided = true) final LoginWidget loginWidget;
   @UiField(provided = true) final DraftClock clock;
+  @UiField(provided = true) final PickWidget pickWidget;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
 
@@ -50,12 +51,14 @@ public class MainPageWidget extends Composite
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       LoginWidget loginWidget,
       DraftClock clock,
+      PickWidget pickWidget,
       TeamOrderWidget teamOrder,
       PlayerTablePanel unclaimedPlayers,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
+    this.pickWidget = pickWidget;
     this.teamOrder = teamOrder;
     this.unclaimedPlayers = unclaimedPlayers;
 

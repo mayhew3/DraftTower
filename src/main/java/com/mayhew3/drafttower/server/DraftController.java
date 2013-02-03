@@ -17,12 +17,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 /**
  * Class responsible for tracking draft state and handling commands from clients.
  */
 @Singleton
 public class DraftController implements DraftTowerWebSocketServlet.DraftCommandListener {
+
+  private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
   private static final long PICK_LENGTH_MS = 90 * 1000;
 
@@ -80,6 +83,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           newPick();
           break;
         case DO_PICK:
+          logger.info("Team " + team + " picked player " + cmd.getPlayerId());
           newPick();
           break;
         case PAUSE:
@@ -97,6 +101,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   @Override
   public void onClientDisconnected(String teamToken) {
     status.getConnectedTeams().remove(teamTokens.get(teamToken));
+    socketServlet.sendMessage(getEncodedStatus());
   }
 
   private void newPick() {

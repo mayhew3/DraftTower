@@ -10,6 +10,7 @@
       <d:ConnectivityIndicator ui:field="connectivityIndicator" addStyleNames="{style.css.connectivityIndicator}"/>
       <div class="{style.css.rightColumn}">
         <d:DraftClock ui:field="clock"/>
+        <d:PickWidget ui:field="pickWidget"/>
       </div>
       <div class="{style.css.leftColumn}">
         <d:TeamOrderWidget ui:field="teamOrder"/>

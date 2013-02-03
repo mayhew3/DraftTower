@@ -5,8 +5,12 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
+import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.Position;
@@ -45,7 +49,7 @@ public class PlayerTable extends CellTable<Player> implements
 
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
-      EventBus eventBus) {
+      final EventBus eventBus) {
     setPageSize(20);
 
     for (PlayerColumn column : COLUMNS) {
@@ -61,6 +65,15 @@ public class PlayerTable extends CellTable<Player> implements
 
     dataProvider.addDataDisplay(this);
     addColumnSortHandler(new AsyncHandler(this));
+
+    final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<Player>();
+    setSelectionModel(selectionModel);
+    getSelectionModel().addSelectionChangeHandler(new Handler() {
+      @Override
+      public void onSelectionChange(SelectionChangeEvent event) {
+        eventBus.fireEvent(new PlayerSelectedEvent(selectionModel.getSelectedObject()));
+      }
+    });
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
   }
