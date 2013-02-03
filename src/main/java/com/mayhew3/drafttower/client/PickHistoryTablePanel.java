@@ -9,6 +9,7 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.BackOutPickEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
@@ -47,7 +48,9 @@ public class PickHistoryTablePanel extends Composite implements
     container.setStyleName(CSS.container());
 
     table.addStyleName(CSS.table());
-    container.add(table);
+    ScrollPanel scrollPanel = new ScrollPanel(table);
+    scrollPanel.setHeight("200px");
+    container.add(scrollPanel);
 
     backOutButton = new Button("Back out last pick", new ClickHandler() {
       @Override
