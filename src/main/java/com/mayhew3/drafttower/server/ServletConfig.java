@@ -17,6 +17,8 @@ public class ServletConfig extends GuiceServletContextListener {
       @Override
       protected void configureServlets() {
         super.configureServlets();
+        serve("/" + ServletEndpoints.LOGIN_ENDPOINT)
+            .with(LoginServlet.class);
         serve("/" + ServletEndpoints.DRAFT_SOCKET_ENDPOINT)
             .with(DraftTowerWebSocketServlet.class);
         serve("/" + ServletEndpoints.UNCLAIMED_PLAYERS_ENDPOINT)

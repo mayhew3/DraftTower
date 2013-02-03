@@ -28,6 +28,7 @@ public class PlayerTablePanel extends Composite {
     interface Css extends CssResource {
       String container();
       String filterButton();
+      String table();
     }
 
     @Source("PlayerTablePanel.css")
@@ -55,6 +56,7 @@ public class PlayerTablePanel extends Composite {
     for (final Position position : POSITIONS) {
       ToggleButton button = new ToggleButton(position == null ? "All" : position.getShortName(),
           new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
               if (position != null) {
                 allButton.setDown(false);
@@ -76,11 +78,12 @@ public class PlayerTablePanel extends Composite {
     }
     container.add(filterButtons);
 
-    container.add(table);
-
     SimplePager pager = new SimplePager();
     pager.setDisplay(table);
     container.add(pager);
+
+    table.addStyleName(CSS.table());
+    container.add(table);
 
     initWidget(container);
   }

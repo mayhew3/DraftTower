@@ -17,6 +17,7 @@ public class GwtTestDraftTower extends GWTTestCase {
   /**
    * Must refer to a valid module that sources this class.
    */
+  @Override
   public String getModuleName() {
     return "com.mayhew3.drafttower.DraftTowerJUnit";
   }

@@ -1,0 +1,36 @@
+.container {
+  padding-top: 25px;
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.currentPickArrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.teamLogo {
+  display: inline-block;
+  margin-right: 5px;
+  border: 2px solid transparent;
+  vertical-align: middle;
+}
+
+.me {
+  border-color: red;
+}
+
+.disconnected {
+  opacity: 0.4;
+}
+
+.statusMessage {
+  display: inline-block;
+  margin-left: 15px;
+}

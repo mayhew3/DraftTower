@@ -1,17 +1,21 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.client.events.SocketConnectEvent;
+import com.mayhew3.drafttower.client.events.SocketDisconnectEvent;
 
 /**
  * Indicator light showing connectivity to the server.
  */
-public class ConnectivityIndicator extends Composite implements DraftSocketHandler.DraftStatusListener {
+public class ConnectivityIndicator extends Composite implements
+    SocketConnectEvent.Handler,
+    SocketDisconnectEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -31,22 +35,22 @@ public class ConnectivityIndicator extends Composite implements DraftSocketHandl
   private final HTML widget;
 
   @Inject
-  public ConnectivityIndicator(DraftSocketHandler socketHandler) {
-    socketHandler.addListener(this);
+  public ConnectivityIndicator(EventBus eventBus) {
     widget = new HTML();
     widget.setStyleName(CSS.indicator());
     initWidget(widget);
+
+    eventBus.addHandler(SocketConnectEvent.TYPE, this);
+    eventBus.addHandler(SocketDisconnectEvent.TYPE, this);
   }
 
-  public void onConnect() {
+  @Override
+  public void onConnect(SocketConnectEvent event) {
     widget.addStyleName(CSS.connected());
   }
 
-  public void onMessage(DraftStatus status) {
-    // No-op.
-  }
-
-  public void onDisconnect() {
+  @Override
+  public void onDisconnect(SocketDisconnectEvent event) {
     widget.removeStyleName(CSS.connected());
   }
 }
