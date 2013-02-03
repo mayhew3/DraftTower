@@ -9,6 +9,7 @@ import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -56,13 +57,14 @@ public class UnclaimedPlayerDataSource {
           }
         }
 
-        player.setColumnValues(columnMap
-            .build());
+        player.setColumnValues(columnMap.build());
 
         players.add(player);
       }
     } catch (SQLException e) {
       throw new ServletException("Error getting next element of results.", e);
+    } finally {
+      close(resultSet);
     }
 
     response.setPlayers(players);
@@ -83,6 +85,8 @@ public class UnclaimedPlayerDataSource {
       return resultSet.getInt("TotalPlayers");
     } catch (SQLException e) {
       throw new ServletException("Couldn't find number of rows in table.", e);
+    } finally {
+      close(resultSet);
     }
   }
 
@@ -105,6 +109,18 @@ public class UnclaimedPlayerDataSource {
 
     } catch (SQLException e) {
       throw new ServletException("Error executing SQL query.", e);
+    }
+  }
+
+  private static void close(ResultSet resultSet) throws ServletException {
+    try {
+      Statement statement = resultSet.getStatement();
+      Connection connection = statement.getConnection();
+      resultSet.close();
+      statement.close();
+      connection.close();
+    } catch (SQLException e) {
+      throw new ServletException("Error closing DB resources.", e);
     }
   }
 
