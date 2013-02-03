@@ -32,6 +32,13 @@ public class LoginWidget extends Composite {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
+      String container();
+      String box();
+      String title();
+      String error();
+      String fieldLabel();
+      String field();
+      String loginButton();
     }
 
     @Source("LoginWidget.css")

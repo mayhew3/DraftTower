@@ -1,0 +1,40 @@
+.container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: url("tower.jpg") no-repeat;
+  background-size: cover;
+}
+
+.box {
+  display: inline-block;
+  margin: 50px;
+  padding: 20px;
+  font-size: 18px;
+  background: white;
+  border: 1px solid #d3d3d3;
+}
+
+.title {
+  font-size: 40px;
+}
+
+.fieldLabel {
+  display: inline-block;
+  min-width: 100px;
+}
+
+.field {
+  font-size: 22px;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+}
+
+.loginButton {
+  padding-left: 250px;
+}
