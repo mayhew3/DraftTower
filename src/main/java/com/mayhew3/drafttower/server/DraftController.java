@@ -3,8 +3,8 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
@@ -12,7 +12,6 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -31,16 +30,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Lock lock = new ReentrantLock();
 
   private final DraftTowerWebSocketServlet socketServlet;
-  private final BeanFactory beanFactory;
 
   private final Map<String, Integer> teamTokens;
-  private final Set<Integer> connectedTeams = Sets.newHashSet();
 
   private final int commissionerTeam;
 
-  private int currentTeam;
-  private long currentPickDeadline;
-  private boolean paused;
+  private DraftStatus status;
   private long pausedPickTime;
 
   private ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
@@ -52,15 +47,16 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       @TeamTokens Map<String, Integer> teamTokens,
       @Commissioner int commissionerTeam) {
     this.socketServlet = socketServlet;
-    this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
     this.commissionerTeam = commissionerTeam;
+    this.status = beanFactory.createDraftStatus().as();
+    status.setConnectedTeams(Sets.<Integer>newHashSet());
     socketServlet.addListener(this);
   }
 
   public void onClientConnected() {
-    if (currentPickDeadline > 0) {
-      socketServlet.sendMessage(createStatusMessage());
+    if (status.getCurrentPickDeadline() > 0) {
+      socketServlet.sendMessage(getEncodedStatus());
     }
   }
 
@@ -74,10 +70,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     try {
       switch (cmd.getCommandType()) {
         case IDENTIFY:
-          if (connectedTeams.contains(team)) {
+          if (status.getConnectedTeams().contains(team)) {
             throw new TerminateSocketException("Team already connected!");
           }
-          connectedTeams.add(team);
+          status.getConnectedTeams().add(team);
         case START_DRAFT:
           newPick();
           break;
@@ -97,27 +93,27 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   public void onClientDisconnected(String teamToken) {
-    connectedTeams.remove(teamTokens.get(teamToken));
+    status.getConnectedTeams().remove(teamTokens.get(teamToken));
   }
 
   private void newPick() {
     cancelPickTimer();
-    currentPickDeadline = System.currentTimeMillis() + PICK_LENGTH_MS;
-    paused = false;
+    status.setCurrentPickDeadline(System.currentTimeMillis() + PICK_LENGTH_MS);
+    status.setPaused(false);
     startPickTimer(PICK_LENGTH_MS);
     sendStatusUpdates();
   }
 
   private void pausePick() {
     cancelPickTimer();
-    paused = true;
-    pausedPickTime = currentPickDeadline - System.currentTimeMillis();
+    status.setPaused(true);
+    pausedPickTime = status.getCurrentPickDeadline() - System.currentTimeMillis();
     sendStatusUpdates();
   }
 
   private void resumePick() {
-    currentPickDeadline = System.currentTimeMillis() + pausedPickTime;
-    paused = false;
+    status.setCurrentPickDeadline(System.currentTimeMillis() + pausedPickTime);
+    status.setPaused(false);
     startPickTimer(pausedPickTime);
     pausedPickTime = 0;
     sendStatusUpdates();
@@ -145,15 +141,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void sendStatusUpdates() {
-    socketServlet.sendMessage(createStatusMessage());
+    socketServlet.sendMessage(getEncodedStatus());
   }
 
-  private String createStatusMessage() {
-    AutoBean<DraftStatus> statusBean = beanFactory.createDraftStatus();
-    DraftStatus status = statusBean.as();
-    status.setCurrentPickDeadline(currentPickDeadline);
-    status.setPaused(paused);
-    status.setConnectedTeams(connectedTeams);
-    return AutoBeanCodex.encode(statusBean).getPayload();
+  private String getEncodedStatus() {
+    return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
   }
 }
