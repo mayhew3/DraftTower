@@ -17,9 +17,11 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.LoginUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamToken;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.LoginResponse;
 
 import static com.google.gwt.http.client.RequestBuilder.POST;
 
@@ -45,7 +47,8 @@ public class LoginWidget extends Composite {
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   private final String loginUrl;
-  private final StringHolder teamToken;
+  private final TeamInfo teamInfo;
+  private final BeanFactory beanFactory;
   private final EventBus eventBus;
 
   @UiField TextBox username;
@@ -55,10 +58,12 @@ public class LoginWidget extends Composite {
 
   @Inject
   public LoginWidget(@LoginUrl String loginUrl,
-      @TeamToken StringHolder teamToken,
+      TeamInfo teamInfo,
+      BeanFactory beanFactory,
       EventBus eventBus) {
     this.loginUrl = loginUrl;
-    this.teamToken = teamToken;
+    this.teamInfo = teamInfo;
+    this.beanFactory = beanFactory;
     this.eventBus = eventBus;
     initWidget(uiBinder.createAndBindUi(this));
     UIObject.setVisible(error, false);
@@ -90,7 +95,7 @@ public class LoginWidget extends Composite {
           new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
               if (response.getStatusCode() == 200) {
-                teamToken.setValue(response.getText());
+                teamInfo.setValue(AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as());
                 eventBus.fireEvent(new LoginEvent());
               } else {
                 UIObject.setVisible(error, true);

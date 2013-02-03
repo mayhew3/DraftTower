@@ -1,11 +1,11 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
+import com.google.gwt.inject.rebind.adapter.GinModuleAdapter;
 import com.google.inject.*;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.SharedModule;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -28,11 +28,6 @@ public class ServerModule extends AbstractModule {
   @Retention(RUNTIME)
   public static @interface TeamTokens {}
 
-  @BindingAnnotation
-  @Target({FIELD, PARAMETER, METHOD})
-  @Retention(RUNTIME)
-  public static @interface Commissioner {}
-
   @Provides @Singleton
   public BeanFactory getBeanFactory() {
     return AutoBeanFactorySource.create(BeanFactory.class);
@@ -47,12 +42,10 @@ public class ServerModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    install(new GinModuleAdapter(new SharedModule()));
     bind(DraftController.class).asEagerSingleton();
     bind(new TypeLiteral<Map<String, Integer>>() {})
         .annotatedWith(TeamTokens.class)
         .toInstance(Maps.<String, Integer>newHashMap());
-    bind(new TypeLiteral<Supplier<Integer>>() {})
-        .annotatedWith(Commissioner.class)
-        .toInstance(Suppliers.ofInstance(5));  // TODO(m3): commisioner's team goes here
   }
 }

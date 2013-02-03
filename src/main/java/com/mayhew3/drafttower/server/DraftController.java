@@ -1,16 +1,15 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.server.ServerModule.Commissioner;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Map<String, Integer> teamTokens;
   private final Set<Integer> connectedTeams = Sets.newHashSet();
 
-  private final Supplier<Integer> commissionerTeamSupplier;
+  private final int commissionerTeam;
 
   private int currentTeam;
   private long currentPickDeadline;
@@ -48,13 +47,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private ScheduledFuture currentPickTimer;
 
   @Inject
-  public DraftController(DraftTowerWebSocketServlet socketServlet, BeanFactory beanFactory,
+  public DraftController(DraftTowerWebSocketServlet socketServlet,
+      BeanFactory beanFactory,
       @TeamTokens Map<String, Integer> teamTokens,
-      @Commissioner Supplier<Integer> commissionerTeamSupplier) {
+      @Commissioner int commissionerTeam) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
-    this.commissionerTeamSupplier = commissionerTeamSupplier;
+    this.commissionerTeam = commissionerTeam;
     socketServlet.addListener(this);
   }
 
@@ -68,7 +68,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     lock.lock();
     Integer team = teamTokens.get(cmd.getTeamToken());
     if (cmd.getCommandType().isCommissionerOnly()
-        && !team.equals(commissionerTeamSupplier.get())) {
+        && team != commissionerTeam) {
       return;
     }
     try {

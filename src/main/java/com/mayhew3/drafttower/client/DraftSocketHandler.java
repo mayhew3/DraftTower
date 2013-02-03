@@ -7,8 +7,8 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.DraftSocketUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamToken;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.PlayPauseEvent;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.DraftStatus;
@@ -17,14 +17,16 @@ import com.sksamuel.gwt.websockets.WebsocketListener;
 
 import java.util.List;
 
-import static com.mayhew3.drafttower.shared.DraftCommand.Command.IDENTIFY;
+import static com.mayhew3.drafttower.shared.DraftCommand.Command.*;
 
 /**
  * Class which handles communicating draft status and actions with the server.
  */
 @Singleton
 public class DraftSocketHandler implements
-    WebsocketListener, LoginEvent.Handler {
+    WebsocketListener,
+    LoginEvent.Handler,
+    PlayPauseEvent.Handler {
 
   public interface DraftStatusListener {
     public void onConnect();
@@ -35,20 +37,23 @@ public class DraftSocketHandler implements
   private final BeanFactory beanFactory;
   private final Websocket socket;
   private final List<DraftStatusListener> listeners = Lists.newArrayList();
-  private final StringHolder teamToken;
+  private final TeamInfo teamInfo;
+
+  private DraftStatus draftStatus;
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,
       @DraftSocketUrl String socketUrl,
-      @TeamToken StringHolder teamToken,
+      TeamInfo teamInfo,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
-    this.teamToken = teamToken;
+    this.teamInfo = teamInfo;
     socket = new Websocket(socketUrl);
     socket.addListener(this);
     socket.open();
 
     eventBus.addHandler(LoginEvent.TYPE, this);
+    eventBus.addHandler(PlayPauseEvent.TYPE, this);
   }
 
   public void onOpen() {
@@ -59,7 +64,8 @@ public class DraftSocketHandler implements
 
   public void onMessage(String msg) {
     for (DraftStatusListener listener : listeners) {
-      listener.onMessage(AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as());
+      draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
+      listener.onMessage(draftStatus);
     }
   }
 
@@ -74,15 +80,27 @@ public class DraftSocketHandler implements
     listeners.add(listener);
   }
 
+  private void sendDraftCommand(DraftCommand.Command commandType) {
+    AutoBean<DraftCommand> commandBean = beanFactory.createDraftCommand();
+    DraftCommand command = commandBean.as();
+    command.setCommandType(commandType);
+    command.setTeamToken(teamInfo.getValue().getTeamToken());
+    sendMessage(AutoBeanCodex.encode(commandBean).getPayload());
+  }
+
   public void sendMessage(String msg) {
     socket.send(msg);
   }
 
   public void onLogin(LoginEvent event) {
-    AutoBean<DraftCommand> commandBean = beanFactory.createDraftCommand();
-    DraftCommand command = commandBean.as();
-    command.setCommandType(IDENTIFY);
-    command.setTeamToken(teamToken.getValue());
-    sendMessage(AutoBeanCodex.encode(commandBean).getPayload());
+    sendDraftCommand(IDENTIFY);
+  }
+
+  public void onPlayPause(PlayPauseEvent event) {
+    if (draftStatus.isPaused()) {
+      sendDraftCommand(RESUME);
+    } else {
+      sendDraftCommand(PAUSE);
+    }
   }
 }

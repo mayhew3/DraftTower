@@ -9,6 +9,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
+import com.mayhew3.drafttower.shared.SharedModule;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -68,11 +69,8 @@ public class DraftTowerGinModule extends AbstractGinModule {
 
   @Override
   protected void configure() {
+    install(new SharedModule());
     bind(BeanFactory.class).in(Singleton.class);
     bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
-    bind(StringHolder.class)
-        .annotatedWith(TeamToken.class)
-        .to(StringHolder.class)
-        .in(Singleton.class);
   }
 }

@@ -28,6 +28,7 @@ public class PlayerTablePanel extends Composite {
     interface Css extends CssResource {
       String container();
       String filterButton();
+      String table();
     }
 
     @Source("PlayerTablePanel.css")
@@ -76,11 +77,12 @@ public class PlayerTablePanel extends Composite {
     }
     container.add(filterButtons);
 
-    container.add(table);
-
     SimplePager pager = new SimplePager();
     pager.setDisplay(table);
     container.add(pager);
+
+    table.addStyleName(CSS.table());
+    container.add(table);
 
     initWidget(container);
   }
