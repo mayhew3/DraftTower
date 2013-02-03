@@ -27,6 +27,8 @@
           <element id="library" level="project" name="Maven: com.google.inject.extensions:guice-assistedinject:3.0" />
           <element id="library" level="project" name="Maven: com.google.inject.extensions:guice-servlet:3.0" />
           <element id="library" level="project" name="Maven: mysql:mysql-connector-java:5.1.22" />
+          <element id="library" level="project" name="Maven: commons-dbcp:commons-dbcp:20030825.184428" />
+          <element id="library" level="project" name="Maven: commons-pool:commons-pool:1.5.4" />
         </element>
       </element>
       <element id="gwt-compiler-output" facet="DraftTower/gwt/GWT" />

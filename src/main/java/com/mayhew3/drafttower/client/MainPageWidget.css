@@ -3,3 +3,12 @@
   top: 10px;
   right: 10px;
 }
+
+.leftColumn {
+  width: 80%;
+}
+
+.rightColumn {
+  float: right;
+  width: 20%;
+}

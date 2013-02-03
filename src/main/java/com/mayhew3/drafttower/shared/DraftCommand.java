@@ -6,12 +6,29 @@ package com.mayhew3.drafttower.shared;
 public interface DraftCommand {
 
   public enum Command {
-    START_DRAFT,
-    DO_PICK,
-    PAUSE,
-    RESUME,
+    IDENTIFY(false),
+    START_DRAFT(true),
+    DO_PICK(false),
+    PAUSE(true),
+    RESUME(true);
+
+    private final boolean commissionerOnly;
+
+    Command(boolean commissionerOnly) {
+      this.commissionerOnly = commissionerOnly;
+    }
+
+    public boolean isCommissionerOnly() {
+      return commissionerOnly;
+    }
   }
 
   Command getCommandType();
   void setCommandType(Command command);
+
+  String getTeamToken();
+  void setTeamToken(String teamToken);
+
+  long getPlayerId();
+  void setPlayerId(long playerId);
 }

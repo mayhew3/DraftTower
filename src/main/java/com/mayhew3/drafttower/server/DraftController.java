@@ -1,18 +1,24 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 /**
  * Class responsible for tracking draft state and handling commands from clients.
@@ -20,43 +26,69 @@ import java.util.concurrent.locks.ReentrantLock;
 @Singleton
 public class DraftController implements DraftTowerWebSocketServlet.DraftCommandListener {
 
+  private static final Logger logger = Logger.getLogger(DraftController.class.getName());
+
   private static final long PICK_LENGTH_MS = 90 * 1000;
 
   private final Lock lock = new ReentrantLock();
 
   private final DraftTowerWebSocketServlet socketServlet;
-  private final BeanFactory beanFactory;
 
-  private long currentPickDeadline;
-  private boolean paused;
+  private final Map<String, Integer> teamTokens;
+
+  private final int commissionerTeam;
+  private final int numTeams;
+
+  private DraftStatus status;
   private long pausedPickTime;
 
   private ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
   private ScheduledFuture currentPickTimer;
 
   @Inject
-  public DraftController(DraftTowerWebSocketServlet socketServlet, BeanFactory beanFactory) {
+  public DraftController(DraftTowerWebSocketServlet socketServlet,
+      BeanFactory beanFactory,
+      @TeamTokens Map<String, Integer> teamTokens,
+      @Commissioner int commissionerTeam,
+      @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
-    this.beanFactory = beanFactory;
+    this.teamTokens = teamTokens;
+    this.commissionerTeam = commissionerTeam;
+    this.numTeams = numTeams;
+    this.status = beanFactory.createDraftStatus().as();
+    status.setConnectedTeams(Sets.<Integer>newHashSet());
+    status.setCurrentTeam(1);
     socketServlet.addListener(this);
   }
 
+  @Override
   public void onClientConnected() {
-    if (currentPickDeadline > 0) {
-      socketServlet.sendMessage(createStatusMessage());
-    }
+    socketServlet.sendMessage(getEncodedStatus());
   }
 
-  public void onDraftCommand(String cmd) {
+  @Override
+  public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
+    Integer team = teamTokens.get(cmd.getTeamToken());
+    if (cmd.getCommandType().isCommissionerOnly()
+        && team != commissionerTeam) {
+      return;
+    }
     try {
-      DraftCommand draftCommand = AutoBeanCodex.decode(beanFactory, DraftCommand.class, cmd).as();
-      switch (draftCommand.getCommandType()) {
+      switch (cmd.getCommandType()) {
+        case IDENTIFY:
+          if (status.getConnectedTeams().contains(team)) {
+            throw new TerminateSocketException("Team already connected!");
+          }
+          status.getConnectedTeams().add(team);
+          break;
         case START_DRAFT:
           newPick();
           break;
         case DO_PICK:
-          newPick();
+          if (team == status.getCurrentTeam()) {
+            doPick(team, cmd.getPlayerId(), false);
+          }
           break;
         case PAUSE:
           pausePick();
@@ -65,45 +97,69 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           resumePick();
           break;
       }
+      sendStatusUpdates();
     } finally {
       lock.unlock();
     }
   }
 
-  public void onClientDisconnected() {
+  private void doPick(Integer team, long playerId, boolean auto) {
+    logger.info("Team " + team
+        + (auto ? " auto-picked" : " picked")
+        + " player " + playerId);
+    advanceTeam();
+    newPick();
+  }
+
+  @Override
+  public void onClientDisconnected(String teamToken) {
+    status.getConnectedTeams().remove(teamTokens.get(teamToken));
+    socketServlet.sendMessage(getEncodedStatus());
   }
 
   private void newPick() {
     cancelPickTimer();
-    currentPickDeadline = System.currentTimeMillis() + PICK_LENGTH_MS;
-    paused = false;
+    status.setCurrentPickDeadline(System.currentTimeMillis() + PICK_LENGTH_MS);
+    status.setPaused(false);
     startPickTimer(PICK_LENGTH_MS);
-    sendStatusUpdates();
+  }
+
+  private void advanceTeam() {
+    int currentTeam = status.getCurrentTeam() + 1;
+    if (currentTeam > numTeams) {
+      currentTeam -= numTeams;
+    }
+    status.setCurrentTeam(currentTeam);
   }
 
   private void pausePick() {
     cancelPickTimer();
-    paused = true;
-    pausedPickTime = currentPickDeadline - System.currentTimeMillis();
-    sendStatusUpdates();
+    status.setPaused(true);
+    pausedPickTime = status.getCurrentPickDeadline() - System.currentTimeMillis();
   }
 
   private void resumePick() {
-    currentPickDeadline = System.currentTimeMillis() + pausedPickTime;
-    paused = false;
+    status.setCurrentPickDeadline(System.currentTimeMillis() + pausedPickTime);
+    status.setPaused(false);
     startPickTimer(pausedPickTime);
     pausedPickTime = 0;
-    sendStatusUpdates();
+  }
+
+  private void autoPick() {
+    // TODO(m3)
+    doPick(status.getCurrentTeam(), 0, true);
   }
 
   private void startPickTimer(long timeMs) {
     cancelPickTimer();
     currentPickTimer = pickTimer.schedule(new Runnable() {
+      @Override
       public void run() {
         lock.lock();
         try {
           currentPickTimer = null;
-          newPick();
+          autoPick();
+          sendStatusUpdates();
         } finally {
           lock.unlock();
         }
@@ -118,14 +174,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void sendStatusUpdates() {
-    socketServlet.sendMessage(createStatusMessage());
+    socketServlet.sendMessage(getEncodedStatus());
   }
 
-  private String createStatusMessage() {
-    AutoBean<DraftStatus> statusBean = beanFactory.createDraftStatus();
-    DraftStatus status = statusBean.as();
-    status.setCurrentPickDeadline(currentPickDeadline);
-    status.setPaused(paused);
-    return AutoBeanCodex.encode(statusBean).getPayload();
+  private String getEncodedStatus() {
+    return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
   }
 }

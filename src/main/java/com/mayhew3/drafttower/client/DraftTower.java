@@ -14,6 +14,7 @@ public class DraftTower implements EntryPoint {
   /**
    * This is the entry point method.
    */
+  @Override
   public void onModuleLoad() {
     RootPanel root = RootPanel.get("root");
     root.add(injector.getMainPageWidget());

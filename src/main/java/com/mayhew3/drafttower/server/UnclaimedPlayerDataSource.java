@@ -4,30 +4,41 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Looks up unclaimed players in the database.
  */
 @Singleton
 public class UnclaimedPlayerDataSource {
-  Connection _connection;
 
+  private final DataSource db;
   private final BeanFactory beanFactory;
+  private final Map<String, Integer> teamTokens;
 
   @Inject
-  public UnclaimedPlayerDataSource(BeanFactory beanFactory) throws ServletException {
-    initConnection();
-
+  public UnclaimedPlayerDataSource(DataSource db,
+      BeanFactory beanFactory,
+      @TeamTokens Map<String, Integer> teamTokens) {
+    this.db = db;
     this.beanFactory = beanFactory;
+    this.teamTokens = teamTokens;
   }
 
   public UnclaimedPlayerListResponse lookup(UnclaimedPlayerListRequest request) throws ServletException {
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
+
+    Integer team = teamTokens.get(request.getTeamToken());
 
     List<Player> players = Lists.newArrayList();
 
@@ -46,31 +57,20 @@ public class UnclaimedPlayerDataSource {
           }
         }
 
-        player.setColumnValues(columnMap
-            .build());
+        player.setColumnValues(columnMap.build());
 
         players.add(player);
       }
     } catch (SQLException e) {
       throw new ServletException("Error getting next element of results.", e);
+    } finally {
+      close(resultSet);
     }
 
     response.setPlayers(players);
     response.setTotalPlayers(getTotalPlayerCount());
 
     return response;
-  }
-
-
-  private void initConnection() throws ServletException {
-    try {
-      Class.forName("com.mysql.jdbc.Driver");
-      _connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/uncharted", "root", "m3mysql");
-    } catch (ClassNotFoundException e) {
-      throw new ServletException("JDBC Driver not found.", e);
-    } catch (SQLException e) {
-      throw new ServletException("Could not connect to database.", e);
-    }
   }
 
   private int getTotalPlayerCount() throws ServletException {
@@ -85,6 +85,8 @@ public class UnclaimedPlayerDataSource {
       return resultSet.getInt("TotalPlayers");
     } catch (SQLException e) {
       throw new ServletException("Couldn't find number of rows in table.", e);
+    } finally {
+      close(resultSet);
     }
   }
 
@@ -101,7 +103,7 @@ public class UnclaimedPlayerDataSource {
 
   private ResultSet executeQuery(String sql) throws ServletException {
     try {
-      Statement statement = _connection.createStatement();
+      Statement statement = db.getConnection().createStatement();
 
       return statement.executeQuery(sql);
 
@@ -110,5 +112,15 @@ public class UnclaimedPlayerDataSource {
     }
   }
 
-
+  private static void close(ResultSet resultSet) throws ServletException {
+    try {
+      Statement statement = resultSet.getStatement();
+      Connection connection = statement.getConnection();
+      resultSet.close();
+      statement.close();
+      connection.close();
+    } catch (SQLException e) {
+      throw new ServletException("Error closing DB resources.", e);
+    }
+  }
 }

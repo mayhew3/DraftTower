@@ -23,23 +23,31 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
 
   private final BeanFactory beanFactory;
   private final String playerInfoUrl;
+  private final TeamInfo teamInfo;
 
   @Inject
   public UnclaimedPlayerDataProvider(
       BeanFactory beanFactory,
-      @UnclaimedPlayerInfoUrl String playerInfoUrl) {
+      @UnclaimedPlayerInfoUrl String playerInfoUrl,
+      TeamInfo teamInfo) {
     this.beanFactory = beanFactory;
     this.playerInfoUrl = playerInfoUrl;
+    this.teamInfo = teamInfo;
   }
 
   @Override
   protected void onRangeChanged(final HasData<Player> display) {
+    if (!teamInfo.isLoggedIn()) {
+      return;
+    }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, playerInfoUrl);
     try {
       AutoBean<UnclaimedPlayerListRequest> requestBean =
           beanFactory.createUnclaimedPlayerListRequest();
       UnclaimedPlayerListRequest request = requestBean.as();
+      request.setTeamToken(teamInfo.getTeamToken());
+
       final int rowStart = display.getVisibleRange().getStart();
       int rowCount = display.getVisibleRange().getLength();
       request.setRowCount(rowCount);
@@ -56,6 +64,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
           new RequestCallback() {
+            @Override
             public void onResponseReceived(Request request, Response response) {
               UnclaimedPlayerListResponse playerListResponse =
                   AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
@@ -64,6 +73,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
               display.setRowCount(playerListResponse.getTotalPlayers(), true);
             }
 
+            @Override
             public void onError(Request request, Throwable exception) {
               // TODO
             }

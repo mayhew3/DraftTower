@@ -1,3 +1,8 @@
+.container {
+  width: 100%;
+  text-align: center;
+}
+
 .clock {
   font-size: 24px;
 }
@@ -8,4 +13,9 @@
 
 .paused {
   color: grey;
+}
+
+.playPause {
+  font-size: 18px;
+  padding: 0 12px;
 }

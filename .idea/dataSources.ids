@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><component name="dataSourceStorage">
+  <data-source source="LOCAL" name="Data Source [2]" product="" version="" jdbc-version="" driver-name="" driver-version="" uuid="f1a09926-ee36-4803-bddf-ae54b3e8bfdc">
+    <synchronize>true</synchronize>
+    <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+    <jdbc-url>jdbc:mysql://localhost:3306/uncharted</jdbc-url>
+    <user-name>root</user-name>
+    <user-password>dfc7df99dfc7dfd3dfd9dfdbdfc6</user-password>
+    <libraries>
+      <library>
+        <url>jar://$MAVEN_REPOSITORY$/mysql/mysql-connector-java/5.1.22/mysql-connector-java-5.1.22.jar!/</url>
+      </library>
+    </libraries>
+  </data-source>
+</component>
