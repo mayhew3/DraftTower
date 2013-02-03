@@ -68,6 +68,7 @@ public class DraftClock extends Composite implements
     playPause.setVisible(false);
 
     Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+      @Override
       public boolean execute() {
         update();
         return true;

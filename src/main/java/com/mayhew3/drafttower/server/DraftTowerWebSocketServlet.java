@@ -34,6 +34,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     private Connection connection;
     private String teamToken;
 
+    @Override
     public void onOpen(Connection connection) {
       openSockets.add(this);
       this.connection = connection;
@@ -51,6 +52,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
       }
     }
 
+    @Override
     public void onMessage(String msg) {
       DraftCommand cmd = AutoBeanCodex.decode(beanFactory, DraftCommand.class, msg).as();
       if (cmd.getCommandType() == IDENTIFY) {
@@ -65,6 +67,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
       }
     }
 
+    @Override
     public void onClose(int closeCode, String message) {
       openSockets.remove(this);
       if (closeCode != 1008) {
@@ -85,6 +88,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     this.beanFactory = beanFactory;
   }
 
+  @Override
   public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
     return new DraftTowerWebSocket();
   }

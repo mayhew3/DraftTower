@@ -64,6 +64,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
           new RequestCallback() {
+            @Override
             public void onResponseReceived(Request request, Response response) {
               UnclaimedPlayerListResponse playerListResponse =
                   AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
@@ -72,6 +73,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
               display.setRowCount(playerListResponse.getTotalPlayers(), true);
             }
 
+            @Override
             public void onError(Request request, Throwable exception) {
               // TODO
             }

@@ -68,6 +68,7 @@ public class LoginWidget extends Composite {
     initWidget(uiBinder.createAndBindUi(this));
     UIObject.setVisible(error, false);
     Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+      @Override
       public void execute() {
         username.setFocus(true);
       }
@@ -93,6 +94,7 @@ public class LoginWidget extends Composite {
     try {
       requestBuilder.sendRequest("username=" + username.getValue() + "&password=" + password.getValue(),
           new RequestCallback() {
+            @Override
             public void onResponseReceived(Request request, Response response) {
               if (response.getStatusCode() == 200) {
                 teamInfo.setValue(AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as());
@@ -102,6 +104,7 @@ public class LoginWidget extends Composite {
               }
             }
 
+            @Override
             public void onError(Request request, Throwable exception) {
               UIObject.setVisible(error, true);
             }

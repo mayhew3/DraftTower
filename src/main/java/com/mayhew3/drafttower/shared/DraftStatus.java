@@ -15,4 +15,7 @@ public interface DraftStatus {
 
   Set<Integer> getConnectedTeams();
   void setConnectedTeams(Set<Integer> connectedTeams);
+
+  int getCurrentTeam();
+  void setCurrentTeam(int currentTeam);
 }

@@ -47,15 +47,18 @@ public class DraftSocketHandler implements
     eventBus.addHandler(PlayPauseEvent.TYPE, this);
   }
 
+  @Override
   public void onOpen() {
     eventBus.fireEvent(new SocketConnectEvent());
   }
 
+  @Override
   public void onMessage(String msg) {
     draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
     eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
   }
 
+  @Override
   public void onClose() {
     eventBus.fireEvent(new SocketDisconnectEvent());
     // TODO: attempt reconnect?
@@ -73,10 +76,12 @@ public class DraftSocketHandler implements
     socket.send(msg);
   }
 
+  @Override
   public void onLogin(LoginEvent event) {
     sendDraftCommand(IDENTIFY);
   }
 
+  @Override
   public void onPlayPause(PlayPauseEvent event) {
     if (draftStatus.isPaused()) {
       sendDraftCommand(RESUME);

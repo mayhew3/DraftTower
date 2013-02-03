@@ -41,6 +41,7 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) final ConnectivityIndicator connectivityIndicator;
   @UiField(provided = true) final LoginWidget loginWidget;
   @UiField(provided = true) final DraftClock clock;
+  @UiField(provided = true) final TeamOrderWidget teamOrder;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
 
   @UiField DivElement mainPage;
@@ -49,11 +50,13 @@ public class MainPageWidget extends Composite
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       LoginWidget loginWidget,
       DraftClock clock,
+      TeamOrderWidget teamOrder,
       PlayerTablePanel unclaimedPlayers,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
+    this.teamOrder = teamOrder;
     this.unclaimedPlayers = unclaimedPlayers;
 
     initWidget(uiBinder.createAndBindUi(this));
@@ -63,6 +66,7 @@ public class MainPageWidget extends Composite
     eventBus.addHandler(LoginEvent.TYPE, this);
   }
 
+  @Override
   public void onLogin(LoginEvent event) {
     loginWidget.setVisible(false);
     UIObject.setVisible(mainPage, true);

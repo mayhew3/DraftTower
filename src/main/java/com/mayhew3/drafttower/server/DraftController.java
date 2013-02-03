@@ -25,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DraftController implements DraftTowerWebSocketServlet.DraftCommandListener {
 
   private static final long PICK_LENGTH_MS = 90 * 1000;
-  private static final int NUM_TEAMS = 12;
 
   private final Lock lock = new ReentrantLock();
 
@@ -51,15 +50,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.commissionerTeam = commissionerTeam;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
+    status.setCurrentTeam(1);
     socketServlet.addListener(this);
   }
 
+  @Override
   public void onClientConnected() {
     if (status.getCurrentPickDeadline() > 0) {
       socketServlet.sendMessage(getEncodedStatus());
     }
   }
 
+  @Override
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
     Integer team = teamTokens.get(cmd.getTeamToken());
@@ -92,6 +94,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
+  @Override
   public void onClientDisconnected(String teamToken) {
     status.getConnectedTeams().remove(teamTokens.get(teamToken));
   }
@@ -122,6 +125,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private void startPickTimer(long timeMs) {
     cancelPickTimer();
     currentPickTimer = pickTimer.schedule(new Runnable() {
+      @Override
       public void run() {
         lock.lock();
         try {

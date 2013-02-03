@@ -19,9 +19,19 @@ public class SharedModule extends AbstractGinModule {
   @Retention(RUNTIME)
   public static @interface Commissioner {}
 
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface NumTeams {}
+
   @Provides @Commissioner
   public int getCommissionerTeam() {
     return 5;  // TODO(m3): commisioner's team goes here
+  }
+
+  @Provides @NumTeams
+  public int getNumTeams() {
+    return 12;
   }
 
   @Override

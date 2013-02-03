@@ -12,6 +12,7 @@
         <d:DraftClock ui:field="clock"/>
       </div>
       <div class="{style.css.leftColumn}">
+        <d:TeamOrderWidget ui:field="teamOrder"/>
         <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
       </div>
     </div>

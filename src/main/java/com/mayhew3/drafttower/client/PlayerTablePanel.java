@@ -56,6 +56,7 @@ public class PlayerTablePanel extends Composite {
     for (final Position position : POSITIONS) {
       ToggleButton button = new ToggleButton(position == null ? "All" : position.getShortName(),
           new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
               if (position != null) {
                 allButton.setDown(false);
