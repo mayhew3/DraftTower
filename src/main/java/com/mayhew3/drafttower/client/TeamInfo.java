@@ -12,26 +12,30 @@ import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 public class TeamInfo {
 
   private final int commissionerTeam;
-  private LoginResponse value;
+  private LoginResponse loginResponse;
 
   @Inject
   public TeamInfo(@Commissioner int commissionerTeam) {
     this.commissionerTeam = commissionerTeam;
   }
 
-  public LoginResponse getValue() {
-    return value;
+  public String getTeamToken() {
+    return loginResponse.getTeamToken();
   }
 
-  public void setValue(LoginResponse value) {
-    this.value = value;
+  public int getTeam() {
+    return loginResponse.getTeam();
+  }
+
+  public void setLoginResponse(LoginResponse loginResponse) {
+    this.loginResponse = loginResponse;
   }
 
   public boolean isCommissionerTeam() {
-    return value.getTeam() == commissionerTeam;
+    return loginResponse.getTeam() == commissionerTeam;
   }
 
   public boolean isLoggedIn() {
-    return value != null;
+    return loginResponse != null;
   }
 }

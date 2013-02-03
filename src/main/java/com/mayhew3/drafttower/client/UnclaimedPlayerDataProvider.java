@@ -46,7 +46,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
       AutoBean<UnclaimedPlayerListRequest> requestBean =
           beanFactory.createUnclaimedPlayerListRequest();
       UnclaimedPlayerListRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getValue().getTeamToken());
+      request.setTeamToken(teamInfo.getTeamToken());
 
       final int rowStart = display.getVisibleRange().getStart();
       int rowCount = display.getVisibleRange().getLength();

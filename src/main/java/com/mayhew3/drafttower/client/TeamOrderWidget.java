@@ -68,7 +68,7 @@ public class TeamOrderWidget extends Composite implements
       Image image = new Image("team" + team + "logo.png");
       image.setStyleName(CSS.teamLogo());
       image.setStyleName(CSS.me(),
-          team == teamInfo.getValue().getTeam());
+          team == teamInfo.getTeam());
       image.setStyleName(CSS.disconnected(),
           !status.getConnectedTeams().contains(team));
       container.add(image);
@@ -76,13 +76,13 @@ public class TeamOrderWidget extends Composite implements
     Label arrow = new Label("\u25bc");
     arrow.setStyleName(CSS.currentPickArrow());
     container.add(arrow);
-    if (status.getCurrentTeam() == teamInfo.getValue().getTeam()) {
+    if (status.getCurrentTeam() == teamInfo.getTeam()) {
       Label statusMessage = new Label("Your pick!");
       statusMessage.setStyleName(CSS.statusMessage());
       container.add(statusMessage);
     }
-    if (status.getCurrentTeam() == teamInfo.getValue().getTeam() - 1
-        || teamInfo.getValue().getTeam() == 1 && status.getCurrentTeam() == numTeams) {
+    if (status.getCurrentTeam() == teamInfo.getTeam() - 1
+        || teamInfo.getTeam() == 1 && status.getCurrentTeam() == numTeams) {
       Label statusMessage = new Label("On deck!");
       statusMessage.setStyleName(CSS.statusMessage());
       container.add(statusMessage);

@@ -68,7 +68,7 @@ public class DraftSocketHandler implements
     AutoBean<DraftCommand> commandBean = beanFactory.createDraftCommand();
     DraftCommand command = commandBean.as();
     command.setCommandType(commandType);
-    command.setTeamToken(teamInfo.getValue().getTeamToken());
+    command.setTeamToken(teamInfo.getTeamToken());
     sendMessage(AutoBeanCodex.encode(commandBean).getPayload());
   }
 
