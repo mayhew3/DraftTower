@@ -1,17 +1,17 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftCommand;
-import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
+
+import static java.util.logging.Level.SEVERE;
 
 /**
  * Class responsible for tracking draft state and handling commands from clients.
@@ -33,6 +35,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Lock lock = new ReentrantLock();
 
   private final DraftTowerWebSocketServlet socketServlet;
+  private final BeanFactory beanFactory;
+  private final PlayerDataSource playerDataSource;
 
   private final Map<String, Integer> teamTokens;
 
@@ -48,15 +52,19 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   @Inject
   public DraftController(DraftTowerWebSocketServlet socketServlet,
       BeanFactory beanFactory,
+      PlayerDataSource playerDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
       @Commissioner int commissionerTeam,
       @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
+    this.beanFactory = beanFactory;
+    this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
     this.commissionerTeam = commissionerTeam;
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
+    status.setPicks(Lists.<DraftPick>newArrayList());
     status.setCurrentTeam(1);
     socketServlet.addListener(this);
   }
@@ -96,6 +104,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         case RESUME:
           resumePick();
           break;
+        case BACK_OUT:
+          backOutLastPick();
+          break;
       }
       sendStatusUpdates();
     } finally {
@@ -104,11 +115,40 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void doPick(Integer team, long playerId, boolean auto) {
+    if (playerId == Player.BEST_DRAFT_PICK) {
+      try {
+        playerId = playerDataSource.getBestPlayerId();
+      } catch (SQLException e) {
+        logger.log(SEVERE, "SQL error looking up the best draft pick", e);
+        return;
+      }
+    }
+
     logger.info("Team " + team
         + (auto ? " auto-picked" : " picked")
         + " player " + playerId);
+
+    String playerName = "";
+    try {
+      playerName = playerDataSource.getPlayerName(playerId);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "SQL error looking up player name for ID " + playerId, e);
+    }
+
+    DraftPick pick = beanFactory.createDraftPick().as();
+    pick.setTeam(team);
+    pick.setTeamName(getTeamName(team));
+    pick.setPlayerId(playerId);
+    pick.setPlayerName(playerName);
+    status.getPicks().add(pick);
+
     advanceTeam();
     newPick();
+  }
+
+  private String getTeamName(Integer team) {
+    // TODO(m3)
+    return "Team " + team;
   }
 
   @Override
@@ -132,6 +172,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setCurrentTeam(currentTeam);
   }
 
+  private void goBackOneTeam() {
+    int currentTeam = status.getCurrentTeam() - 1;
+    if (currentTeam < 1) {
+      currentTeam += numTeams;
+    }
+    status.setCurrentTeam(currentTeam);
+  }
+
   private void pausePick() {
     cancelPickTimer();
     status.setPaused(true);
@@ -145,9 +193,16 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     pausedPickTime = 0;
   }
 
+  private void backOutLastPick() {
+    logger.info("Backed out pick " + status.getPicks().size());
+    status.getPicks().remove(status.getPicks().size() - 1);
+    goBackOneTeam();
+    newPick();
+  }
+
   private void autoPick() {
     // TODO(m3)
-    doPick(status.getCurrentTeam(), 0, true);
+    doPick(status.getCurrentTeam(), 10648, true);
   }
 
   private void startPickTimer(long timeMs) {

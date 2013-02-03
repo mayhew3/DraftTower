@@ -11,4 +11,11 @@
 .rightColumn {
   float: right;
   width: 20%;
+  padding-left: 10px;
+  box-sizing: border-box;
+}
+
+.shortcuts {
+  font-size: 50%;
+  text-align: center;
 }

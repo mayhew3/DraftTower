@@ -76,16 +76,18 @@ public class TeamOrderWidget extends Composite implements
     Label arrow = new Label("\u25bc");
     arrow.setStyleName(CSS.currentPickArrow());
     container.add(arrow);
-    if (status.getCurrentTeam() == teamInfo.getTeam()) {
-      Label statusMessage = new Label("Your pick!");
-      statusMessage.setStyleName(CSS.statusMessage());
-      container.add(statusMessage);
-    }
-    if (status.getCurrentTeam() == teamInfo.getTeam() - 1
-        || teamInfo.getTeam() == 1 && status.getCurrentTeam() == numTeams) {
-      Label statusMessage = new Label("On deck!");
-      statusMessage.setStyleName(CSS.statusMessage());
-      container.add(statusMessage);
+    if (status.getCurrentPickDeadline() > 0) {
+      if (status.getCurrentTeam() == teamInfo.getTeam()) {
+        Label statusMessage = new Label("Your pick!");
+        statusMessage.setStyleName(CSS.statusMessage());
+        container.add(statusMessage);
+      }
+      if (status.getCurrentTeam() == teamInfo.getTeam() - 1
+          || teamInfo.getTeam() == 1 && status.getCurrentTeam() == numTeams) {
+        Label statusMessage = new Label("On deck!");
+        statusMessage.setStyleName(CSS.statusMessage());
+        container.add(statusMessage);
+      }
     }
   }
 }

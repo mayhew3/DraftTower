@@ -3,16 +3,21 @@
 
   <ui:with field="style" type="com.mayhew3.drafttower.client.LoginWidget.Resources"/>
 
-  <g:HTMLPanel>
-    <div>
-      Username: <g:TextBox ui:field="username"/>
-    </div>
-    <div>
-      Password: <g:PasswordTextBox ui:field="password"/>
-    </div>
-    <div ui:field="error">Invalid login.</div>
-    <div>
-      <g:Button text="Login" ui:field="login"/>
+  <g:HTMLPanel styleName="{style.css.container}">
+    <div class="{style.css.box}">
+      <div class="{style.css.title}">Draft Tower</div>
+      <div>
+        <span class="{style.css.fieldLabel}">Username:</span>
+        <g:TextBox styleName="{style.css.field}" ui:field="username"/>
+      </div>
+      <div>
+        <span class="{style.css.fieldLabel}">Password:</span>
+        <g:PasswordTextBox styleName="{style.css.field}" ui:field="password"/>
+      </div>
+      <div class="{style.css.error}" ui:field="error">Invalid login.</div>
+      <div class="{style.css.loginButton}">
+        <g:Button text="Login" ui:field="login"/>
+      </div>
     </div>
   </g:HTMLPanel>
 </ui:UiBinder>

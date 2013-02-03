@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.shared;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,4 +19,7 @@ public interface DraftStatus {
 
   int getCurrentTeam();
   void setCurrentTeam(int currentTeam);
+
+  List<DraftPick> getPicks();
+  void setPicks(List<DraftPick> picks);
 }

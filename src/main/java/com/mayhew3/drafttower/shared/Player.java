@@ -7,6 +7,9 @@ import java.util.Map;
  */
 public interface Player {
 
+  // Marker constant for best draft pick.
+  public static final long BEST_DRAFT_PICK = -1;
+
   long getPlayerId();
   void setPlayerId(long playerId);
 
