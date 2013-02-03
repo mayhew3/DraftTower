@@ -11,4 +11,6 @@
 .rightColumn {
   float: right;
   width: 20%;
+  padding-left: 10px;
+  box-sizing: border-box;
 }
