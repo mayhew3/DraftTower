@@ -113,6 +113,9 @@ public class PlayerDataSource {
   }
 
   public void populateDraftPick(DraftPick draftPick) throws SQLException {
+    // TODO(m3): This isn't the correct table to be querying, as this could
+    // be a keeper and thus not "unclaimed", but it's the only one I could
+    // find with an eligibility column.
     String sql = "select FirstName,LastName,Eligibility " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
         "where Year = 2012 and PlayerID = " + draftPick.getPlayerId();
