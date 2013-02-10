@@ -31,7 +31,7 @@ public class SharedModule extends AbstractGinModule {
 
   @Provides @NumTeams
   public int getNumTeams() {
-    return 1;
+    return 2;
   }
 
   @Override

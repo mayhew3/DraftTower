@@ -18,8 +18,6 @@ import com.mayhew3.drafttower.shared.RosterUtil;
 import java.util.List;
 import java.util.Map.Entry;
 
-import static com.mayhew3.drafttower.shared.Position.RS;
-
 /**
  * Table displaying user's roster so far.
  */
@@ -90,9 +88,6 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
         picksAndPositions.add(new PickAndPosition(null, position.getKey()));
         rowsCreated++;
       }
-    }
-    for (DraftPick pick : myPicks) {
-      picksAndPositions.add(new PickAndPosition(pick, RS));
     }
     rosterProvider.setList(picksAndPositions);
   }

@@ -15,6 +15,9 @@
           Draft picks
         </div>
         <d:PickHistoryTablePanel ui:field="pickHistoryTable"/>
+        <g:Label styleName="{style.css.actionLink}" ui:field="showDepthCharts">
+          Show depth charts
+        </g:Label>
         <div class="{style.css.tableHeader}">
           Your roster
         </div>

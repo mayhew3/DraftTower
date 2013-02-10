@@ -2,14 +2,14 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.UIObject;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 
@@ -25,6 +25,7 @@ public class MainPageWidget extends Composite
       String leftColumn();
       String rightColumn();
       String tableHeader();
+      String actionLink();
       String shortcuts();
     }
 
@@ -50,6 +51,9 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
 
   @UiField DivElement mainPage;
+  @UiField Label showDepthCharts;
+
+  private final PopupPanel depthChartsPopup;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
@@ -60,6 +64,7 @@ public class MainPageWidget extends Composite
       MyRosterTablePanel myRosterTable,
       TeamOrderWidget teamOrder,
       PlayerTablePanel unclaimedPlayers,
+      DepthChartsTable depthChartsTable,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
@@ -74,6 +79,11 @@ public class MainPageWidget extends Composite
 
     UIObject.setVisible(mainPage, false);
 
+    depthChartsPopup = new PopupPanel();
+    depthChartsPopup.setModal(true);
+    depthChartsPopup.setAutoHideEnabled(true);
+    depthChartsPopup.setWidget(depthChartsTable);
+
     eventBus.addHandler(LoginEvent.TYPE, this);
   }
 
@@ -81,5 +91,11 @@ public class MainPageWidget extends Composite
   public void onLogin(LoginEvent event) {
     loginWidget.setVisible(false);
     UIObject.setVisible(mainPage, true);
+  }
+
+  @UiHandler("showDepthCharts")
+  public void handleShowDepthChartsClick(ClickEvent e) {
+    depthChartsPopup.center();
+    depthChartsPopup.show();
   }
 }

@@ -22,7 +22,28 @@
   padding-top: 20px;
 }
 
+.actionLink {
+  color: #15c;
+  cursor: pointer;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.actionLink:hover {
+  text-decoration: underline;
+}
+
 .shortcuts {
   font-size: 50%;
   text-align: center;
+  padding-top: 10px;
+}
+
+@external gwt-PopupPanel;
+
+.gwt-PopupPanel {
+  padding: 10px;
+  border: 1px solid black;
+  background: white;
+  font-size: 70%;
 }

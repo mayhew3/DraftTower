@@ -1,9 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +22,7 @@ public class RosterUtil {
       .put(OF, 3)
       .put(DH, 1)
       .put(P, 7)
+      .put(RS, 6)
       .build();
 
   private static List<Position> POSITIONS = Lists.newArrayList(
@@ -31,8 +30,18 @@ public class RosterUtil {
       P, P, P, P, P, P, P);
 
   public static Multimap<Position, DraftPick> constructRoster(List<DraftPick> picks) {
-    return doConstructRoster(picks, Lists.newArrayList(POSITIONS),
+    final Multimap<Position, DraftPick> roster = doConstructRoster(picks, Lists.newArrayList(POSITIONS),
         ArrayListMultimap.<Position, DraftPick>create());
+    Iterable<DraftPick> reserves = Iterables.filter(picks, new Predicate<DraftPick>() {
+      @Override
+      public boolean apply(DraftPick input) {
+        return !roster.containsValue(input);
+      }
+    });
+    for (DraftPick reserve : reserves) {
+      roster.put(RS, reserve);
+    }
+    return roster;
   }
 
   private static Multimap<Position, DraftPick> doConstructRoster(

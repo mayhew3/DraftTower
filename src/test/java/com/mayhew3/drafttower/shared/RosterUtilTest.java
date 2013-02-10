@@ -106,13 +106,15 @@ public class RosterUtilTest {
         Lists.newArrayList(
             Maps.immutableEntry(FB, 1l),
             Maps.immutableEntry(DH, 2l),
+            Maps.immutableEntry(RS, 3l),
             Maps.immutableEntry(P, 4l),
             Maps.immutableEntry(P, 5l),
             Maps.immutableEntry(P, 6l),
             Maps.immutableEntry(P, 7l),
             Maps.immutableEntry(P, 8l),
             Maps.immutableEntry(P, 9l),
-            Maps.immutableEntry(P, 10l)),
+            Maps.immutableEntry(P, 10l),
+            Maps.immutableEntry(RS, 11l)),
         Lists.newArrayList(
             pick(1, FB),
             pick(2, FB),
