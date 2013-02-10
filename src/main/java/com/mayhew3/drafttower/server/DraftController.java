@@ -6,12 +6,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.ServerModule.Keepers;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -39,6 +41,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final PlayerDataSource playerDataSource;
 
   private final Map<String, Integer> teamTokens;
+  private final Map<Integer, List<Integer>> keepers;
 
   private final int commissionerTeam;
   private final int numTeams;
@@ -54,12 +57,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
+      @Keepers Map<Integer, List<Integer>> keepers,
       @Commissioner int commissionerTeam,
       @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
+    this.keepers = keepers;
     this.commissionerTeam = commissionerTeam;
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
@@ -158,7 +163,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     cancelPickTimer();
     status.setCurrentPickDeadline(System.currentTimeMillis() + PICK_LENGTH_MS);
     status.setPaused(false);
-    startPickTimer(PICK_LENGTH_MS);
+
+    int round = status.getPicks().size() / numTeams;
+    List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
+    if (round < currentTeamKeepers.size()) {
+      doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
+    } else {
+      startPickTimer(PICK_LENGTH_MS);
+    }
   }
 
   private void advanceTeam() {
