@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gwt.inject.rebind.adapter.GinModuleAdapter;
 import com.google.inject.*;
@@ -13,6 +15,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.annotation.ElementType.*;
@@ -28,6 +31,11 @@ public class ServerModule extends AbstractModule {
   @Retention(RUNTIME)
   public static @interface TeamTokens {}
 
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface Keepers {}
+
   @Provides @Singleton
   public BeanFactory getBeanFactory() {
     return AutoBeanFactorySource.create(BeanFactory.class);
@@ -38,6 +46,16 @@ public class ServerModule extends AbstractModule {
     Context initCtx = new InitialContext();
     Context envCtx = (Context) initCtx.lookup("java:comp/env");
     return (DataSource) envCtx.lookup("jdbc/MySQL");
+  }
+
+  @Provides @Keepers
+  public Map<Integer, List<Integer>> getKeepers(PlayerDataSource playerDataSource) {
+    // TODO(m3): real keeper list (or query) goes here.
+    return ImmutableMap.<Integer, List<Integer>>builder()
+        .put(1, Lists.newArrayList(9057, 9981))
+        .put(2, Lists.newArrayList(8854))
+        .put(3, Lists.newArrayList(7217, 11079, 9503))
+        .build();
   }
 
   @Override
