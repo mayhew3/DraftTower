@@ -112,15 +112,18 @@ public class PlayerDataSource {
     return executeQuery(sql);
   }
 
-  public String getPlayerName(long playerId) throws SQLException {
-    String sql = "select FirstName,LastName " +
-        "from AllPlayers " +
-        "where ID = " + playerId;
+  public void populateDraftPick(DraftPick draftPick) throws SQLException {
+    String sql = "select FirstName,LastName,Eligibility " +
+        "from UnclaimedDisplayPlayersWithCatsByQuality " +
+        "where Year = 2012 and PlayerID = " + draftPick.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
     try {
       resultSet.next();
-      return resultSet.getString("FirstName") + " " + resultSet.getString("LastName");
+      draftPick.setPlayerName(
+          resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
+      draftPick.setEligibilities(
+          Lists.newArrayList(resultSet.getString("Eligibility").split(",")));
     } finally {
       close(resultSet);
     }
