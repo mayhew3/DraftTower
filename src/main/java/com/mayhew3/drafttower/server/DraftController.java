@@ -128,18 +128,15 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         + (auto ? " auto-picked" : " picked")
         + " player " + playerId);
 
-    String playerName = "";
-    try {
-      playerName = playerDataSource.getPlayerName(playerId);
-    } catch (SQLException e) {
-      logger.log(SEVERE, "SQL error looking up player name for ID " + playerId, e);
-    }
-
     DraftPick pick = beanFactory.createDraftPick().as();
     pick.setTeam(team);
     pick.setTeamName(getTeamName(team));
     pick.setPlayerId(playerId);
-    pick.setPlayerName(playerName);
+    try {
+      playerDataSource.populateDraftPick(pick);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
+    }
     status.getPicks().add(pick);
 
     advanceTeam();
