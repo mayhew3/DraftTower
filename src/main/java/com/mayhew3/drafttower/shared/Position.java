@@ -16,7 +16,10 @@ public enum Position {
 
   // Filtering:
   P("P", "All Pitchers"),
-  UNF("Unfilled", "Unfilled Positions");
+  UNF("Unfilled", "Unfilled Positions"),
+
+  // Misc:
+  RS("RS", "Reserves");
 
   private final String shortName;
   private final String longName;
@@ -32,5 +35,14 @@ public enum Position {
 
   public String getLongName() {
     return longName;
+  }
+
+  public static Position fromShortName(String shortName) {
+    for (Position position : values()) {
+      if (position.getShortName().equals(shortName)) {
+        return position;
+      }
+    }
+    throw new IllegalArgumentException("No position " + shortName);
   }
 }

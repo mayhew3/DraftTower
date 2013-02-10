@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
+import java.util.List;
+
 /**
  * Represents a single pick.
  */
@@ -15,4 +17,7 @@ public interface DraftPick {
 
   String getPlayerName();
   void setPlayerName(String playerName);
+
+  List<String> getEligibilities();
+  void setEligibilities(List<String> eligibilities);
 }
