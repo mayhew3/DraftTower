@@ -24,6 +24,7 @@ public class MainPageWidget extends Composite
       String connectivityIndicator();
       String leftColumn();
       String rightColumn();
+      String tableHeader();
       String shortcuts();
     }
 
@@ -44,6 +45,7 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) final DraftClock clock;
   @UiField(provided = true) final PickWidget pickWidget;
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
+  @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
 
@@ -55,6 +57,7 @@ public class MainPageWidget extends Composite
       DraftClock clock,
       PickWidget pickWidget,
       PickHistoryTablePanel pickHistoryTable,
+      MyRosterTablePanel myRosterTable,
       TeamOrderWidget teamOrder,
       PlayerTablePanel unclaimedPlayers,
       EventBus eventBus) {
@@ -63,6 +66,7 @@ public class MainPageWidget extends Composite
     this.clock = clock;
     this.pickWidget = pickWidget;
     this.pickHistoryTable = pickHistoryTable;
+    this.myRosterTable = myRosterTable;
     this.teamOrder = teamOrder;
     this.unclaimedPlayers = unclaimedPlayers;
 

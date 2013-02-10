@@ -1,10 +1,12 @@
 package com.mayhew3.drafttower.shared;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.mayhew3.drafttower.shared.Position.*;
 
@@ -12,6 +14,17 @@ import static com.mayhew3.drafttower.shared.Position.*;
  * Roster construction methods.
  */
 public class RosterUtil {
+
+  public static Map<Position, Integer> POSITIONS_AND_COUNTS = ImmutableMap.<Position, Integer>builder()
+      .put(C, 1)
+      .put(FB, 1)
+      .put(SB, 1)
+      .put(TB, 1)
+      .put(SS, 1)
+      .put(OF, 3)
+      .put(DH, 1)
+      .put(P, 7)
+      .build();
 
   private static List<Position> POSITIONS = Lists.newArrayList(
       C, FB, SB, TB, SS, OF, OF, OF, DH,

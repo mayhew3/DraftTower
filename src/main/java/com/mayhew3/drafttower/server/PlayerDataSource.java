@@ -113,9 +113,9 @@ public class PlayerDataSource {
   }
 
   public void populateDraftPick(DraftPick draftPick) throws SQLException {
-    String sql = "select FirstName,LastName " +
-        "from AllPlayers " +
-        "where ID = " + draftPick.getPlayerId();
+    String sql = "select FirstName,LastName,Eligibility " +
+        "from UnclaimedDisplayPlayersWithCatsByQuality " +
+        "where Year = 2012 and PlayerID = " + draftPick.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
     try {

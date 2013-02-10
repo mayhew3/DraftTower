@@ -11,7 +11,14 @@
       <div class="{style.css.rightColumn}">
         <d:DraftClock ui:field="clock"/>
         <d:PickWidget ui:field="pickWidget"/>
+        <div class="{style.css.tableHeader}">
+          Draft picks
+        </div>
         <d:PickHistoryTablePanel ui:field="pickHistoryTable"/>
+        <div class="{style.css.tableHeader}">
+          Your roster
+        </div>
+        <d:MyRosterTablePanel ui:field="myRosterTable"/>
         <div class="{style.css.shortcuts}">
           <b>Keyboard shortcuts:</b><br/>
           Ctrl-Alt-Shift-J: Draft Joakim Soria

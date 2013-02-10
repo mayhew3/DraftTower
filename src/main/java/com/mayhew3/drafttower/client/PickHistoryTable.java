@@ -19,6 +19,7 @@ public class PickHistoryTable extends CellTable<DraftPick> implements
 
   @Inject
   public PickHistoryTable(EventBus eventBus) {
+    setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<DraftPick>() {
       @Override
       public String getValue(DraftPick pick) {

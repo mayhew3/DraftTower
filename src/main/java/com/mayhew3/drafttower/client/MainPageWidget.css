@@ -15,6 +15,13 @@
   box-sizing: border-box;
 }
 
+.tableHeader {
+  font-weight: bold;
+  text-align: center;
+  font-size: 80%;
+  padding-top: 20px;
+}
+
 .shortcuts {
   font-size: 50%;
   text-align: center;
