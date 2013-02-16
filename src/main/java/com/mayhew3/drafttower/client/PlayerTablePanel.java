@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.ProjectionSystem;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,6 +45,7 @@ public class PlayerTablePanel extends Composite {
       null, C, FB, SB, TB, SS, OF, DH, P, SP, RP, UNF
   };
 
+  private Map<ProjectionSystem, ToggleButton> projectionSystemButtons = Maps.newEnumMap(ProjectionSystem.class);
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
 
@@ -51,6 +53,26 @@ public class PlayerTablePanel extends Composite {
   public PlayerTablePanel(final PlayerTable table) {
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
+
+    HorizontalPanel projectionButtons = new HorizontalPanel();
+    for (final ProjectionSystem projectionSystem : ProjectionSystem.values()) {
+      ToggleButton button = new ToggleButton(projectionSystem.getDisplayName(), new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          for (Entry<ProjectionSystem, ToggleButton> buttonEntry : projectionSystemButtons.entrySet()) {
+            buttonEntry.getValue().setDown(buttonEntry.getKey() == projectionSystem);
+          }
+          table.setProjectionSystem(projectionSystem);
+        }
+      });
+      button.addStyleName(CSS.filterButton());
+      if (projectionSystemButtons.isEmpty()) {
+        button.setDown(true);
+      }
+      projectionSystemButtons.put(projectionSystem, button);
+      projectionButtons.add(button);
+    }
+    container.add(projectionButtons);
 
     HorizontalPanel filterButtons = new HorizontalPanel();
     for (final Position position : POSITIONS) {

@@ -14,6 +14,7 @@ import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.ProjectionSystem;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
@@ -46,6 +47,7 @@ public class PlayerTable extends CellTable<Player> implements
   };
 
   private Position positionFilter;
+  private ProjectionSystem projectionSystem = ProjectionSystem.CBS;
 
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -82,8 +84,17 @@ public class PlayerTable extends CellTable<Player> implements
     return positionFilter;
   }
 
+  public ProjectionSystem getProjectionSystem() {
+    return projectionSystem;
+  }
+
   public void setPositionFilter(Position positionFilter) {
     this.positionFilter = positionFilter;
+    setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
+
+  public void setProjectionSystem(ProjectionSystem projectionSystem) {
+    this.projectionSystem = projectionSystem;
     setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 
