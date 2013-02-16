@@ -8,8 +8,8 @@ public interface UnclaimedPlayerListRequest {
   String getTeamToken();
   void setTeamToken(String teamToken);
 
-  ProjectionSystem getProjectionSystem();
-  void setProjectionSystem(ProjectionSystem projectionSystem);
+  PlayerDataSet getProjectionSystem();
+  void setProjectionSystem(PlayerDataSet playerDataSet);
 
   int getRowStart();
   void setRowStart(int rowStart);
