@@ -25,4 +25,7 @@ public interface UnclaimedPlayerListRequest {
 
   String getSearchQuery();
   void setSearchQuery(String searchQuery);
+
+  boolean getHideInjuries();
+  void setHideInjuries(boolean hideInjuries);
 }

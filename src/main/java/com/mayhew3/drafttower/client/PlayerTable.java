@@ -69,6 +69,7 @@ public class PlayerTable extends CellTable<Player> implements
 
   private Position positionFilter;
   private ProjectionSystem projectionSystem = ProjectionSystem.CBS;
+  private boolean hideInjuries;
 
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -127,6 +128,10 @@ public class PlayerTable extends CellTable<Player> implements
     return projectionSystem;
   }
 
+  public boolean getHideInjuries() {
+    return hideInjuries;
+  }
+
   public void setPositionFilter(Position positionFilter) {
     this.positionFilter = positionFilter;
     setVisibleRangeAndClearData(getVisibleRange(), true);
@@ -134,6 +139,11 @@ public class PlayerTable extends CellTable<Player> implements
 
   public void setProjectionSystem(ProjectionSystem projectionSystem) {
     this.projectionSystem = projectionSystem;
+    setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
+
+  public void setHideInjuries(boolean hideInjuries) {
+    this.hideInjuries = hideInjuries;
     setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 

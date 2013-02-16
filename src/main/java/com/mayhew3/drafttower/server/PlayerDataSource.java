@@ -62,7 +62,7 @@ public class PlayerDataSource {
         player.setColumnValues(columnMap.build());
 
         // TODO(m3)
-        if (player.getPlayerId() % 5 == 0) {
+        if (!request.getHideInjuries() && player.getPlayerId() % 5 == 0) {
           player.setInjury("busted wang");
         }
 
