@@ -1,4 +1,5 @@
-.table td {
+.table td,
+.table th {
   padding: 0;
 }
 
