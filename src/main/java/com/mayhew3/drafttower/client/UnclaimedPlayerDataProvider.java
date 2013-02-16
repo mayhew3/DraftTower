@@ -60,6 +60,8 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
           request.setSortCol(((PlayerTableColumn) sortColumns.get(0).getColumn()).getColumn());
         }
         request.setPositionFilter(table.getPositionFilter());
+        request.setProjectionSystem(table.getProjectionSystem());
+        request.setHideInjuries(table.getHideInjuries());
       }
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),

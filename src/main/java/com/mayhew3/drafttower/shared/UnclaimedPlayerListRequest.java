@@ -8,6 +8,9 @@ public interface UnclaimedPlayerListRequest {
   String getTeamToken();
   void setTeamToken(String teamToken);
 
+  ProjectionSystem getProjectionSystem();
+  void setProjectionSystem(ProjectionSystem projectionSystem);
+
   int getRowStart();
   void setRowStart(int rowStart);
 
@@ -22,4 +25,7 @@ public interface UnclaimedPlayerListRequest {
 
   String getSearchQuery();
   void setSearchQuery(String searchQuery);
+
+  boolean getHideInjuries();
+  void setHideInjuries(boolean hideInjuries);
 }

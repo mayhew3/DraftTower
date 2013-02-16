@@ -5,6 +5,10 @@
   width: 100%;
 }
 
+.hideInjuries {
+  float: right;
+}
+
 .table {
   font-size: 50%;
   width: 100%;

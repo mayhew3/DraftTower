@@ -4,15 +4,15 @@ import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.ProjectionSystem;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +27,7 @@ public class PlayerTablePanel extends Composite {
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
+      String hideInjuries();
       String filterButton();
       String table();
     }
@@ -44,6 +45,7 @@ public class PlayerTablePanel extends Composite {
       null, C, FB, SB, TB, SS, OF, DH, P, SP, RP, UNF
   };
 
+  private Map<ProjectionSystem, ToggleButton> projectionSystemButtons = Maps.newEnumMap(ProjectionSystem.class);
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
 
@@ -51,6 +53,36 @@ public class PlayerTablePanel extends Composite {
   public PlayerTablePanel(final PlayerTable table) {
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
+
+    CheckBox hideInjuries = new CheckBox("Hide injured players");
+    hideInjuries.setStyleName(CSS.hideInjuries());
+    hideInjuries.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        table.setHideInjuries(event.getValue());
+      }
+    });
+    container.add(hideInjuries);
+
+    HorizontalPanel projectionButtons = new HorizontalPanel();
+    for (final ProjectionSystem projectionSystem : ProjectionSystem.values()) {
+      ToggleButton button = new ToggleButton(projectionSystem.getDisplayName(), new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          for (Entry<ProjectionSystem, ToggleButton> buttonEntry : projectionSystemButtons.entrySet()) {
+            buttonEntry.getValue().setDown(buttonEntry.getKey() == projectionSystem);
+          }
+          table.setProjectionSystem(projectionSystem);
+        }
+      });
+      button.addStyleName(CSS.filterButton());
+      if (projectionSystemButtons.isEmpty()) {
+        button.setDown(true);
+      }
+      projectionSystemButtons.put(projectionSystem, button);
+      projectionButtons.add(button);
+    }
+    container.add(projectionButtons);
 
     HorizontalPanel filterButtons = new HorizontalPanel();
     for (final Position position : POSITIONS) {
