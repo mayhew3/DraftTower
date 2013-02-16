@@ -15,4 +15,7 @@ public interface Player {
 
   Map<PlayerColumn, String> getColumnValues();
   void setColumnValues(Map<PlayerColumn, String> columnValues);
+
+  String getInjury();
+  void setInjury(String injury);
 }
