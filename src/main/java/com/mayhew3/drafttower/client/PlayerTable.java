@@ -1,8 +1,8 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.gwt.cell.client.SafeHtmlCell;
-import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
@@ -45,13 +45,39 @@ import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 public class PlayerTable extends DragAndDropCellTable<Player> implements
     DraftStatusChangedEvent.Handler {
 
+  private class RankCell extends EditTextCell {
+    @Override
+    public void onBrowserEvent(final Context context, final com.google.gwt.dom.client.Element parent, final String value, final NativeEvent event, final ValueUpdater<String> valueUpdater) {
+      if (playerDataSet == PlayerDataSet.CUSTOM) {
+        super.onBrowserEvent(context, parent, value, event, valueUpdater);
+      }
+    }
+  }
+
   public class PlayerTableColumn extends DragAndDropColumn<Player, String> {
+
     private final PlayerColumn column;
 
     public PlayerTableColumn(PlayerColumn column) {
-      super(new TextCell());
+      super(column == RANK ? new RankCell() : new TextCell());
       this.column = column;
       setSortable(true);
+
+      if (column == RANK) {
+        setFieldUpdater(new FieldUpdater<Player, String>() {
+          @Override
+          public void update(int index, Player player, String newRank) {
+            if (!newRank.equals(player.getColumnValues().get(RANK))) {
+              try {
+                eventBus.fireEvent(new ChangePlayerRankEvent(player.getPlayerId(),
+                    Integer.parseInt(newRank)));
+              } catch (NumberFormatException e) {
+                // whatevs
+              }
+            }
+          }
+        });
+      }
 
       DraggableOptions draggableOptions = getDraggableOptions();
       Element helper = DOM.createDiv();
@@ -198,6 +224,7 @@ public class PlayerTable extends DragAndDropCellTable<Player> implements
         eventBus.fireEvent(new PlayerSelectedEvent(selectionModel.getSelectedObject()));
       }
     });
+    setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
   }
