@@ -71,6 +71,7 @@ public class ServerModule extends AbstractModule {
         .toInstance(Maps.<String, Integer>newHashMap());
     bind(new TypeLiteral<ListMultimap<Integer, QueueEntry>>() {})
         .annotatedWith(Queues.class)
-        .toInstance(ArrayListMultimap.<Integer, QueueEntry>create());
+        .toInstance(Multimaps.synchronizedListMultimap(
+            ArrayListMultimap.<Integer, QueueEntry>create()));
   }
 }

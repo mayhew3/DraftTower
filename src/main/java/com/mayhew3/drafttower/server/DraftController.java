@@ -217,9 +217,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private void autoPick() {
     if (queues.containsKey(status.getCurrentTeam())) {
       List<QueueEntry> queue = queues.get(status.getCurrentTeam());
-      if (!queue.isEmpty()) {
-        doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true);
-        return;
+      synchronized (queues) {
+        if (!queue.isEmpty()) {
+          doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true);
+          return;
+        }
       }
     }
     // TODO(m3)

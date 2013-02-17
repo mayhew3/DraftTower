@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.server;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -64,7 +65,10 @@ public class QueueServlet extends HttpServlet {
       GetPlayerQueueRequest request =
           AutoBeanCodex.decode(beanFactory, GetPlayerQueueRequest.class, requestStr).as();
       AutoBean<GetPlayerQueueResponse> response = beanFactory.createPlayerQueueResponse();
-      response.as().setQueue(queues.get(teamTokens.get(request.getTeamToken())));
+      List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
+      synchronized (queues) {
+        response.as().setQueue(Lists.newArrayList(queue));
+      }
 
       resp.getWriter().append(AutoBeanCodex.encode(response).getPayload());
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_ADD)) {
@@ -83,17 +87,21 @@ public class QueueServlet extends HttpServlet {
       EnqueueOrDequeuePlayerRequest request =
           AutoBeanCodex.decode(beanFactory, EnqueueOrDequeuePlayerRequest.class, requestStr).as();
       List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
-      Iterables.removeIf(queue, new QueueEntryPredicate(request.getPlayerId()));
+      synchronized (queues) {
+        Iterables.removeIf(queue, new QueueEntryPredicate(request.getPlayerId()));
+      }
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_REORDER)) {
       ReorderPlayerQueueRequest request =
           AutoBeanCodex.decode(beanFactory, ReorderPlayerQueueRequest.class, requestStr).as();
       List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
-      int startIndex = Iterables.indexOf(queue, new QueueEntryPredicate(request.getPlayerId()));
-      int endIndex = Math.min(request.getNewPosition(), queue.size());
-      if (startIndex < endIndex) {
-        Collections.rotate(queue.subList(startIndex, endIndex + 1), -1);
-      } else {
-        Collections.rotate(queue.subList(endIndex, startIndex + 1), 1);
+      synchronized (queues) {
+        int startIndex = Iterables.indexOf(queue, new QueueEntryPredicate(request.getPlayerId()));
+        int endIndex = Math.min(request.getNewPosition(), queue.size());
+        if (startIndex < endIndex) {
+          Collections.rotate(queue.subList(startIndex, endIndex + 1), -1);
+        } else if (endIndex < startIndex) {
+          Collections.rotate(queue.subList(endIndex + 1, startIndex + 1), 1);
+        }
       }
     } else {
       resp.setStatus(404);
