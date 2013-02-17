@@ -1,7 +1,36 @@
-.table td {
+.table td,
+.table th,
+.table td > div {
   padding: 0;
+}
+
+.table td > div {
+  min-height: 1em;
+}
+
+.table td {
+  border-right: none !important;
+  border-left: none !important;
+  border-top-color: transparent !important;
+  border-bottom: 2px solid transparent;
+}
+
+.table input {
+  width: 50px;
 }
 
 .injury {
   color: red;
+}
+
+.dragHelper {
+  background: white;
+  padding: 5px !important;
+  color: black !important;
+  border: 1px solid #CCC;
+  pointer-events: none;
+}
+
+.dropHover td {
+  border-bottom-color: black;
 }

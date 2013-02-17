@@ -15,12 +15,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Looks up players in the database.
  */
 @Singleton
 public class PlayerDataSource {
+
+  private static final Logger logger = Logger.getLogger(PlayerDataSource.class.getName());
 
   private final DataSource db;
   private final BeanFactory beanFactory;
@@ -150,6 +153,12 @@ public class PlayerDataSource {
     } finally {
       close(resultSet);
     }
+  }
+
+  public void changePlayerRank(ChangePlayerRankRequest request) {
+    // TODO(m3)
+    logger.info("Change player rank for team " + teamTokens.get(request.getTeamToken())
+        + " player " + request.getPlayerId() + " new rank " + request.getNewRank());
   }
 
   private ResultSet executeQuery(String sql) throws SQLException {

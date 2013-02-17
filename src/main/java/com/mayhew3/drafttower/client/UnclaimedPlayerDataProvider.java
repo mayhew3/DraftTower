@@ -1,38 +1,43 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.*;
-import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.ChangePlayerRankUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
-import com.mayhew3.drafttower.client.PlayerTable.PlayerTableColumn;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.Player;
-import com.mayhew3.drafttower.shared.UnclaimedPlayerListRequest;
-import com.mayhew3.drafttower.shared.UnclaimedPlayerListResponse;
+import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
+import com.mayhew3.drafttower.shared.*;
 
 /**
  * Data provider for player tables.
  */
 @Singleton
-public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
+public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> implements
+    ChangePlayerRankEvent.Handler {
 
   private final BeanFactory beanFactory;
   private final String playerInfoUrl;
+  private final String changePlayerRankUrl;
   private final TeamInfo teamInfo;
 
   @Inject
   public UnclaimedPlayerDataProvider(
       BeanFactory beanFactory,
       @UnclaimedPlayerInfoUrl String playerInfoUrl,
-      TeamInfo teamInfo) {
+      @ChangePlayerRankUrl String changePlayerRankUrl,
+      TeamInfo teamInfo,
+      EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.playerInfoUrl = playerInfoUrl;
+    this.changePlayerRankUrl = changePlayerRankUrl;
     this.teamInfo = teamInfo;
+
+    eventBus.addHandler(ChangePlayerRankEvent.TYPE, this);
   }
 
   @Override
@@ -55,12 +60,9 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
 
       if (display instanceof PlayerTable) {
         PlayerTable table = (PlayerTable) display;
-        ColumnSortList sortColumns = table.getColumnSortList();
-        if (sortColumns.size() > 0) {
-          request.setSortCol(((PlayerTableColumn) sortColumns.get(0).getColumn()).getColumn());
-        }
+        request.setSortCol(table.getSortedColumn());
         request.setPositionFilter(table.getPositionFilter());
-        request.setProjectionSystem(table.getProjectionSystem());
+        request.setProjectionSystem(table.getPlayerDataSet());
         request.setHideInjuries(table.getHideInjuries());
       }
 
@@ -73,6 +75,42 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> {
                       response.getText()).as();
               display.setRowData(rowStart, playerListResponse.getPlayers());
               display.setRowCount(playerListResponse.getTotalPlayers(), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+              // TODO
+            }
+          });
+    } catch (RequestException e) {
+      // TODO
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void onChangePlayerRank(ChangePlayerRankEvent event) {
+    if (!teamInfo.isLoggedIn()) {
+      return;
+    }
+    RequestBuilder requestBuilder =
+        new RequestBuilder(RequestBuilder.POST, changePlayerRankUrl);
+    try {
+      AutoBean<ChangePlayerRankRequest> requestBean =
+          beanFactory.createChangePlayerRankRequest();
+      ChangePlayerRankRequest request = requestBean.as();
+      request.setTeamToken(teamInfo.getTeamToken());
+
+      request.setPlayerId(event.getPlayerId());
+      request.setNewRank(event.getNewRank());
+
+      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
+          new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+              for (HasData<Player> dataDisplay : getDataDisplays()) {
+                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
+              }
             }
 
             @Override

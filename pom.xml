@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- POM file generated with GWT webAppCreator -->
   <modelVersion>4.0.0</modelVersion>
@@ -20,6 +20,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty-server.version>8.1.8.v20121106</jetty-server.version>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>gwtquery</id>
+      <url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -74,9 +81,9 @@
       <version>13.0.1</version>
     </dependency>
     <dependency>
-    	<groupId>com.google.gwt.inject</groupId>
-    	<artifactId>gin</artifactId>
-    	<version>2.0.0</version>
+      <groupId>com.google.gwt.inject</groupId>
+      <artifactId>gin</artifactId>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject</groupId>
@@ -107,6 +114,12 @@
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.5.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.gwtquery.bundles</groupId>
+      <artifactId>gquery-dnd-bundle</artifactId>
+      <version>1.0.6</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

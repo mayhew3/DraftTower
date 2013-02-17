@@ -37,6 +37,11 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @Retention(RUNTIME)
   public static @interface UnclaimedPlayerInfoUrl {}
 
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface ChangePlayerRankUrl {}
+
   @Provides @LoginUrl
   public String getLoginUrl() {
     return Window.Location.createUrlBuilder()
@@ -59,6 +64,14 @@ public class DraftTowerGinModule extends AbstractGinModule {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.UNCLAIMED_PLAYERS_ENDPOINT)
+        .buildString();
+  }
+
+  @Provides @ChangePlayerRankUrl
+  public String getChangePlayerRankUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.CHANGE_PLAYER_RANK_ENDPOINT)
         .buildString();
   }
 

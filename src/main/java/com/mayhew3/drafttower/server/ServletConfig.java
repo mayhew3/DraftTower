@@ -23,6 +23,8 @@ public class ServletConfig extends GuiceServletContextListener {
             .with(DraftTowerWebSocketServlet.class);
         serve("/" + ServletEndpoints.UNCLAIMED_PLAYERS_ENDPOINT)
             .with(UnclaimedPlayerLookupServlet.class);
+        serve("/" + ServletEndpoints.CHANGE_PLAYER_RANK_ENDPOINT)
+            .with(ChangePlayerRankServlet.class);
       }
     }, new ServerModule());
   }
