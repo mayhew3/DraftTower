@@ -179,7 +179,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
     getSelectionModel().addSelectionChangeHandler(new Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
-        eventBus.fireEvent(new PlayerSelectedEvent(selectionModel.getSelectedObject()));
+        Player player = selectionModel.getSelectedObject();
+        eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), player.getColumnValues().get(NAME)));
       }
     });
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);

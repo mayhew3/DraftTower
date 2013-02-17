@@ -9,11 +9,11 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.IdentityColumn;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.events.DequeuePlayerEvent;
-import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
-import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent;
+import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.QueueEntry;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
@@ -85,6 +85,17 @@ public class QueueTable extends PlayerTable<QueueEntry> {
                 entry.getPlayerName()).toSafeHtml());
       }
     });
+
+    final SingleSelectionModel<QueueEntry> selectionModel = new SingleSelectionModel<QueueEntry>();
+    setSelectionModel(selectionModel);
+    getSelectionModel().addSelectionChangeHandler(new Handler() {
+      @Override
+      public void onSelectionChange(SelectionChangeEvent event) {
+        QueueEntry player = selectionModel.getSelectedObject();
+        eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), player.getPlayerName()));
+      }
+    });
+    setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 
     dataProvider.addDataDisplay(this);
 
