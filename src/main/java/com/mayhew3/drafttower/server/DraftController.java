@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
@@ -7,6 +8,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.server.ServerModule.Keepers;
+import com.mayhew3.drafttower.server.ServerModule.Queues;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
@@ -42,6 +44,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private final Map<String, Integer> teamTokens;
   private final Map<Integer, List<Integer>> keepers;
+  private final ListMultimap<Integer, QueueEntry> queues;
 
   private final int commissionerTeam;
   private final int numTeams;
@@ -58,6 +61,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       PlayerDataSource playerDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers Map<Integer, List<Integer>> keepers,
+      @Queues ListMultimap<Integer, QueueEntry> queues,
       @Commissioner int commissionerTeam,
       @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
@@ -65,6 +69,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
     this.keepers = keepers;
+    this.queues = queues;
     this.commissionerTeam = commissionerTeam;
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
@@ -210,6 +215,13 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void autoPick() {
+    if (queues.containsKey(status.getCurrentTeam())) {
+      List<QueueEntry> queue = queues.get(status.getCurrentTeam());
+      if (!queue.isEmpty()) {
+        doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true);
+        return;
+      }
+    }
     // TODO(m3)
     doPick(status.getCurrentTeam(), 10648, true);
   }
