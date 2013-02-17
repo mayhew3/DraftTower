@@ -7,4 +7,5 @@ public interface ServletEndpoints {
   String LOGIN_ENDPOINT = "login";
   String DRAFT_SOCKET_ENDPOINT = "socket";
   String UNCLAIMED_PLAYERS_ENDPOINT = "unclaimed";
+  String CHANGE_PLAYER_RANK_ENDPOINT = "changeRank";
 }

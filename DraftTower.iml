@@ -9,11 +9,6 @@
         <webroots>
           <root url="file://$MODULE_DIR$/src/main/webapp" relative="/" />
         </webroots>
-        <sourceRoots>
-          <root url="file://$MODULE_DIR$/target/generated-sources/gwt" />
-          <root url="file://$MODULE_DIR$/src/main/java" />
-          <root url="file://$MODULE_DIR$/src/main/resources" />
-        </sourceRoots>
       </configuration>
     </facet>
     <facet type="gwt" name="GWT">
@@ -73,6 +68,7 @@
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.22" level="project" />
     <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:20030825.184428" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.4" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.googlecode.gwtquery.bundles:gquery-dnd-bundle:1.0.6" level="project" />
   </component>
 </module>
 
