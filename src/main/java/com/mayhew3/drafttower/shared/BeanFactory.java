@@ -15,4 +15,9 @@ public interface BeanFactory extends AutoBeanFactory {
   AutoBean<Player> createPlayer();
   AutoBean<LoginResponse> createLoginResponse();
   AutoBean<ChangePlayerRankRequest> createChangePlayerRankRequest();
+  AutoBean<QueueEntry> createQueueEntry();
+  AutoBean<GetPlayerQueueRequest> createPlayerQueueRequest();
+  AutoBean<GetPlayerQueueResponse> createPlayerQueueResponse();
+  AutoBean<EnqueueOrDequeuePlayerRequest> createEnqueueOrDequeuePlayerRequest();
+  AutoBean<ReorderPlayerQueueRequest> createReorderPlayerQueueRequest();
 }

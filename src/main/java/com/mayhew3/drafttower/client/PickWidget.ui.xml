@@ -7,5 +7,6 @@
   <g:HTMLPanel styleName="{style.css.container}">
     <g:Label ui:field="selectedPlayerLabel">&nbsp;</g:Label>
     <g:Button ui:field="pick">Pick</g:Button>
+    <g:Button ui:field="enqueue">Enqueue</g:Button>
   </g:HTMLPanel>
 </ui:UiBinder>

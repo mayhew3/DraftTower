@@ -23,6 +23,8 @@ public class MainPageWidget extends Composite
     interface Css extends CssResource {
       String connectivityIndicator();
       String leftColumn();
+      String queue();
+      String queueScroller();
       String rightColumn();
       String tableHeader();
       String actionLink();
@@ -49,6 +51,7 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
+  @UiField(provided = true) QueueTable queueTable;
 
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;
@@ -64,6 +67,7 @@ public class MainPageWidget extends Composite
       MyRosterTablePanel myRosterTable,
       TeamOrderWidget teamOrder,
       PlayerTablePanel unclaimedPlayers,
+      QueueTable queueTable,
       DepthChartsTable depthChartsTable,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
@@ -74,6 +78,7 @@ public class MainPageWidget extends Composite
     this.myRosterTable = myRosterTable;
     this.teamOrder = teamOrder;
     this.unclaimedPlayers = unclaimedPlayers;
+    this.queueTable = queueTable;
 
     initWidget(uiBinder.createAndBindUi(this));
 

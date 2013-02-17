@@ -62,7 +62,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
         PlayerTable table = (PlayerTable) display;
         request.setSortCol(table.getSortedColumn());
         request.setPositionFilter(table.getPositionFilter());
-        request.setProjectionSystem(table.getPlayerDataSet());
+        request.setPlayerDataSet(table.getPlayerDataSet());
         request.setHideInjuries(table.getHideInjuries());
       }
 

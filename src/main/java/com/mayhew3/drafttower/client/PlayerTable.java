@@ -37,6 +37,7 @@ import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTable;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
+import static com.mayhew3.drafttower.client.QueueTable.getTRParent;
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
 /**
@@ -112,15 +113,6 @@ public class PlayerTable extends DragAndDropCellTable<Player> implements
               Integer.parseInt(droppedPlayer.getColumnValues().get(RANK)) + 1));
         }
       });
-    }
-
-    private Element getTRParent(DragAndDropContext dragAndDropContext) {
-      Element droppable = (Element) dragAndDropContext.getDroppable();
-      while (!droppable.getTagName().equalsIgnoreCase("tr")
-          && droppable.hasParentElement()) {
-        droppable = (Element) droppable.getParentElement();
-      }
-      return droppable;
     }
 
     @Override

@@ -8,4 +8,10 @@ public interface ServletEndpoints {
   String DRAFT_SOCKET_ENDPOINT = "socket";
   String UNCLAIMED_PLAYERS_ENDPOINT = "unclaimed";
   String CHANGE_PLAYER_RANK_ENDPOINT = "changeRank";
+  String QUEUE_ENDPOINT = "queue";
+
+  String QUEUE_GET = "get";
+  String QUEUE_ADD = "add";
+  String QUEUE_REMOVE = "remove";
+  String QUEUE_REORDER = "reorder";
 }

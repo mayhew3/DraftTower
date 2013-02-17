@@ -1,12 +1,11 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.google.gwt.inject.rebind.adapter.GinModuleAdapter;
 import com.google.inject.*;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.QueueEntry;
 import com.mayhew3.drafttower.shared.SharedModule;
 
 import javax.naming.Context;
@@ -35,6 +34,11 @@ public class ServerModule extends AbstractModule {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface Keepers {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface Queues {}
 
   @Provides @Singleton
   public BeanFactory getBeanFactory() {
@@ -65,5 +69,9 @@ public class ServerModule extends AbstractModule {
     bind(new TypeLiteral<Map<String, Integer>>() {})
         .annotatedWith(TeamTokens.class)
         .toInstance(Maps.<String, Integer>newHashMap());
+    bind(new TypeLiteral<ListMultimap<Integer, QueueEntry>>() {})
+        .annotatedWith(Queues.class)
+        .toInstance(Multimaps.synchronizedListMultimap(
+            ArrayListMultimap.<Integer, QueueEntry>create()));
   }
 }
