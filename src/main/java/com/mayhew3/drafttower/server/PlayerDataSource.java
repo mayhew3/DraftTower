@@ -120,6 +120,23 @@ public class PlayerDataSource {
     return executeQuery(sql);
   }
 
+  public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
+    String sql = "select FirstName,LastName,Eligibility " +
+        "from UnclaimedDisplayPlayersWithCatsByQuality " +
+        "where Year = 2012 and PlayerID = " + queueEntry.getPlayerId();
+
+    ResultSet resultSet = executeQuery(sql);
+    try {
+      resultSet.next();
+      queueEntry.setPlayerName(
+          resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
+      queueEntry.setEligibilities(
+          Lists.newArrayList(resultSet.getString("Eligibility").split(",")));
+    } finally {
+      close(resultSet);
+    }
+  }
+
   public void populateDraftPick(DraftPick draftPick) throws SQLException {
     // TODO(m3): This isn't the correct table to be querying, as this could
     // be a keeper and thus not "unclaimed", but it's the only one I could

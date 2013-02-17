@@ -30,6 +30,14 @@
       <div class="{style.css.leftColumn}">
         <d:TeamOrderWidget ui:field="teamOrder"/>
         <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
+        <div class="{style.css.queue}">
+          <div class="{style.css.tableHeader}">
+            Your queue
+          </div>
+          <g:ScrollPanel styleName="{style.css.queueScroller}" height="150px">
+            <d:QueueTable ui:field="queueTable"/>
+          </g:ScrollPanel>
+        </div>
       </div>
     </div>
   </g:HTMLPanel>

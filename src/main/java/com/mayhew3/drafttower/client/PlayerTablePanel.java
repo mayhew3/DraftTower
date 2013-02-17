@@ -45,7 +45,7 @@ public class PlayerTablePanel extends Composite {
       null, C, FB, SB, TB, SS, OF, DH, P, SP, RP, UNF
   };
 
-  private Map<PlayerDataSet, ToggleButton> projectionSystemButtons = Maps.newEnumMap(PlayerDataSet.class);
+  private Map<PlayerDataSet, ToggleButton> dataSetButtons = Maps.newEnumMap(PlayerDataSet.class);
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
 
@@ -64,25 +64,25 @@ public class PlayerTablePanel extends Composite {
     });
     container.add(hideInjuries);
 
-    HorizontalPanel projectionButtons = new HorizontalPanel();
+    HorizontalPanel dataSetButtonPanel = new HorizontalPanel();
     for (final PlayerDataSet playerDataSet : PlayerDataSet.values()) {
       ToggleButton button = new ToggleButton(playerDataSet.getDisplayName(), new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-          for (Entry<PlayerDataSet, ToggleButton> buttonEntry : projectionSystemButtons.entrySet()) {
+          for (Entry<PlayerDataSet, ToggleButton> buttonEntry : dataSetButtons.entrySet()) {
             buttonEntry.getValue().setDown(buttonEntry.getKey() == playerDataSet);
           }
           table.setPlayerDataSet(playerDataSet);
         }
       });
       button.addStyleName(CSS.filterButton());
-      if (projectionSystemButtons.isEmpty()) {
+      if (dataSetButtons.isEmpty()) {
         button.setDown(true);
       }
-      projectionSystemButtons.put(playerDataSet, button);
-      projectionButtons.add(button);
+      dataSetButtons.put(playerDataSet, button);
+      dataSetButtonPanel.add(button);
     }
-    container.add(projectionButtons);
+    container.add(dataSetButtonPanel);
 
     HorizontalPanel filterButtons = new HorizontalPanel();
     for (final Position position : POSITIONS) {
