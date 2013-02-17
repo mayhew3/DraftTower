@@ -85,12 +85,16 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
 
   @Override
   public void onPlayerEnqueued(EnqueuePlayerEvent event) {
-    enqueueOrDequeue(ServletEndpoints.QUEUE_ADD, event.getPlayerId(), event.getPosition());
+    if (!isPlayerQueued(event.getPlayerId())) {
+      enqueueOrDequeue(ServletEndpoints.QUEUE_ADD, event.getPlayerId(), event.getPosition());
+    }
   }
 
   @Override
   public void onPlayerDequeued(DequeuePlayerEvent event) {
-    enqueueOrDequeue(ServletEndpoints.QUEUE_REMOVE, event.getPlayerId(), null);
+    if (isPlayerQueued(event.getPlayerId())) {
+      enqueueOrDequeue(ServletEndpoints.QUEUE_REMOVE, event.getPlayerId(), null);
+    }
   }
 
   private void enqueueOrDequeue(String action, long playerId, Integer position) {
