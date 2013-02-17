@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
+import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
 import com.mayhew3.drafttower.client.events.PickPlayerEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
@@ -54,6 +55,7 @@ public class PickWidget extends Composite implements
 
   @UiField Label selectedPlayerLabel;
   @UiField Button pick;
+  @UiField Button enqueue;
   private DraftStatus status;
   private Player selectedPlayer;
 
@@ -92,7 +94,7 @@ public class PickWidget extends Composite implements
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     status = event.getStatus();
-    updatePickEnabled();
+    updateButtonsEnabled();
   }
 
   @Override
@@ -100,7 +102,7 @@ public class PickWidget extends Composite implements
     selectedPlayer = event.getPlayer();
     selectedPlayerLabel.setText(selectedPlayer == null ? "" :
         selectedPlayer.getColumnValues().get(NAME));
-    updatePickEnabled();
+    updateButtonsEnabled();
   }
 
   @UiHandler("pick")
@@ -110,12 +112,21 @@ public class PickWidget extends Composite implements
     selectedPlayerLabel.setText("");
   }
 
-  private void updatePickEnabled() {
-    pick.setEnabled(selectedPlayerLabel != null
+  @UiHandler("enqueue")
+  public void handleEnqueue(ClickEvent e) {
+    eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayer.getPlayerId()));
+    selectedPlayer = null;
+    selectedPlayerLabel.setText("");
+    updateButtonsEnabled();
+  }
+
+  private void updateButtonsEnabled() {
+    pick.setEnabled(selectedPlayer != null
         && status != null
         && status.getCurrentPickDeadline() > 0
         && !status.isPaused()
         && teamInfo.isLoggedIn()
         && teamInfo.getTeam() == status.getCurrentTeam());
+    enqueue.setEnabled(selectedPlayer != null);
   }
 }

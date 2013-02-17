@@ -69,8 +69,8 @@ public class ServerModule extends AbstractModule {
     bind(new TypeLiteral<Map<String, Integer>>() {})
         .annotatedWith(TeamTokens.class)
         .toInstance(Maps.<String, Integer>newHashMap());
-    bind(new TypeLiteral<ListMultimap<String, QueueEntry>>() {})
+    bind(new TypeLiteral<ListMultimap<Integer, QueueEntry>>() {})
         .annotatedWith(Queues.class)
-        .toInstance(ArrayListMultimap.<String, QueueEntry>create());
+        .toInstance(ArrayListMultimap.<Integer, QueueEntry>create());
   }
 }
