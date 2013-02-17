@@ -9,11 +9,6 @@
   float: right;
 }
 
-.table {
-  font-size: 90%;
-  width: 100%;
-}
-
 .filterButton {
   border: 1px solid #d3d3d3;
   border-right-width: 0;

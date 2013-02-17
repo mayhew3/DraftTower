@@ -29,6 +29,7 @@ public class MainPageWidget extends Composite
       String tableHeader();
       String actionLink();
       String shortcuts();
+      String glassPanel();
     }
 
     @Source("MainPageWidget.css")
@@ -87,6 +88,8 @@ public class MainPageWidget extends Composite
     depthChartsPopup = new PopupPanel();
     depthChartsPopup.setModal(true);
     depthChartsPopup.setAutoHideEnabled(true);
+    depthChartsPopup.setGlassEnabled(true);
+    depthChartsPopup.setGlassStyleName(CSS.glassPanel());
     depthChartsPopup.setWidget(depthChartsTable);
 
     eventBus.addHandler(LoginEvent.TYPE, this);

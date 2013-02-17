@@ -58,8 +58,8 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       request.setRowCount(rowCount);
       request.setRowStart(rowStart);
 
-      if (display instanceof PlayerTable) {
-        PlayerTable table = (PlayerTable) display;
+      if (display instanceof UnclaimedPlayerTable) {
+        UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
         request.setSortCol(table.getSortedColumn());
         request.setPositionFilter(table.getPositionFilter());
         request.setPlayerDataSet(table.getPlayerDataSet());

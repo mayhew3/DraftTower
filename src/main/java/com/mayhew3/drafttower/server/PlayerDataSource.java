@@ -121,15 +121,14 @@ public class PlayerDataSource {
   }
 
   public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
-    String sql = "select FirstName,LastName,Eligibility " +
+    String sql = "select Player,Eligibility " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
         "where Year = 2012 and PlayerID = " + queueEntry.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
     try {
       resultSet.next();
-      queueEntry.setPlayerName(
-          resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
+      queueEntry.setPlayerName(resultSet.getString("Player"));
       queueEntry.setEligibilities(
           Lists.newArrayList(resultSet.getString("Eligibility").split(",")));
     } finally {

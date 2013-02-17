@@ -29,7 +29,6 @@ public class PlayerTablePanel extends Composite {
       String container();
       String hideInjuries();
       String filterButton();
-      String table();
     }
 
     @Source("PlayerTablePanel.css")
@@ -50,7 +49,7 @@ public class PlayerTablePanel extends Composite {
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
 
   @Inject
-  public PlayerTablePanel(final PlayerTable table) {
+  public PlayerTablePanel(final UnclaimedPlayerTable table) {
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
@@ -114,7 +113,6 @@ public class PlayerTablePanel extends Composite {
     pager.setDisplay(table);
     container.add(pager);
 
-    table.addStyleName(CSS.table());
     container.add(table);
 
     initWidget(container);
