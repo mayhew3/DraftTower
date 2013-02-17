@@ -62,3 +62,7 @@
   background: white;
   font-size: 70%;
 }
+
+.glassPanel {
+  background: rgba(0, 0, 0, 0.4);
+}
