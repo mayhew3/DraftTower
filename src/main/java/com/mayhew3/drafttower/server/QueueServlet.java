@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -28,19 +27,6 @@ import java.util.Map;
  */
 @Singleton
 public class QueueServlet extends HttpServlet {
-
-  private static class QueueEntryPredicate implements Predicate<QueueEntry> {
-    private final long playerId;
-
-    public QueueEntryPredicate(long playerId) {
-      this.playerId = playerId;
-    }
-
-    @Override
-    public boolean apply(QueueEntry input) {
-      return input.getPlayerId() == playerId;
-    }
-  }
 
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;

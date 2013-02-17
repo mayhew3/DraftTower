@@ -49,6 +49,7 @@ public class PickWidget extends Composite implements
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   private final TeamInfo teamInfo;
+  private final QueueDataProvider queueDataProvider;
   private final EventBus eventBus;
 
   @UiField Label selectedPlayerLabel;
@@ -59,8 +60,10 @@ public class PickWidget extends Composite implements
 
   @Inject
   public PickWidget(TeamInfo teamInfo,
+      QueueDataProvider queueDataProvider,
       final EventBus eventBus) {
     this.teamInfo = teamInfo;
+    this.queueDataProvider = queueDataProvider;
     this.eventBus = eventBus;
 
     initWidget(uiBinder.createAndBindUi(this));
@@ -125,6 +128,6 @@ public class PickWidget extends Composite implements
         && !status.isPaused()
         && teamInfo.isLoggedIn()
         && teamInfo.getTeam() == status.getCurrentTeam());
-    enqueue.setEnabled(selectedPlayerId != null);
+    enqueue.setEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
   }
 }

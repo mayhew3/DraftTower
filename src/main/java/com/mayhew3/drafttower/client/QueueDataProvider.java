@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.Iterables;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.*;
 import com.google.gwt.view.client.AsyncDataProvider;
@@ -14,6 +15,8 @@ import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
 import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent;
 import com.mayhew3.drafttower.shared.*;
 
+import java.util.List;
+
 /**
  * Data provider for players queue.
  */
@@ -26,6 +29,8 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
   private final BeanFactory beanFactory;
   private final String queuesUrl;
   private final TeamInfo teamInfo;
+
+  private List<QueueEntry> queue;
 
   @Inject
   public QueueDataProvider(
@@ -62,8 +67,9 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
               GetPlayerQueueResponse queueResponse =
                   AutoBeanCodex.decode(beanFactory, GetPlayerQueueResponse.class,
                       response.getText()).as();
-              display.setRowData(0, queueResponse.getQueue());
-              display.setRowCount(queueResponse.getQueue().size());
+              queue = queueResponse.getQueue();
+              display.setRowData(0, queue);
+              display.setRowCount(queue.size());
             }
 
             @Override
@@ -154,5 +160,9 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
       // TODO
       throw new RuntimeException(e);
     }
+  }
+
+  public boolean isPlayerQueued(long playerId) {
+    return queue != null && Iterables.any(queue, new QueueEntryPredicate(playerId));
   }
 }
