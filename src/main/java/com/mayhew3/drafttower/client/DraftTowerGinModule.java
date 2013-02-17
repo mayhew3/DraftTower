@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.inject.client.AbstractGinModule;
@@ -10,9 +12,11 @@ import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
 import com.mayhew3.drafttower.shared.SharedModule;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -46,6 +50,11 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface QueuesUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface TeamNames {}
 
   @Provides @LoginUrl
   public String getLoginUrl() {
@@ -86,6 +95,16 @@ public class DraftTowerGinModule extends AbstractGinModule {
         .setPath(Window.Location.getPath()
             + ServletEndpoints.QUEUE_ENDPOINT)
         .buildString();
+  }
+
+  @Provides @TeamNames
+  public Map<Integer, String> getTeamNames(@NumTeams int numTeams) {
+    // TODO(m3)
+    Builder<Integer, String> builder = ImmutableMap.builder();
+    for (int i = 1; i <= numTeams; i++) {
+      builder.put(i, "Team " + i);
+    }
+    return builder.build();
   }
 
   @Override

@@ -6,8 +6,11 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamNames;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.DraftPick;
+
+import java.util.Map;
 
 /**
  * Table displaying picks so far.
@@ -18,7 +21,8 @@ public class PickHistoryTable extends CellTable<DraftPick> implements
   private ListDataProvider<DraftPick> pickProvider;
 
   @Inject
-  public PickHistoryTable(EventBus eventBus) {
+  public PickHistoryTable(@TeamNames final Map<Integer, String> teamNames,
+      EventBus eventBus) {
     setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<DraftPick>() {
       @Override
@@ -30,7 +34,7 @@ public class PickHistoryTable extends CellTable<DraftPick> implements
     addColumn(new TextColumn<DraftPick>() {
       @Override
       public String getValue(DraftPick pick) {
-        return pick.getTeamName();
+        return teamNames.get(pick.getTeam());
       }
     }, "Team");
     addColumn(new TextColumn<DraftPick>() {

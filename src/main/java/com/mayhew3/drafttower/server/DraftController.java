@@ -143,7 +143,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
     DraftPick pick = beanFactory.createDraftPick().as();
     pick.setTeam(team);
-    pick.setTeamName(getTeamName(team));
     pick.setPlayerId(playerId);
     try {
       playerDataSource.populateDraftPick(pick);
@@ -165,11 +164,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
     advanceTeam();
     newPick();
-  }
-
-  private String getTeamName(Integer team) {
-    // TODO(m3)
-    return "Team " + team;
   }
 
   @Override
