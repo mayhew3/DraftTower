@@ -1,41 +1,100 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
-import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
+import gwtquery.plugins.draggable.client.DraggableOptions;
+import gwtquery.plugins.draggable.client.DraggableOptions.RevertOption;
+import gwtquery.plugins.draggable.client.events.DragStartEvent;
+import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
+import gwtquery.plugins.droppable.client.DroppableOptions;
+import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
+import gwtquery.plugins.droppable.client.DroppableOptions.DroppableTolerance;
+import gwtquery.plugins.droppable.client.events.DragAndDropContext;
+import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTable;
+import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
 /**
  * Table widget for displaying player stats.
  */
-public class PlayerTable extends CellTable<Player> implements
+public class PlayerTable extends DragAndDropCellTable<Player> implements
     DraftStatusChangedEvent.Handler {
 
-  public class PlayerTableColumn extends TextColumn<Player> {
+  public class PlayerTableColumn extends DragAndDropColumn<Player, String> {
     private final PlayerColumn column;
 
     public PlayerTableColumn(PlayerColumn column) {
+      super(new TextCell());
       this.column = column;
       setSortable(true);
+
+      DraggableOptions draggableOptions = getDraggableOptions();
+      Element helper = DOM.createDiv();
+      helper.addClassName(CSS.dragHelper());
+      draggableOptions.setHelper(helper);
+      draggableOptions.setCursor(Cursor.ROW_RESIZE);
+      draggableOptions.setRevert(RevertOption.ON_INVALID_DROP);
+
+      DroppableOptions droppableOptions = getDroppableOptions();
+      droppableOptions.setTolerance(DroppableTolerance.POINTER);
+      droppableOptions.setOnOver(new DroppableFunction() {
+        @Override
+        public void f(DragAndDropContext dragAndDropContext) {
+          getTRParent(dragAndDropContext).addClassName(CSS.dropHover());
+        }
+      });
+      DroppableFunction removeHover = new DroppableFunction() {
+        @Override
+        public void f(DragAndDropContext dragAndDropContext) {
+          getTRParent(dragAndDropContext).removeClassName(CSS.dropHover());
+        }
+      };
+      droppableOptions.setOnOut(removeHover);
+      droppableOptions.setOnDeactivate(removeHover);
+      droppableOptions.setOnDrop(new DroppableFunction() {
+        @Override
+        public void f(DragAndDropContext dragAndDropContext) {
+          Player draggedPlayer = dragAndDropContext.getDraggableData();
+          Player droppedPlayer = dragAndDropContext.getDroppableData();
+          eventBus.fireEvent(new ChangePlayerRankEvent(
+              draggedPlayer.getPlayerId(),
+              Integer.parseInt(droppedPlayer.getColumnValues().get(RANK)) + 1));
+        }
+      });
+    }
+
+    private Element getTRParent(DragAndDropContext dragAndDropContext) {
+      Element droppable = (Element) dragAndDropContext.getDroppable();
+      while (!droppable.getTagName().equalsIgnoreCase("tr")
+          && droppable.hasParentElement()) {
+        droppable = (Element) droppable.getParentElement();
+      }
+      return droppable;
     }
 
     @Override
@@ -52,6 +111,8 @@ public class PlayerTable extends CellTable<Player> implements
     interface Css extends CssResource {
       String table();
       String injury();
+      String dragHelper();
+      String dropHover();
     }
 
     @Source("PlayerTable.css")
@@ -67,6 +128,8 @@ public class PlayerTable extends CellTable<Player> implements
       NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING
   };
 
+  private final EventBus eventBus;
+
   private Position positionFilter;
   private PlayerDataSet playerDataSet = PlayerDataSet.WIZARD;
   private boolean hideInjuries;
@@ -74,6 +137,8 @@ public class PlayerTable extends CellTable<Player> implements
   @Inject
   public PlayerTable(UnclaimedPlayerDataProvider dataProvider,
       final EventBus eventBus) {
+    this.eventBus = eventBus;
+
     addStyleName(CSS.table());
     setPageSize(40);
 
@@ -106,7 +171,24 @@ public class PlayerTable extends CellTable<Player> implements
     }
 
     dataProvider.addDataDisplay(this);
-    addColumnSortHandler(new AsyncHandler(this));
+    addColumnSortHandler(new AsyncHandler(this) {
+      @Override
+      public void onColumnSort(ColumnSortEvent event) {
+        super.onColumnSort(event);
+        updateDragEnabled();
+      }
+    });
+
+    addDragStartHandler(new DragStartEventHandler() {
+      @Override
+      public void onDragStart(DragStartEvent dragStartEvent) {
+        Player player = dragStartEvent.getDraggableData();
+        dragStartEvent.getHelper().setInnerSafeHtml(
+            new SafeHtmlBuilder().appendEscaped(
+                player.getColumnValues().get(NAME)).toSafeHtml());
+      }
+    });
+    updateDragEnabled();
 
     final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<Player>();
     setSelectionModel(selectionModel);
@@ -118,6 +200,14 @@ public class PlayerTable extends CellTable<Player> implements
     });
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
+  }
+
+  public PlayerColumn getSortedColumn() {
+    ColumnSortList columnSortList = getColumnSortList();
+    if (columnSortList.size() > 0) {
+      return ((PlayerTableColumn) columnSortList.get(0).getColumn()).getColumn();
+    }
+    return null;
   }
 
   public Position getPositionFilter() {
@@ -139,7 +229,19 @@ public class PlayerTable extends CellTable<Player> implements
 
   public void setPlayerDataSet(PlayerDataSet playerDataSet) {
     this.playerDataSet = playerDataSet;
+    updateDragEnabled();
     setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
+
+  private void updateDragEnabled() {
+    boolean dragEnabled = playerDataSet == PlayerDataSet.CUSTOM
+        && getSortedColumn() == RANK;
+    for (int i = 0; i < getColumnCount(); i++) {
+      Column<Player, ?> column = getColumn(i);
+      if (column instanceof DragAndDropColumn) {
+        ((DragAndDropColumn) column).getDraggableOptions().setDisabled(!dragEnabled);
+      }
+    }
   }
 
   public void setHideInjuries(boolean hideInjuries) {
