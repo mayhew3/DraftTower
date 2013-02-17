@@ -52,7 +52,7 @@ public class ServerModule extends AbstractModule {
     return (DataSource) envCtx.lookup("jdbc/MySQL");
   }
 
-  @Provides @Keepers
+  @Provides @Singleton @Keepers
   public Map<Integer, List<Integer>> getKeepers(PlayerDataSource playerDataSource) {
     // TODO(m3): real keeper list (or query) goes here.
     return ImmutableMap.<Integer, List<Integer>>builder()
@@ -62,6 +62,12 @@ public class ServerModule extends AbstractModule {
         .build();
   }
 
+  @Provides @Singleton @Queues
+  public ListMultimap<Integer, QueueEntry> getQueues(PlayerDataSource playerDataSource) {
+    // TODO(m3): read queues from database.
+    return ArrayListMultimap.create();
+  }
+
   @Override
   protected void configure() {
     install(new GinModuleAdapter(new SharedModule()));
@@ -69,9 +75,5 @@ public class ServerModule extends AbstractModule {
     bind(new TypeLiteral<Map<String, Integer>>() {})
         .annotatedWith(TeamTokens.class)
         .toInstance(Maps.<String, Integer>newHashMap());
-    bind(new TypeLiteral<ListMultimap<Integer, QueueEntry>>() {})
-        .annotatedWith(Queues.class)
-        .toInstance(Multimaps.synchronizedListMultimap(
-            ArrayListMultimap.<Integer, QueueEntry>create()));
   }
 }
