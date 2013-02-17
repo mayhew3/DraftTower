@@ -6,6 +6,7 @@
 
 .leftColumn {
   width: 80%;
+  margin-bottom: 220px;
 }
 
 .queue {
@@ -16,6 +17,7 @@
   height: 200px;
   background: white;
   border-top: 1px solid black;
+  padding: 5px;
 }
 
 .queueScroller {
@@ -61,4 +63,8 @@
   border: 1px solid black;
   background: white;
   font-size: 70%;
+}
+
+.glassPanel {
+  background: rgba(0, 0, 0, 0.4);
 }

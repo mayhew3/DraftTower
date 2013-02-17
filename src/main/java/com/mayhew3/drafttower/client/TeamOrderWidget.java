@@ -9,9 +9,12 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamNames;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
+
+import java.util.Map;
 
 /**
  * Widget showing the order of upcoming picks.
@@ -39,14 +42,17 @@ public class TeamOrderWidget extends Composite implements
   }
 
   private final int numTeams;
+  private final Map<Integer, String> teamNames;
   private final TeamInfo teamInfo;
   private final FlowPanel container;
 
   @Inject
   public TeamOrderWidget(@NumTeams int numTeams,
+      @TeamNames Map<Integer, String> teamNames,
       TeamInfo teamInfo,
       EventBus eventBus) {
     this.numTeams = numTeams;
+    this.teamNames = teamNames;
     this.teamInfo = teamInfo;
 
     container = new FlowPanel();
@@ -71,6 +77,8 @@ public class TeamOrderWidget extends Composite implements
           team == teamInfo.getTeam());
       image.setStyleName(CSS.disconnected(),
           !status.getConnectedTeams().contains(team));
+      image.setAltText(teamNames.get(team));
+      image.setTitle(teamNames.get(team));
       container.add(image);
     }
     Label arrow = new Label("\u25bc");

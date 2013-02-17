@@ -24,8 +24,6 @@ import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.Player;
 
-import static com.mayhew3.drafttower.shared.PlayerColumn.NAME;
-
 /**
  * Widget for making picks.
  */
@@ -51,18 +49,21 @@ public class PickWidget extends Composite implements
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   private final TeamInfo teamInfo;
+  private final QueueDataProvider queueDataProvider;
   private final EventBus eventBus;
 
   @UiField Label selectedPlayerLabel;
   @UiField Button pick;
   @UiField Button enqueue;
   private DraftStatus status;
-  private Player selectedPlayer;
+  private Long selectedPlayerId;
 
   @Inject
   public PickWidget(TeamInfo teamInfo,
+      QueueDataProvider queueDataProvider,
       final EventBus eventBus) {
     this.teamInfo = teamInfo;
+    this.queueDataProvider = queueDataProvider;
     this.eventBus = eventBus;
 
     initWidget(uiBinder.createAndBindUi(this));
@@ -99,34 +100,34 @@ public class PickWidget extends Composite implements
 
   @Override
   public void onPlayerSelected(PlayerSelectedEvent event) {
-    selectedPlayer = event.getPlayer();
-    selectedPlayerLabel.setText(selectedPlayer == null ? "" :
-        selectedPlayer.getColumnValues().get(NAME));
+    selectedPlayerId = event.getPlayerId();
+    selectedPlayerLabel.setText(selectedPlayerId == null ? "" :
+        event.getPlayerName());
     updateButtonsEnabled();
   }
 
   @UiHandler("pick")
   public void handlePick(ClickEvent e) {
-    eventBus.fireEvent(new PickPlayerEvent(selectedPlayer.getPlayerId()));
-    selectedPlayer = null;
+    eventBus.fireEvent(new PickPlayerEvent(selectedPlayerId));
+    selectedPlayerId = null;
     selectedPlayerLabel.setText("");
   }
 
   @UiHandler("enqueue")
   public void handleEnqueue(ClickEvent e) {
-    eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayer.getPlayerId()));
-    selectedPlayer = null;
+    eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayerId, null));
+    selectedPlayerId = null;
     selectedPlayerLabel.setText("");
     updateButtonsEnabled();
   }
 
   private void updateButtonsEnabled() {
-    pick.setEnabled(selectedPlayer != null
+    pick.setEnabled(selectedPlayerId != null
         && status != null
         && status.getCurrentPickDeadline() > 0
         && !status.isPaused()
         && teamInfo.isLoggedIn()
         && teamInfo.getTeam() == status.getCurrentTeam());
-    enqueue.setEnabled(selectedPlayer != null);
+    enqueue.setEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
   }
 }

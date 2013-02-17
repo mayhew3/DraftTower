@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -28,19 +27,6 @@ import java.util.Map;
  */
 @Singleton
 public class QueueServlet extends HttpServlet {
-
-  private static class QueueEntryPredicate implements Predicate<QueueEntry> {
-    private final long playerId;
-
-    public QueueEntryPredicate(long playerId) {
-      this.playerId = playerId;
-    }
-
-    @Override
-    public boolean apply(QueueEntry input) {
-      return input.getPlayerId() == playerId;
-    }
-  }
 
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
@@ -78,7 +64,16 @@ public class QueueServlet extends HttpServlet {
         QueueEntry queueEntry = beanFactory.createQueueEntry().as();
         queueEntry.setPlayerId(request.getPlayerId());
         playerDataSource.populateQueueEntry(queueEntry);
-        queues.put(teamTokens.get(request.getTeamToken()), queueEntry);
+        // TODO(m3): persist to database
+        Integer team = teamTokens.get(request.getTeamToken());
+        if (request.getPosition() != null) {
+          List<QueueEntry> queue = queues.get(team);
+          synchronized (queues) {
+              queue.add(request.getPosition(), queueEntry);
+          }
+        } else {
+          queues.put(team, queueEntry);
+        }
       } catch (SQLException e) {
         log(e.getMessage(), e);
         resp.setStatus(500);
@@ -88,6 +83,7 @@ public class QueueServlet extends HttpServlet {
           AutoBeanCodex.decode(beanFactory, EnqueueOrDequeuePlayerRequest.class, requestStr).as();
       List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
       synchronized (queues) {
+        // TODO(m3): persist to database
         Iterables.removeIf(queue, new QueueEntryPredicate(request.getPlayerId()));
       }
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_REORDER)) {
@@ -97,6 +93,7 @@ public class QueueServlet extends HttpServlet {
       synchronized (queues) {
         int startIndex = Iterables.indexOf(queue, new QueueEntryPredicate(request.getPlayerId()));
         int endIndex = Math.min(request.getNewPosition(), queue.size());
+        // TODO(m3): persist to database
         if (startIndex < endIndex) {
           Collections.rotate(queue.subList(startIndex, endIndex + 1), -1);
         } else if (endIndex < startIndex) {

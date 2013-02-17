@@ -9,9 +9,6 @@ public interface DraftPick {
   int getTeam();
   void setTeam(int team);
 
-  String getTeamName();
-  void setTeamName(String teamName);
-
   long getPlayerId();
   void setPlayerId(long playerId);
 

@@ -15,8 +15,11 @@ import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -140,7 +143,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
     DraftPick pick = beanFactory.createDraftPick().as();
     pick.setTeam(team);
-    pick.setTeamName(getTeamName(team));
     pick.setPlayerId(playerId);
     try {
       playerDataSource.populateDraftPick(pick);
@@ -149,13 +151,19 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
     status.getPicks().add(pick);
 
+    Collection<Entry<Integer,QueueEntry>> queueEntries = queues.entries();
+    synchronized (queues) {
+      // TODO(m3): persist to database
+      for (Iterator<Entry<Integer, QueueEntry>> iterator = queueEntries.iterator(); iterator.hasNext();) {
+        Entry<Integer, QueueEntry> entry = iterator.next();
+        if (entry.getValue().getPlayerId() == playerId) {
+          iterator.remove();
+        }
+      }
+    }
+
     advanceTeam();
     newPick();
-  }
-
-  private String getTeamName(Integer team) {
-    // TODO(m3)
-    return "Team " + team;
   }
 
   @Override
@@ -171,7 +179,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
     int round = status.getPicks().size() / numTeams;
     List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
-    if (round < currentTeamKeepers.size()) {
+    if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
     } else {
       startPickTimer(PICK_LENGTH_MS);
