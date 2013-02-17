@@ -114,7 +114,7 @@ public class PickWidget extends Composite implements
 
   @UiHandler("enqueue")
   public void handleEnqueue(ClickEvent e) {
-    eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayer.getPlayerId()));
+    eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayer.getPlayerId(), null));
     selectedPlayer = null;
     selectedPlayerLabel.setText("");
     updateButtonsEnabled();

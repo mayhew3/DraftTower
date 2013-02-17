@@ -10,4 +10,7 @@ public interface EnqueueOrDequeuePlayerRequest {
 
   long getPlayerId();
   void setPlayerId(long playerId);
+
+  Integer getPosition();
+  void setPosition(Integer position);
 }

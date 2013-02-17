@@ -16,13 +16,19 @@ public class EnqueuePlayerEvent extends GwtEvent<Handler> {
   public static final Type<Handler> TYPE = new Type<Handler>();
 
   private final long playerId;
+  private final Integer position;
 
-  public EnqueuePlayerEvent(long playerId) {
+  public EnqueuePlayerEvent(long playerId, Integer position) {
     this.playerId = playerId;
+    this.position = position;
   }
 
   public long getPlayerId() {
     return playerId;
+  }
+
+  public Integer getPosition() {
+    return position;
   }
 
   @Override

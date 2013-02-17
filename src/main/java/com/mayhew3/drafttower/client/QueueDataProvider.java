@@ -79,15 +79,15 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
 
   @Override
   public void onPlayerEnqueued(EnqueuePlayerEvent event) {
-    enqueueOrDequeue(ServletEndpoints.QUEUE_ADD, event.getPlayerId());
+    enqueueOrDequeue(ServletEndpoints.QUEUE_ADD, event.getPlayerId(), event.getPosition());
   }
 
   @Override
   public void onPlayerDequeued(DequeuePlayerEvent event) {
-    enqueueOrDequeue(ServletEndpoints.QUEUE_REMOVE, event.getPlayerId());
+    enqueueOrDequeue(ServletEndpoints.QUEUE_REMOVE, event.getPlayerId(), null);
   }
 
-  private void enqueueOrDequeue(String action, long playerId) {
+  private void enqueueOrDequeue(String action, long playerId, Integer position) {
     if (!teamInfo.isLoggedIn()) {
       return;
     }
@@ -99,6 +99,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
       EnqueueOrDequeuePlayerRequest request = requestBean.as();
       request.setTeamToken(teamInfo.getTeamToken());
       request.setPlayerId(playerId);
+      request.setPosition(position);
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
           new RequestCallback() {

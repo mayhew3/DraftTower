@@ -79,7 +79,15 @@ public class QueueServlet extends HttpServlet {
         queueEntry.setPlayerId(request.getPlayerId());
         playerDataSource.populateQueueEntry(queueEntry);
         // TODO(m3): persist to database
-        queues.put(teamTokens.get(request.getTeamToken()), queueEntry);
+        Integer team = teamTokens.get(request.getTeamToken());
+        if (request.getPosition() != null) {
+          List<QueueEntry> queue = queues.get(team);
+          synchronized (queues) {
+              queue.add(request.getPosition(), queueEntry);
+          }
+        } else {
+          queues.put(team, queueEntry);
+        }
       } catch (SQLException e) {
         log(e.getMessage(), e);
         resp.setStatus(500);
