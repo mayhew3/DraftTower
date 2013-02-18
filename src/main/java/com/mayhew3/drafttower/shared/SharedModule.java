@@ -26,7 +26,7 @@ public class SharedModule extends AbstractGinModule {
 
   @Provides @Commissioner
   public int getCommissionerTeam() {
-    return 1;  // TODO(m3): commisioner's team goes here
+    return 3;
   }
 
   @Provides @NumTeams

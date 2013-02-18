@@ -233,7 +233,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       }
     }
     // TODO(m3)
-    doPick(status.getCurrentTeam(), 10648, true);
+    doPick(status.getCurrentTeam(), 16398, true);
   }
 
   private void startPickTimer(long timeMs) {

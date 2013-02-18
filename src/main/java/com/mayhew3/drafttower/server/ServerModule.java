@@ -56,9 +56,9 @@ public class ServerModule extends AbstractModule {
   public Map<Integer, List<Integer>> getKeepers(PlayerDataSource playerDataSource) {
     // TODO(m3): real keeper list (or query) goes here.
     return ImmutableMap.<Integer, List<Integer>>builder()
-        .put(1, Lists.newArrayList(9057, 9981))
-        .put(2, Lists.newArrayList(8854))
-        .put(3, Lists.newArrayList(7217, 11079, 9503))
+        .put(1, Lists.newArrayList(11720, 11638))
+        .put(2, Lists.newArrayList(14153))
+        .put(3, Lists.newArrayList(13513, 12771, 14086))
         .build();
   }
 

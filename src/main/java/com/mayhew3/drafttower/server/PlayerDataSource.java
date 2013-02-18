@@ -89,8 +89,7 @@ public class PlayerDataSource {
 
   private int getTotalUnclaimedPlayerCount() throws ServletException {
     String sql = "select count(1) as TotalPlayers " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where Year = 2012";
+        "from UnclaimedDisplayPlayersWithCatsByQuality";
 
     ResultSet resultSet = null;
     try {
@@ -113,7 +112,6 @@ public class PlayerDataSource {
 
     String sql = "select * " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where Year = 2012 " +
         "order by total desc " +
         "limit " + rowStart + ", " + rowCount;
 
@@ -123,7 +121,7 @@ public class PlayerDataSource {
   public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
     String sql = "select Player,Eligibility " +
         "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where Year = 2012 and PlayerID = " + queueEntry.getPlayerId();
+        "where PlayerID = " + queueEntry.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
     try {
@@ -137,12 +135,9 @@ public class PlayerDataSource {
   }
 
   public void populateDraftPick(DraftPick draftPick) throws SQLException {
-    // TODO(m3): This isn't the correct table to be querying, as this could
-    // be a keeper and thus not "unclaimed", but it's the only one I could
-    // find with an eligibility column.
     String sql = "select FirstName,LastName,Eligibility " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where Year = 2012 and PlayerID = " + draftPick.getPlayerId();
+        "from AllPlayers " +
+        "where ID = " + draftPick.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
     try {
