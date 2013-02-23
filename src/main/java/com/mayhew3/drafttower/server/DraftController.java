@@ -1,8 +1,6 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -46,7 +44,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final PlayerDataSource playerDataSource;
 
   private final Map<String, Integer> teamTokens;
-  private final Map<Integer, List<Integer>> keepers;
+  private final ListMultimap<Integer, Integer> keepers;
   private final ListMultimap<Integer, QueueEntry> queues;
 
   private final int commissionerTeam;
@@ -63,7 +61,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
-      @Keepers Map<Integer, List<Integer>> keepers,
+      @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
       @Commissioner int commissionerTeam,
       @NumTeams int numTeams) {
@@ -232,8 +230,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         }
       }
     }
-    // TODO(m3)
-    doPick(status.getCurrentTeam(), 16398, true);
+
+    doPick(status.getCurrentTeam(), Player.BEST_DRAFT_PICK, true);
   }
 
   private void startPickTimer(long timeMs) {

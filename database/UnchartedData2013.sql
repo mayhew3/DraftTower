@@ -493,13 +493,13 @@ CREATE TABLE `keepers` (
   `ID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `TeamID` smallint(6) NOT NULL,
   `PlayerID` int(11) NOT NULL,
-  `Round` tinyint(4) NOT NULL,
-  `Pick` tinyint(4) NOT NULL,
-  `OverallPick` smallint(6) NOT NULL,
+  `Round` tinyint(4) DEFAULT NULL,
+  `Pick` tinyint(4) DEFAULT NULL,
+  `OverallPick` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `OverallPick` (`OverallPick`),
   UNIQUE KEY `RoundPick` (`Round`,`Pick`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_german2_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -508,6 +508,7 @@ CREATE TABLE `keepers` (
 
 LOCK TABLES `keepers` WRITE;
 /*!40000 ALTER TABLE `keepers` DISABLE KEYS */;
+INSERT INTO `keepers` VALUES (2,1,11638,NULL,NULL,NULL),(3,6,14080,NULL,NULL,NULL),(4,12,12771,NULL,NULL,NULL),(5,6,13513,NULL,NULL,NULL),(6,9,13492,NULL,NULL,NULL),(7,7,13579,NULL,NULL,NULL),(8,5,13396,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `keepers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2237,4 +2238,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-02-17 17:06:45
+-- Dump completed on 2013-02-23 11:47:35

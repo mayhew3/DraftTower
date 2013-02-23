@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
@@ -13,8 +12,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -87,6 +88,31 @@ public class PlayerDataSource {
     return response;
   }
 
+  public ListMultimap<Integer, Integer> getAllKeepers() throws ServletException {
+    ListMultimap<Integer, Integer> keepers = ArrayListMultimap.create();
+
+    String sql = "select TeamID, PlayerID from Keepers";
+
+    ResultSet resultSet = null;
+    try {
+      resultSet = executeQuery(sql);
+      while (resultSet.next()) {
+        int teamID = resultSet.getInt("TeamID");
+        int playerID = resultSet.getInt("PlayerID");
+        keepers.put(teamID, playerID);
+      }
+    } catch (SQLException e) {
+      throw new ServletException("Error retreiving keepers from database.");
+    } finally {
+      try {
+        close(resultSet);
+      } catch (SQLException e) {
+        throw new ServletException("Error closing DB resources.", e);
+      }
+    }
+    return keepers;
+  }
+
   private int getTotalUnclaimedPlayerCount() throws ServletException {
     String sql = "select count(1) as TotalPlayers " +
         "from UnclaimedDisplayPlayersWithCatsByQuality";
@@ -152,15 +178,14 @@ public class PlayerDataSource {
   }
 
   public long getBestPlayerId() throws SQLException {
-    String sql = "select ID " +
-        "from AllPlayers " +
-        "where FirstName = 'Joakim' and LastName = 'Soria'";
+    String sql = "select PlayerID " +
+        "from UnclaimedDisplayPlayersWithCatsByQuality";
 
     ResultSet resultSet = null;
     try {
       resultSet = executeQuery(sql);
       resultSet.next();
-      return resultSet.getLong("ID");
+      return resultSet.getLong("PlayerID");
     } finally {
       close(resultSet);
     }

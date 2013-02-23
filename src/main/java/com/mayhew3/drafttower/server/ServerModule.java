@@ -11,6 +11,7 @@ import com.mayhew3.drafttower.shared.SharedModule;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -53,13 +54,8 @@ public class ServerModule extends AbstractModule {
   }
 
   @Provides @Singleton @Keepers
-  public Map<Integer, List<Integer>> getKeepers(PlayerDataSource playerDataSource) {
-    // TODO(m3): real keeper list (or query) goes here.
-    return ImmutableMap.<Integer, List<Integer>>builder()
-        .put(1, Lists.newArrayList(11720, 11638))
-        .put(2, Lists.newArrayList(14153))
-        .put(3, Lists.newArrayList(13513, 12771, 14086))
-        .build();
+  public ListMultimap<Integer, Integer> getKeepers(PlayerDataSource playerDataSource) throws ServletException {
+    return playerDataSource.getAllKeepers();
   }
 
   @Provides @Singleton @Queues
