@@ -28,7 +28,6 @@ public class MainPageWidget extends Composite
       String rightColumn();
       String tableHeader();
       String actionLink();
-      String shortcuts();
       String glassPanel();
     }
 
