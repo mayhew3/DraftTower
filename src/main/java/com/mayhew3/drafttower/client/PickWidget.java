@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
@@ -9,9 +8,6 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
@@ -22,7 +18,6 @@ import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
 import com.mayhew3.drafttower.client.events.PickPlayerEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.Player;
 
 /**
  * Widget for making picks.
@@ -72,24 +67,6 @@ public class PickWidget extends Composite implements
 
     eventBus.addHandler(PlayerSelectedEvent.TYPE, this);
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
-
-    Event.addNativePreviewHandler(new NativePreviewHandler() {
-      @Override
-      public void onPreviewNativeEvent(NativePreviewEvent preview) {
-        NativeEvent event = preview.getNativeEvent();
-
-        int keycode = event.getKeyCode();
-        boolean ctrl = event.getCtrlKey() || event.getMetaKey();
-        boolean alt = event.getAltKey();
-        boolean shift = event.getShiftKey();
-        if (pick.isEnabled() && event.getType().equalsIgnoreCase("keydown")) {
-          if (ctrl && alt && shift && keycode == 'J') {
-            preview.consume();
-            eventBus.fireEvent(new PickPlayerEvent(Player.BEST_DRAFT_PICK));
-          }
-        }
-      }
-    });
   }
 
   @Override
