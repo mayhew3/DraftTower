@@ -26,12 +26,12 @@ public class SharedModule extends AbstractGinModule {
 
   @Provides @Commissioner
   public int getCommissionerTeam() {
-    return 3;
+    return 7;
   }
 
   @Provides @NumTeams
   public int getNumTeams() {
-    return 12;
+    return 10;
   }
 
   @Override
