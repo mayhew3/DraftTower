@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.annotation.ElementType.*;

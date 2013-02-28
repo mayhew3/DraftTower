@@ -4,6 +4,7 @@ import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
@@ -29,14 +30,17 @@ public class PlayerDataSource {
   private final DataSource db;
   private final BeanFactory beanFactory;
   private final Map<String, Integer> teamTokens;
+  private int numTeams;
 
   @Inject
   public PlayerDataSource(DataSource db,
       BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens) {
+      @TeamTokens Map<String, Integer> teamTokens,
+      @NumTeams int numTeams) {
     this.db = db;
     this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
+    this.numTeams = numTeams;
   }
 
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request)
@@ -197,9 +201,36 @@ public class PlayerDataSource {
         + " player " + request.getPlayerId() + " new rank " + request.getNewRank());
   }
 
+  public void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException {
+    int overallPick = status.getPicks().size();
+    int round = overallPick / numTeams + 1;
+    int pick = ((overallPick-1) % numTeams) + 1;
+
+    long playerID = draftPick.getPlayerId();
+    int teamID = draftPick.getTeam();
+
+    String draftPosition = draftPick.getEligibilities().isEmpty() ? "'DH'" : "'" + draftPick.getEligibilities().get(0) + "'";
+    String sql = "INSERT INTO DraftResults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
+        "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
+          ", " + draftPosition + ", 0)";
+
+    Statement statement = null;
+    try {
+      statement = executeUpdate(sql);
+    } finally {
+      close(statement);
+    }
+  }
+
   private ResultSet executeQuery(String sql) throws SQLException {
     Statement statement = db.getConnection().createStatement();
     return statement.executeQuery(sql);
+  }
+
+  private Statement executeUpdate(String sql) throws SQLException {
+    Statement statement = db.getConnection().createStatement();
+    statement.executeUpdate(sql);
+    return statement;
   }
 
   private static void close(ResultSet resultSet) throws SQLException {
@@ -209,6 +240,12 @@ public class PlayerDataSource {
     Statement statement = resultSet.getStatement();
     Connection connection = statement.getConnection();
     resultSet.close();
+    statement.close();
+    connection.close();
+  }
+
+  private void close(Statement statement) throws SQLException {
+    Connection connection = statement.getConnection();
     statement.close();
     connection.close();
   }

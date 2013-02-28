@@ -35,7 +35,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
-  private static final long PICK_LENGTH_MS = 90 * 1000;
+  private static final long PICK_LENGTH_MS = 15 * 1000;
 
   private final Lock lock = new ReentrantLock();
 
@@ -148,6 +148,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
     }
     status.getPicks().add(pick);
+
+    try {
+      playerDataSource.postDraftPick(pick, status);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "SQL error posting draft pick for player ID " + playerId, e);
+    }
 
     Collection<Entry<Integer,QueueEntry>> queueEntries = queues.entries();
     synchronized (queues) {
