@@ -2,7 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -107,7 +107,7 @@ public class DraftClock extends Composite implements
   }
 
   @UiHandler("playPause")
-  public void handlePlayPause(ClickEvent e) {
+  public void handlePlayPause(MouseDownEvent e) {
     eventBus.fireEvent(new PlayPauseEvent());
   }
 

@@ -5,7 +5,10 @@
 }
 
 .table {
-  font-size: 50%;
   width: 100%;
   text-align: left;
+}
+
+.table td {
+  padding: 0;
 }

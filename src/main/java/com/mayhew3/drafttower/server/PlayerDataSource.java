@@ -1,11 +1,14 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
-import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import com.mayhew3.drafttower.shared.*;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
@@ -13,10 +16,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -174,14 +176,17 @@ public class PlayerDataSource {
       resultSet.next();
       draftPick.setPlayerName(
           resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
-      draftPick.setEligibilities(
-          Lists.newArrayList(resultSet.getString("Eligibility").split(",")));
+      String eligibility = resultSet.getString("Eligibility");
+      draftPick.setEligibilities(eligibility.isEmpty()
+          ? Collections.<String>emptyList()
+          : Lists.newArrayList(eligibility.split(",")));
     } finally {
       close(resultSet);
     }
   }
 
-  public long getBestPlayerId() throws SQLException {
+  public long getBestPlayerId(TableSpec tableSpec) throws SQLException {
+    // TODO(m3): use tableSpec.
     String sql = "select PlayerID " +
         "from UnclaimedDisplayPlayersWithCatsByQuality";
 

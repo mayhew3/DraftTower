@@ -1,15 +1,17 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.ServerModule.AutoPickTableSpecs;
 import com.mayhew3.drafttower.server.ServerModule.Keepers;
 import com.mayhew3.drafttower.server.ServerModule.Queues;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
-import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.sql.SQLException;
@@ -36,18 +38,20 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
   private static final long PICK_LENGTH_MS = 15 * 1000;
+  private static final long ROBOT_PICK_LENGTH_MS = 10 * 1000;
 
   private final Lock lock = new ReentrantLock();
 
   private final DraftTowerWebSocketServlet socketServlet;
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
+  private final TeamDataSource teamDataSource;
 
   private final Map<String, Integer> teamTokens;
   private final ListMultimap<Integer, Integer> keepers;
   private final ListMultimap<Integer, QueueEntry> queues;
+  private final Map<Integer, TableSpec> autoPickTableSpecs;
 
-  private final int commissionerTeam;
   private final int numTeams;
 
   private DraftStatus status;
@@ -60,21 +64,24 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   public DraftController(DraftTowerWebSocketServlet socketServlet,
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
+      TeamDataSource teamDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
-      @Commissioner int commissionerTeam,
+      @AutoPickTableSpecs Map<Integer, TableSpec> autoPickTableSpecs,
       @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
+    this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
-    this.commissionerTeam = commissionerTeam;
+    this.autoPickTableSpecs = autoPickTableSpecs;
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
+    status.setRobotTeams(Sets.<Integer>newHashSet());
     status.setPicks(Lists.<DraftPick>newArrayList());
     status.setCurrentTeam(1);
     socketServlet.addListener(this);
@@ -89,9 +96,15 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
     Integer team = teamTokens.get(cmd.getTeamToken());
-    if (cmd.getCommandType().isCommissionerOnly()
-        && team != commissionerTeam) {
-      return;
+    if (cmd.getCommandType().isCommissionerOnly()) {
+      try {
+        if (!teamDataSource.isCommissionerTeam(team)) {
+          return;
+        }
+      } catch (SQLException e) {
+        logger.log(SEVERE, "Couldn't look up team for commissioner-only command.", e);
+        return;
+      }
     }
     try {
       switch (cmd.getCommandType()) {
@@ -118,6 +131,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         case BACK_OUT:
           backOutLastPick();
           break;
+        case FORCE_PICK:
+          autoPick();
+          break;
+        case WAKE_UP:
+          status.getRobotTeams().remove(team);
+          break;
       }
       sendStatusUpdates();
     } finally {
@@ -128,7 +147,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private void doPick(Integer team, long playerId, boolean auto) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId();
+        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team));
       } catch (SQLException e) {
         logger.log(SEVERE, "SQL error looking up the best draft pick", e);
         return;
@@ -178,7 +197,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private void newPick() {
     cancelPickTimer();
-    status.setCurrentPickDeadline(System.currentTimeMillis() + PICK_LENGTH_MS);
+    long pickLengthMs = status.getRobotTeams().contains(status.getCurrentTeam())
+        ? ROBOT_PICK_LENGTH_MS
+        : PICK_LENGTH_MS;
+    status.setCurrentPickDeadline(System.currentTimeMillis() + pickLengthMs);
     status.setPaused(false);
 
     int round = status.getPicks().size() / numTeams;
@@ -186,7 +208,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
     } else {
-      startPickTimer(PICK_LENGTH_MS);
+      startPickTimer(pickLengthMs);
     }
   }
 
@@ -248,6 +270,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         lock.lock();
         try {
           currentPickTimer = null;
+          status.getRobotTeams().add(status.getCurrentTeam());
           autoPick();
           sendStatusUpdates();
         } finally {

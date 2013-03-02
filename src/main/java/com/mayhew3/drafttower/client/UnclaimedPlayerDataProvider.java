@@ -9,8 +9,11 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.ChangePlayerRankUrl;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickTableSpecUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
+import com.mayhew3.drafttower.client.events.IsUsersAutoPickTableSpecEvent;
+import com.mayhew3.drafttower.client.events.SetAutoPickTableSpecEvent;
 import com.mayhew3.drafttower.shared.*;
 
 /**
@@ -18,26 +21,33 @@ import com.mayhew3.drafttower.shared.*;
  */
 @Singleton
 public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> implements
-    ChangePlayerRankEvent.Handler {
+    ChangePlayerRankEvent.Handler,
+    SetAutoPickTableSpecEvent.Handler {
 
   private final BeanFactory beanFactory;
   private final String playerInfoUrl;
   private final String changePlayerRankUrl;
+  private final String setAutoPickTableSpecUrl;
   private final TeamInfo teamInfo;
+  private final EventBus eventBus;
 
   @Inject
   public UnclaimedPlayerDataProvider(
       BeanFactory beanFactory,
       @UnclaimedPlayerInfoUrl String playerInfoUrl,
       @ChangePlayerRankUrl String changePlayerRankUrl,
+      @SetAutoPickTableSpecUrl String setAutoPickTableSpecUrl,
       TeamInfo teamInfo,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.playerInfoUrl = playerInfoUrl;
     this.changePlayerRankUrl = changePlayerRankUrl;
+    this.setAutoPickTableSpecUrl = setAutoPickTableSpecUrl;
     this.teamInfo = teamInfo;
+    this.eventBus = eventBus;
 
     eventBus.addHandler(ChangePlayerRankEvent.TYPE, this);
+    eventBus.addHandler(SetAutoPickTableSpecEvent.TYPE, this);
   }
 
   @Override
@@ -60,10 +70,9 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
 
       if (display instanceof UnclaimedPlayerTable) {
         UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
-        request.setSortCol(table.getSortedColumn());
         request.setPositionFilter(table.getPositionFilter());
-        request.setPlayerDataSet(table.getPlayerDataSet());
         request.setHideInjuries(table.getHideInjuries());
+        request.setTableSpec(table.getTableSpec());
       }
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
@@ -75,6 +84,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
                       response.getText()).as();
               display.setRowData(rowStart, playerListResponse.getPlayers());
               display.setRowCount(playerListResponse.getTotalPlayers(), true);
+              eventBus.fireEvent(new IsUsersAutoPickTableSpecEvent(playerListResponse.isUsersAutoPickTableSpec()));
             }
 
             @Override
@@ -103,6 +113,41 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
 
       request.setPlayerId(event.getPlayerId());
       request.setNewRank(event.getNewRank());
+
+      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
+          new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+              for (HasData<Player> dataDisplay : getDataDisplays()) {
+                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
+              }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+              // TODO
+            }
+          });
+    } catch (RequestException e) {
+      // TODO
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void onSetAutoPickTableSpec(SetAutoPickTableSpecEvent event) {
+    if (!teamInfo.isLoggedIn()) {
+      return;
+    }
+    RequestBuilder requestBuilder =
+        new RequestBuilder(RequestBuilder.POST, setAutoPickTableSpecUrl);
+    try {
+      AutoBean<SetAutoPickTableSpecRequest> requestBean =
+          beanFactory.createSetAutoPickTableSpecRequest();
+      SetAutoPickTableSpecRequest request = requestBean.as();
+      request.setTeamToken(teamInfo.getTeamToken());
+
+      request.setTableSpec(event.getTableSpec());
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
           new RequestCallback() {

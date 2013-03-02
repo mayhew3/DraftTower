@@ -6,11 +6,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.events.IsUsersAutoPickTableSpecEvent;
+import com.mayhew3.drafttower.client.events.SetAutoPickTableSpecEvent;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 
@@ -22,12 +25,14 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * Widget containing player table, position filter buttons, and paging controls.
  */
-public class PlayerTablePanel extends Composite {
+public class PlayerTablePanel extends Composite implements
+    IsUsersAutoPickTableSpecEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
       String hideInjuries();
+      String autoPick();
       String filterButton();
     }
 
@@ -47,9 +52,10 @@ public class PlayerTablePanel extends Composite {
   private Map<PlayerDataSet, ToggleButton> dataSetButtons = Maps.newEnumMap(PlayerDataSet.class);
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
+  private final CheckBox useForAutoPick;
 
   @Inject
-  public PlayerTablePanel(final UnclaimedPlayerTable table) {
+  public PlayerTablePanel(final UnclaimedPlayerTable table, final EventBus eventBus) {
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
@@ -109,6 +115,16 @@ public class PlayerTablePanel extends Composite {
     }
     container.add(filterButtons);
 
+    useForAutoPick = new CheckBox("Use this order for auto-pick");
+    useForAutoPick.setStyleName(CSS.autoPick());
+    useForAutoPick.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        eventBus.fireEvent(new SetAutoPickTableSpecEvent(table.getTableSpec()));
+      }
+    });
+    container.add(useForAutoPick);
+
     SimplePager pager = new SimplePager();
     pager.setDisplay(table);
     container.add(pager);
@@ -116,5 +132,13 @@ public class PlayerTablePanel extends Composite {
     container.add(table);
 
     initWidget(container);
+
+    eventBus.addHandler(IsUsersAutoPickTableSpecEvent.TYPE, this);
+  }
+
+  @Override
+  public void onSetAutoPickTableSpec(IsUsersAutoPickTableSpecEvent event) {
+    useForAutoPick.setValue(event.isUsersAutoPickTableSpec());
+    useForAutoPick.setEnabled(!event.isUsersAutoPickTableSpec());
   }
 }

@@ -25,6 +25,8 @@ public class ServletConfig extends GuiceServletContextListener {
             .with(UnclaimedPlayerLookupServlet.class);
         serve("/" + ServletEndpoints.CHANGE_PLAYER_RANK_ENDPOINT)
             .with(ChangePlayerRankServlet.class);
+        serve("/" + ServletEndpoints.SET_AUTOPICK_TABLE_SPEC_ENDPOINT)
+            .with(SetAutoPickTableSpecServlet.class);
         serve("/" + ServletEndpoints.QUEUE_ENDPOINT + "/*")
             .with(QueueServlet.class);
       }

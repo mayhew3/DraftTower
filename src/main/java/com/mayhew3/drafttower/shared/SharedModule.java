@@ -17,17 +17,7 @@ public class SharedModule extends AbstractGinModule {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface Commissioner {}
-
-  @BindingAnnotation
-  @Target({FIELD, PARAMETER, METHOD})
-  @Retention(RUNTIME)
   public static @interface NumTeams {}
-
-  @Provides @Commissioner
-  public int getCommissionerTeam() {
-    return 7;
-  }
 
   @Provides @NumTeams
   public int getNumTeams() {

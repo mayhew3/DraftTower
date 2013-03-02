@@ -13,10 +13,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
-import com.mayhew3.drafttower.client.events.PickPlayerEvent;
-import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
+import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
 /**
@@ -29,6 +26,7 @@ public class PickWidget extends Composite implements
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
+      String force();
     }
 
     @Source("PickWidget.css")
@@ -50,6 +48,8 @@ public class PickWidget extends Composite implements
   @UiField Label selectedPlayerLabel;
   @UiField Button pick;
   @UiField Button enqueue;
+  @UiField Button forcePick;
+  @UiField Button wakeUp;
   private DraftStatus status;
   private Long selectedPlayerId;
 
@@ -98,6 +98,16 @@ public class PickWidget extends Composite implements
     updateButtonsEnabled();
   }
 
+  @UiHandler("forcePick")
+  public void handleForcePick(ClickEvent e) {
+    eventBus.fireEvent(new ForcePickPlayerEvent());
+  }
+
+  @UiHandler("wakeUp")
+  public void handleWakeUp(ClickEvent e) {
+    eventBus.fireEvent(new WakeUpEvent());
+  }
+
   private void updateButtonsEnabled() {
     pick.setEnabled(selectedPlayerId != null
         && status != null
@@ -106,5 +116,8 @@ public class PickWidget extends Composite implements
         && teamInfo.isLoggedIn()
         && teamInfo.getTeam() == status.getCurrentTeam());
     enqueue.setEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
+    forcePick.setEnabled(status != null && status.getCurrentPickDeadline() > 0);
+    forcePick.setVisible(teamInfo.isCommissionerTeam());
+    wakeUp.setVisible(status.getRobotTeams().contains(teamInfo.getTeam()));
   }
 }
