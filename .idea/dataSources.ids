@@ -916,7 +916,6 @@
     </table>
     <table name="DraftResults" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Round" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Pick" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="" />
@@ -929,31 +928,28 @@
       <column name="DraftPos" sqlType="ENUM" length="2" precision="0" nullable="false" jdbcType="1" def="Jyc=" />
       <column name="Keeper" sqlType="BIT" length="0" precision="0" nullable="false" jdbcType="-7" def="MA==" />
       <primary-key name="PRIMARY" columns="ID" />
-      <index name="OverallPick" unique="false" columns="Year,OverallPick" />
       <index name="TeamID" unique="false" columns="TeamID" />
-      <index name="PlayerYear" unique="false" columns="PlayerID,Year" />
       <index name="PlayerID" unique="false" columns="PlayerID" />
+      <index name="OverallPick" unique="false" columns="OverallPick" />
     </table>
     <table name="Eligibilities" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="SMALLINT UNSIGNED" length="5" precision="0" nullable="false" jdbcType="5" autoIncrement="true" />
       <column name="PlayerID" sqlType="SMALLINT UNSIGNED" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Position" sqlType="ENUM" length="2" precision="0" nullable="false" jdbcType="1" def="Jyc=" />
-      <column name="Year" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="" />
       <primary-key name="PRIMARY" columns="ID" />
-      <index name="PlayerYear" unique="false" columns="PlayerID,Year" />
-      <index name="PositionYear" unique="false" columns="Position,Year" />
+      <index name="PlayerID" unique="false" columns="PlayerID" />
+      <index name="Position" unique="false" columns="Position" />
     </table>
     <table name="Keepers" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="SMALLINT UNSIGNED" length="5" precision="0" nullable="false" jdbcType="5" autoIncrement="true" />
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Round" sqlType="TINYINT" length="3" precision="0" nullable="false" jdbcType="-6" def="" />
-      <column name="Pick" sqlType="TINYINT" length="3" precision="0" nullable="false" jdbcType="-6" def="" />
-      <column name="OverallPick" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
+      <column name="Round" sqlType="TINYINT" length="3" precision="0" nullable="true" jdbcType="-6" />
+      <column name="Pick" sqlType="TINYINT" length="3" precision="0" nullable="true" jdbcType="-6" />
+      <column name="OverallPick" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <primary-key name="PRIMARY" columns="ID" />
-      <index name="OverallPick" unique="true" columns="Year,OverallPick" />
-      <index name="RoundPick" unique="true" columns="Round,Pick,Year" />
+      <index name="OverallPick" unique="true" columns="OverallPick" />
+      <index name="RoundPick" unique="true" columns="Round,Pick" />
     </table>
     <table name="Pitching" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" />
@@ -997,12 +993,11 @@
     <table name="Players" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" />
       <column name="PlayerString" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="FirstName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="LastName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="MLBTeam" sqlType="VARCHAR" length="3" precision="0" nullable="true" jdbcType="12" />
       <primary-key name="PRIMARY" columns="ID" />
-      <index name="YearPlayer" unique="true" columns="PlayerString,Year" />
+      <index name="PlayerID" unique="true" columns="PlayerString" />
       <index name="NameTeam" unique="true" columns="FirstName,LastName,MLBTeam" />
     </table>
     <table name="RosterPositions" schema="" catalog="uncharted" type="TABLE">
@@ -1029,7 +1024,6 @@
     </table>
     <table name="Teams" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" autoIncrement="true" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Name" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
       <column name="Abbr" sqlType="VARCHAR" length="5" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
       <column name="Division" sqlType="ENUM" length="9" precision="0" nullable="true" jdbcType="1" />
@@ -1037,16 +1031,15 @@
       <column name="UserID" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="DisplayUser" sqlType="VARCHAR" length="20" precision="0" nullable="true" jdbcType="12" />
       <primary-key name="PRIMARY" columns="ID" />
-      <index name="DraftOrder" unique="false" columns="Year,DraftOrder" />
+      <index name="DraftOrder" unique="false" columns="DraftOrder" />
     </table>
     <table name="TmpEligibility" schema="" catalog="uncharted" type="TABLE">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" />
       <column name="PlayerString" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
       <column name="EligStr" sqlType="TINYTEXT" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
-      <column name="Year" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="" />
       <primary-key name="PRIMARY" columns="ID" />
-      <index name="PlayerStr" unique="true" columns="PlayerString,Year" />
+      <index name="PlayerStr" unique="true" columns="PlayerString" />
     </table>
     <table name="YearlyBatting" schema="" catalog="uncharted" type="TABLE">
       <column name="Player" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
@@ -1098,7 +1091,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" autoIncrement="true" />
       <primary-key name="PRIMARY" columns="ID" />
@@ -1158,10 +1150,10 @@
     <table name="allplayers" schema="" catalog="uncharted" type="VIEW">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="PlayerString" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="FirstName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="LastName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="MLBTeam" sqlType="VARCHAR" length="3" precision="0" nullable="true" jdbcType="12" />
+      <column name="Eligibility" sqlType="VARCHAR" length="255" precision="0" nullable="true" jdbcType="12" />
       <column name="Drafted" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="Keeper" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
     </table>
@@ -1174,10 +1166,8 @@
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
       <column name="Total" sqlType="DOUBLE" length="22" precision="0" nullable="true" jdbcType="8" />
       <column name="Position" sqlType="VARCHAR" length="2" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
     </table>
     <table name="avgbatting" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="OBP" sqlType="DECIMAL" length="15" precision="8" nullable="true" jdbcType="3" />
       <column name="SLG" sqlType="DECIMAL" length="17" precision="8" nullable="true" jdbcType="3" />
       <column name="SBC" sqlType="DECIMAL" length="14" precision="4" nullable="true" jdbcType="3" />
@@ -1189,7 +1179,6 @@
       <column name="TeamSLG" sqlType="DECIMAL" length="18" precision="8" nullable="true" jdbcType="3" />
     </table>
     <table name="avgbattingbypos" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Position" sqlType="ENUM" length="2" precision="0" nullable="false" jdbcType="1" def="Jyc=" />
       <column name="OBP" sqlType="DECIMAL" length="15" precision="8" nullable="true" jdbcType="3" />
       <column name="SLG" sqlType="DECIMAL" length="17" precision="8" nullable="true" jdbcType="3" />
@@ -1202,7 +1191,6 @@
       <column name="TeamSLG" sqlType="DECIMAL" length="18" precision="8" nullable="true" jdbcType="3" />
     </table>
     <table name="avgpitching" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="INN" sqlType="DECIMAL" length="13" precision="8" nullable="true" jdbcType="3" />
       <column name="ER" sqlType="DECIMAL" length="9" precision="4" nullable="true" jdbcType="3" />
       <column name="BRA" sqlType="DECIMAL" length="14" precision="4" nullable="true" jdbcType="3" />
@@ -1215,7 +1203,6 @@
       <column name="TeamWHIP" sqlType="DECIMAL" length="15" precision="8" nullable="true" jdbcType="3" />
     </table>
     <table name="avgpitchingbypos" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Role" sqlType="ENUM" length="8" precision="0" nullable="false" jdbcType="1" def="J05vbmUn" />
       <column name="INN" sqlType="DECIMAL" length="13" precision="8" nullable="true" jdbcType="3" />
       <column name="ER" sqlType="DECIMAL" length="9" precision="4" nullable="true" jdbcType="3" />
@@ -1278,7 +1265,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="11" precision="4" nullable="true" jdbcType="3" />
@@ -1352,7 +1338,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="11" precision="4" nullable="true" jdbcType="3" />
@@ -1710,7 +1695,6 @@
     </table>
     <table name="draftresultsdisplay" schema="" catalog="uncharted" type="VIEW">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Round" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Pick" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="" />
@@ -1775,7 +1759,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="11" precision="4" nullable="true" jdbcType="3" />
@@ -2157,7 +2140,6 @@
       <column name="NumPitchers" sqlType="BIGINT" length="19" precision="0" nullable="false" jdbcType="-5" def="MA==" />
     </table>
     <table name="stddeviationbatting" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="OBP" sqlType="DOUBLE" length="28" precision="8" nullable="true" jdbcType="8" />
       <column name="SLG" sqlType="DOUBLE" length="32" precision="8" nullable="true" jdbcType="8" />
       <column name="SBC" sqlType="DOUBLE" length="26" precision="4" nullable="true" jdbcType="8" />
@@ -2169,7 +2151,6 @@
       <column name="TeamSLG" sqlType="DOUBLE" length="34" precision="8" nullable="true" jdbcType="8" />
     </table>
     <table name="stddeviationbattingbypos" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Position" sqlType="ENUM" length="2" precision="0" nullable="false" jdbcType="1" def="Jyc=" />
       <column name="OBP" sqlType="DOUBLE" length="28" precision="8" nullable="true" jdbcType="8" />
       <column name="SLG" sqlType="DOUBLE" length="32" precision="8" nullable="true" jdbcType="8" />
@@ -2182,7 +2163,6 @@
       <column name="TeamSLG" sqlType="DOUBLE" length="34" precision="8" nullable="true" jdbcType="8" />
     </table>
     <table name="stddeviationpitching" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="INN" sqlType="DOUBLE" length="24" precision="8" nullable="true" jdbcType="8" />
       <column name="ER" sqlType="DOUBLE" length="16" precision="4" nullable="true" jdbcType="8" />
       <column name="BRA" sqlType="DOUBLE" length="26" precision="4" nullable="true" jdbcType="8" />
@@ -2195,7 +2175,6 @@
       <column name="TeamWHIP" sqlType="DOUBLE" length="28" precision="8" nullable="true" jdbcType="8" />
     </table>
     <table name="stddeviationpitchingbypos" schema="" catalog="uncharted" type="VIEW">
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="Role" sqlType="ENUM" length="8" precision="0" nullable="false" jdbcType="1" def="J05vbmUn" />
       <column name="INN" sqlType="DOUBLE" length="24" precision="8" nullable="true" jdbcType="8" />
       <column name="ER" sqlType="DOUBLE" length="16" precision="4" nullable="true" jdbcType="8" />
@@ -2211,7 +2190,6 @@
     <table name="teambatting" schema="" catalog="uncharted" type="VIEW">
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="MIN(TeamName)" sqlType="VARCHAR" length="255" precision="0" nullable="true" jdbcType="12" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="RHR" sqlType="DECIMAL" length="32" precision="0" nullable="true" jdbcType="3" />
       <column name="RBI" sqlType="DECIMAL" length="27" precision="0" nullable="true" jdbcType="3" />
       <column name="SBC" sqlType="DECIMAL" length="32" precision="0" nullable="true" jdbcType="3" />
@@ -2222,7 +2200,6 @@
     </table>
     <table name="teamcatrankings" schema="" catalog="uncharted" type="VIEW">
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="OBPRank" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
       <column name="SLGRank" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
       <column name="RHRRank" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
@@ -2239,7 +2216,6 @@
     <table name="teampitching" schema="" catalog="uncharted" type="VIEW">
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="MIN(TeamName)" sqlType="VARCHAR" length="255" precision="0" nullable="true" jdbcType="12" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="INN" sqlType="DECIMAL" length="31" precision="4" nullable="true" jdbcType="3" />
       <column name="ER" sqlType="DECIMAL" length="27" precision="0" nullable="true" jdbcType="3" />
       <column name="BRA" sqlType="DECIMAL" length="32" precision="0" nullable="true" jdbcType="3" />
@@ -2253,7 +2229,6 @@
     <table name="teamrankings" schema="" catalog="uncharted" type="VIEW">
       <column name="Name" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="OBPRank" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
       <column name="SLGRank" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
       <column name="RHRRank" sqlType="BIGINT" length="19" precision="0" nullable="true" jdbcType="-5" />
@@ -2272,7 +2247,6 @@
     </table>
     <table name="teamscoring" schema="" catalog="uncharted" type="VIEW">
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="33" precision="4" nullable="true" jdbcType="3" />
       <column name="SLG" sqlType="DECIMAL" length="36" precision="4" nullable="true" jdbcType="3" />
       <column name="RHR" sqlType="DECIMAL" length="32" precision="0" nullable="true" jdbcType="3" />
@@ -2288,7 +2262,6 @@
     </table>
     <table name="teamscoringwithzeroes" schema="" catalog="uncharted" type="VIEW">
       <column name="TeamID" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="OBP" sqlType="DECIMAL" length="33" precision="4" nullable="true" jdbcType="3" />
       <column name="SLG" sqlType="DECIMAL" length="36" precision="4" nullable="true" jdbcType="3" />
       <column name="RHR" sqlType="DECIMAL" length="32" precision="0" nullable="true" jdbcType="3" />
@@ -2353,7 +2326,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="11" precision="4" nullable="true" jdbcType="3" />
@@ -2418,7 +2390,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="11" precision="4" nullable="true" jdbcType="3" />
@@ -2435,7 +2406,6 @@
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
       <column name="Total" sqlType="DOUBLE" length="22" precision="0" nullable="true" jdbcType="8" />
       <column name="Position" sqlType="VARCHAR" length="2" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
     </table>
     <table name="unclaimeddisplayplayerswithcatsbyquality" schema="" catalog="uncharted" type="VIEW">
       <column name="Player" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
@@ -2457,7 +2427,6 @@
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
       <column name="Total" sqlType="DOUBLE" length="22" precision="0" nullable="true" jdbcType="8" />
       <column name="Position" sqlType="VARCHAR" length="2" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
       <column name="FirstName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="LastName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="MLBTeam" sqlType="VARCHAR" length="3" precision="0" nullable="true" jdbcType="12" />
@@ -2523,10 +2492,10 @@
     <table name="unclaimedplayers" schema="" catalog="uncharted" type="VIEW">
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="PlayerString" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="FirstName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="LastName" sqlType="VARCHAR" length="55" precision="0" nullable="true" jdbcType="12" />
       <column name="MLBTeam" sqlType="VARCHAR" length="3" precision="0" nullable="true" jdbcType="12" />
+      <column name="Eligibility" sqlType="VARCHAR" length="255" precision="0" nullable="true" jdbcType="12" />
       <column name="Drafted" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="Keeper" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
     </table>
@@ -2534,7 +2503,6 @@
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="Player" sqlType="VARCHAR" length="255" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="MA==" />
       <column name="PlayerType" sqlType="VARCHAR" length="7" precision="0" nullable="false" jdbcType="12" def="Jyc=" />
     </table>
     <table name="weeklyscoring" schema="" catalog="uncharted" type="VIEW">
@@ -2638,7 +2606,6 @@
       <column name="SH" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="TPT" sqlType="SMALLINT" length="5" precision="0" nullable="true" jdbcType="5" />
       <column name="Rank" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
-      <column name="Year" sqlType="SMALLINT" length="5" precision="0" nullable="false" jdbcType="5" def="" />
       <column name="PlayerID" sqlType="INT" length="10" precision="0" nullable="true" jdbcType="4" />
       <column name="ID" sqlType="INT" length="10" precision="0" nullable="false" jdbcType="4" def="MA==" />
       <column name="OBP" sqlType="DECIMAL" length="11" precision="4" nullable="true" jdbcType="3" />
