@@ -8,17 +8,14 @@ public interface UnclaimedPlayerListRequest {
   String getTeamToken();
   void setTeamToken(String teamToken);
 
-  PlayerDataSet getPlayerDataSet();
-  void setPlayerDataSet(PlayerDataSet playerDataSet);
-
   int getRowStart();
   void setRowStart(int rowStart);
 
   int getRowCount();
   void setRowCount(int rowCount);
 
-  PlayerColumn getSortCol();
-  void setSortCol(PlayerColumn sortCol);
+  TableSpec getTableSpec();
+  void setTableSpec(TableSpec tableSpec);
 
   Position getPositionFilter();
   void setPositionFilter(Position positionFilter);

@@ -185,7 +185,8 @@ public class PlayerDataSource {
     }
   }
 
-  public long getBestPlayerId() throws SQLException {
+  public long getBestPlayerId(TableSpec tableSpec) throws SQLException {
+    // TODO(m3): use tableSpec.
     String sql = "select PlayerID " +
         "from UnclaimedDisplayPlayersWithCatsByQuality";
 

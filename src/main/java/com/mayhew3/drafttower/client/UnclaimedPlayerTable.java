@@ -18,10 +18,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
-import com.mayhew3.drafttower.shared.Player;
-import com.mayhew3.drafttower.shared.PlayerColumn;
-import com.mayhew3.drafttower.shared.PlayerDataSet;
-import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.*;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
 import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
@@ -52,7 +49,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   private class RankCell extends EditTextCell {
     @Override
     public void onBrowserEvent(final Context context, final com.google.gwt.dom.client.Element parent, final String value, final NativeEvent event, final ValueUpdater<String> valueUpdater) {
-      if (playerDataSet == PlayerDataSet.CUSTOM) {
+      if (tableSpec.getPlayerDataSet() == PlayerDataSet.CUSTOM) {
         super.onBrowserEvent(context, parent, value, event, valueUpdater);
       }
     }
@@ -115,13 +112,17 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   };
 
   private Position positionFilter;
-  private PlayerDataSet playerDataSet = PlayerDataSet.WIZARD;
+  private TableSpec tableSpec;
   private boolean hideInjuries;
 
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
+      BeanFactory beanFactory,
       final EventBus eventBus) {
     super(eventBus);
+
+    tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
 
     addStyleName(BASE_CSS.table());
     setPageSize(40);
@@ -158,6 +159,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
     addColumnSortHandler(new AsyncHandler(this) {
       @Override
       public void onColumnSort(ColumnSortEvent event) {
+        tableSpec.setSortCol(getSortedColumn());
         super.onColumnSort(event);
         updateDropEnabled();
       }
@@ -198,10 +200,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
     return positionFilter;
   }
 
-  public PlayerDataSet getPlayerDataSet() {
-    return playerDataSet;
-  }
-
   public boolean getHideInjuries() {
     return hideInjuries;
   }
@@ -212,13 +210,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   }
 
   public void setPlayerDataSet(PlayerDataSet playerDataSet) {
-    this.playerDataSet = playerDataSet;
+    tableSpec.setPlayerDataSet(playerDataSet);
     updateDropEnabled();
     setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 
   private void updateDropEnabled() {
-    boolean dropEnabled = playerDataSet == PlayerDataSet.CUSTOM
+    boolean dropEnabled = tableSpec.getPlayerDataSet() == PlayerDataSet.CUSTOM
         && getSortedColumn() == RANK;
     for (int i = 0; i < getColumnCount(); i++) {
       Column<Player, ?> column = getColumn(i);
@@ -233,4 +231,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
     setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 
+  public TableSpec getTableSpec() {
+    return tableSpec;
+  }
 }

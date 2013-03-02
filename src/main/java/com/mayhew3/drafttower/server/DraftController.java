@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.ServerModule.AutoPickTableSpecs;
 import com.mayhew3.drafttower.server.ServerModule.Keepers;
 import com.mayhew3.drafttower.server.ServerModule.Queues;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
@@ -49,6 +50,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Map<String, Integer> teamTokens;
   private final ListMultimap<Integer, Integer> keepers;
   private final ListMultimap<Integer, QueueEntry> queues;
+  private final Map<Integer, TableSpec> autoPickTableSpecs;
 
   private final int numTeams;
 
@@ -66,6 +68,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
+      @AutoPickTableSpecs Map<Integer, TableSpec> autoPickTableSpecs,
       @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
@@ -74,6 +77,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
+    this.autoPickTableSpecs = autoPickTableSpecs;
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
@@ -143,7 +147,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private void doPick(Integer team, long playerId, boolean auto) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId();
+        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team));
       } catch (SQLException e) {
         logger.log(SEVERE, "SQL error looking up the best draft pick", e);
         return;
