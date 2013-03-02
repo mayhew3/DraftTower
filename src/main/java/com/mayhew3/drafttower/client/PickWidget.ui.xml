@@ -6,7 +6,13 @@
 
   <g:HTMLPanel styleName="{style.css.container}">
     <g:Label ui:field="selectedPlayerLabel">&nbsp;</g:Label>
-    <g:Button ui:field="pick">Pick</g:Button>
-    <g:Button ui:field="enqueue">Enqueue</g:Button>
+    <div>
+      <g:Button ui:field="pick">Pick</g:Button>
+      <g:Button ui:field="enqueue">Enqueue</g:Button>
+    </div>
+    <div>
+      <g:Button ui:field="forcePick" styleName="{style.css.force}">Force pick</g:Button>
+      <g:Button ui:field="wakeUp">Wake up!</g:Button>
+    </div>
   </g:HTMLPanel>
 </ui:UiBinder>

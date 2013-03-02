@@ -25,7 +25,9 @@ public class DraftSocketHandler implements
     LoginEvent.Handler,
     PlayPauseEvent.Handler,
     PickPlayerEvent.Handler,
-    BackOutPickEvent.Handler {
+    BackOutPickEvent.Handler,
+    ForcePickPlayerEvent.Handler,
+    WakeUpEvent.Handler {
 
   private final BeanFactory beanFactory;
   private final Websocket socket;
@@ -49,6 +51,8 @@ public class DraftSocketHandler implements
     eventBus.addHandler(PlayPauseEvent.TYPE, this);
     eventBus.addHandler(PickPlayerEvent.TYPE, this);
     eventBus.addHandler(BackOutPickEvent.TYPE, this);
+    eventBus.addHandler(ForcePickPlayerEvent.TYPE, this);
+    eventBus.addHandler(WakeUpEvent.TYPE, this);
   }
 
   @Override
@@ -116,5 +120,15 @@ public class DraftSocketHandler implements
   @Override
   public void onBackOutPick(BackOutPickEvent event) {
     sendDraftCommand(BACK_OUT);
+  }
+
+  @Override
+  public void onForcePick(ForcePickPlayerEvent event) {
+    sendDraftCommand(FORCE_PICK);
+  }
+
+  @Override
+  public void onWakeUp(WakeUpEvent event) {
+    sendDraftCommand(WAKE_UP);
   }
 }

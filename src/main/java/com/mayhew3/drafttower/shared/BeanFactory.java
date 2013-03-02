@@ -20,4 +20,6 @@ public interface BeanFactory extends AutoBeanFactory {
   AutoBean<GetPlayerQueueResponse> createPlayerQueueResponse();
   AutoBean<EnqueueOrDequeuePlayerRequest> createEnqueueOrDequeuePlayerRequest();
   AutoBean<ReorderPlayerQueueRequest> createReorderPlayerQueueRequest();
+  AutoBean<TableSpec> createTableSpec();
+  AutoBean<SetAutoPickTableSpecRequest> createSetAutoPickTableSpecRequest();
 }

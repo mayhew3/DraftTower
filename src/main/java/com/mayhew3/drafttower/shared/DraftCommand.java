@@ -11,7 +11,9 @@ public interface DraftCommand {
     DO_PICK(false),
     PAUSE(true),
     RESUME(true),
-    BACK_OUT(true);
+    BACK_OUT(true),
+    FORCE_PICK(true),
+    WAKE_UP(false);
 
     private final boolean commissionerOnly;
 
