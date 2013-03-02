@@ -1,6 +1,8 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -117,6 +119,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           break;
         case BACK_OUT:
           backOutLastPick();
+          break;
+        case FORCE_PICK:
+          autoPick();
           break;
       }
       sendStatusUpdates();

@@ -3,3 +3,8 @@
   margin-top: 10px;
   line-height: 25px;
 }
+
+.force {
+  color: red;
+  font-weight: bold;
+}
