@@ -20,6 +20,7 @@
   margin-right: 5px;
   border: 2px solid transparent;
   vertical-align: middle;
+  position: relative;
 }
 
 .me {
@@ -28,6 +29,13 @@
 
 .disconnected {
   opacity: 0.4;
+}
+
+.robot:after {
+  content: url("cylon_classic.png");
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
 }
 
 .statusMessage {

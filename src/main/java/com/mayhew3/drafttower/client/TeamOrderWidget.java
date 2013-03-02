@@ -4,10 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamNames;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
@@ -29,6 +26,7 @@ public class TeamOrderWidget extends Composite implements
       String teamLogo();
       String me();
       String disconnected();
+      String robot();
       String statusMessage();
     }
 
@@ -71,15 +69,19 @@ public class TeamOrderWidget extends Composite implements
       if (team > numTeams) {
         team -= numTeams;
       }
+      SimplePanel teamLogo = new SimplePanel();
       Image image = new Image("team" + team + "logo.png");
-      image.setStyleName(CSS.teamLogo());
-      image.setStyleName(CSS.me(),
+      teamLogo.setWidget(image);
+      teamLogo.setStyleName(CSS.teamLogo());
+      teamLogo.setStyleName(CSS.me(),
           team == teamInfo.getTeam());
-      image.setStyleName(CSS.disconnected(),
+      teamLogo.setStyleName(CSS.disconnected(),
           !status.getConnectedTeams().contains(team));
+      teamLogo.setStyleName(CSS.robot(),
+          status.getRobotTeams().contains(team));
       image.setAltText(teamNames.get(team));
       image.setTitle(teamNames.get(team));
-      container.add(image);
+      container.add(teamLogo);
     }
     Label arrow = new Label("\u25bc");
     arrow.setStyleName(CSS.currentPickArrow());

@@ -18,6 +18,7 @@
     </facet>
     <facet type="gwt" name="GWT">
       <configuration>
+        <setting name="compilerParameters" value="-logLevel ERROR -draftCompile -optimize 0" />
         <setting name="compilerMaxHeapSize" value="256" />
         <setting name="gwtScriptOutputStyle" value="DETAILED" />
         <setting name="gwtSdkUrl" value="file://$MAVEN_REPOSITORY$/com/google/gwt/gwt-dev/2.5.0/" />
