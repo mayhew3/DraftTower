@@ -90,17 +90,22 @@ public class PickWidget extends Composite implements
     selectedPlayerLabel.setText("");
   }
 
-  @UiHandler("forcePick")
-  public void handleForcePick(ClickEvent e) {
-    eventBus.fireEvent(new ForcePickPlayerEvent());
-  }
-
   @UiHandler("enqueue")
   public void handleEnqueue(ClickEvent e) {
     eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayerId, null));
     selectedPlayerId = null;
     selectedPlayerLabel.setText("");
     updateButtonsEnabled();
+  }
+
+  @UiHandler("forcePick")
+  public void handleForcePick(ClickEvent e) {
+    eventBus.fireEvent(new ForcePickPlayerEvent());
+  }
+
+  @UiHandler("wakeUp")
+  public void handleWakeUp(ClickEvent e) {
+    eventBus.fireEvent(new WakeUpEvent());
   }
 
   private void updateButtonsEnabled() {
@@ -113,6 +118,6 @@ public class PickWidget extends Composite implements
     enqueue.setEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
     forcePick.setEnabled(status != null && status.getCurrentPickDeadline() > 0);
     forcePick.setVisible(teamInfo.isCommissionerTeam());
-    wakeUp.setVisible(false);  // TODO(kcp)
+    wakeUp.setVisible(status.getRobotTeams().contains(teamInfo.getTeam()));
   }
 }

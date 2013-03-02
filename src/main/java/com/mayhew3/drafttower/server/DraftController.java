@@ -38,6 +38,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
   private static final long PICK_LENGTH_MS = 15 * 1000;
+  private static final long ROBOT_PICK_LENGTH_MS = 10 * 1000;
 
   private final Lock lock = new ReentrantLock();
 
@@ -77,6 +78,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
+    status.setRobotTeams(Sets.<Integer>newHashSet());
     status.setPicks(Lists.<DraftPick>newArrayList());
     status.setCurrentTeam(1);
     socketServlet.addListener(this);
@@ -122,6 +124,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           break;
         case FORCE_PICK:
           autoPick();
+          break;
+        case WAKE_UP:
+          status.getRobotTeams().remove(team);
           break;
       }
       sendStatusUpdates();
@@ -183,7 +188,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private void newPick() {
     cancelPickTimer();
-    status.setCurrentPickDeadline(System.currentTimeMillis() + PICK_LENGTH_MS);
+    long pickLengthMs = status.getRobotTeams().contains(status.getCurrentTeam())
+        ? ROBOT_PICK_LENGTH_MS
+        : PICK_LENGTH_MS;
+    status.setCurrentPickDeadline(System.currentTimeMillis() + pickLengthMs);
     status.setPaused(false);
 
     int round = status.getPicks().size() / numTeams;
@@ -191,7 +199,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
     } else {
-      startPickTimer(PICK_LENGTH_MS);
+      startPickTimer(pickLengthMs);
     }
   }
 
@@ -253,6 +261,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
         lock.lock();
         try {
           currentPickTimer = null;
+          status.getRobotTeams().add(status.getCurrentTeam());
           autoPick();
           sendStatusUpdates();
         } finally {

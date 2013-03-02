@@ -2,15 +2,15 @@ package com.mayhew3.drafttower.client.events;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
-import com.mayhew3.drafttower.client.events.ForcePickPlayerEvent.Handler;
+import com.mayhew3.drafttower.client.events.WakeUpEvent.Handler;
 
 /**
- * Event fired on "force pick" click.
+ * Event fired on "wake up" click.
  */
-public class ForcePickPlayerEvent extends GwtEvent<Handler> {
+public class WakeUpEvent extends GwtEvent<Handler> {
 
   public static interface Handler extends EventHandler {
-    void onForcePick(ForcePickPlayerEvent event);
+    void onWakeUp(WakeUpEvent event);
   }
 
   public static final Type<Handler> TYPE = new Type<Handler>();
@@ -22,6 +22,6 @@ public class ForcePickPlayerEvent extends GwtEvent<Handler> {
 
   @Override
   protected void dispatch(Handler handler) {
-    handler.onForcePick(this);
+    handler.onWakeUp(this);
   }
 }
