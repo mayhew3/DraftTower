@@ -11,7 +11,6 @@ import com.mayhew3.drafttower.server.ServerModule.Keepers;
 import com.mayhew3.drafttower.server.ServerModule.Queues;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
-import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.sql.SQLException;
@@ -45,12 +44,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final DraftTowerWebSocketServlet socketServlet;
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
+  private final TeamDataSource teamDataSource;
 
   private final Map<String, Integer> teamTokens;
   private final ListMultimap<Integer, Integer> keepers;
   private final ListMultimap<Integer, QueueEntry> queues;
 
-  private final int commissionerTeam;
   private final int numTeams;
 
   private DraftStatus status;
@@ -63,18 +62,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   public DraftController(DraftTowerWebSocketServlet socketServlet,
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
+      TeamDataSource teamDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
-      @Commissioner int commissionerTeam,
       @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
+    this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
-    this.commissionerTeam = commissionerTeam;
     this.numTeams = numTeams;
     this.status = beanFactory.createDraftStatus().as();
     status.setConnectedTeams(Sets.<Integer>newHashSet());
@@ -93,9 +92,15 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
     Integer team = teamTokens.get(cmd.getTeamToken());
-    if (cmd.getCommandType().isCommissionerOnly()
-        && team != commissionerTeam) {
-      return;
+    if (cmd.getCommandType().isCommissionerOnly()) {
+      try {
+        if (!teamDataSource.isCommissionerTeam(team)) {
+          return;
+        }
+      } catch (SQLException e) {
+        logger.log(SEVERE, "Couldn't look up team for commissioner-only command.", e);
+        return;
+      }
     }
     try {
       switch (cmd.getCommandType()) {

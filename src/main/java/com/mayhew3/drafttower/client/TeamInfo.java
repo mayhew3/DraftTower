@@ -1,9 +1,7 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.LoginResponse;
-import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 
 /**
  * Info about this client's team.  Holds a {@link LoginResponse}.
@@ -11,13 +9,7 @@ import com.mayhew3.drafttower.shared.SharedModule.Commissioner;
 @Singleton
 public class TeamInfo {
 
-  private final int commissionerTeam;
   private LoginResponse loginResponse;
-
-  @Inject
-  public TeamInfo(@Commissioner int commissionerTeam) {
-    this.commissionerTeam = commissionerTeam;
-  }
 
   public String getTeamToken() {
     return loginResponse.getTeamToken();
@@ -32,7 +24,7 @@ public class TeamInfo {
   }
 
   public boolean isCommissionerTeam() {
-    return loginResponse.getTeam() == commissionerTeam;
+    return loginResponse.isCommissionerTeam();
   }
 
   public boolean isLoggedIn() {

@@ -9,4 +9,7 @@ public interface LoginResponse {
 
   int getTeam();
   void setTeam(int team);
+
+  boolean isCommissionerTeam();
+  void setCommissionerTeam(boolean commissionerTeam);
 }
