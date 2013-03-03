@@ -69,7 +69,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
       @AutoPickTableSpecs Map<Integer, TableSpec> autoPickTableSpecs,
-      @NumTeams int numTeams) {
+      @NumTeams int numTeams) throws SQLException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
@@ -83,7 +83,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setConnectedTeams(Sets.<Integer>newHashSet());
     status.setRobotTeams(Sets.<Integer>newHashSet());
     status.setPicks(Lists.<DraftPick>newArrayList());
-    status.setCurrentTeam(1);
+    playerDataSource.populateDraftStatus(status);
+    status.setCurrentTeam(status.getPicks().isEmpty()
+        ? 1
+        : status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1);
     socketServlet.addListener(this);
   }
 

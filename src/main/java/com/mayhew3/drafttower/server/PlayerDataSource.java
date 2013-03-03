@@ -160,7 +160,7 @@ public class PlayerDataSource {
       resultSet.next();
       queueEntry.setPlayerName(resultSet.getString("Player"));
       queueEntry.setEligibilities(
-          Lists.newArrayList(resultSet.getString("Eligibility").split(",")));
+          splitEligibilities(resultSet.getString("Eligibility")));
     } finally {
       close(resultSet);
     }
@@ -176,10 +176,8 @@ public class PlayerDataSource {
       resultSet.next();
       draftPick.setPlayerName(
           resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
-      String eligibility = resultSet.getString("Eligibility");
-      draftPick.setEligibilities(eligibility.isEmpty()
-          ? Collections.<String>emptyList()
-          : Lists.newArrayList(eligibility.split(",")));
+      draftPick.setEligibilities(
+          splitEligibilities(resultSet.getString("Eligibility")));
     } finally {
       close(resultSet);
     }
@@ -208,7 +206,7 @@ public class PlayerDataSource {
 
   public void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException {
     int overallPick = status.getPicks().size();
-    int round = overallPick / numTeams + 1;
+    int round = (overallPick - 1) / numTeams + 1;
     int pick = ((overallPick-1) % numTeams) + 1;
 
     long playerID = draftPick.getPlayerId();
@@ -225,6 +223,31 @@ public class PlayerDataSource {
     } finally {
       close(statement);
     }
+  }
+
+  public void populateDraftStatus(DraftStatus status) throws SQLException {
+    String sql = "SELECT * from DraftResultsLoad "
+        + "ORDER BY Round, Pick";
+    ResultSet resultSet = executeQuery(sql);
+    try {
+      while (resultSet.next()) {
+        DraftPick pick = beanFactory.createDraftPick().as();
+        pick.setPlayerId(resultSet.getInt("PlayerID"));
+        pick.setPlayerName(resultSet.getString("PlayerName"));
+        pick.setEligibilities(
+            splitEligibilities(resultSet.getString("Eligibility")));
+        pick.setTeam(resultSet.getInt("DraftOrder"));
+        status.getPicks().add(pick);
+      }
+    } finally {
+      close(resultSet);
+    }
+  }
+
+  private static List<String> splitEligibilities(String eligibility) {
+    return eligibility.isEmpty()
+        ? Collections.<String>emptyList()
+        : Lists.newArrayList(eligibility.split(","));
   }
 
   private ResultSet executeQuery(String sql) throws SQLException {
