@@ -19,6 +19,13 @@ public class TeamInfo {
     return loginResponse.getTeam();
   }
 
+  public String getTeamName(int team) {
+    if (loginResponse == null) {
+      return "Team " + team;
+    }
+    return loginResponse.getTeamNames().get(Integer.toString(team));
+  }
+
   public void setLoginResponse(LoginResponse loginResponse) {
     this.loginResponse = loginResponse;
   }

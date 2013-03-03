@@ -16,7 +16,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.TeamNames;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
@@ -36,13 +35,13 @@ public class DepthChartsTable extends CellTable<Integer> implements
   private Map<Integer, Multimap<Position, DraftPick>> rosters;
 
   @Inject
-  public DepthChartsTable(@TeamNames final Map<Integer, String> teamNames,
+  public DepthChartsTable(final TeamInfo teamInfo,
       EventBus eventBus) {
     setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<Integer>() {
       @Override
       public String getValue(Integer team) {
-        return teamNames.get(team);
+        return teamInfo.getTeamName(team);
       }
     }, "Team");
     for (Position position : RosterUtil.POSITIONS_AND_COUNTS.keySet()) {

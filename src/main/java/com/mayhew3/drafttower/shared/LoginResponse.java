@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
+import java.util.Map;
+
 /**
  * Response to successful login.
  */
@@ -12,4 +14,8 @@ public interface LoginResponse {
 
   boolean isCommissionerTeam();
   void setCommissionerTeam(boolean commissionerTeam);
+
+  // Can't use Integer as key - see https://code.google.com/p/google-web-toolkit/issues/detail?id=7395
+  Map<String, String> getTeamNames();
+  void setTeamNames(Map<String, String> teamNames);
 }

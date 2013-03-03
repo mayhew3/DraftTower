@@ -47,6 +47,7 @@ public class LoginServlet extends HttpServlet {
       response.setTeam(team);
       response.setTeamToken(teamToken);
       try {
+        response.setTeamNames(teamDataSource.getTeamNames());
         response.setCommissionerTeam(teamDataSource.isCommissionerTeam(team));
       } catch (SQLException e) {
         throw new ServletException(e);
