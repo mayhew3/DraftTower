@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -9,6 +11,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
 /**
  * Looks up players in the database.
@@ -17,6 +20,7 @@ import java.sql.Statement;
 public class TeamDataSource {
 
   private final DataSource db;
+  private Map<String, String> teamNamesCache;
 
   @Inject
   public TeamDataSource(DataSource db) {
@@ -69,6 +73,30 @@ public class TeamDataSource {
     }  finally {
       close(resultSet);
     }
+  }
+
+  public Map<String, String> getTeamNames() throws SQLException {
+    if (teamNamesCache == null) {
+      synchronized (this) {
+        if (teamNamesCache == null) {
+          Builder<String, String> teamNamesBuilder = ImmutableMap.builder();
+          String sql = "select abbr, draftorder " +
+              "from teams";
+          ResultSet resultSet = null;
+          try {
+            resultSet = executeQuery(sql);
+            while (resultSet.next()) {
+              teamNamesBuilder.put(resultSet.getString("draftorder"),
+                  resultSet.getString("abbr"));
+            }
+          } finally {
+            close(resultSet);
+          }
+          teamNamesCache = teamNamesBuilder.build();
+        }
+      }
+    }
+    return teamNamesCache;
   }
 
   private ResultSet executeQuery(String sql) throws SQLException {
