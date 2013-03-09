@@ -52,7 +52,7 @@ public class DraftClock extends Composite implements
   interface MyUiBinder extends UiBinder<Widget, DraftClock> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
   @UiField Label clockDisplay;
@@ -61,9 +61,9 @@ public class DraftClock extends Composite implements
 
   @Inject
   public DraftClock(DraftSocketHandler socketHandler,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       EventBus eventBus) {
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
     this.eventBus = eventBus;
 
     initWidget(uiBinder.createAndBindUi(this));
@@ -103,7 +103,7 @@ public class DraftClock extends Composite implements
 
   @Override
   public void onLogin(LoginEvent event) {
-    playPause.setVisible(teamInfo.isCommissionerTeam());
+    playPause.setVisible(teamsInfo.isCommissionerTeam());
   }
 
   @UiHandler("playPause")

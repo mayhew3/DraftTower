@@ -41,7 +41,7 @@ public class PickWidget extends Composite implements
   interface MyUiBinder extends UiBinder<Widget, PickWidget> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
   private final QueueDataProvider queueDataProvider;
   private final EventBus eventBus;
 
@@ -54,10 +54,10 @@ public class PickWidget extends Composite implements
   private Long selectedPlayerId;
 
   @Inject
-  public PickWidget(TeamInfo teamInfo,
+  public PickWidget(TeamsInfo teamsInfo,
       QueueDataProvider queueDataProvider,
       final EventBus eventBus) {
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
     this.queueDataProvider = queueDataProvider;
     this.eventBus = eventBus;
 
@@ -113,11 +113,11 @@ public class PickWidget extends Composite implements
         && status != null
         && status.getCurrentPickDeadline() > 0
         && !status.isPaused()
-        && teamInfo.isLoggedIn()
-        && teamInfo.getTeam() == status.getCurrentTeam());
+        && teamsInfo.isLoggedIn()
+        && teamsInfo.getTeam() == status.getCurrentTeam());
     enqueue.setEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
     forcePick.setEnabled(status != null && status.getCurrentPickDeadline() > 0);
-    forcePick.setVisible(teamInfo.isCommissionerTeam());
-    wakeUp.setVisible(status.getRobotTeams().contains(teamInfo.getTeam()));
+    forcePick.setVisible(teamsInfo.isCommissionerTeam());
+    wakeUp.setVisible(status.getRobotTeams().contains(teamsInfo.getTeam()));
   }
 }

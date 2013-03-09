@@ -18,7 +18,7 @@ public class PickHistoryTable extends CellTable<DraftPick> implements
   private ListDataProvider<DraftPick> pickProvider;
 
   @Inject
-  public PickHistoryTable(final TeamInfo teamInfo,
+  public PickHistoryTable(final TeamsInfo teamsInfo,
       EventBus eventBus) {
     setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<DraftPick>() {
@@ -31,7 +31,7 @@ public class PickHistoryTable extends CellTable<DraftPick> implements
     addColumn(new TextColumn<DraftPick>() {
       @Override
       public String getValue(DraftPick pick) {
-        return teamInfo.getTeamName(pick.getTeam());
+        return teamsInfo.getShortTeamName(pick.getTeam());
       }
     }, "Team");
     addColumn(new TextColumn<DraftPick>() {

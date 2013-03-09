@@ -36,13 +36,13 @@ public class PickHistoryTablePanel extends Composite implements
   }
 
   private final Button backOutButton;
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
 
   @Inject
   public PickHistoryTablePanel(PickHistoryTable table,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       final EventBus eventBus) {
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
 
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
@@ -68,6 +68,6 @@ public class PickHistoryTablePanel extends Composite implements
 
   @Override
   public void onLogin(LoginEvent event) {
-    backOutButton.setVisible(teamInfo.isCommissionerTeam());
+    backOutButton.setVisible(teamsInfo.isCommissionerTeam());
   }
 }

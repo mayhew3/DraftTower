@@ -28,7 +28,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
   private final String playerInfoUrl;
   private final String changePlayerRankUrl;
   private final String setAutoPickTableSpecUrl;
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
   @Inject
@@ -37,13 +37,13 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       @UnclaimedPlayerInfoUrl String playerInfoUrl,
       @ChangePlayerRankUrl String changePlayerRankUrl,
       @SetAutoPickTableSpecUrl String setAutoPickTableSpecUrl,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.playerInfoUrl = playerInfoUrl;
     this.changePlayerRankUrl = changePlayerRankUrl;
     this.setAutoPickTableSpecUrl = setAutoPickTableSpecUrl;
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
     this.eventBus = eventBus;
 
     eventBus.addHandler(ChangePlayerRankEvent.TYPE, this);
@@ -52,7 +52,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
 
   @Override
   protected void onRangeChanged(final HasData<Player> display) {
-    if (!teamInfo.isLoggedIn()) {
+    if (!teamsInfo.isLoggedIn()) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -61,7 +61,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       AutoBean<UnclaimedPlayerListRequest> requestBean =
           beanFactory.createUnclaimedPlayerListRequest();
       UnclaimedPlayerListRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getTeamToken());
+      request.setTeamToken(teamsInfo.getTeamToken());
 
       final int rowStart = display.getVisibleRange().getStart();
       int rowCount = display.getVisibleRange().getLength();
@@ -100,7 +100,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
 
   @Override
   public void onChangePlayerRank(ChangePlayerRankEvent event) {
-    if (!teamInfo.isLoggedIn()) {
+    if (!teamsInfo.isLoggedIn()) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -109,7 +109,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       AutoBean<ChangePlayerRankRequest> requestBean =
           beanFactory.createChangePlayerRankRequest();
       ChangePlayerRankRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getTeamToken());
+      request.setTeamToken(teamsInfo.getTeamToken());
 
       request.setPlayerId(event.getPlayerId());
       request.setNewRank(event.getNewRank());
@@ -136,7 +136,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
 
   @Override
   public void onSetAutoPickTableSpec(SetAutoPickTableSpecEvent event) {
-    if (!teamInfo.isLoggedIn()) {
+    if (!teamsInfo.isLoggedIn()) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -145,7 +145,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       AutoBean<SetAutoPickTableSpecRequest> requestBean =
           beanFactory.createSetAutoPickTableSpecRequest();
       SetAutoPickTableSpecRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getTeamToken());
+      request.setTeamToken(teamsInfo.getTeamToken());
 
       request.setTableSpec(event.getTableSpec());
 
