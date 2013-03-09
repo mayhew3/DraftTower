@@ -28,7 +28,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
 
   private final BeanFactory beanFactory;
   private final String queuesUrl;
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
 
   private List<QueueEntry> queue;
 
@@ -36,11 +36,11 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
   public QueueDataProvider(
       BeanFactory beanFactory,
       @QueuesUrl String queuesUrl,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.queuesUrl = queuesUrl;
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
 
     eventBus.addHandler(EnqueuePlayerEvent.TYPE, this);
     eventBus.addHandler(DequeuePlayerEvent.TYPE, this);
@@ -49,7 +49,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
 
   @Override
   protected void onRangeChanged(final HasData<QueueEntry> display) {
-    if (!teamInfo.isLoggedIn()) {
+    if (!teamsInfo.isLoggedIn()) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -58,7 +58,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
       AutoBean<GetPlayerQueueRequest> requestBean =
           beanFactory.createPlayerQueueRequest();
       GetPlayerQueueRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getTeamToken());
+      request.setTeamToken(teamsInfo.getTeamToken());
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
           new RequestCallback() {
@@ -98,7 +98,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
   }
 
   private void enqueueOrDequeue(String action, long playerId, Integer position) {
-    if (!teamInfo.isLoggedIn()) {
+    if (!teamsInfo.isLoggedIn()) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -107,7 +107,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
       AutoBean<EnqueueOrDequeuePlayerRequest> requestBean =
           beanFactory.createEnqueueOrDequeuePlayerRequest();
       EnqueueOrDequeuePlayerRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getTeamToken());
+      request.setTeamToken(teamsInfo.getTeamToken());
       request.setPlayerId(playerId);
       request.setPosition(position);
 
@@ -133,7 +133,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
 
   @Override
   public void onQueueReordered(ReorderPlayerQueueEvent event) {
-    if (!teamInfo.isLoggedIn()) {
+    if (!teamsInfo.isLoggedIn()) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -142,7 +142,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
       AutoBean<ReorderPlayerQueueRequest> requestBean =
           beanFactory.createReorderPlayerQueueRequest();
       ReorderPlayerQueueRequest request = requestBean.as();
-      request.setTeamToken(teamInfo.getTeamToken());
+      request.setTeamToken(teamsInfo.getTeamToken());
       request.setPlayerId(event.getPlayerId());
       request.setNewPosition(event.getNewPosition());
 

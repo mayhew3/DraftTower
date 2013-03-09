@@ -54,7 +54,7 @@ public class LoginWidget extends Composite {
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   private final String loginUrl;
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
   private final BeanFactory beanFactory;
   private final EventBus eventBus;
 
@@ -65,11 +65,11 @@ public class LoginWidget extends Composite {
 
   @Inject
   public LoginWidget(@LoginUrl String loginUrl,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       BeanFactory beanFactory,
       EventBus eventBus) {
     this.loginUrl = loginUrl;
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
     this.beanFactory = beanFactory;
     this.eventBus = eventBus;
     initWidget(uiBinder.createAndBindUi(this));
@@ -104,7 +104,7 @@ public class LoginWidget extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
               if (response.getStatusCode() == 200) {
-                teamInfo.setLoginResponse(AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as());
+                teamsInfo.setLoginResponse(AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as());
                 eventBus.fireEvent(new LoginEvent());
               } else {
                 UIObject.setVisible(error, true);

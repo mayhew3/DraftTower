@@ -35,13 +35,14 @@ public class DepthChartsTable extends CellTable<Integer> implements
   private Map<Integer, Multimap<Position, DraftPick>> rosters;
 
   @Inject
-  public DepthChartsTable(final TeamInfo teamInfo,
+  public DepthChartsTable(final TeamsInfo teamsInfo,
       EventBus eventBus) {
     setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<Integer>() {
       @Override
       public String getValue(Integer team) {
-        return teamInfo.getTeamName(team);
+        return teamsInfo.getLongTeamName(team)
+            + "(" + teamsInfo.getShortTeamName(team) + ")";
       }
     }, "Team");
     for (Position position : RosterUtil.POSITIONS_AND_COUNTS.keySet()) {

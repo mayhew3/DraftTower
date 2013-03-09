@@ -37,15 +37,15 @@ public class TeamOrderWidget extends Composite implements
   }
 
   private final int numTeams;
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
   private final FlowPanel container;
 
   @Inject
   public TeamOrderWidget(@NumTeams int numTeams,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       EventBus eventBus) {
     this.numTeams = numTeams;
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
 
     container = new FlowPanel();
     container.setStyleName(CSS.container());
@@ -68,26 +68,26 @@ public class TeamOrderWidget extends Composite implements
       teamLogo.setWidget(image);
       teamLogo.setStyleName(CSS.teamLogo());
       teamLogo.setStyleName(CSS.me(),
-          team == teamInfo.getTeam());
+          team == teamsInfo.getTeam());
       teamLogo.setStyleName(CSS.disconnected(),
           !status.getConnectedTeams().contains(team));
       teamLogo.setStyleName(CSS.robot(),
           status.getRobotTeams().contains(team));
-      image.setAltText(teamInfo.getTeamName(team));
-      image.setTitle(teamInfo.getTeamName(team));
+      image.setAltText(teamsInfo.getShortTeamName(team));
+      image.setTitle(teamsInfo.getShortTeamName(team));
       container.add(teamLogo);
     }
     Label arrow = new Label("\u25bc");
     arrow.setStyleName(CSS.currentPickArrow());
     container.add(arrow);
     if (status.getCurrentPickDeadline() > 0) {
-      if (status.getCurrentTeam() == teamInfo.getTeam()) {
+      if (status.getCurrentTeam() == teamsInfo.getTeam()) {
         Label statusMessage = new Label("Your pick!");
         statusMessage.setStyleName(CSS.statusMessage());
         container.add(statusMessage);
       }
-      if (status.getCurrentTeam() == teamInfo.getTeam() - 1
-          || teamInfo.getTeam() == 1 && status.getCurrentTeam() == numTeams) {
+      if (status.getCurrentTeam() == teamsInfo.getTeam() - 1
+          || teamsInfo.getTeam() == 1 && status.getCurrentTeam() == numTeams) {
         Label statusMessage = new Label("On deck!");
         statusMessage.setStyleName(CSS.statusMessage());
         container.add(statusMessage);

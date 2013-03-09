@@ -31,7 +31,7 @@ public class DraftSocketHandler implements
 
   private final BeanFactory beanFactory;
   private final Websocket socket;
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
   private DraftStatus draftStatus;
@@ -39,10 +39,10 @@ public class DraftSocketHandler implements
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,
       @DraftSocketUrl String socketUrl,
-      TeamInfo teamInfo,
+      TeamsInfo teamsInfo,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
     socket = new Websocket(socketUrl);
     socket.addListener(this);
 
@@ -88,7 +88,7 @@ public class DraftSocketHandler implements
     AutoBean<DraftCommand> commandBean = beanFactory.createDraftCommand();
     DraftCommand command = commandBean.as();
     command.setCommandType(commandType);
-    command.setTeamToken(teamInfo.getTeamToken());
+    command.setTeamToken(teamsInfo.getTeamToken());
     return commandBean;
   }
 

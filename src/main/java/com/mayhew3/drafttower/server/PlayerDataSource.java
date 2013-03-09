@@ -16,7 +16,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -212,7 +211,7 @@ public class PlayerDataSource {
     long playerID = draftPick.getPlayerId();
     int teamID = draftPick.getTeam();
 
-    String draftPosition = draftPick.getEligibilities().isEmpty() ? "'DH'" : "'" + draftPick.getEligibilities().get(0) + "'";
+    String draftPosition = "'" + draftPick.getEligibilities().get(0) + "'";
     String sql = "INSERT INTO DraftResults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
         "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
           ", " + draftPosition + ", 0)";
@@ -246,7 +245,7 @@ public class PlayerDataSource {
 
   private static List<String> splitEligibilities(String eligibility) {
     return eligibility.isEmpty()
-        ? Collections.<String>emptyList()
+        ? Lists.newArrayList("DH")
         : Lists.newArrayList(eligibility.split(","));
   }
 
