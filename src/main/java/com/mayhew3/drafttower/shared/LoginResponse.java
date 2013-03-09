@@ -16,6 +16,6 @@ public interface LoginResponse {
   void setCommissionerTeam(boolean commissionerTeam);
 
   // Can't use Integer as key - see https://code.google.com/p/google-web-toolkit/issues/detail?id=7395
-  Map<String, String> getTeamNames();
-  void setTeamNames(Map<String, String> teamNames);
+  Map<String, Team> getTeams();
+  void setTeams(Map<String, Team> teams);
 }

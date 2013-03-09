@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
@@ -20,11 +22,13 @@ import java.util.Map;
 public class TeamDataSource {
 
   private final DataSource db;
-  private Map<String, String> teamNamesCache;
+  private final BeanFactory beanFactory;
+  private Map<String, Team> teamNamesCache;
 
   @Inject
-  public TeamDataSource(DataSource db) {
+  public TeamDataSource(DataSource db, BeanFactory beanFactory) {
     this.db = db;
+    this.beanFactory = beanFactory;
   }
 
   /** Returns the team number corresponding to the given login credentials, or null for an invalid login. */
@@ -75,19 +79,23 @@ public class TeamDataSource {
     }
   }
 
-  public Map<String, String> getTeamNames() throws SQLException {
+  public Map<String, Team> getTeams() throws SQLException {
     if (teamNamesCache == null) {
       synchronized (this) {
         if (teamNamesCache == null) {
-          Builder<String, String> teamNamesBuilder = ImmutableMap.builder();
-          String sql = "select abbr, draftorder " +
-              "from teams";
+          Builder<String, Team> teamNamesBuilder = ImmutableMap.builder();
+          String sql = "select Name, users.FirstName, DraftOrder " +
+              "from teams " +
+              "inner join users " +
+              "on teams.userid = users.user";
           ResultSet resultSet = null;
           try {
             resultSet = executeQuery(sql);
             while (resultSet.next()) {
-              teamNamesBuilder.put(resultSet.getString("draftorder"),
-                  resultSet.getString("abbr"));
+              Team team = beanFactory.createTeam().as();
+              team.setShortName(resultSet.getString("FirstName"));
+              team.setLongName(resultSet.getString("Name"));
+              teamNamesBuilder.put(resultSet.getString("DraftOrder"), team);
             }
           } finally {
             close(resultSet);

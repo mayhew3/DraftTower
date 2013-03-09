@@ -141,4 +141,13 @@ public class RosterUtilTest {
             pick(2, FB),
             pick(3, SB)));
   }
+
+  @Test
+  public void testConstructRosterBigPapi() throws Exception {
+    assertPicks(
+        Lists.newArrayList(
+            Maps.immutableEntry(DH, 1l)),
+        Lists.newArrayList(
+            pick(1, DH)));
+  }
 }

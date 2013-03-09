@@ -4,10 +4,10 @@ import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.LoginResponse;
 
 /**
- * Info about this client's team.  Holds a {@link LoginResponse}.
+ * Info about teams, including this client's team.  Holds a {@link LoginResponse}.
  */
 @Singleton
-public class TeamInfo {
+public class TeamsInfo {
 
   private LoginResponse loginResponse;
 
@@ -19,11 +19,18 @@ public class TeamInfo {
     return loginResponse.getTeam();
   }
 
-  public String getTeamName(int team) {
+  public String getShortTeamName(int team) {
     if (loginResponse == null) {
       return "Team " + team;
     }
-    return loginResponse.getTeamNames().get(Integer.toString(team));
+    return loginResponse.getTeams().get(Integer.toString(team)).getShortName();
+  }
+
+  public String getLongTeamName(int team) {
+    if (loginResponse == null) {
+      return "Team " + team;
+    }
+    return loginResponse.getTeams().get(Integer.toString(team)).getLongName();
   }
 
   public void setLoginResponse(LoginResponse loginResponse) {

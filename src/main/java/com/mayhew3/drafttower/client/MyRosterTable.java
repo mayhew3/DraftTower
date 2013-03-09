@@ -34,14 +34,14 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
     }
   }
 
-  private final TeamInfo teamInfo;
+  private final TeamsInfo teamsInfo;
 
   private ListDataProvider<PickAndPosition> rosterProvider;
 
   @Inject
-  public MyRosterTable(TeamInfo teamInfo,
+  public MyRosterTable(TeamsInfo teamsInfo,
       EventBus eventBus) {
-    this.teamInfo = teamInfo;
+    this.teamsInfo = teamsInfo;
     setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<PickAndPosition>() {
       @Override
@@ -70,7 +70,7 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
             new Predicate<DraftPick>() {
               @Override
               public boolean apply(DraftPick input) {
-                return input.getTeam() == teamInfo.getTeam();
+                return input.getTeam() == teamsInfo.getTeam();
               }
             }));
     Multimap<Position,DraftPick> roster = RosterUtil.constructRoster(myPicks);
