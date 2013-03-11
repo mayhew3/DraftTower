@@ -58,10 +58,12 @@ public class TeamOrderWidget extends Composite implements
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     container.clear();
-    Label roundLabel = new Label("Round " + (event.getStatus().getPicks().size() / numTeams + 1));
+    DraftStatus status = event.getStatus();
+    Label roundLabel = new Label(status.isOver()
+        ? "It's over!"
+        : "Round " + (status.getPicks().size() / numTeams + 1));
     roundLabel.addStyleName(CSS.round());
     container.add(roundLabel);
-    DraftStatus status = event.getStatus();
     for (int i = 0; i < numTeams; i++) {
       int team = status.getCurrentTeam() + i;
       if (team > numTeams) {

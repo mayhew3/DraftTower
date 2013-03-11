@@ -121,7 +121,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           newPick();
           break;
         case DO_PICK:
-          if (team == status.getCurrentTeam()) {
+          if (!status.isOver() && team == status.getCurrentTeam()) {
             doPick(team, cmd.getPlayerId(), false);
           }
           break;
@@ -135,7 +135,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           backOutLastPick();
           break;
         case FORCE_PICK:
-          autoPick();
+          if (!status.isOver()) {
+            autoPick();
+          }
           break;
         case WAKE_UP:
           status.getRobotTeams().remove(team);
@@ -207,10 +209,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setPaused(false);
 
     int round = status.getPicks().size() / numTeams;
+    status.setOver(round >= 22);
     List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
     if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
-    } else {
+    } else if (!status.isOver()) {
       startPickTimer(pickLengthMs);
     }
   }

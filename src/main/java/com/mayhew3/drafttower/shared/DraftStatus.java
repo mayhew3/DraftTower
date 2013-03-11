@@ -25,4 +25,7 @@ public interface DraftStatus {
 
   List<DraftPick> getPicks();
   void setPicks(List<DraftPick> picks);
+
+  boolean isOver();
+  void setOver(boolean over);
 }
