@@ -63,6 +63,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
       super(column == RANK ? new RankCell() : new TextCell());
       this.column = column;
       setSortable(true);
+      setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK);
 
       if (column == RANK) {
         setFieldUpdater(new FieldUpdater<Player, String>() {
@@ -160,6 +161,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
       @Override
       public void onColumnSort(ColumnSortEvent event) {
         tableSpec.setSortCol(getSortedColumn());
+        tableSpec.setAscending(isSortedAscending());
         super.onColumnSort(event);
         updateDropEnabled();
       }
@@ -194,6 +196,14 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
       return ((PlayerTableColumn) columnSortList.get(0).getColumn()).getColumn();
     }
     return null;
+  }
+
+  private boolean isSortedAscending() {
+    ColumnSortList columnSortList = getColumnSortList();
+    if (columnSortList.size() > 0) {
+      return columnSortList.get(0).isAscending();
+    }
+    return false;
   }
 
   public Position getPositionFilter() {

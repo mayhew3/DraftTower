@@ -19,6 +19,7 @@ public class TeamOrderWidget extends Composite implements
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
+      String round();
       String currentPickArrow();
       String teamLogo();
       String me();
@@ -58,6 +59,11 @@ public class TeamOrderWidget extends Composite implements
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     container.clear();
     DraftStatus status = event.getStatus();
+    Label roundLabel = new Label(status.isOver()
+        ? "It's over!"
+        : "Round " + (status.getPicks().size() / numTeams + 1));
+    roundLabel.addStyleName(CSS.round());
+    container.add(roundLabel);
     for (int i = 0; i < numTeams; i++) {
       int team = status.getCurrentTeam() + i;
       if (team > numTeams) {

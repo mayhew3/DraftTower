@@ -46,7 +46,7 @@ public class PlayerTablePanel extends Composite implements
   }
 
   private static final Position[] POSITIONS = {
-      null, C, FB, SB, TB, SS, OF, DH, P, SP, RP, UNF
+      null, C, FB, SB, TB, SS, OF, DH, P, UNF
   };
 
   private Map<PlayerDataSet, ToggleButton> dataSetButtons = Maps.newEnumMap(PlayerDataSet.class);

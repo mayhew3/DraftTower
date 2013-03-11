@@ -5,6 +5,8 @@ import com.google.common.collect.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import static com.mayhew3.drafttower.shared.Position.*;
 
@@ -53,9 +55,6 @@ public class RosterUtil {
       Multimap<Position, DraftPick> bestRoster = null;
       for (String positionStr : pick.getEligibilities()) {
         Position position = Position.fromShortName(positionStr);
-        if (position == SP || position == RP) {
-          position = P;
-        }
         if (!positions.contains(position)
             && (!positions.contains(DH) || position == P)) {
           continue;
@@ -80,6 +79,48 @@ public class RosterUtil {
       }
       picks.add(0, pick);
       return bestRoster;
+    }
+  }
+
+  public static Set<Position> getOpenPositions(List<DraftPick> picks) {
+    Set<Position> openPositions = Sets.newHashSet();
+    doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
+        ArrayListMultimap.<Position, DraftPick>create());
+    return openPositions;
+  }
+
+  private static void doGetOpenPositions(
+      List<DraftPick> picks, List<Position> positions, Set<Position> openPositions,
+      Multimap<Position, DraftPick> roster) {
+    if (picks.isEmpty()) {
+      List<Position> rosterOpenPositions = Lists.newArrayList(POSITIONS);
+      for (Entry<Position, DraftPick> rosterEntry : roster.entries()) {
+        rosterOpenPositions.remove(rosterEntry.getKey());
+      }
+      openPositions.addAll(rosterOpenPositions);
+    } else {
+      DraftPick pick = picks.remove(0);
+      boolean isReserve = true;
+      for (String positionStr : pick.getEligibilities()) {
+        Position position = Position.fromShortName(positionStr);
+        if (!positions.contains(position)
+            && (!positions.contains(DH) || position == P)) {
+          continue;
+        }
+        isReserve = false;
+        Multimap<Position, DraftPick> expandedRoster = ArrayListMultimap.create(roster);
+        if (!positions.contains(position)) {
+          position = DH;
+        }
+        expandedRoster.put(position, pick);
+        positions.remove(position);
+        doGetOpenPositions(picks, positions, openPositions, expandedRoster);
+        positions.add(position);
+      }
+      if (isReserve) {
+        doGetOpenPositions(picks, positions, openPositions, roster);
+      }
+      picks.add(0, pick);
     }
   }
 
