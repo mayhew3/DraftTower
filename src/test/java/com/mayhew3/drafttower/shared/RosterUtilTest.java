@@ -77,13 +77,13 @@ public class RosterUtilTest {
             pick(7, OF),
             pick(8, OF),
             pick(9, DH),
-            pick(10, SP),
-            pick(11, RP),
-            pick(12, SP),
-            pick(13, SP),
-            pick(14, RP),
-            pick(15, SP),
-            pick(16, SP)));
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P)));
   }
 
   @Test
@@ -116,14 +116,14 @@ public class RosterUtilTest {
             pick(1, FB),
             pick(2, FB),
             pick(3, FB),
-            pick(4, SP),
-            pick(5, SP),
-            pick(6, SP),
-            pick(7, SP),
-            pick(8, SP),
-            pick(9, SP),
-            pick(10, SP),
-            pick(11, SP)));
+            pick(4, P),
+            pick(5, P),
+            pick(6, P),
+            pick(7, P),
+            pick(8, P),
+            pick(9, P),
+            pick(10, P),
+            pick(11, P)));
   }
 
   @Test
@@ -174,20 +174,20 @@ public class RosterUtilTest {
   public void testGetOpenPositionsMultiSlotPosition() throws Exception {
     Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
-            pick(1, SP),
-            pick(2, SP),
-            pick(3, SP),
-            pick(4, SP),
-            pick(5, SP),
-            pick(6, SP))));
+            pick(1, P),
+            pick(2, P),
+            pick(3, P),
+            pick(4, P),
+            pick(5, P),
+            pick(6, P))));
     Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH),
         RosterUtil.getOpenPositions(Lists.newArrayList(
-            pick(1, SP),
-            pick(2, SP),
-            pick(3, SP),
-            pick(4, SP),
-            pick(5, SP),
-            pick(6, SP),
-            pick(7, SP))));
+            pick(1, P),
+            pick(2, P),
+            pick(3, P),
+            pick(4, P),
+            pick(5, P),
+            pick(6, P),
+            pick(7, P))));
   }
 }

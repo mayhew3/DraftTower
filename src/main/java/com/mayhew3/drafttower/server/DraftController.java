@@ -67,6 +67,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
+      DraftStatus status,
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
@@ -81,7 +82,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.queues = queues;
     this.autoPickTableSpecs = autoPickTableSpecs;
     this.numTeams = numTeams;
-    this.status = beanFactory.createDraftStatus().as();
+    this.status = status;
     status.setConnectedTeams(Sets.<Integer>newHashSet());
     status.setRobotTeams(Sets.<Integer>newHashSet());
     status.setPicks(Lists.<DraftPick>newArrayList());

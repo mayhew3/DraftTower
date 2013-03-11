@@ -55,9 +55,6 @@ public class RosterUtil {
       Multimap<Position, DraftPick> bestRoster = null;
       for (String positionStr : pick.getEligibilities()) {
         Position position = Position.fromShortName(positionStr);
-        if (position == SP || position == RP) {
-          position = P;
-        }
         if (!positions.contains(position)
             && (!positions.contains(DH) || position == P)) {
           continue;
@@ -106,9 +103,6 @@ public class RosterUtil {
       boolean isReserve = true;
       for (String positionStr : pick.getEligibilities()) {
         Position position = Position.fromShortName(positionStr);
-        if (position == SP || position == RP) {
-          position = P;
-        }
         if (!positions.contains(position)
             && (!positions.contains(DH) || position == P)) {
           continue;

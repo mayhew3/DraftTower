@@ -84,6 +84,11 @@ public class ServerModule extends AbstractModule {
     return autoPickTableSpecs;
   }
 
+  @Provides @Singleton
+  public DraftStatus getDraftStatus(BeanFactory beanFactory) {
+    return beanFactory.createDraftStatus().as();
+  }
+
   @Override
   protected void configure() {
     install(new GinModuleAdapter(new SharedModule()));

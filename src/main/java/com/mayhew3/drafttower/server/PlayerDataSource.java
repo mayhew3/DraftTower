@@ -1,9 +1,9 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
@@ -16,10 +16,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import static com.mayhew3.drafttower.shared.Position.UNF;
 
 /**
  * Looks up players in the database.
@@ -31,16 +34,19 @@ public class PlayerDataSource {
 
   private final DataSource db;
   private final BeanFactory beanFactory;
+  private final DraftStatus draftStatus;
   private final Map<String, Integer> teamTokens;
   private int numTeams;
 
   @Inject
   public PlayerDataSource(DataSource db,
       BeanFactory beanFactory,
+      DraftStatus draftStatus,
       @TeamTokens Map<String, Integer> teamTokens,
       @NumTeams int numTeams) {
     this.db = db;
     this.beanFactory = beanFactory;
+    this.draftStatus = draftStatus;
     this.teamTokens = teamTokens;
     this.numTeams = numTeams;
   }
@@ -55,7 +61,8 @@ public class PlayerDataSource {
 
     ResultSet resultSet = null;
     try {
-      resultSet = getResultSetForUnclaimedPlayerRows(request.getRowCount(), request.getRowStart());
+      resultSet = getResultSetForUnclaimedPlayerRows(request.getRowCount(), request.getRowStart(),
+          request.getPositionFilter(), team);
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -139,12 +146,38 @@ public class PlayerDataSource {
     }
   }
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(int rowCount, int rowStart)
+  private ResultSet getResultSetForUnclaimedPlayerRows(int rowCount, int rowStart,
+      Position positionFilter, final int team)
       throws SQLException {
 
     String sql = "select * " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "order by total desc " +
+        "from UnclaimedDisplayPlayersWithCatsByQuality ";
+
+    if (positionFilter != null) {
+      if (positionFilter == UNF) {
+        ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
+        Set<Position> openPositions = RosterUtil.getOpenPositions(
+            Lists.newArrayList(Iterables.filter(picks,
+                new Predicate<DraftPick>() {
+                  @Override
+                  public boolean apply(DraftPick input) {
+                    return input.getTeam() == team;
+                  }
+                })));
+        sql += " where Position in (";
+        sql += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
+          @Override
+          public String apply(Position input) {
+            return "'" + input.getShortName() + "'";
+          }
+        }));
+        sql += ") ";
+      } else {
+        sql += " where Position = '" + positionFilter.getShortName() + "' ";
+      }
+    }
+
+    sql += "order by total desc " +
         "limit " + rowStart + ", " + rowCount;
 
     return executeQuery(sql);
