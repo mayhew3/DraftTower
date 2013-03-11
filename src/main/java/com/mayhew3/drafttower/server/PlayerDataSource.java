@@ -107,7 +107,7 @@ public class PlayerDataSource {
         keepers.put(teamID, playerID);
       }
     } catch (SQLException e) {
-      throw new ServletException("Error retreiving keepers from database.");
+      throw new ServletException("Error retreiving keepers from database.", e);
     } finally {
       try {
         close(resultSet);
