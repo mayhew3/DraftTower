@@ -85,7 +85,7 @@ public class DraftClock extends Composite implements
 
   private void update() {
     if (status != null) {
-      if (status.getCurrentPickDeadline() == 0) {
+      if (status.getCurrentPickDeadline() == 0 || status.isOver()) {
         clockDisplay.setText(" ");
       } else if (!status.isPaused()) {
         long timeLeftMs = status.getCurrentPickDeadline() - System.currentTimeMillis();

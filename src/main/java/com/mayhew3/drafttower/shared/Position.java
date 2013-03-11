@@ -4,8 +4,7 @@ package com.mayhew3.drafttower.shared;
  * Player position.
  */
 public enum Position {
-  SP("SP", "Starting Pitcher"),
-  RP("RP", "Relief Pitcher"),
+  P("P", "Pitcher"),
   C("C", "Catcher"),
   FB("1B", "First Base"),
   SB("2B", "Second Base"),
@@ -15,7 +14,6 @@ public enum Position {
   DH("DH", "Designated Hitter"),
 
   // Filtering:
-  P("P", "All Pitchers"),
   UNF("Unfilled", "Unfilled Positions"),
 
   // Misc:

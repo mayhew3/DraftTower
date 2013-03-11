@@ -57,6 +57,11 @@
   border: 1px solid black;
   background: white;
   font-size: 70%;
+  max-width: 90%;
+}
+
+.gwt-PopupPanel td {
+  padding: 0;
 }
 
 .glassPanel {

@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -65,6 +67,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
+      DraftStatus status,
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
@@ -79,14 +82,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.queues = queues;
     this.autoPickTableSpecs = autoPickTableSpecs;
     this.numTeams = numTeams;
-    this.status = beanFactory.createDraftStatus().as();
+    this.status = status;
     status.setConnectedTeams(Sets.<Integer>newHashSet());
     status.setRobotTeams(Sets.<Integer>newHashSet());
     status.setPicks(Lists.<DraftPick>newArrayList());
     playerDataSource.populateDraftStatus(status);
     status.setCurrentTeam(status.getPicks().isEmpty()
         ? 1
-        : status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1);
+        : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1) % numTeams);
     socketServlet.addListener(this);
   }
 
@@ -121,7 +124,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           newPick();
           break;
         case DO_PICK:
-          if (team == status.getCurrentTeam()) {
+          if (!status.isOver() && team == status.getCurrentTeam()) {
             doPick(team, cmd.getPlayerId(), false);
           }
           break;
@@ -135,7 +138,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           backOutLastPick();
           break;
         case FORCE_PICK:
-          autoPick();
+          if (!status.isOver()) {
+            autoPick();
+          }
           break;
         case WAKE_UP:
           status.getRobotTeams().remove(team);
@@ -147,10 +152,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  private void doPick(Integer team, long playerId, boolean auto) {
+  private void doPick(final Integer team, long playerId, boolean auto) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team));
+        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team),
+            RosterUtil.getOpenPositions(
+                Lists.newArrayList(Iterables.filter(status.getPicks(),
+                    new Predicate<DraftPick>() {
+                      @Override
+                      public boolean apply(DraftPick input) {
+                        return input.getTeam() == team;
+                      }
+                    }))));
       } catch (SQLException e) {
         logger.log(SEVERE, "SQL error looking up the best draft pick", e);
         return;
@@ -207,10 +220,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setPaused(false);
 
     int round = status.getPicks().size() / numTeams;
+    status.setOver(round >= 22);
     List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
     if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
-    } else {
+    } else if (!status.isOver()) {
       startPickTimer(pickLengthMs);
     }
   }
