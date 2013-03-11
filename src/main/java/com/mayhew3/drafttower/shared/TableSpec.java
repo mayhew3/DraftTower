@@ -9,4 +9,7 @@ public interface TableSpec {
 
   PlayerColumn getSortCol();
   void setSortCol(PlayerColumn sortCol);
+
+  boolean isAscending();
+  void setAscending(boolean ascending);
 }

@@ -62,7 +62,9 @@ public class PlayerDataSource {
     ResultSet resultSet = null;
     try {
       resultSet = getResultSetForUnclaimedPlayerRows(request.getRowCount(), request.getRowStart(),
-          request.getPositionFilter(), team);
+          request.getPositionFilter(),
+          request.getTableSpec().getSortCol(), request.getTableSpec().isAscending(),
+          team);
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -147,7 +149,7 @@ public class PlayerDataSource {
   }
 
   private ResultSet getResultSetForUnclaimedPlayerRows(int rowCount, int rowStart,
-      Position positionFilter, final int team)
+      Position positionFilter, PlayerColumn sortCol, boolean ascending, final int team)
       throws SQLException {
 
     String sql = "select * " +
@@ -177,8 +179,13 @@ public class PlayerDataSource {
       }
     }
 
-    sql += "order by total desc " +
-        "limit " + rowStart + ", " + rowCount;
+    if (sortCol != null) {
+      sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
+          + sortCol.getColumnName() + " " + (ascending ? "asc " : "desc ");
+    } else {
+      sql += "order by total desc ";
+    }
+    sql += "limit " + rowStart + ", " + rowCount;
 
     return executeQuery(sql);
   }
