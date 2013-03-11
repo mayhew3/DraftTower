@@ -446,6 +446,7 @@ CREATE OR REPLACE VIEW DraftResultsLoad AS
 SELECT dr.PlayerID,
   dr.Round,
   dr.Pick,
+  dr.Keeper,
   CONCAT_WS(' ', p.FirstName, p.LastName) AS PlayerName,
   COALESCE(yb.Eligibility, 'P') AS Eligibility,
   t.DraftOrder

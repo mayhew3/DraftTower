@@ -25,6 +25,7 @@ public class TeamOrderWidget extends Composite implements
       String me();
       String disconnected();
       String robot();
+      String keeper();
       String statusMessage();
     }
 
@@ -79,6 +80,8 @@ public class TeamOrderWidget extends Composite implements
           !status.getConnectedTeams().contains(team));
       teamLogo.setStyleName(CSS.robot(),
           status.getRobotTeams().contains(team));
+      teamLogo.setStyleName(CSS.keeper(),
+          status.getNextPickKeeperTeams().contains(team));
       image.setAltText(teamsInfo.getShortTeamName(team));
       image.setTitle(teamsInfo.getShortTeamName(team));
       container.add(teamLogo);
