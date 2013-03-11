@@ -1,10 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +31,7 @@ public class RosterUtilTest {
     return pick;
   }
 
-  private void assertPicks(List<Entry<Position, Long>> expectedIds, List<DraftPick> picks) {
+  private void assertRoster(List<Entry<Position, Long>> expectedIds, List<DraftPick> picks) {
     Multimap<Position, DraftPick> roster = RosterUtil.constructRoster(picks);
     Assert.assertEquals(roster.toString(), expectedIds.size(), roster.size());
     for (Entry<Position, Long> expectedId : expectedIds) {
@@ -52,7 +49,7 @@ public class RosterUtilTest {
   @Test
   public void testConstructRosterBasic() throws Exception {
     // Basic: one per position.
-    assertPicks(
+    assertRoster(
         Lists.newArrayList(
             Maps.immutableEntry(FB, 1l),
             Maps.immutableEntry(SB, 2l),
@@ -91,7 +88,7 @@ public class RosterUtilTest {
 
   @Test
   public void testConstructRosterDH() throws Exception {
-    assertPicks(
+    assertRoster(
         Lists.newArrayList(
             Maps.immutableEntry(FB, 1l),
             Maps.immutableEntry(DH, 2l)),
@@ -102,7 +99,7 @@ public class RosterUtilTest {
 
   @Test
   public void testConstructRosterReserves() throws Exception {
-    assertPicks(
+    assertRoster(
         Lists.newArrayList(
             Maps.immutableEntry(FB, 1l),
             Maps.immutableEntry(DH, 2l),
@@ -131,7 +128,7 @@ public class RosterUtilTest {
 
   @Test
   public void testConstructRosterMultipleEligibility() throws Exception {
-    assertPicks(
+    assertRoster(
         Lists.newArrayList(
             Maps.immutableEntry(TB, 1l),
             Maps.immutableEntry(FB, 2l),
@@ -144,10 +141,53 @@ public class RosterUtilTest {
 
   @Test
   public void testConstructRosterBigPapi() throws Exception {
-    assertPicks(
+    assertRoster(
         Lists.newArrayList(
             Maps.immutableEntry(DH, 1l)),
         Lists.newArrayList(
             pick(1, DH)));
+  }
+
+  @Test
+  public void testAllPositionsOpen() throws Exception {
+    Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH, P),
+        RosterUtil.getOpenPositions(ImmutableList.<DraftPick>of()));
+  }
+
+  @Test
+  public void testGetOpenPositionsSingleEligibility() throws Exception {
+    Assert.assertEquals(Sets.newHashSet(FB, SB, SS, OF, DH, P),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, TB))));
+  }
+
+  @Test
+  public void testGetOpenPositionsMultiEligibility() throws Exception {
+    Assert.assertEquals(Sets.newHashSet(FB, SB, TB, SS, OF, DH, P),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, SB, SS))));
+  }
+
+  @Test
+  public void testGetOpenPositionsMultiSlotPosition() throws Exception {
+    Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH, P),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, SP),
+            pick(2, SP),
+            pick(3, SP),
+            pick(4, SP),
+            pick(5, SP),
+            pick(6, SP))));
+    Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, SP),
+            pick(2, SP),
+            pick(3, SP),
+            pick(4, SP),
+            pick(5, SP),
+            pick(6, SP),
+            pick(7, SP))));
   }
 }

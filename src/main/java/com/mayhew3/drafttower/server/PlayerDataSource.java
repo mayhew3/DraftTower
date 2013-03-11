@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -182,16 +183,28 @@ public class PlayerDataSource {
     }
   }
 
-  public long getBestPlayerId(TableSpec tableSpec) throws SQLException {
+  public long getBestPlayerId(TableSpec tableSpec,
+      Set<Position> openPositions) throws SQLException {
     // TODO(m3): use tableSpec.
-    String sql = "select PlayerID " +
+    String sql = "select PlayerID,Eligibility " +
         "from UnclaimedDisplayPlayersWithCatsByQuality";
 
     ResultSet resultSet = null;
     try {
       resultSet = executeQuery(sql);
-      resultSet.next();
-      return resultSet.getLong("PlayerID");
+      Long firstReserve = null;
+      while (resultSet.next()) {
+        if (firstReserve == null) {
+          firstReserve = resultSet.getLong("PlayerID");
+        }
+        List<String> eligibility = splitEligibilities(resultSet.getString("Eligibility"));
+        for (String position : eligibility) {
+          if (openPositions.contains(Position.fromShortName(position))) {
+            return resultSet.getLong("PlayerID");
+          }
+        }
+      }
+      return firstReserve;
     } finally {
       close(resultSet);
     }

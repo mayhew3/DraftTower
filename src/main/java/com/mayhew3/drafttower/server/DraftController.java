@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -86,7 +88,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     playerDataSource.populateDraftStatus(status);
     status.setCurrentTeam(status.getPicks().isEmpty()
         ? 1
-        : status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1);
+        : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1) % numTeams);
     socketServlet.addListener(this);
   }
 
@@ -149,10 +151,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  private void doPick(Integer team, long playerId, boolean auto) {
+  private void doPick(final Integer team, long playerId, boolean auto) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team));
+        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team),
+            RosterUtil.getOpenPositions(
+                Lists.newArrayList(Iterables.filter(status.getPicks(),
+                    new Predicate<DraftPick>() {
+                      @Override
+                      public boolean apply(DraftPick input) {
+                        return input.getTeam() == team;
+                      }
+                    }))));
       } catch (SQLException e) {
         logger.log(SEVERE, "SQL error looking up the best draft pick", e);
         return;
