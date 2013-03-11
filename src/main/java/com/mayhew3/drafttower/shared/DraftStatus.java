@@ -20,6 +20,9 @@ public interface DraftStatus {
   Set<Integer> getRobotTeams();
   void setRobotTeams(Set<Integer> robotTeams);
 
+  Set<Integer> getNextPickKeeperTeams();
+  void setNextPickKeeperTeams(Set<Integer> nextPickKeeperTeams);
+
   int getCurrentTeam();
   void setCurrentTeam(int currentTeam);
 

@@ -17,4 +17,7 @@ public interface DraftPick {
 
   List<String> getEligibilities();
   void setEligibilities(List<String> eligibilities);
+
+  boolean isKeeper();
+  void setKeeper(boolean keeper);
 }

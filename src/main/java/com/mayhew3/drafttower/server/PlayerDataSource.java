@@ -267,7 +267,7 @@ public class PlayerDataSource {
     String draftPosition = "'" + draftPick.getEligibilities().get(0) + "'";
     String sql = "INSERT INTO DraftResults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
         "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
-          ", " + draftPosition + ", 0)";
+          ", " + draftPosition + ", " + (draftPick.isKeeper() ? "1" : "0") + ")";
 
     Statement statement = null;
     try {
@@ -289,6 +289,7 @@ public class PlayerDataSource {
         pick.setEligibilities(
             splitEligibilities(resultSet.getString("Eligibility")));
         pick.setTeam(resultSet.getInt("DraftOrder"));
+        pick.setKeeper(resultSet.getBoolean("Keeper"));
         status.getPicks().add(pick);
       }
     } finally {
