@@ -42,7 +42,7 @@ public class DepthChartsTable extends CellTable<Integer> implements
       @Override
       public String getValue(Integer team) {
         return teamsInfo.getLongTeamName(team)
-            + "(" + teamsInfo.getShortTeamName(team) + ")";
+            + " (" + teamsInfo.getShortTeamName(team) + ")";
       }
     }, "Team");
     for (Position position : RosterUtil.POSITIONS_AND_COUNTS.keySet()) {
