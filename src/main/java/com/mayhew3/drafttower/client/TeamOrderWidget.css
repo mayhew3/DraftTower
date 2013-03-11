@@ -44,6 +44,15 @@
   right: -3px;
 }
 
+.keeper:after {
+  content: "K";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  font-size: 18px;
+  color: #caca16;
+}
+
 .statusMessage {
   display: inline-block;
   margin-left: 15px;

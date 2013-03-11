@@ -17,10 +17,7 @@ import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -87,6 +84,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setRobotTeams(Sets.<Integer>newHashSet());
     status.setPicks(Lists.<DraftPick>newArrayList());
     playerDataSource.populateDraftStatus(status);
+    int round = status.getPicks().size() / numTeams;
+    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
     status.setCurrentTeam(status.getPicks().isEmpty()
         ? 1
         : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1) % numTeams);
@@ -125,7 +124,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           break;
         case DO_PICK:
           if (!status.isOver() && team == status.getCurrentTeam()) {
-            doPick(team, cmd.getPlayerId(), false);
+            doPick(team, cmd.getPlayerId(), false, false);
           }
           break;
         case PAUSE:
@@ -152,7 +151,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  private void doPick(final Integer team, long playerId, boolean auto) {
+  private void doPick(final Integer team, long playerId, boolean auto, boolean keeper) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
         playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team),
@@ -177,6 +176,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     DraftPick pick = beanFactory.createDraftPick().as();
     pick.setTeam(team);
     pick.setPlayerId(playerId);
+    pick.setKeeper(keeper);
     try {
       playerDataSource.populateDraftPick(pick);
     } catch (SQLException e) {
@@ -220,13 +220,28 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setPaused(false);
 
     int round = status.getPicks().size() / numTeams;
+
     status.setOver(round >= 22);
+    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
+
     List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
     if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
-      doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true);
+      doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true, true);
     } else if (!status.isOver()) {
       startPickTimer(pickLengthMs);
     }
+  }
+
+  private Set<Integer> getNextPickKeeperTeams(int round) {
+    Set<Integer> nextPickKeeperTeams = Sets.newHashSet();
+    if (round <= 3) {
+      for (int i = 0; i < numTeams; i++) {
+        if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(i).size()) {
+          nextPickKeeperTeams.add(i);
+        }
+      }
+    }
+    return nextPickKeeperTeams;
   }
 
   private void advanceTeam() {
@@ -270,13 +285,13 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       List<QueueEntry> queue = queues.get(status.getCurrentTeam());
       synchronized (queues) {
         if (!queue.isEmpty()) {
-          doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true);
+          doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true, false);
           return;
         }
       }
     }
 
-    doPick(status.getCurrentTeam(), Player.BEST_DRAFT_PICK, true);
+    doPick(status.getCurrentTeam(), Player.BEST_DRAFT_PICK, true, false);
   }
 
   private void startPickTimer(long timeMs) {
