@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.UNF;
 
 /**
@@ -298,40 +297,33 @@ public class PlayerDataSource {
     }
   }
 
-  public GraphsData getGraphsData(int team) {
-    // TODO(kcp)
+  public GraphsData getGraphsData(int team) throws SQLException {
+    String sql = "select * from teamscoringwithzeroes";
+
     GraphsData graphsData = beanFactory.createGraphsData().as();
     Map<PlayerColumn, Float> myValues = Maps.newHashMap();
     graphsData.setMyValues(myValues);
     Map<PlayerColumn, Float> avgValues = Maps.newHashMap();
     graphsData.setAvgValues(avgValues);
 
-    // HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S
-    // TODO(kcp)
-    myValues.put(HR, 180f);
-    myValues.put(RBI, 720f);
-    myValues.put(OBP, 0.3f);
-    myValues.put(SLG, 0.4f);
-    myValues.put(RHR, 560f);
-    myValues.put(SBCS, 180f);
-    myValues.put(INN, 1400f);
-    myValues.put(K, 1400f);
-    myValues.put(ERA, 3.5f);
-    myValues.put(WHIP, 1.2f);
-    myValues.put(WL, 75f);
-    myValues.put(S, 60f);
-    avgValues.put(HR, 140f);
-    avgValues.put(RBI, 790f);
-    avgValues.put(OBP, 0.32f);
-    avgValues.put(SLG, 0.39f);
-    avgValues.put(RHR, 570f);
-    avgValues.put(SBCS, 100f);
-    avgValues.put(INN, 1450f);
-    avgValues.put(K, 1200f);
-    avgValues.put(ERA, 3.9f);
-    avgValues.put(WHIP, 1.1f);
-    avgValues.put(WL, 76f);
-    avgValues.put(S, 80f);
+    ResultSet resultSet = executeQuery(sql);
+    try {
+      while (resultSet.next()) {
+        int resultTeam = resultSet.getInt("TeamID");
+        for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+          float value = resultSet.getFloat(graphStat.getColumnName());
+          if (resultTeam == team) {
+            myValues.put(graphStat, value);
+          }
+          if (!avgValues.containsKey(graphStat)) {
+            avgValues.put(graphStat, 0f);
+          }
+          avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
+        }
+      }
+    } finally {
+      close(resultSet);
+    }
 
     return graphsData;
   }

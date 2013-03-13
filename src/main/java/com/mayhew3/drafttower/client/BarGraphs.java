@@ -51,10 +51,6 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
     CSS.ensureInjected();
   }
 
-  private static final PlayerColumn GRAPH_STATS[] = {
-      HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S
-  };
-
   private static final Map<PlayerColumn, Float> MAX_VALUES = ImmutableMap.<PlayerColumn, Float>builder()
       .put(HR, 400f)
       .put(RBI, 1000f)
@@ -162,7 +158,7 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
                   AutoBeanCodex.decode(beanFactory, GraphsData.class, response.getText()).as();
               container.clear();
               addLabels();
-              for (PlayerColumn graphStat : GRAPH_STATS) {
+              for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
                 DataTable data = DataTable.create();
                 data.addColumn(ColumnType.STRING);
                 data.addColumn(ColumnType.NUMBER, "Me");

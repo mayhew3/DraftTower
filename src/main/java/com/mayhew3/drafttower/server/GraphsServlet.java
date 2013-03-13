@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -41,7 +42,12 @@ public class GraphsServlet extends HttpServlet {
     String requestStr = CharStreams.toString(req.getReader());
     GetGraphsDataRequest request =
         AutoBeanCodex.decode(beanFactory, GetGraphsDataRequest.class, requestStr).as();
-    GraphsData response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
+    GraphsData response = null;
+    try {
+      response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
+    } catch (SQLException e) {
+      throw new ServletException(e);
+    }
 
     resp.getWriter().append(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(response)).getPayload());
     resp.setContentType("text/json");
