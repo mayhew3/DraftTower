@@ -52,6 +52,11 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @Retention(RUNTIME)
   public static @interface QueuesUrl {}
 
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface GraphsUrl {}
+
   @Provides @LoginUrl
   public String getLoginUrl() {
     return Window.Location.createUrlBuilder()
@@ -98,6 +103,14 @@ public class DraftTowerGinModule extends AbstractGinModule {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.QUEUE_ENDPOINT)
+        .buildString();
+  }
+
+  @Provides @GraphsUrl
+  public String getGraphsUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.GRAPHS_ENDPOINT)
         .buildString();
   }
 

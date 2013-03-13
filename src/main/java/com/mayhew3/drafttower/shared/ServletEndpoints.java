@@ -10,6 +10,7 @@ public interface ServletEndpoints {
   String CHANGE_PLAYER_RANK_ENDPOINT = "changeRank";
   String SET_AUTOPICK_TABLE_SPEC_ENDPOINT = "autoPickSpec";
   String QUEUE_ENDPOINT = "queue";
+  String GRAPHS_ENDPOINT = "graphs";
 
   String QUEUE_GET = "get";
   String QUEUE_ADD = "add";

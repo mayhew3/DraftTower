@@ -29,6 +29,8 @@ public class ServletConfig extends GuiceServletContextListener {
             .with(SetAutoPickTableSpecServlet.class);
         serve("/" + ServletEndpoints.QUEUE_ENDPOINT + "/*")
             .with(QueueServlet.class);
+        serve("/" + ServletEndpoints.GRAPHS_ENDPOINT)
+            .with(GraphsServlet.class);
       }
     }, new ServerModule());
   }

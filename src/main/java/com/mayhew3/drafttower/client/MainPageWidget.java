@@ -55,8 +55,10 @@ public class MainPageWidget extends Composite
 
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;
+  @UiField Label showBarGraphs;
 
   private final PopupPanel depthChartsPopup;
+  private final PopupPanel barGraphsPopup;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
@@ -69,6 +71,7 @@ public class MainPageWidget extends Composite
       PlayerTablePanel unclaimedPlayers,
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
+      BarGraphs barGraphs,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
@@ -91,6 +94,13 @@ public class MainPageWidget extends Composite
     depthChartsPopup.setGlassStyleName(CSS.glassPanel());
     depthChartsPopup.setWidget(depthChartsTable);
 
+    barGraphsPopup = new PopupPanel();
+    barGraphsPopup.setModal(true);
+    barGraphsPopup.setAutoHideEnabled(true);
+    barGraphsPopup.setGlassEnabled(true);
+    barGraphsPopup.setGlassStyleName(CSS.glassPanel());
+    barGraphsPopup.setWidget(barGraphs);
+
     eventBus.addHandler(LoginEvent.TYPE, this);
   }
 
@@ -104,5 +114,11 @@ public class MainPageWidget extends Composite
   public void handleShowDepthChartsClick(ClickEvent e) {
     depthChartsPopup.center();
     depthChartsPopup.show();
+  }
+
+  @UiHandler("showBarGraphs")
+  public void handleShowBarGraphsClick(ClickEvent e) {
+    barGraphsPopup.center();
+    barGraphsPopup.show();
   }
 }

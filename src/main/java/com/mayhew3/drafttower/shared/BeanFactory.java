@@ -23,4 +23,6 @@ public interface BeanFactory extends AutoBeanFactory {
   AutoBean<TableSpec> createTableSpec();
   AutoBean<SetAutoPickTableSpecRequest> createSetAutoPickTableSpecRequest();
   AutoBean<Team> createTeam();
+  AutoBean<GetGraphsDataRequest> createGetGraphsDataRequest();
+  AutoBean<GraphsData> createGraphsData();
 }
