@@ -297,6 +297,37 @@ public class PlayerDataSource {
     }
   }
 
+  public GraphsData getGraphsData(int team) throws SQLException {
+    String sql = "select * from teamscoringwithzeroes";
+
+    GraphsData graphsData = beanFactory.createGraphsData().as();
+    Map<PlayerColumn, Float> myValues = Maps.newHashMap();
+    graphsData.setMyValues(myValues);
+    Map<PlayerColumn, Float> avgValues = Maps.newHashMap();
+    graphsData.setAvgValues(avgValues);
+
+    ResultSet resultSet = executeQuery(sql);
+    try {
+      while (resultSet.next()) {
+        int resultTeam = resultSet.getInt("TeamID");
+        for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+          float value = resultSet.getFloat(graphStat.getColumnName());
+          if (resultTeam == team) {
+            myValues.put(graphStat, value);
+          }
+          if (!avgValues.containsKey(graphStat)) {
+            avgValues.put(graphStat, 0f);
+          }
+          avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
+        }
+      }
+    } finally {
+      close(resultSet);
+    }
+
+    return graphsData;
+  }
+
   private static List<String> splitEligibilities(String eligibility) {
     return eligibility.isEmpty()
         ? Lists.newArrayList("DH")
