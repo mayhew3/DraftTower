@@ -121,10 +121,10 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
     Options options = Options.create();
     options.setColors("#aa4643", "#4572a7");
     options.setSize(400, 100);
-    options.setEnableTooltip(true);
+    options.setEnableTooltip(false);
     options.setShowCategories(true);
     options.setTitle(graphStat.getLongName());
-    options.setOption("titleFontSize", 12);
+    options.setTitleFontSize(12);
     options.setLegend(LegendPosition.NONE);
     options.setMin(0);
     options.setMax(MAX_VALUES.get(graphStat));

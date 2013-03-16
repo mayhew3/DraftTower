@@ -1,36 +1,40 @@
 .container {
-  padding-top: 25px;
-  position: relative;
   margin-bottom: 5px;
 }
 
 .round {
-  position: absolute;
-  top: 0;
-  right: 50%;
-}
-
-.currentPickArrow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50px;
-  height: 25px;
-  line-height: 25px;
-  text-align: center;
-  font-size: 18px;
+  margin-bottom: 10px;
 }
 
 .teamLogo {
-  display: inline-block;
-  margin-right: 5px;
-  border: 2px solid transparent;
   vertical-align: middle;
   position: relative;
-}
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+  padding: 3px;
+  border: 1px solid black;
+  margin-bottom: 5px;}
 
 .me {
+  border-color: green;
+  color: green;
+}
+
+.currentPick {
   border-color: red;
+}
+
+.currentPick:after {
+  content: "\25BC";
+  color: white;
+  background: red;
+  position: absolute;
+  font-size: 17px;
+  padding: 0 5px;
+  top: 0;
+  bottom: 0;
+  right: 0;
 }
 
 .disconnected {
@@ -40,20 +44,23 @@
 .robot:after {
   content: url("cylon_classic.png");
   position: absolute;
-  bottom: -3px;
-  right: -3px;
+  top: 0;
+  bottom: 0;
+  right: 0;
 }
 
 .keeper:after {
   content: "K";
   position: absolute;
-  top: -3px;
-  right: -3px;
-  font-size: 18px;
-  color: #caca16;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  font-size: 17px;
+  padding: 0 3px;
+  color: white;
+  background: #caca16;
 }
 
 .statusMessage {
-  display: inline-block;
-  margin-left: 15px;
+  padding-top: 10px;
 }
