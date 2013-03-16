@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -241,7 +242,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
   public void setPositionFilter(Position positionFilter) {
     this.positionFilter = positionFilter;
-    setVisibleRangeAndClearData(getVisibleRange(), true);
+    setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
   }
 
   public void setPlayerDataSet(PlayerDataSet playerDataSet) {
@@ -252,7 +253,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
   public void setNameFilter(String nameFilter) {
     this.nameFilter = nameFilter;
-    setVisibleRangeAndClearData(getVisibleRange(), true);
+    setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
   }
 
   private void updateDropEnabled() {
