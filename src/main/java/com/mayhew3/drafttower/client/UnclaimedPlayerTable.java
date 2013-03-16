@@ -3,6 +3,8 @@ package com.mayhew3.drafttower.client;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -12,10 +14,13 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.QueueAreaTop;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.*;
@@ -112,6 +117,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
       NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING
   };
 
+  private final Provider<Integer> queueAreaTopProvider;
+
   private Position positionFilter;
   private TableSpec tableSpec;
   private boolean hideInjuries;
@@ -119,8 +126,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
       BeanFactory beanFactory,
-      final EventBus eventBus) {
+      final EventBus eventBus,
+      @QueueAreaTop Provider<Integer> queueAreaTopProvider) {
     super(eventBus);
+    this.queueAreaTopProvider = queueAreaTopProvider;
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
@@ -188,6 +197,21 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
       }
     });
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
+
+    Window.addResizeHandler(new ResizeHandler() {
+      @Override
+      public void onResize(ResizeEvent event) {
+        computePageSize();
+      }
+    });
+  }
+
+  void computePageSize() {
+    int availableHeight = queueAreaTopProvider.get() - getRowElement(0).getAbsoluteTop();
+    int pageSize = availableHeight / getRowElement(0).getOffsetHeight();
+    if (pageSize != getPageSize()) {
+      setPageSize(pageSize);
+    }
   }
 
   public PlayerColumn getSortedColumn() {

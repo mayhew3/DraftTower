@@ -85,6 +85,9 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
               display.setRowData(rowStart, playerListResponse.getPlayers());
               display.setRowCount(playerListResponse.getTotalPlayers(), true);
               eventBus.fireEvent(new IsUsersAutoPickTableSpecEvent(playerListResponse.isUsersAutoPickTableSpec()));
+              if (display instanceof UnclaimedPlayerTable) {
+                ((UnclaimedPlayerTable) display).computePageSize();
+              }
             }
 
             @Override

@@ -15,12 +15,6 @@
           Draft picks
         </div>
         <d:PickHistoryTablePanel ui:field="pickHistoryTable"/>
-        <g:Label styleName="{style.css.actionLink}" ui:field="showDepthCharts">
-          Show depth charts
-        </g:Label>
-        <g:Label styleName="{style.css.actionLink}" ui:field="showBarGraphs">
-          Show team comparisons
-        </g:Label>
         <div class="{style.css.tableHeader}">
           Your roster
         </div>
@@ -28,8 +22,20 @@
       </div>
       <div class="{style.css.leftColumn}">
         <d:TeamOrderWidget ui:field="teamOrder"/>
+        <div class="{style.css.tableHeader}">
+          Filled positions
+        </div>
+        <d:FilledPositionsChart ui:field="filledPositionsChart"/>
+        <g:Label styleName="{style.css.actionLink}" ui:field="showDepthCharts">
+          Show depth charts
+        </g:Label>
+        <g:Label styleName="{style.css.actionLink}" ui:field="showBarGraphs">
+          Show team comparisons
+        </g:Label>
+      </div>
+      <div class="{style.css.centerColumn}">
         <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
-        <div class="{style.css.queue}">
+        <div class="{style.css.queue}" ui:field="queueArea">
           <div class="{style.css.tableHeader}">
             Your queue
           </div>

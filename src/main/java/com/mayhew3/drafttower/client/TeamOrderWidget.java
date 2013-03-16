@@ -4,7 +4,10 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
@@ -20,7 +23,7 @@ public class TeamOrderWidget extends Composite implements
     interface Css extends CssResource {
       String container();
       String round();
-      String currentPickArrow();
+      String currentPick();
       String teamLogo();
       String me();
       String disconnected();
@@ -65,30 +68,23 @@ public class TeamOrderWidget extends Composite implements
         : "Round " + (status.getPicks().size() / numTeams + 1));
     roundLabel.addStyleName(CSS.round());
     container.add(roundLabel);
-    for (int i = 0; i < numTeams; i++) {
-      int team = status.getCurrentTeam() + i;
-      if (team > numTeams) {
-        team -= numTeams;
-      }
+    for (int team = 1; team <= numTeams; team++) {
       SimplePanel teamLogo = new SimplePanel();
-      Image image = new Image("team" + team + "logo.png");
-      teamLogo.setWidget(image);
+      Label name = new Label(teamsInfo.getShortTeamName(team));
+      teamLogo.setWidget(name);
       teamLogo.setStyleName(CSS.teamLogo());
       teamLogo.setStyleName(CSS.me(),
           team == teamsInfo.getTeam());
+      teamLogo.setStyleName(CSS.currentPick(),
+          team == status.getCurrentTeam());
       teamLogo.setStyleName(CSS.disconnected(),
           !status.getConnectedTeams().contains(team));
       teamLogo.setStyleName(CSS.robot(),
           status.getRobotTeams().contains(team));
       teamLogo.setStyleName(CSS.keeper(),
           status.getNextPickKeeperTeams().contains(team));
-      image.setAltText(teamsInfo.getShortTeamName(team));
-      image.setTitle(teamsInfo.getShortTeamName(team));
       container.add(teamLogo);
     }
-    Label arrow = new Label("\u25bc");
-    arrow.setStyleName(CSS.currentPickArrow());
-    container.add(arrow);
     if (status.getCurrentPickDeadline() > 0) {
       if (status.getCurrentTeam() == teamsInfo.getTeam()) {
         Label statusMessage = new Label("Your pick!");
