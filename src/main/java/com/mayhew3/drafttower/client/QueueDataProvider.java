@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.*;
@@ -68,6 +69,13 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
                   AutoBeanCodex.decode(beanFactory, GetPlayerQueueResponse.class,
                       response.getText()).as();
               queue = queueResponse.getQueue();
+              if (queue.isEmpty()) {
+                QueueEntry fakeEntry = beanFactory.createQueueEntry().as();
+                fakeEntry.setPlayerId(-1);
+                fakeEntry.setPlayerName("Drag players here");
+                fakeEntry.setEligibilities(ImmutableList.<String>of());
+                queue = ImmutableList.of(fakeEntry);
+              }
               display.setRowData(0, queue);
               display.setRowCount(queue.size());
             }
