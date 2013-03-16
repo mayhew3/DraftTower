@@ -25,6 +25,7 @@ public class MainPageWidget extends Composite
     interface Css extends CssResource {
       String connectivityIndicator();
       String leftColumn();
+      String centerColumn();
       String queue();
       String queueScroller();
       String rightColumn();

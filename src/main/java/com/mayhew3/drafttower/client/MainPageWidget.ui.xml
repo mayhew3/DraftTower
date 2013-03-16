@@ -28,6 +28,8 @@
       </div>
       <div class="{style.css.leftColumn}">
         <d:TeamOrderWidget ui:field="teamOrder"/>
+      </div>
+      <div class="{style.css.centerColumn}">
         <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
         <div class="{style.css.queue}" ui:field="queueArea">
           <div class="{style.css.tableHeader}">

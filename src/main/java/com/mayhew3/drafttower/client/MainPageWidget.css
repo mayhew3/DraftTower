@@ -5,8 +5,15 @@
 }
 
 .leftColumn {
-  width: 80%;
+  float: left;
+  width: 10%;
   margin-bottom: 220px;
+}
+
+.centerColumn {
+  width: 69%;
+  margin-bottom: 220px;
+  margin-left: 11%;
 }
 
 .queue {
