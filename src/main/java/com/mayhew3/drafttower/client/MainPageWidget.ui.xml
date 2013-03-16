@@ -29,7 +29,7 @@
       <div class="{style.css.leftColumn}">
         <d:TeamOrderWidget ui:field="teamOrder"/>
         <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
-        <div class="{style.css.queue}">
+        <div class="{style.css.queue}" ui:field="queueArea">
           <div class="{style.css.tableHeader}">
             Your queue
           </div>

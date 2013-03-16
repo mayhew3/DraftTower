@@ -11,11 +11,13 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 
 /**
  * Widget containing the entire UI.
  */
+@Singleton
 public class MainPageWidget extends Composite
     implements LoginEvent.Handler {
 
@@ -56,6 +58,7 @@ public class MainPageWidget extends Composite
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;
   @UiField Label showBarGraphs;
+  @UiField DivElement queueArea;
 
   private final PopupPanel depthChartsPopup;
   private final PopupPanel barGraphsPopup;
@@ -120,5 +123,9 @@ public class MainPageWidget extends Composite
   public void handleShowBarGraphsClick(ClickEvent e) {
     barGraphsPopup.center();
     barGraphsPopup.show();
+  }
+
+  public int getQueueAreaTop() {
+    return queueArea.getAbsoluteTop();
   }
 }
