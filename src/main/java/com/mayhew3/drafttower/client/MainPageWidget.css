@@ -51,6 +51,7 @@
   cursor: pointer;
   text-align: center;
   padding-top: 20px;
+  font-size: 14px;
 }
 
 .actionLink:hover {

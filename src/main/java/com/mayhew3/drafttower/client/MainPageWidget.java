@@ -53,6 +53,7 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
+  @UiField(provided = true) FilledPositionsChart filledPositionsChart;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
   @UiField(provided = true) QueueTable queueTable;
 
@@ -72,6 +73,7 @@ public class MainPageWidget extends Composite
       PickHistoryTablePanel pickHistoryTable,
       MyRosterTablePanel myRosterTable,
       TeamOrderWidget teamOrder,
+      FilledPositionsChart filledPositionsChart,
       PlayerTablePanel unclaimedPlayers,
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
@@ -84,6 +86,7 @@ public class MainPageWidget extends Composite
     this.pickHistoryTable = pickHistoryTable;
     this.myRosterTable = myRosterTable;
     this.teamOrder = teamOrder;
+    this.filledPositionsChart = filledPositionsChart;
     this.unclaimedPlayers = unclaimedPlayers;
     this.queueTable = queueTable;
 
