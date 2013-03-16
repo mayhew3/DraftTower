@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -122,6 +123,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   private Position positionFilter;
   private TableSpec tableSpec;
   private boolean hideInjuries;
+  private String nameFilter;
 
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -240,13 +242,18 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
   public void setPositionFilter(Position positionFilter) {
     this.positionFilter = positionFilter;
-    setVisibleRangeAndClearData(getVisibleRange(), true);
+    setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
   }
 
   public void setPlayerDataSet(PlayerDataSet playerDataSet) {
     tableSpec.setPlayerDataSet(playerDataSet);
     updateDropEnabled();
     setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
+
+  public void setNameFilter(String nameFilter) {
+    this.nameFilter = nameFilter;
+    setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
   }
 
   private void updateDropEnabled() {
@@ -267,5 +274,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
   public TableSpec getTableSpec() {
     return tableSpec;
+  }
+
+  public String getNameFilter() {
+    return nameFilter;
   }
 }

@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.client;
 import com.google.common.base.Joiner;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ButtonCell;
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.shared.EventBus;
@@ -67,6 +68,13 @@ public class QueueTable extends PlayerTable<QueueEntry> {
       public String getValue(QueueEntry object) {
         return "Remove";
       }
+
+      @Override
+      public void render(Context context, QueueEntry object, SafeHtmlBuilder sb) {
+        if (object.getPlayerId() >= 0) {
+          super.render(context, object, sb);
+        }
+      }
     };
     addColumn(removeColumn);
     removeColumn.setFieldUpdater(new FieldUpdater<QueueEntry, String>() {
@@ -92,7 +100,9 @@ public class QueueTable extends PlayerTable<QueueEntry> {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
         QueueEntry player = selectionModel.getSelectedObject();
-        eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), player.getPlayerName()));
+        if (player.getPlayerId() >= 0) {
+          eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), player.getPlayerName()));
+        }
       }
     });
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
@@ -107,7 +117,7 @@ public class QueueTable extends PlayerTable<QueueEntry> {
       @Override
       public void f(DragAndDropContext dragAndDropContext) {
         Object draggableData = dragAndDropContext.getDraggableData();
-        if (draggableData instanceof QueueEntry) {
+        if (draggableData instanceof QueueEntry && ((QueueEntry) draggableData).getPlayerId() >= 0) {
           QueueEntry draggedPlayer = dragAndDropContext.getDraggableData();
           QueueEntry droppedPlayer = dragAndDropContext.getDroppableData();
           eventBus.fireEvent(new ReorderPlayerQueueEvent(

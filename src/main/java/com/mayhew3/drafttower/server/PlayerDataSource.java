@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.server;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -61,10 +62,7 @@ public class PlayerDataSource {
 
     ResultSet resultSet = null;
     try {
-      resultSet = getResultSetForUnclaimedPlayerRows(request.getRowCount(), request.getRowStart(),
-          request.getPositionFilter(),
-          request.getTableSpec().getSortCol(), request.getTableSpec().isAscending(),
-          team);
+      resultSet = getResultSetForUnclaimedPlayerRows(request, team);
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -98,7 +96,7 @@ public class PlayerDataSource {
     }
 
     response.setPlayers(players);
-    response.setTotalPlayers(getTotalUnclaimedPlayerCount());
+    response.setTotalPlayers(getTotalUnclaimedPlayerCount(request, team));
 
     return response;
   }
@@ -128,9 +126,11 @@ public class PlayerDataSource {
     return keepers;
   }
 
-  private int getTotalUnclaimedPlayerCount() throws ServletException {
+  private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
     String sql = "select count(1) as TotalPlayers " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality";
+        "from UnclaimedDisplayPlayersWithCatsByQuality ";
+
+    sql = addFilters(request, team, sql);
 
     ResultSet resultSet = null;
     try {
@@ -148,13 +148,28 @@ public class PlayerDataSource {
     }
   }
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(int rowCount, int rowStart,
-      Position positionFilter, PlayerColumn sortCol, boolean ascending, final int team)
+  private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final int team)
       throws SQLException {
 
     String sql = "select * " +
         "from UnclaimedDisplayPlayersWithCatsByQuality ";
 
+    sql = addFilters(request, team, sql);
+
+    PlayerColumn sortCol = request.getTableSpec().getSortCol();
+    if (sortCol != null) {
+      sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
+          + sortCol.getColumnName() + " " + (request.getTableSpec().isAscending() ? "asc " : "desc ");
+    } else {
+      sql += "order by total desc ";
+    }
+    sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
+
+    return executeQuery(sql);
+  }
+
+  private String addFilters(UnclaimedPlayerListRequest request, final int team, String sql) {
+    Position positionFilter = request.getPositionFilter();
     if (positionFilter != null) {
       if (positionFilter == UNF) {
         ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
@@ -166,7 +181,7 @@ public class PlayerDataSource {
                     return input.getTeam() == team;
                   }
                 })));
-        sql += " where Position in (";
+        sql += "where Position in (";
         sql += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
           @Override
           public String apply(Position input) {
@@ -175,19 +190,17 @@ public class PlayerDataSource {
         }));
         sql += ") ";
       } else {
-        sql += " where Position = '" + positionFilter.getShortName() + "' ";
+        sql += "where Position = '" + positionFilter.getShortName() + "' ";
       }
     }
 
-    if (sortCol != null) {
-      sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
-          + sortCol.getColumnName() + " " + (ascending ? "asc " : "desc ");
-    } else {
-      sql += "order by total desc ";
+    String searchQuery = request.getSearchQuery();
+    if (!Strings.isNullOrEmpty(searchQuery)) {
+      sql += (positionFilter == null) ? "where " : "and ";
+      String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
+      sql += "(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ";
     }
-    sql += "limit " + rowStart + ", " + rowCount;
-
-    return executeQuery(sql);
+    return sql;
   }
 
   public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
