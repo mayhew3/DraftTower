@@ -61,10 +61,7 @@ public class PlayerDataSource {
 
     ResultSet resultSet = null;
     try {
-      resultSet = getResultSetForUnclaimedPlayerRows(request.getRowCount(), request.getRowStart(),
-          request.getPositionFilter(),
-          request.getTableSpec().getSortCol(), request.getTableSpec().isAscending(),
-          team);
+      resultSet = getResultSetForUnclaimedPlayerRows(request, team);
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -148,13 +145,13 @@ public class PlayerDataSource {
     }
   }
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(int rowCount, int rowStart,
-      Position positionFilter, PlayerColumn sortCol, boolean ascending, final int team)
+  private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final int team)
       throws SQLException {
 
     String sql = "select * " +
         "from UnclaimedDisplayPlayersWithCatsByQuality ";
 
+    Position positionFilter = request.getPositionFilter();
     if (positionFilter != null) {
       if (positionFilter == UNF) {
         ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
@@ -166,7 +163,7 @@ public class PlayerDataSource {
                     return input.getTeam() == team;
                   }
                 })));
-        sql += " where Position in (";
+        sql += "where Position in (";
         sql += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
           @Override
           public String apply(Position input) {
@@ -175,17 +172,25 @@ public class PlayerDataSource {
         }));
         sql += ") ";
       } else {
-        sql += " where Position = '" + positionFilter.getShortName() + "' ";
+        sql += "where Position = '" + positionFilter.getShortName() + "' ";
       }
     }
 
+    String searchQuery = request.getSearchQuery();
+    if (searchQuery != null) {
+      sql += (positionFilter == null) ? "where " : "and ";
+      String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
+      sql += "(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ";
+    }
+
+    PlayerColumn sortCol = request.getTableSpec().getSortCol();
     if (sortCol != null) {
       sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
-          + sortCol.getColumnName() + " " + (ascending ? "asc " : "desc ");
+          + sortCol.getColumnName() + " " + (request.getTableSpec().isAscending() ? "asc " : "desc ");
     } else {
       sql += "order by total desc ";
     }
-    sql += "limit " + rowStart + ", " + rowCount;
+    sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
 
     return executeQuery(sql);
   }

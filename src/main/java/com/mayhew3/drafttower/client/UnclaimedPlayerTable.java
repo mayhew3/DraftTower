@@ -122,6 +122,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   private Position positionFilter;
   private TableSpec tableSpec;
   private boolean hideInjuries;
+  private String nameFilter;
 
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -249,6 +250,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
     setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 
+  public void setNameFilter(String nameFilter) {
+    this.nameFilter = nameFilter;
+    setVisibleRangeAndClearData(getVisibleRange(), true);
+  }
+
   private void updateDropEnabled() {
     boolean dropEnabled = tableSpec.getPlayerDataSet() == PlayerDataSet.CUSTOM
         && getSortedColumn() == RANK;
@@ -267,5 +273,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
   public TableSpec getTableSpec() {
     return tableSpec;
+  }
+
+  public String getNameFilter() {
+    return nameFilter;
   }
 }

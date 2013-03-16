@@ -73,6 +73,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
         request.setPositionFilter(table.getPositionFilter());
         request.setHideInjuries(table.getHideInjuries());
         request.setTableSpec(table.getTableSpec());
+        request.setSearchQuery(table.getNameFilter());
       }
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
