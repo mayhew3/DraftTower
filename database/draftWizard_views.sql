@@ -334,20 +334,20 @@ CREATE OR REPLACE VIEW UnclaimedDisplayPlayersWithCatsByQuality AS
   NULL AS RBI,
   NULL AS HR,
   NULL AS SBC,
-  INN, ERA, WHIP, WL, K, S, Rank, Total, 'P' AS Position,
+  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, ROUND(Total, 3) AS Total, 'P' AS Position,
   FirstName, LastName, MLBTeam
 FROM PitcherQuality
 WHERE Drafted = 0 AND Keeper = 0)
 UNION
 (SELECT Player, PlayerID, Eligibility, 'Batter' AS Role,
-  OBP, SLG, RHR, RBI, HR, SBC,
+  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,
   NULL AS INN,
   NULL AS ERA,
   NULL AS WHIP,
   NULL AS WL,
   NULL AS K,
   NULL AS S,
-  Rank, Total, Position,
+  Rank, ROUND(Total, 3) AS Total, Position,
   FirstName, LastName, MLBTeam
 FROM BatterQuality
 WHERE Drafted = 0 AND Keeper = 0)
