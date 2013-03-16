@@ -56,6 +56,7 @@ public class MainPageWidget extends Composite
   @UiField(provided = true) FilledPositionsChart filledPositionsChart;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
   @UiField(provided = true) QueueTable queueTable;
+  @UiField(provided = true) AudioController audioController;
 
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;
@@ -78,6 +79,7 @@ public class MainPageWidget extends Composite
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
       BarGraphs barGraphs,
+      AudioController audioController,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
@@ -89,6 +91,7 @@ public class MainPageWidget extends Composite
     this.filledPositionsChart = filledPositionsChart;
     this.unclaimedPlayers = unclaimedPlayers;
     this.queueTable = queueTable;
+    this.audioController = audioController;
 
     initWidget(uiBinder.createAndBindUi(this));
 
