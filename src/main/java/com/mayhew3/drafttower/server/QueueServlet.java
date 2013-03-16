@@ -69,7 +69,11 @@ public class QueueServlet extends HttpServlet {
         if (request.getPosition() != null) {
           List<QueueEntry> queue = queues.get(team);
           synchronized (queues) {
+            if (queue.isEmpty()) {
+              queue.add(queueEntry);
+            } else {
               queue.add(request.getPosition(), queueEntry);
+            }
           }
         } else {
           queues.put(team, queueEntry);

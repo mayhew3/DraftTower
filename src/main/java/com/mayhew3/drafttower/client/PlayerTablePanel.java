@@ -52,6 +52,7 @@ public class PlayerTablePanel extends Composite implements
   private Map<PlayerDataSet, ToggleButton> dataSetButtons = Maps.newEnumMap(PlayerDataSet.class);
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
+  private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
 
   @Inject
@@ -114,6 +115,28 @@ public class PlayerTablePanel extends Composite implements
       filterButtons.add(button);
     }
     container.add(filterButtons);
+
+    container.add(new InlineLabel("Search: "));
+    nameSearch = new TextBox();
+    final InlineLabel clear = new InlineLabel(" X ");
+    clear.setVisible(false);
+    nameSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        table.setNameFilter(event.getValue());
+        clear.setVisible(!event.getValue().isEmpty());
+      }
+    });
+    clear.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        nameSearch.setValue("");
+        clear.setVisible(false);
+        table.setNameFilter("");
+      }
+    });
+    container.add(nameSearch);
+    container.add(clear);
 
     useForAutoPick = new CheckBox("Use this order for auto-pick");
     useForAutoPick.setStyleName(CSS.autoPick());

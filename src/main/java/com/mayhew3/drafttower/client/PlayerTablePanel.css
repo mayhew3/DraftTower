@@ -47,5 +47,5 @@ td:last-child > .filterButton {
 }
 
 .autoPick {
-
+  display: block;
 }
