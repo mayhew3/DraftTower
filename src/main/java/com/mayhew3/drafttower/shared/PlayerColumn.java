@@ -22,7 +22,7 @@ public enum PlayerColumn {
   K("K", "Strikeouts (Pitcher)", "K"),
   S("S", "Saves", "S"),
   RANK("Rank", "Rank", "Rank"),
-  RATING("Rating", "Rating", "Total");
+  RATING("Rating", "Rating", "Rating");
 
   private final String shortName;
   private final String longName;

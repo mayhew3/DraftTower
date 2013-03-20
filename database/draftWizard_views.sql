@@ -165,46 +165,6 @@ LEFT OUTER JOIN YearlyPitching yp
   ON yp.PlayerID = p.ID;
 
 
-CREATE OR REPLACE VIEW UnclaimedPlayers AS
-SELECT *
-FROM AllPlayers
-WHERE Drafted = 0 AND Keeper = 0;
-
-CREATE OR REPLACE VIEW UnclaimedPlayersOrdered AS
-(SELECT p.ID AS PlayerID, p.PlayerString AS Player, yp.Rank, 'Pitcher' AS PlayerType
-FROM UnclaimedPlayers p
-INNER JOIN YearlyPitching yp
-  ON p.ID = yp.PlayerID)
-UNION
-(SELECT p.ID AS PlayerID, p.PlayerString AS Player, yb.Rank, 'Batter' AS PlayerType
-FROM UnclaimedPlayers p
-INNER JOIN YearlyBatting yb
-  ON p.ID = yb.PlayerID)
-ORDER BY Rank;
-
-CREATE OR REPLACE VIEW UnclaimedBatters AS
-SELECT yb.*, FirstName, LastName, MLBTeam
-FROM UnclaimedPlayers p
-INNER JOIN YearlyBatScoring yb
- ON yb.PlayerID = p.ID
-WHERE AB > 300;
-
-CREATE OR REPLACE VIEW UnclaimedBattersByPos AS
-SELECT e.Position, yb.*
-FROM UnclaimedPlayers p
-INNER JOIN YearlyBatScoring yb
- ON yb.PlayerID = p.ID
-INNER JOIN Eligibilities e
- ON p.ID = e.PlayerID
-WHERE AB > 300;
-
-CREATE OR REPLACE VIEW UnclaimedPitchers AS
-SELECT yp.*, FirstName, LastName, MLBTeam
-FROM UnclaimedPlayers p
-INNER JOIN YearlyPitchScoring yp
- ON yp.PlayerID = p.ID
-WHERE OUTS > 120;
-
 CREATE OR REPLACE VIEW TeamBatting AS
 SELECT TeamID, MIN(TeamName), 
   SUM(RHR) AS RHR,
@@ -279,13 +239,6 @@ SELECT *, (OBPRating + SLGRating + RHRRating + RBIRating + HRRating + SBCRating)
 FROM BatterQualityByCat
 ORDER BY (OBPRating + SLGRating + RHRRating + RBIRating + HRRating + SBCRating) DESC;
 
-CREATE OR REPLACE VIEW GroupedBatterQuality AS
-SELECT *
-FROM BatterQuality
-WHERE NOT EXISTS (SELECT 1 a
-                  FROM BatterQuality b2
-                  WHERE b2.Total > BatterQuality.Total
-                  AND b2.PlayerID = BatterQuality.PlayerID);
                   
 CREATE OR REPLACE VIEW PitcherQualityByCat AS
 SELECT yp.*, FirstName, LastName, MLBTeam, Drafted, Keeper,
@@ -334,7 +287,7 @@ CREATE OR REPLACE VIEW UnclaimedDisplayPlayersWithCatsByQuality AS
   NULL AS RBI,
   NULL AS HR,
   NULL AS SBC,
-  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, ROUND(Total, 3) AS Total, 'P' AS Position,
+  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, ROUND(Total, 3) AS Rating, 'P' AS Position,
   FirstName, LastName, MLBTeam
 FROM PitcherQuality
 WHERE Drafted = 0 AND Keeper = 0)
@@ -347,11 +300,11 @@ UNION
   NULL AS WL,
   NULL AS K,
   NULL AS S,
-  Rank, ROUND(Total, 3) AS Total, Position,
+  Rank, ROUND(Total, 3) AS Rating, Position,
   FirstName, LastName, MLBTeam
 FROM BatterQuality
 WHERE Drafted = 0 AND Keeper = 0)
-ORDER BY Total DESC;
+ORDER BY Rating DESC;
 
 CREATE OR REPLACE VIEW TeamScoringWithZeroes AS
 SELECT Teams.ID AS TeamID,
