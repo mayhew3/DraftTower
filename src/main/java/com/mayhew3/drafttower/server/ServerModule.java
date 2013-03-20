@@ -75,7 +75,7 @@ public class ServerModule extends AbstractModule {
       BeanFactory beanFactory) {
     // TODO(m3): read from database?
     HashMap<Integer,TableSpec> autoPickTableSpecs = Maps.newHashMap();
-    for (int i = 0; i < numTeams; i++) {
+    for (int i = 1; i <= numTeams; i++) {
       TableSpec tableSpec = beanFactory.createTableSpec().as();
       tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
       tableSpec.setSortCol(PlayerColumn.RATING);

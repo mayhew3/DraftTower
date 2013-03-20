@@ -235,7 +235,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private Set<Integer> getNextPickKeeperTeams(int round) {
     Set<Integer> nextPickKeeperTeams = Sets.newHashSet();
     if (round <= 3) {
-      for (int i = 0; i < numTeams; i++) {
+      for (int i = 1; i <= numTeams; i++) {
         if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(i).size()) {
           nextPickKeeperTeams.add(i);
         }
