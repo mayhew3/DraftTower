@@ -127,8 +127,11 @@ public class PlayerDataSource {
   }
 
   private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
+    TableSpec tableSpec = request.getTableSpec();
+    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
+
     String sql = "select count(1) as TotalPlayers " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality ";
+        "from " + playerDataSet.getTableName() + " ";
 
     sql = addFilters(request, team, sql);
 
@@ -151,17 +154,19 @@ public class PlayerDataSource {
   private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final int team)
       throws SQLException {
 
-    String sql = "select * " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality ";
+    TableSpec tableSpec = request.getTableSpec();
+    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
+
+    String sql = "select * from " + playerDataSet.getTableName() + " ";
 
     sql = addFilters(request, team, sql);
 
-    PlayerColumn sortCol = request.getTableSpec().getSortCol();
+    PlayerColumn sortCol = tableSpec.getSortCol();
     if (sortCol != null) {
       sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
-          + sortCol.getColumnName() + " " + (request.getTableSpec().isAscending() ? "asc " : "desc ");
+          + sortCol.getColumnName() + " " + (tableSpec.isAscending() ? "asc " : "desc ");
     } else {
-      sql += "order by total desc ";
+      sql += "order by " + playerDataSet.getStartingSort() + " ";
     }
     sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
 
@@ -170,6 +175,7 @@ public class PlayerDataSource {
 
   private String addFilters(UnclaimedPlayerListRequest request, final int team, String sql) {
     Position positionFilter = request.getPositionFilter();
+    List<String> filters = Lists.newArrayList();
     if (positionFilter != null) {
       if (positionFilter == UNF) {
         ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
@@ -181,26 +187,38 @@ public class PlayerDataSource {
                     return input.getTeam() == team;
                   }
                 })));
-        sql += "where Position in (";
-        sql += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
+        String filter = "Position in (";
+        filter += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
           @Override
           public String apply(Position input) {
             return "'" + input.getShortName() + "'";
           }
         }));
-        sql += ") ";
+        filter += ") ";
+        filters.add(filter);
       } else {
-        sql += "where Position = '" + positionFilter.getShortName() + "' ";
+        filters.add("where Position = '" + positionFilter.getShortName() + "' ");
       }
     }
 
     String searchQuery = request.getSearchQuery();
     if (!Strings.isNullOrEmpty(searchQuery)) {
-      sql += (positionFilter == null) ? "where " : "and ";
       String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
-      sql += "(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ";
+      filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
     }
-    return sql;
+
+    String sourceFilter = request.getTableSpec().getPlayerDataSet().getSourceFilter();
+    if (sourceFilter != null) {
+      filters.add("Source = '" + sourceFilter + "' ");
+      filters.add("Drafted = 0");
+      filters.add("Keeper = 0");
+    }
+
+    if (filters.isEmpty()) {
+      return sql;
+    } else {
+      return sql + "where " + Joiner.on(" and ").join(filters) + " ";
+    }
   }
 
   public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
