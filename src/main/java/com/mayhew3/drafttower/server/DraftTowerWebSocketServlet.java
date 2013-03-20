@@ -38,6 +38,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     public void onOpen(Connection connection) {
       openSockets.add(this);
       this.connection = connection;
+      connection.setMaxIdleTime(0);
       for (DraftCommandListener listener : listeners) {
         listener.onClientConnected();
       }
