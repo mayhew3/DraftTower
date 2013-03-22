@@ -25,9 +25,12 @@ FROM projectionsBatting)
 ORDER BY Rank;
 
 CREATE OR REPLACE VIEW projectionsView AS
-SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, p.Eligibility as Position, ds.name as Source,
+SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, 
+ CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, 
+ ds.name as Source,
  CASE WHEN p.ID IN (SELECT PlayerID FROM Keepers) THEN 1 ELSE 0 END AS Keeper,
  CASE WHEN p.ID IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0) THEN 1 ELSE 0 END AS Drafted,
+ p.Injury,
  pa.*
 FROM projectionsAll pa
 INNER JOIN Players p
