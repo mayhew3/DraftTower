@@ -50,19 +50,19 @@ public class FilledPositionsChart extends Composite implements
       C, FB, SB, SS, TB, OF, DH, P
   };
   private static final String[] colors = {
-      "#FF0000",
-      "#FF0000",
-      "#FF3000",
-      "#FF6000",
-      "#FF9000",
-      "#FFB000",
-      "#FFE000",
-      "#F0FF00",
-      "#C0FF00",
-      "#90FF00",
-      "#60FF00",
+      "#00FF00",
       "#30FF00",
-      "#00FF00"
+      "#60FF00",
+      "#90FF00",
+      "#C0FF00",
+      "#F0FF00",
+      "#FFE000",
+      "#FFB000",
+      "#FF9000",
+      "#FF6000",
+      "#FF3000",
+      "#FF0000",
+      "#FF0000"
   };
 
   private final int numTeams;
