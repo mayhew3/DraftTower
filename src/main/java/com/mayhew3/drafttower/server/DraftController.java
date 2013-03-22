@@ -274,13 +274,24 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void backOutLastPick() {
-    int pickToRemove = status.getPicks().size();
-    logger.info("Backed out pick " + pickToRemove);
+    if (status.getPicks().isEmpty()) {
+      logger.warning("Attempt to back out pick when there are no picks!");
+    } else {
+      int pickToRemove = status.getPicks().size();
 
-    removePick(pickToRemove);
+      boolean wasPaused = status.isPaused();
 
-    goBackOneTeam();
-    newPick();
+      logger.info("Backed out pick " + pickToRemove);
+
+      removePick(pickToRemove);
+
+      goBackOneTeam();
+      newPick();
+
+      if (wasPaused) {
+        pausePick();
+      }
+    }
   }
 
   private void removePick(int pickToRemove) {
