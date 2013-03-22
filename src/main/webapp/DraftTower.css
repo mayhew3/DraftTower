@@ -1,5 +1,9 @@
 /** Global CSS. */
+@font-face {
+    font-family: leelawadee;
+    src: local(leelawadee), url('leelawad.ttf') format('opentype');
+}
 
 body {
-  font-family: "Helvetica Neue", arial, sans-serif;
+  font-family: leelawadee, "Helvetica Neue", arial, sans-serif;
 }
