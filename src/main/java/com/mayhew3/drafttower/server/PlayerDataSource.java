@@ -78,9 +78,9 @@ public class PlayerDataSource {
 
         player.setColumnValues(columnMap.build());
 
-        // TODO(m3)
-        if (!request.getHideInjuries() && player.getPlayerId() % 5 == 0) {
-          player.setInjury("busted wang");
+        String injury = resultSet.getString("Injury");
+        if (injury != null) {
+          player.setInjury(injury);
         }
 
         players.add(player);
@@ -197,7 +197,7 @@ public class PlayerDataSource {
         filter += ") ";
         filters.add(filter);
       } else {
-        filters.add("where Position = '" + positionFilter.getShortName() + "' ");
+        filters.add("Position = '" + positionFilter.getShortName() + "' ");
       }
     }
 
@@ -212,6 +212,10 @@ public class PlayerDataSource {
       filters.add("Source = '" + sourceFilter + "' ");
       filters.add("Drafted = 0");
       filters.add("Keeper = 0");
+    }
+
+    if (request.getHideInjuries()) {
+      filters.add("Injury IS NULL");
     }
 
     if (filters.isEmpty()) {

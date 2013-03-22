@@ -151,8 +151,7 @@ GROUP BY Role;
 
 CREATE OR REPLACE VIEW AllPlayers AS
 SELECT p.*,
-	  COALESCE(yb.Eligibility, 'P') AS Eligibility,
-      CASE WHEN (dr.BackedOut = 1 OR dr.ID IS NULL) THEN 0 ELSE 1 END AS Drafted,
+	  CASE WHEN (dr.BackedOut = 1 OR dr.ID IS NULL) THEN 0 ELSE 1 END AS Drafted,
       CASE WHEN k.ID IS NULL THEN 0 ELSE 1 END AS Keeper
 FROM Players p
 LEFT OUTER JOIN DraftResults dr
@@ -215,7 +214,7 @@ RIGHT OUTER JOIN TeamPitching tp
  ON tb.TeamID = tp.TeamID);
 
 CREATE OR REPLACE VIEW BatterQualityByCat AS
-SELECT yb.*, FirstName, LastName, MLBTeam, Drafted, Keeper, e.Position,
+SELECT yb.*, FirstName, LastName, MLBTeam, Drafted, Keeper, Injury, e.Position,
   (yb.TeamOBP-ab.TeamOBP)/std.TeamOBP AS OBPRating,
   (yb.TeamSLG-ab.TeamSLG)/std.TeamSLG AS SLGRating,
   (yb.RHR-ab.RHR)/std.RHR AS RHRRating,
@@ -241,7 +240,7 @@ ORDER BY (OBPRating + SLGRating + RHRRating + RBIRating + HRRating + SBCRating) 
 
                   
 CREATE OR REPLACE VIEW PitcherQualityByCat AS
-SELECT yp.*, FirstName, LastName, MLBTeam, Drafted, Keeper,
+SELECT yp.*, FirstName, LastName, MLBTeam, Drafted, Keeper, Injury,
   (yp.INN-ap.INN)/std.INN AS INNRating,
   (ap.TeamERA-yp.TeamERA)/std.TeamERA AS ERARating,
   (ap.TeamWHIP-yp.TeamWHIP)/std.TeamWHIP AS WHIPRating,
@@ -288,7 +287,7 @@ CREATE OR REPLACE VIEW UnclaimedDisplayPlayersWithCatsByQuality AS
   NULL AS HR,
   NULL AS SBC,
   ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, ROUND(Total, 3) AS Rating, 'P' AS Position,
-  FirstName, LastName, MLBTeam
+  FirstName, LastName, MLBTeam, Injury
 FROM PitcherQuality
 WHERE Drafted = 0 AND Keeper = 0)
 UNION
@@ -301,7 +300,7 @@ UNION
   NULL AS K,
   NULL AS S,
   Rank, ROUND(Total, 3) AS Rating, Position,
-  FirstName, LastName, MLBTeam
+  FirstName, LastName, MLBTeam, Injury
 FROM BatterQuality
 WHERE Drafted = 0 AND Keeper = 0)
 ORDER BY Rating DESC;
