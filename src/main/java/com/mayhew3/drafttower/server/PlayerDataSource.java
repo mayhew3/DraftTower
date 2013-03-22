@@ -312,6 +312,17 @@ public class PlayerDataSource {
     }
   }
 
+  public void backOutLastDraftPick(int pickToRemove) throws SQLException {
+    String sql = "UPDATE DraftResults SET BackedOut = 1 WHERE OverallPick = " + pickToRemove;
+
+    Statement statement = null;
+    try {
+      statement = executeUpdate(sql);
+    } finally {
+      close(statement);
+    }
+  }
+
   public void populateDraftStatus(DraftStatus status) throws SQLException {
     String sql = "SELECT * from DraftResultsLoad "
         + "ORDER BY Round, Pick";
