@@ -151,7 +151,7 @@ GROUP BY Role;
 
 CREATE OR REPLACE VIEW AllPlayers AS
 SELECT p.*,
-	  CASE WHEN (dr.BackedOut = 1 OR dr.ID IS NULL) THEN 0 ELSE 1 END AS Drafted,
+	  CASE WHEN p.ID IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0) THEN 1 ELSE 0 END AS Drafted,
       CASE WHEN k.ID IS NULL THEN 0 ELSE 1 END AS Keeper
 FROM Players p
 LEFT OUTER JOIN DraftResults dr

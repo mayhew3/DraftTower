@@ -274,14 +274,21 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void backOutLastPick() {
-    logger.info("Backed out pick " + status.getPicks().size());
+    int pickToRemove = status.getPicks().size();
+    logger.info("Backed out pick " + pickToRemove);
+
+    removePick(pickToRemove);
+
+    goBackOneTeam();
+    newPick();
+  }
+
+  private void removePick(int pickToRemove) {
+    status.getPicks().remove(pickToRemove - 1);
     try {
-      playerDataSource.backOutLastPick(status);
-      status.getPicks().remove(status.getPicks().size() - 1);
-      goBackOneTeam();
-      newPick();
+      playerDataSource.backOutLastDraftPick(pickToRemove);
     } catch (SQLException e) {
-      logger.log(SEVERE, "SQL error backing out draft pick", e);
+      logger.log(SEVERE, "SQL error backing out last draft pick.", e);
     }
   }
 
