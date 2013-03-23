@@ -13,4 +13,7 @@ public interface ChangePlayerRankRequest {
 
   int getNewRank();
   void setNewRank(int newRank);
+
+  int getPrevRank();
+  void setPrevRank(int newRank);
 }

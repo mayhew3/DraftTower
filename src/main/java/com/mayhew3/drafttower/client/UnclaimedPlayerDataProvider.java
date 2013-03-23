@@ -117,6 +117,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
 
       request.setPlayerId(event.getPlayerId());
       request.setNewRank(event.getNewRank());
+      request.setPrevRank(event.getPrevRank());
 
       requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
           new RequestCallback() {

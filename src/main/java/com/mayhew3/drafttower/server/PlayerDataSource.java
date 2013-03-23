@@ -13,10 +13,7 @@ import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +21,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.UNF;
+import static java.util.logging.Level.SEVERE;
 
 /**
  * Looks up players in the database.
@@ -294,10 +292,47 @@ public class PlayerDataSource {
   }
 
   public void changePlayerRank(ChangePlayerRankRequest request) {
-    // TODO(m3)
-    logger.info("Change player rank for team " + teamTokens.get(request.getTeamToken())
-        + " player " + request.getPlayerId() + " new rank " + request.getNewRank());
+    int teamID = teamTokens.get(request.getTeamToken());
+    long playerId = request.getPlayerId();
+    int prevRank = request.getPrevRank();
+    int newRank = request.getNewRank();
+
+    logger.info("Change player rank for team " + teamID
+        + " player " + playerId + " from rank " + prevRank + " to new rank " + newRank);
+
+    shiftInBetweenRanks(teamID, prevRank, newRank);
+    updatePlayerRank(teamID, newRank, playerId);
   }
+
+  private void shiftInBetweenRanks(int teamID, int prevRank, int newRank) {
+    String newRankForInbetween = "Rank-1";
+    int lesserRank = prevRank+1;
+    int greaterRank = newRank;
+
+    if (prevRank > newRank) {
+      newRankForInbetween = "Rank+1";
+      lesserRank = newRank;
+      greaterRank = prevRank-1;
+    }
+
+    String sql = "UPDATE CustomRankings SET Rank = " + newRankForInbetween +
+        " WHERE TeamID = ? AND Rank BETWEEN ? AND ?";
+    try {
+      prepareStatementUpdate(sql, teamID, lesserRank, greaterRank);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to shift ranks for intermediate players!", e);
+    }
+  }
+
+  private void updatePlayerRank(int teamID, int newRank, long playerID) {
+    String sql = "UPDATE CustomRankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
+    try {
+      prepareStatementUpdate(sql, newRank, teamID, playerID);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to change rank for player!", e);
+    }
+  }
+
 
   public void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException {
     int overallPick = status.getPicks().size();
@@ -397,6 +432,33 @@ public class PlayerDataSource {
     Statement statement = db.getConnection().createStatement();
     statement.executeUpdate(sql);
     return statement;
+  }
+
+
+  protected Statement prepareStatementUpdate(String sql, Object... params) throws SQLException {
+    PreparedStatement preparedStatement = prepareStatement(sql, Lists.newArrayList(params));
+
+    preparedStatement.executeUpdate();
+    return preparedStatement;
+  }
+
+  private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
+    PreparedStatement preparedStatement = db.getConnection().prepareStatement(sql);
+
+    int i = 1;
+    for (Object param : params) {
+      if (param instanceof String) {
+        preparedStatement.setString(i, (String) param);
+      } else if (param instanceof Integer) {
+        preparedStatement.setInt(i, (Integer) param);
+      } else if (param instanceof Long) {
+        preparedStatement.setLong(i, (Long) param);
+      } else {
+        throw new RuntimeException("Unknown type of param: " + param.getClass());
+      }
+      i++;
+    }
+    return preparedStatement;
   }
 
   private static void close(ResultSet resultSet) throws SQLException {

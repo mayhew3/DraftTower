@@ -75,10 +75,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
         setFieldUpdater(new FieldUpdater<Player, String>() {
           @Override
           public void update(int index, Player player, String newRank) {
-            if (!newRank.equals(player.getColumnValues().get(RANK))) {
+            String currentRank = player.getColumnValues().get(RANK);
+            if (!newRank.equals(currentRank)) {
               try {
                 eventBus.fireEvent(new ChangePlayerRankEvent(player.getPlayerId(),
-                    Integer.parseInt(newRank)));
+                    Integer.parseInt(newRank), Integer.parseInt(currentRank)));
               } catch (NumberFormatException e) {
                 // whatevs
               }
@@ -94,7 +95,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
           Player droppedPlayer = dragAndDropContext.getDroppableData();
           eventBus.fireEvent(new ChangePlayerRankEvent(
               draggedPlayer.getPlayerId(),
-              Integer.parseInt(droppedPlayer.getColumnValues().get(RANK)) + 1));
+              Integer.parseInt(droppedPlayer.getColumnValues().get(RANK)) + 1,
+              Integer.parseInt(draggedPlayer.getColumnValues().get(RANK))));
         }
       };
       initDragging(this, onDrop);

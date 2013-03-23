@@ -17,10 +17,12 @@ public class ChangePlayerRankEvent extends GwtEvent<Handler> {
 
   private final long playerId;
   private final int newRank;
+  private final int prevRank;
 
-  public ChangePlayerRankEvent(long playerId, int newRank) {
+  public ChangePlayerRankEvent(long playerId, int newRank, int prevRank) {
     this.playerId = playerId;
     this.newRank = newRank;
+    this.prevRank = prevRank;
   }
 
   public long getPlayerId() {
@@ -30,6 +32,11 @@ public class ChangePlayerRankEvent extends GwtEvent<Handler> {
   public int getNewRank() {
     return newRank;
   }
+
+  public int getPrevRank() {
+    return prevRank;
+  }
+
 
   @Override
   public Type<Handler> getAssociatedType() {
