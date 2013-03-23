@@ -84,14 +84,17 @@ public class RosterUtil {
 
   public static Set<Position> getOpenPositions(List<DraftPick> picks) {
     Set<Position> openPositions = Sets.newHashSet();
-    doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
-        ArrayListMultimap.<Position, DraftPick>create());
+    int reservesAllowed = 0;
+    while (openPositions.isEmpty()) {
+      doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
+          ArrayListMultimap.<Position, DraftPick>create(), reservesAllowed++);
+    }
     return openPositions;
   }
 
   private static void doGetOpenPositions(
       List<DraftPick> picks, List<Position> positions, Set<Position> openPositions,
-      Multimap<Position, DraftPick> roster) {
+      Multimap<Position, DraftPick> roster, int reservesAllowed) {
     if (picks.isEmpty()) {
       List<Position> rosterOpenPositions = Lists.newArrayList(POSITIONS);
       for (Entry<Position, DraftPick> rosterEntry : roster.entries()) {
@@ -114,11 +117,11 @@ public class RosterUtil {
         }
         expandedRoster.put(position, pick);
         positions.remove(position);
-        doGetOpenPositions(picks, positions, openPositions, expandedRoster);
+        doGetOpenPositions(picks, positions, openPositions, expandedRoster, reservesAllowed);
         positions.add(position);
       }
-      if (isReserve) {
-        doGetOpenPositions(picks, positions, openPositions, roster);
+      if (isReserve && reservesAllowed > 0) {
+        doGetOpenPositions(picks, positions, openPositions, roster, reservesAllowed - 1);
       }
       picks.add(0, pick);
     }
