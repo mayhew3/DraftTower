@@ -85,16 +85,18 @@ public class RosterUtil {
   public static Set<Position> getOpenPositions(List<DraftPick> picks) {
     Set<Position> openPositions = Sets.newHashSet();
     int reservesAllowed = 0;
+    doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
+        ArrayListMultimap.<Position, DraftPick>create(), false, reservesAllowed);
     while (openPositions.isEmpty()) {
       doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
-          ArrayListMultimap.<Position, DraftPick>create(), reservesAllowed++);
+          ArrayListMultimap.<Position, DraftPick>create(), true, reservesAllowed++);
     }
     return openPositions;
   }
 
   private static void doGetOpenPositions(
       List<DraftPick> picks, List<Position> positions, Set<Position> openPositions,
-      Multimap<Position, DraftPick> roster, int reservesAllowed) {
+      Multimap<Position, DraftPick> roster, boolean allowDH, int reservesAllowed) {
     if (picks.isEmpty()) {
       List<Position> rosterOpenPositions = Lists.newArrayList(POSITIONS);
       for (Entry<Position, DraftPick> rosterEntry : roster.entries()) {
@@ -113,20 +115,21 @@ public class RosterUtil {
         Multimap<Position, DraftPick> expandedRoster = ArrayListMultimap.create(roster);
         expandedRoster.put(position, pick);
         positions.remove(position);
-        doGetOpenPositions(picks, positions, openPositions, expandedRoster, reservesAllowed);
+        doGetOpenPositions(picks, positions, openPositions, expandedRoster, allowDH, reservesAllowed);
         positions.add(position);
       }
       if (!foundPosition) {
-        if (!pick.getEligibilities().contains(P.getShortName())
+        if (allowDH
+            && !pick.getEligibilities().contains(P.getShortName())
             && !pick.getEligibilities().contains(DH.getShortName())
             && positions.contains(DH)) {
           Multimap<Position, DraftPick> expandedRoster = ArrayListMultimap.create(roster);
           expandedRoster.put(DH, pick);
           positions.remove(DH);
-          doGetOpenPositions(picks, positions, openPositions, expandedRoster, reservesAllowed);
+          doGetOpenPositions(picks, positions, openPositions, expandedRoster, allowDH, reservesAllowed);
           positions.add(DH);
         } else if (reservesAllowed > 0) {
-          doGetOpenPositions(picks, positions, openPositions, roster, reservesAllowed - 1);
+          doGetOpenPositions(picks, positions, openPositions, roster, allowDH, reservesAllowed - 1);
         }
       }
       picks.add(0, pick);

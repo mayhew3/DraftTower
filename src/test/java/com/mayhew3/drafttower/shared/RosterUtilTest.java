@@ -168,14 +168,14 @@ public class RosterUtilTest {
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, SB, SS))));
-  }
-
-  @Test
-  public void testGetOpenPositionsMultiEligibilitySharedPosition() throws Exception {
     Assert.assertEquals(Sets.newHashSet(C, FB, TB, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, SB),
             pick(2, SB, SS))));
+    Assert.assertEquals(Sets.newHashSet(C, FB, TB, OF, DH, P),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, SB, SS),
+            pick(2, SB))));
   }
 
   @Test
