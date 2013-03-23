@@ -103,25 +103,31 @@ public class RosterUtil {
       openPositions.addAll(rosterOpenPositions);
     } else {
       DraftPick pick = picks.remove(0);
-      boolean isReserve = true;
+      boolean foundPosition = false;
       for (String positionStr : pick.getEligibilities()) {
         Position position = Position.fromShortName(positionStr);
-        if (!positions.contains(position)
-            && (!positions.contains(DH) || position == P)) {
+        if (!positions.contains(position)) {
           continue;
         }
-        isReserve = false;
+        foundPosition = true;
         Multimap<Position, DraftPick> expandedRoster = ArrayListMultimap.create(roster);
-        if (!positions.contains(position)) {
-          position = DH;
-        }
         expandedRoster.put(position, pick);
         positions.remove(position);
         doGetOpenPositions(picks, positions, openPositions, expandedRoster, reservesAllowed);
         positions.add(position);
       }
-      if (isReserve && reservesAllowed > 0) {
-        doGetOpenPositions(picks, positions, openPositions, roster, reservesAllowed - 1);
+      if (!foundPosition) {
+        if (!pick.getEligibilities().contains(P.getShortName())
+            && !pick.getEligibilities().contains(DH.getShortName())
+            && positions.contains(DH)) {
+          Multimap<Position, DraftPick> expandedRoster = ArrayListMultimap.create(roster);
+          expandedRoster.put(DH, pick);
+          positions.remove(DH);
+          doGetOpenPositions(picks, positions, openPositions, expandedRoster, reservesAllowed);
+          positions.add(DH);
+        } else if (reservesAllowed > 0) {
+          doGetOpenPositions(picks, positions, openPositions, roster, reservesAllowed - 1);
+        }
       }
       picks.add(0, pick);
     }
