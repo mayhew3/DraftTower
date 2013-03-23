@@ -1,7 +1,10 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.LoginResponse;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 /**
  * Info about teams, including this client's team.  Holds a {@link LoginResponse}.
@@ -9,7 +12,14 @@ import com.mayhew3.drafttower.shared.LoginResponse;
 @Singleton
 public class TeamsInfo {
 
+  private final int numTeams;
+
   private LoginResponse loginResponse;
+
+  @Inject
+  public TeamsInfo(@NumTeams int numTeams) {
+    this.numTeams = numTeams;
+  }
 
   public String getTeamToken() {
     return loginResponse.getTeamToken();
@@ -43,5 +53,23 @@ public class TeamsInfo {
 
   public boolean isLoggedIn() {
     return loginResponse != null;
+  }
+
+  public boolean isMyPick(DraftStatus status) {
+    return status.getCurrentTeam() == getTeam();
+  }
+
+  public boolean isOnDeck(DraftStatus status) {
+    int nextTeam = status.getCurrentTeam() + 1;
+    if (nextTeam > numTeams) {
+      nextTeam -= numTeams;
+    }
+    while (status.getNextPickKeeperTeams().contains(nextTeam)) {
+      nextTeam++;
+      if (nextTeam > numTeams) {
+        nextTeam -= numTeams;
+      }
+    }
+    return nextTeam == getTeam();
   }
 }

@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -56,6 +57,13 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
             : pickAndPosition.pick.getPlayerName();
       }
     }, "Player");
+    addColumn(new TextColumn<PickAndPosition>() {
+      @Override
+      public String getValue(PickAndPosition pickAndPosition) {
+        return pickAndPosition.pick == null ? ""
+            : Joiner.on(", ").join(pickAndPosition.pick.getEligibilities());
+      }
+    }, "Elig");
 
     rosterProvider = new ListDataProvider<PickAndPosition>();
     rosterProvider.addDataDisplay(this);

@@ -190,4 +190,29 @@ public class RosterUtilTest {
             pick(6, P),
             pick(7, P))));
   }
+
+  @Test
+  public void testGetOpenPositionsDHNotOpen() throws Exception {
+    Assert.assertFalse(RosterUtil.getOpenPositions(Lists.newArrayList(
+        pick(1, FB),
+        pick(2, FB)))
+        .contains(DH));
+  }
+
+  @Test
+  public void testGetOpenPositionsOFBug() throws Exception {
+    Assert.assertFalse(RosterUtil.getOpenPositions(Lists.newArrayList(
+        pick(1, P),
+        pick(2, OF),
+        pick(3, FB),
+        pick(4, P),
+        pick(5, FB, OF),
+        pick(6, SS),
+        pick(7, SB),
+        pick(8, OF),
+        pick(9, P),
+        pick(10, P),
+        pick(11, DH)))
+        .contains(OF));
+  }
 }

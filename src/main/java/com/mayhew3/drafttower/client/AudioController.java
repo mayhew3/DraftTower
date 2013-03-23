@@ -53,11 +53,10 @@ public class AudioController extends Composite implements
 
     DraftStatus status = event.getStatus();
     if (status.getCurrentPickDeadline() > 0 && status.getCurrentTeam() != lastTeam) {
-      if (status.getCurrentTeam() == teamsInfo.getTeam()) {
+      if (teamsInfo.isMyPick(status)) {
         onTheClock.play();
       }
-      if (status.getCurrentTeam() == teamsInfo.getTeam() - 1
-          || teamsInfo.getTeam() == 1 && status.getCurrentTeam() == numTeams) {
+      if (teamsInfo.isOnDeck(status)) {
         onDeck.play();
       }
       lastTeam = status.getCurrentTeam();
