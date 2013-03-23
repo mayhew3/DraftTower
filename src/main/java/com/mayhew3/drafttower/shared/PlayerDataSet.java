@@ -9,7 +9,7 @@ public enum PlayerDataSet {
   CBS("CBSSports", "projectionsView", "CBSSports", "Rank ASC"),
   GURU("GURU", "projectionsView", "GURU", "Rank ASC"),
   LAST_YEAR("2012", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating DESC"),
-  CUSTOM("Custom", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating DESC");
+  CUSTOM("Custom", "rankingsView", null, "Rank ASC");
 
   private final String displayName;
   private final String tableName;
