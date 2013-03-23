@@ -38,6 +38,23 @@ INNER JOIN Players p
 INNER JOIN data_sources ds
  ON pa.DataSource = ds.ID;
 
+CREATE OR REPLACE VIEW rankingsView AS
+SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, 
+ CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, 
+ CASE WHEN p.ID IN (SELECT PlayerID FROM Keepers) THEN 1 ELSE 0 END AS Keeper,
+ CASE WHEN p.ID IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0) THEN 1 ELSE 0 END AS Drafted,
+ p.Injury,
+ cr.TeamID,
+ cr.Rank,
+ pa.PlayerID,
+ pa.OBP, pa.SLG, pa.RHR, pa.RBI, pa.HR, pa.SBC,
+ pa.ERA, pa.WHIP, pa.K, pa.WL, pa.S, pa.INN, pa.Rating
+FROM projectionsAll pa
+INNER JOIN Players p
+ ON pa.PlayerID = p.ID
+INNER JOIN customrankings cr
+ on cr.playerid = p.ID
+WHERE pa.DataSource = 2;
 
 -- start of aggregated projections, not done yet.
 CREATE OR REPLACE VIEW projectionBatAggr AS
