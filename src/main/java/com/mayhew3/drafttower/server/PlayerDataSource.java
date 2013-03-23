@@ -290,6 +290,22 @@ public class PlayerDataSource {
     }
   }
 
+  public void backOutLastPick(DraftStatus status) throws SQLException {
+    int overallPick = status.getPicks().size();
+    int round = (overallPick - 1) / numTeams + 1;
+    int pick = ((overallPick-1) % numTeams) + 1;
+
+    String sql = "DELETE FROM DraftResults WHERE Round=" + round
+        + " AND Pick=" + pick;
+
+    Statement statement = null;
+    try {
+      statement = executeUpdate(sql);
+    } finally {
+      close(statement);
+    }
+  }
+
   public void populateDraftStatus(DraftStatus status) throws SQLException {
     String sql = "SELECT * from DraftResultsLoad "
         + "ORDER BY Round, Pick";

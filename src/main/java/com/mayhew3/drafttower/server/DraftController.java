@@ -275,9 +275,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private void backOutLastPick() {
     logger.info("Backed out pick " + status.getPicks().size());
-    status.getPicks().remove(status.getPicks().size() - 1);
-    goBackOneTeam();
-    newPick();
+    try {
+      playerDataSource.backOutLastPick(status);
+      status.getPicks().remove(status.getPicks().size() - 1);
+      goBackOneTeam();
+      newPick();
+    } catch (SQLException e) {
+      logger.log(SEVERE, "SQL error backing out draft pick", e);
+    }
   }
 
   private void autoPick() {
