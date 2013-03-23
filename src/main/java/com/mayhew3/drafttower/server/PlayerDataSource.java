@@ -207,7 +207,9 @@ public class PlayerDataSource {
       filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
     }
 
-    String sourceFilter = request.getTableSpec().getPlayerDataSet().getSourceFilter();
+    PlayerDataSet playerDataSet = request.getTableSpec().getPlayerDataSet();
+
+    String sourceFilter = playerDataSet.getSourceFilter();
     if (sourceFilter != null) {
       filters.add("Source = '" + sourceFilter + "' ");
       filters.add("Drafted = 0");
@@ -216,6 +218,12 @@ public class PlayerDataSource {
 
     if (request.getHideInjuries()) {
       filters.add("Injury IS NULL");
+    }
+
+    if (playerDataSet.equals(PlayerDataSet.CUSTOM)) {
+      filters.add("Drafted = 0");
+      filters.add("Keeper = 0");
+      filters.add("TeamID = " + team);
     }
 
     if (filters.isEmpty()) {
