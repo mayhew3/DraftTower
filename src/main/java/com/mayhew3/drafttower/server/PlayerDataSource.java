@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.UNF;
 import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
 
 /**
  * Looks up players in the database.
@@ -148,16 +147,22 @@ public class PlayerDataSource {
 
     sql = addFilters(request, team, sql);
 
-    PlayerColumn sortCol = tableSpec.getSortCol();
-    if (sortCol != null) {
-      sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
-          + sortCol.getColumnName() + " " + (tableSpec.isAscending() ? "asc " : "desc ");
-    } else {
-      sql += "order by " + playerDataSet.getStartingSort() + " ";
-    }
+    sql = addOrdering(tableSpec, sql);
+
     sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
 
     return executeQuery(sql);
+  }
+
+  private String addOrdering(TableSpec tableSpec, String sql) {
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    if (sortCol != null) {
+      sql += " order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
+          + sortCol.getColumnName() + " " + (tableSpec.isAscending() ? "asc " : "desc ");
+    } else {
+      throw new IllegalStateException("Expected tableSpec to have ordering.");
+    }
+    return sql;
   }
 
   private String addFilters(UnclaimedPlayerListRequest request, final int team, String sql) {
@@ -267,8 +272,10 @@ public class PlayerDataSource {
     addTableSpecFilters(team, filters, tableSpec);
 
     if (!filters.isEmpty()) {
-      sql += " where " + Joiner.on(" and ").join(filters);
+      sql += " where " + Joiner.on(" and ").join(filters) + " ";
     }
+
+    sql = addOrdering(tableSpec, sql);
 
     ResultSet resultSet = null;
     try {
