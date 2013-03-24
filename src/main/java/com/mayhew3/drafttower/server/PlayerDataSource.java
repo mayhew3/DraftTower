@@ -194,7 +194,21 @@ public class PlayerDataSource {
       filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
     }
 
-    PlayerDataSet playerDataSet = request.getTableSpec().getPlayerDataSet();
+    if (request.getHideInjuries()) {
+      filters.add("Injury IS NULL");
+    }
+
+    addTableSpecFilters(team, filters, request.getTableSpec());
+
+    if (filters.isEmpty()) {
+      return sql;
+    } else {
+      return sql + "where " + Joiner.on(" and ").join(filters) + " ";
+    }
+  }
+
+  private void addTableSpecFilters(int team, List<String> filters, TableSpec tableSpec) {
+    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
 
     String sourceFilter = playerDataSet.getSourceFilter();
     if (sourceFilter != null) {
@@ -203,20 +217,11 @@ public class PlayerDataSource {
       filters.add("Keeper = 0");
     }
 
-    if (request.getHideInjuries()) {
-      filters.add("Injury IS NULL");
-    }
 
     if (playerDataSet.equals(PlayerDataSet.CUSTOM)) {
       filters.add("Drafted = 0");
       filters.add("Keeper = 0");
       filters.add("TeamID = " + team);
-    }
-
-    if (filters.isEmpty()) {
-      return sql;
-    } else {
-      return sql + "where " + Joiner.on(" and ").join(filters) + " ";
     }
   }
 
@@ -253,11 +258,17 @@ public class PlayerDataSource {
     }
   }
 
-  public long getBestPlayerId(TableSpec tableSpec,
-      Set<Position> openPositions) throws SQLException {
-    // TODO(m3): use tableSpec.
-    String sql = "select PlayerID,Eligibility " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality";
+  public long getBestPlayerId(TableSpec tableSpec, final Integer team, Set<Position> openPositions) throws SQLException {
+    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
+
+    String sql = "select PlayerID, Eligibility from " + playerDataSet.getTableName() + " ";
+
+    List<String> filters = Lists.newArrayList();
+    addTableSpecFilters(team, filters, tableSpec);
+
+    if (!filters.isEmpty()) {
+      sql += " where " + Joiner.on(" and ").join(filters);
+    }
 
     ResultSet resultSet = null;
     try {

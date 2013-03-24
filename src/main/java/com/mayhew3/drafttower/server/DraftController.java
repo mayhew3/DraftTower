@@ -155,6 +155,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
         playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team),
+            team,
             RosterUtil.getOpenPositions(
                 Lists.newArrayList(Iterables.filter(status.getPicks(),
                     new Predicate<DraftPick>() {
