@@ -408,4 +408,5 @@ INNER JOIN Teams t
 INNER JOIN Players p
   ON dr.PlayerID = p.ID
 LEFT OUTER JOIN YearlyBatting yb
-  ON yb.PlayerID = dr.PlayerID;
+  ON yb.PlayerID = dr.PlayerID
+WHERE dr.BackedOut = 0;
