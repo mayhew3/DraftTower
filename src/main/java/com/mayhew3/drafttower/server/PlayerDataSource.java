@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.UNF;
 import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 
 /**
  * Looks up players in the database.
@@ -86,11 +87,7 @@ public class PlayerDataSource {
     } catch (SQLException e) {
       throw new ServletException("Error getting next element of results.", e);
     } finally {
-      try {
-        close(resultSet);
-      } catch (SQLException e) {
-        throw new ServletException("Error closing DB resources.", e);
-      }
+      close(resultSet);
     }
 
     response.setPlayers(players);
@@ -115,11 +112,7 @@ public class PlayerDataSource {
     } catch (SQLException e) {
       throw new ServletException("Error retreiving keepers from database.", e);
     } finally {
-      try {
-        close(resultSet);
-      } catch (SQLException e) {
-        throw new ServletException("Error closing DB resources.", e);
-      }
+      close(resultSet);
     }
     return keepers;
   }
@@ -141,11 +134,7 @@ public class PlayerDataSource {
     } catch (SQLException e) {
       throw new ServletException("Couldn't find number of rows in table.", e);
     } finally {
-      try {
-        close(resultSet);
-      } catch (SQLException e) {
-        throw new ServletException("Error closing DB resources.", e);
-      }
+      close(resultSet);
     }
   }
 
@@ -317,19 +306,25 @@ public class PlayerDataSource {
 
     String sql = "UPDATE CustomRankings SET Rank = " + newRankForInbetween +
         " WHERE TeamID = ? AND Rank BETWEEN ? AND ?";
+    Statement statement = null;
     try {
-      prepareStatementUpdate(sql, teamID, lesserRank, greaterRank);
+      statement = prepareStatementUpdate(sql, teamID, lesserRank, greaterRank);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to shift ranks for intermediate players!", e);
+    } finally {
+      close(statement);
     }
   }
 
   private void updatePlayerRank(int teamID, int newRank, long playerID) {
     String sql = "UPDATE CustomRankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
+    Statement statement = null;
     try {
-      prepareStatementUpdate(sql, newRank, teamID, playerID);
+      statement = prepareStatementUpdate(sql, newRank, teamID, playerID);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to change rank for player!", e);
+    } finally {
+      close(statement);
     }
   }
 
@@ -461,20 +456,28 @@ public class PlayerDataSource {
     return preparedStatement;
   }
 
-  private static void close(ResultSet resultSet) throws SQLException {
-    if (resultSet == null) {
-      return;
+  private static void close(ResultSet resultSet) {
+    try {
+      if (resultSet == null) {
+        return;
+      }
+      Statement statement = resultSet.getStatement();
+      Connection connection = statement.getConnection();
+      resultSet.close();
+      statement.close();
+      connection.close();
+    } catch (SQLException e) {
+      logger.log(WARNING, "Unable to close SQL connection after use.", e);
     }
-    Statement statement = resultSet.getStatement();
-    Connection connection = statement.getConnection();
-    resultSet.close();
-    statement.close();
-    connection.close();
   }
 
-  private void close(Statement statement) throws SQLException {
-    Connection connection = statement.getConnection();
-    statement.close();
-    connection.close();
+  private void close(Statement statement) {
+    try {
+      Connection connection = statement.getConnection();
+      statement.close();
+      connection.close();
+    } catch (SQLException e) {
+      logger.log(WARNING, "Unable to close SQL connection after use.", e);
+    }
   }
 }
