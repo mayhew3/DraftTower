@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -9,10 +10,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.mayhew3.drafttower.server.ServerModule.AutoPickTableSpecs;
-import com.mayhew3.drafttower.server.ServerModule.Keepers;
-import com.mayhew3.drafttower.server.ServerModule.Queues;
-import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
+import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickTableSpecs;
+import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
+import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
+import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
@@ -225,12 +226,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setOver(round >= 22);
     status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
 
-    List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
-    if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
+    if (isCurrentPickKeeper()) {
+      List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true, true);
     } else if (!status.isOver()) {
       startPickTimer(pickLengthMs);
     }
+  }
+
+  private boolean isCurrentPickKeeper() {
+    List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
+    int round = status.getPicks().size() / numTeams;
+    return currentTeamKeepers != null && round < currentTeamKeepers.size();
   }
 
   private Set<Integer> getNextPickKeeperTeams(int round) {
@@ -274,21 +281,19 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     pausedPickTime = 0;
   }
 
-  private void backOutLastPick() {
+  @VisibleForTesting
+  void backOutLastPick() {
     if (status.getPicks().isEmpty()) {
       logger.warning("Attempt to back out pick when there are no picks!");
     } else {
-      int pickToRemove = status.getPicks().size();
-
       boolean wasPaused = status.isPaused();
-
-      logger.info("Backed out pick " + pickToRemove);
-
-      removePick(pickToRemove);
-
-      goBackOneTeam();
+      do {
+        int pickToRemove = status.getPicks().size();
+        logger.info("Backed out pick " + pickToRemove);
+        removePick(pickToRemove);
+        goBackOneTeam();
+      } while (isCurrentPickKeeper());
       newPick();
-
       if (wasPaused) {
         pausePick();
       }

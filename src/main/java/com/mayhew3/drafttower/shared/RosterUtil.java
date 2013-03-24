@@ -87,7 +87,7 @@ public class RosterUtil {
     int reservesAllowed = 0;
     doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
         ArrayListMultimap.<Position, DraftPick>create(), false, reservesAllowed);
-    while (openPositions.isEmpty()) {
+    while (openPositions.isEmpty() && reservesAllowed <= 6) {
       doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
           ArrayListMultimap.<Position, DraftPick>create(), true, reservesAllowed++);
     }
