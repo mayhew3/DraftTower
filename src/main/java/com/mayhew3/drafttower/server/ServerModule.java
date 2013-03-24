@@ -65,23 +65,13 @@ public class ServerModule extends AbstractModule {
   }
 
   @Provides @Singleton @Queues
-  public ListMultimap<Integer, QueueEntry> getQueues(PlayerDataSource playerDataSource) {
-    // TODO(m3): read queues from database.
+  public ListMultimap<Integer, QueueEntry> getQueues() {
     return ArrayListMultimap.create();
   }
 
   @Provides @Singleton @AutoPickTableSpecs
-  public Map<Integer, TableSpec> getAutoPickTableSpecs(@NumTeams int numTeams,
-      BeanFactory beanFactory) {
-    // TODO(m3): read from database?
-    HashMap<Integer,TableSpec> autoPickTableSpecs = Maps.newHashMap();
-    for (int i = 1; i <= numTeams; i++) {
-      TableSpec tableSpec = beanFactory.createTableSpec().as();
-      tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
-      tableSpec.setSortCol(PlayerColumn.RATING);
-      autoPickTableSpecs.put(i, tableSpec);
-    }
-    return autoPickTableSpecs;
+  public Map<Integer, TableSpec> getAutoPickTableSpecs(@NumTeams int numTeams, TeamDataSource teamDataSource) {
+    return teamDataSource.getAutoPickTableSpecs(numTeams);
   }
 
   @Provides @Singleton

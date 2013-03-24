@@ -1,6 +1,13 @@
 package com.mayhew3.drafttower.shared;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 /**
  * Player column values.
@@ -44,5 +51,15 @@ public enum PlayerColumn {
 
   public String getColumnName() {
     return columnName;
+  }
+
+  public static Optional<PlayerColumn> getColumnWithDBName(final String dbName) {
+    ArrayList<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
+    return Iterables.tryFind(playerColumns, new Predicate<PlayerColumn>() {
+      @Override
+      public boolean apply(PlayerColumn input) {
+        return dbName.equalsIgnoreCase(input.getColumnName());
+      }
+    });
   }
 }

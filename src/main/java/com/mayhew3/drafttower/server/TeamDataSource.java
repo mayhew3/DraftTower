@@ -1,11 +1,12 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.Team;
+import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
@@ -13,13 +14,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Looks up players in the database.
  */
 @Singleton
 public class TeamDataSource {
+
+  private static final Logger logger = Logger.getLogger(TeamDataSource.class.getName());
 
   private final DataSource db;
   private final BeanFactory beanFactory;
@@ -55,11 +61,7 @@ public class TeamDataSource {
     } catch (SQLException e) {
       throw new ServletException("Cannot connect to login server.");
     }  finally {
-      try {
-        close(resultSet);
-      } catch (SQLException e) {
-        throw new ServletException("Error closing DB resources.", e);
-      }
+      close(resultSet);
     }
   }
 
@@ -112,14 +114,70 @@ public class TeamDataSource {
     return statement.executeQuery(sql);
   }
 
-  private static void close(ResultSet resultSet) throws SQLException {
-    if (resultSet == null) {
-      return;
+  private static void close(ResultSet resultSet) {
+    try {
+      if (resultSet == null) {
+        return;
+      }
+      Statement statement = resultSet.getStatement();
+      Connection connection = statement.getConnection();
+      resultSet.close();
+      statement.close();
+      connection.close();
+    } catch (SQLException e) {
+      logger.log(Level.SEVERE, "Unable to close connection after use.", e);
     }
-    Statement statement = resultSet.getStatement();
-    Connection connection = statement.getConnection();
-    resultSet.close();
-    statement.close();
-    connection.close();
+  }
+
+  public Map<Integer,TableSpec> getAutoPickTableSpecs(int numTeams) {
+    String sql = "SELECT * FROM autoPickSources";
+
+    HashMap<Integer,TableSpec> autoPickTableSpecs = Maps.newHashMap();
+
+    ResultSet resultSet = null;
+    try {
+      resultSet = executeQuery(sql);
+      while (resultSet.next()) {
+        int teamID = resultSet.getInt("teamID");
+
+        String dataSetName = resultSet.getString("DataSet");
+        String sortColumnName = resultSet.getString("SortColumn");
+
+        Optional<PlayerDataSet> dataSet = PlayerDataSet.getDataSetWithName(dataSetName);
+        Optional<PlayerColumn> sortColumn = PlayerColumn.getColumnWithDBName(sortColumnName);
+
+        if (!dataSet.isPresent()) {
+          throw new RuntimeException("Team " + teamID + " is linked to unrecognized DataSet '" + dataSetName + "'.");
+        }
+        if (!sortColumn.isPresent()) {
+          throw new RuntimeException("Team " + teamID + " is linked to unrecognized Sort Column '" + sortColumnName + "'.");
+        }
+
+        TableSpec tableSpec = beanFactory.createTableSpec().as();
+        tableSpec.setPlayerDataSet(dataSet.get());
+        tableSpec.setSortCol(sortColumn.get());
+        tableSpec.setAscending(resultSet.getBoolean("Ascending"));
+
+        autoPickTableSpecs.put(teamID, tableSpec);
+      }
+
+    } catch (SQLException e) {
+      logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBS, as backup.");
+      autoPickTableSpecs = Maps.newHashMap();
+      for (int i = 1; i <= numTeams; i++) {
+        TableSpec tableSpec = beanFactory.createTableSpec().as();
+        tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
+        tableSpec.setSortCol(PlayerColumn.RATING);
+        autoPickTableSpecs.put(i, tableSpec);
+      }
+    } finally {
+      close(resultSet);
+    }
+
+    if (autoPickTableSpecs.size() != numTeams) {
+      throw new RuntimeException("Expected " + numTeams + " autopick preferences, but there are only " + autoPickTableSpecs.size() + ".");
+    }
+
+    return autoPickTableSpecs;
   }
 }

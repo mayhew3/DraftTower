@@ -478,7 +478,7 @@ public class PlayerDataSource {
       statement.close();
       connection.close();
     } catch (SQLException e) {
-      logger.log(WARNING, "Unable to close SQL connection after use.", e);
+      logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
   }
 
@@ -488,7 +488,7 @@ public class PlayerDataSource {
       statement.close();
       connection.close();
     } catch (SQLException e) {
-      logger.log(WARNING, "Unable to close SQL connection after use.", e);
+      logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
   }
 }
