@@ -139,7 +139,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           break;
         case FORCE_PICK:
           if (!status.isOver()) {
-            autoPick();
+            if (cmd.getPlayerId() == null) {
+              autoPick();
+            } else {
+              doPick(status.getCurrentTeam(), cmd.getPlayerId(), true, false);
+            }
           }
           break;
         case WAKE_UP:
@@ -309,18 +313,20 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  private void autoPick() {
+  /** Returns true if the team should go into robot mode. */
+  private boolean autoPick() {
     if (queues.containsKey(status.getCurrentTeam())) {
       List<QueueEntry> queue = queues.get(status.getCurrentTeam());
       synchronized (queues) {
         if (!queue.isEmpty()) {
           doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true, false);
-          return;
+          return false;
         }
       }
     }
 
     doPick(status.getCurrentTeam(), Player.BEST_DRAFT_PICK, true, false);
+    return true;
   }
 
   private void startPickTimer(long timeMs) {
@@ -330,15 +336,21 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       public void run() {
         lock.lock();
         try {
-          currentPickTimer = null;
-          status.getRobotTeams().add(status.getCurrentTeam());
-          autoPick();
-          sendStatusUpdates();
+          timerExpired();
         } finally {
           lock.unlock();
         }
       }
     }, timeMs, TimeUnit.MILLISECONDS);
+  }
+
+  @VisibleForTesting void timerExpired() {
+    currentPickTimer = null;
+    int currentTeam = status.getCurrentTeam();
+    if (autoPick()) {
+      status.getRobotTeams().add(currentTeam);
+    }
+    sendStatusUpdates();
   }
 
   private void cancelPickTimer() {
