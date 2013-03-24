@@ -139,7 +139,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
           break;
         case FORCE_PICK:
           if (!status.isOver()) {
-            autoPick();
+            if (cmd.getPlayerId() == null) {
+              autoPick();
+            } else {
+              doPick(status.getCurrentTeam(), cmd.getPlayerId(), true, false);
+            }
           }
           break;
         case WAKE_UP:
