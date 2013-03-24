@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.Maps;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.NativeEvent;
@@ -14,6 +15,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -23,6 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.QueueAreaTop;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
+import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.shared.*;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
@@ -31,12 +34,15 @@ import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
+import java.util.Map;
+
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
 /**
  * Table widget for displaying player stats.
  */
-public class UnclaimedPlayerTable extends PlayerTable<Player> {
+public class UnclaimedPlayerTable extends PlayerTable<Player> implements
+    LoginEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -126,6 +132,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
   private TableSpec tableSpec;
   private boolean hideInjuries;
   private String nameFilter;
+  private Map<PlayerColumn, PlayerTableColumn> playerColumns = Maps.newEnumMap(PlayerColumn.class);
 
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -161,7 +168,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
     });
 
     for (PlayerColumn column : COLUMNS) {
-      addColumn(new PlayerTableColumn(column),
+      PlayerTableColumn playerTableColumn = new PlayerTableColumn(column);
+      addColumn(playerTableColumn,
           new SafeHtmlBuilder()
               .appendHtmlConstant("<span title=\"")
               .appendEscaped(column.getLongName())
@@ -169,6 +177,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
               .appendEscaped(column.getShortName())
               .appendHtmlConstant("</span>")
               .toSafeHtml());
+      playerColumns.put(column, playerTableColumn);
     }
 
     dataProvider.addDataDisplay(this);
@@ -203,6 +212,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
       }
     });
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
+
+    eventBus.addHandler(LoginEvent.TYPE, this);
 
     Window.addResizeHandler(new ResizeHandler() {
       @Override
@@ -282,5 +293,15 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
   public String getNameFilter() {
     return nameFilter;
+  }
+
+  @Override
+  public void onLogin(LoginEvent event) {
+    tableSpec = event.getLoginResponse().getInitialTableSpec();
+    ColumnSortList columnSortList = getColumnSortList();
+    columnSortList.clear();
+    columnSortList.push(new ColumnSortInfo(playerColumns.get(tableSpec.getSortCol()),
+        tableSpec.isAscending()));
+    setVisibleRangeAndClearData(getVisibleRange(), true);
   }
 }

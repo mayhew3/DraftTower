@@ -8,8 +8,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.server.ServerModule.Queues;
-import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
+import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
+import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;

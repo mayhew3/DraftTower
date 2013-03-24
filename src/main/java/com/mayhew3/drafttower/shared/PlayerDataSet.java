@@ -6,29 +6,31 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
-
-import static com.mayhew3.drafttower.shared.PlayerColumn.*;
-import static com.mayhew3.drafttower.shared.PlayerColumn.RATING;
 
 /** Data sources for player stats. */
 public enum PlayerDataSet {
-  WIZARD("Wizard", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating DESC"),
-  CBS("CBSSports", "projectionsView", "CBSSports", "Rank ASC"),
-  GURU("GURU", "projectionsView", "GURU", "Rank ASC"),
-  LAST_YEAR("2012", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating DESC"),
-  CUSTOM("Custom", "rankingsView", null, "Rank ASC");
+  WIZARD("Wizard", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating", "DESC"),
+  CBS("CBSSports", "projectionsView", "CBSSports", "Rank", "ASC"),
+  GURU("GURU", "projectionsView", "GURU", "Rank", "ASC"),
+  LAST_YEAR("2012", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating", "DESC"),
+  CUSTOM("Custom", "rankingsView", null, "Rank", "ASC");
 
   private final String displayName;
   private final String tableName;
   private final String sourceFilter;
   private final String startingSort;
+  private final String startingSortDirection;
 
-  PlayerDataSet(String displayName, String tableName, String sourceFilter, String startingSort) {
+  PlayerDataSet(String displayName,
+      String tableName,
+      String sourceFilter,
+      String startingSort,
+      String startingSortDirection) {
     this.displayName = displayName;
     this.tableName = tableName;
     this.sourceFilter = sourceFilter;
     this.startingSort = startingSort;
+    this.startingSortDirection = startingSortDirection;
   }
 
   public String getDisplayName() {
@@ -47,6 +49,9 @@ public enum PlayerDataSet {
     return startingSort;
   }
 
+  public String getStartingSortDirection() {
+    return startingSortDirection;
+  }
 
   public static Optional<PlayerDataSet> getDataSetWithName(final String displayName) {
     ArrayList<PlayerDataSet> playerColumns = Lists.newArrayList(PlayerDataSet.values());
