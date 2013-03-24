@@ -78,7 +78,7 @@ public class DraftSocketHandler implements
     sendMessage(AutoBeanCodex.encode(commandBean).getPayload());
   }
 
-  private void sendDraftCommand(Command commandType, long playerId) {
+  private void sendDraftCommand(Command commandType, Long playerId) {
     AutoBean<DraftCommand> commandBean = createDraftCommand(commandType);
     commandBean.as().setPlayerId(playerId);
     sendMessage(AutoBeanCodex.encode(commandBean).getPayload());
@@ -124,7 +124,7 @@ public class DraftSocketHandler implements
 
   @Override
   public void onForcePick(ForcePickPlayerEvent event) {
-    sendDraftCommand(FORCE_PICK);
+    sendDraftCommand(FORCE_PICK, event.getPlayerId());
   }
 
   @Override

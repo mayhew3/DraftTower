@@ -15,6 +15,16 @@ public class ForcePickPlayerEvent extends GwtEvent<Handler> {
 
   public static final Type<Handler> TYPE = new Type<Handler>();
 
+  private final Long playerId;
+
+  public ForcePickPlayerEvent(Long playerId) {
+    this.playerId = playerId;
+  }
+
+  public Long getPlayerId() {
+    return playerId;
+  }
+
   @Override
   public Type<Handler> getAssociatedType() {
     return TYPE;

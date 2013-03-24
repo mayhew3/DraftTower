@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import static com.mayhew3.drafttower.shared.Position.DH;
 import static com.mayhew3.drafttower.shared.Position.UNF;
 import static java.util.logging.Level.SEVERE;
 
@@ -300,6 +301,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           }
         }
         List<String> eligibility = splitEligibilities(resultSet.getString("Eligibility"));
+        if (!eligibility.contains("P") && openPositions.contains(DH)) {
+          return resultSet.getLong("PlayerID");
+        }
         for (String position : eligibility) {
           if (openPositions.contains(Position.fromShortName(position))) {
             return resultSet.getLong("PlayerID");

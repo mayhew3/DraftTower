@@ -86,26 +86,30 @@ public class PickWidget extends Composite implements
   @UiHandler("pick")
   public void handlePick(ClickEvent e) {
     eventBus.fireEvent(new PickPlayerEvent(selectedPlayerId));
-    selectedPlayerId = null;
-    selectedPlayerLabel.setText("");
+    clearSelectedPlayer();
   }
 
   @UiHandler("enqueue")
   public void handleEnqueue(ClickEvent e) {
     eventBus.fireEvent(new EnqueuePlayerEvent(selectedPlayerId, null));
-    selectedPlayerId = null;
-    selectedPlayerLabel.setText("");
-    updateButtonsEnabled();
+    clearSelectedPlayer();
   }
 
   @UiHandler("forcePick")
   public void handleForcePick(ClickEvent e) {
-    eventBus.fireEvent(new ForcePickPlayerEvent());
+    eventBus.fireEvent(new ForcePickPlayerEvent(selectedPlayerId));
+    clearSelectedPlayer();
   }
 
   @UiHandler("wakeUp")
   public void handleWakeUp(ClickEvent e) {
     eventBus.fireEvent(new WakeUpEvent());
+  }
+
+  private void clearSelectedPlayer() {
+    selectedPlayerId = null;
+    selectedPlayerLabel.setText("");
+    updateButtonsEnabled();
   }
 
   private void updateButtonsEnabled() {
