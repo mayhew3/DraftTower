@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -9,10 +10,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.mayhew3.drafttower.server.ServerModule.AutoPickTableSpecs;
-import com.mayhew3.drafttower.server.ServerModule.Keepers;
-import com.mayhew3.drafttower.server.ServerModule.Queues;
-import com.mayhew3.drafttower.server.ServerModule.TeamTokens;
+import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickTableSpecs;
+import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
+import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
+import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
@@ -280,7 +281,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     pausedPickTime = 0;
   }
 
-  private void backOutLastPick() {
+  @VisibleForTesting
+  void backOutLastPick() {
     if (status.getPicks().isEmpty()) {
       logger.warning("Attempt to back out pick when there are no picks!");
     } else {
