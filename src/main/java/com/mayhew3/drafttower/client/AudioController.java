@@ -19,6 +19,7 @@ public class AudioController extends Composite implements
   private final int numTeams;
   private final Audio onDeck;
   private final Audio onTheClock;
+  private final Audio itsOver;
   private int lastTeam = -1;
 
   @Inject
@@ -30,18 +31,20 @@ public class AudioController extends Composite implements
     FlowPanel container = new FlowPanel();
     container.setSize("0", "0");
 
-    onDeck = Audio.createIfSupported();
-    onDeck.setPreload("auto");
-    onDeck.setControls(false);
-    onDeck.setSrc("deck.mp3");
-
-    onTheClock = Audio.createIfSupported();
-    onTheClock.setPreload("auto");
-    onTheClock.setControls(false);
-    onTheClock.setSrc("clock.mp3");
+    this.onDeck = createAudio("deck.mp3");
+    this.onTheClock = createAudio("clock.mp3");
+    this.itsOver = createAudio("over.mp3");
 
     initWidget(container);
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
+  }
+
+  private Audio createAudio(String src) {
+    Audio onDeck = Audio.createIfSupported();
+    onDeck.setPreload("auto");
+    onDeck.setControls(false);
+    onDeck.setSrc(src);
+    return onDeck;
   }
 
   @Override
@@ -50,9 +53,13 @@ public class AudioController extends Composite implements
     onDeck.getAudioElement().setCurrentTime(0);
     onTheClock.getAudioElement().pause();
     onTheClock.getAudioElement().setCurrentTime(0);
+    itsOver.getAudioElement().pause();
+    itsOver.getAudioElement().setCurrentTime(0);
 
     DraftStatus status = event.getStatus();
-    if (status.getCurrentPickDeadline() > 0 && status.getCurrentTeam() != lastTeam) {
+    if (status.isOver()) {
+      itsOver.play();
+    } else if (status.getCurrentPickDeadline() > 0 && status.getCurrentTeam() != lastTeam) {
       if (teamsInfo.isMyPick(status)) {
         onTheClock.play();
       }
