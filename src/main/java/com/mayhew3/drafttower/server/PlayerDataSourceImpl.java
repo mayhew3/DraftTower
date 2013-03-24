@@ -149,6 +149,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     sql = addFilters(request, team, sql);
 
+    sql = addOrdering(tableSpec, sql);
+    sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
+
+    return executeQuery(sql);
+  }
+
+  private String addOrdering(TableSpec tableSpec, String sql) {
     PlayerColumn sortCol = tableSpec.getSortCol();
     String sortColumnName;
     String sortColumnDirection;
@@ -156,14 +163,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       sortColumnName = sortCol.getColumnName();
       sortColumnDirection = (tableSpec.isAscending() ? "asc " : "desc ");
     } else {
-      sortColumnName = playerDataSet.getStartingSort();
-      sortColumnDirection = playerDataSet.getStartingSortDirection();
+      throw new IllegalStateException("Expected tableSpec to always have non-null sort column.");
     }
-    sql += "order by case when " + sortColumnName + " is null then 1 else 0 end, "
-        + sortColumnName + " " + sortColumnDirection + " "
-        + "limit " + request.getRowStart() + ", " + request.getRowCount();
 
-    return executeQuery(sql);
+    sql += " order by case when " + sortColumnName + " is null then 1 else 0 end, "
+        + sortColumnName + " " + sortColumnDirection + " ";
+    return sql;
   }
 
   private String addFilters(UnclaimedPlayerListRequest request, final int team, String sql) {
@@ -278,8 +283,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     addTableSpecFilters(team, filters, tableSpec);
 
     if (!filters.isEmpty()) {
-      sql += " where " + Joiner.on(" and ").join(filters);
+      sql += " where " + Joiner.on(" and ").join(filters) + " ";
     }
+
+    sql = addOrdering(tableSpec, sql);
 
     ResultSet resultSet = null;
     try {

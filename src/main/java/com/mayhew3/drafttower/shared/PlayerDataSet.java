@@ -9,28 +9,21 @@ import java.util.ArrayList;
 
 /** Data sources for player stats. */
 public enum PlayerDataSet {
-  WIZARD("Wizard", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating", "DESC"),
-  CBS("CBSSports", "projectionsView", "CBSSports", "Rank", "ASC"),
-  GURU("GURU", "projectionsView", "GURU", "Rank", "ASC"),
-  LAST_YEAR("2012", "UnclaimedDisplayPlayersWithCatsByQuality", null, "Rating", "DESC"),
-  CUSTOM("Custom", "rankingsView", null, "Rank", "ASC");
+  WIZARD("Wizard", "UnclaimedDisplayPlayersWithCatsByQuality", null),
+  CBS("CBSSports", "projectionsView", "CBSSports"),
+  GURU("GURU", "projectionsView", "GURU"),
+  CUSTOM("Custom", "rankingsView", null);
 
   private final String displayName;
   private final String tableName;
   private final String sourceFilter;
-  private final String startingSort;
-  private final String startingSortDirection;
 
   PlayerDataSet(String displayName,
-      String tableName,
-      String sourceFilter,
-      String startingSort,
-      String startingSortDirection) {
+                String tableName,
+                String sourceFilter) {
     this.displayName = displayName;
     this.tableName = tableName;
     this.sourceFilter = sourceFilter;
-    this.startingSort = startingSort;
-    this.startingSortDirection = startingSortDirection;
   }
 
   public String getDisplayName() {
@@ -43,14 +36,6 @@ public enum PlayerDataSet {
 
   public String getSourceFilter() {
     return sourceFilter;
-  }
-
-  public String getStartingSort() {
-    return startingSort;
-  }
-
-  public String getStartingSortDirection() {
-    return startingSortDirection;
   }
 
   public static Optional<PlayerDataSet> getDataSetWithName(final String displayName) {
