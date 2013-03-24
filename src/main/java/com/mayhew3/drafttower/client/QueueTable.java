@@ -120,15 +120,21 @@ public class QueueTable extends PlayerTable<QueueEntry> {
         if (draggableData instanceof QueueEntry && ((QueueEntry) draggableData).getPlayerId() >= 0) {
           QueueEntry draggedPlayer = dragAndDropContext.getDraggableData();
           QueueEntry droppedPlayer = dragAndDropContext.getDroppableData();
-          eventBus.fireEvent(new ReorderPlayerQueueEvent(
-              draggedPlayer.getPlayerId(),
-              getVisibleItems().indexOf(droppedPlayer)));
+          if (droppedPlayer == null
+              || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
+            eventBus.fireEvent(new ReorderPlayerQueueEvent(
+                draggedPlayer.getPlayerId(),
+                getVisibleItems().indexOf(droppedPlayer)));
+          }
         } else if (draggableData instanceof Player) {
           Player draggedPlayer = dragAndDropContext.getDraggableData();
           QueueEntry droppedPlayer = dragAndDropContext.getDroppableData();
-          eventBus.fireEvent(new EnqueuePlayerEvent(
-              draggedPlayer.getPlayerId(),
-              droppedPlayer == null ? null : getVisibleItems().indexOf(droppedPlayer) + 1));
+          if (droppedPlayer == null
+              || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
+            eventBus.fireEvent(new EnqueuePlayerEvent(
+                draggedPlayer.getPlayerId(),
+                droppedPlayer == null ? null : getVisibleItems().indexOf(droppedPlayer) + 1));
+          }
         }
       }
     };
