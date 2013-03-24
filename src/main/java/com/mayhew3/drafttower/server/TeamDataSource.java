@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.server;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -10,14 +11,14 @@ import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.logging.Level.SEVERE;
 
 /**
  * Looks up players in the database.
@@ -168,6 +169,7 @@ public class TeamDataSource {
         TableSpec tableSpec = beanFactory.createTableSpec().as();
         tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
         tableSpec.setSortCol(PlayerColumn.RATING);
+        tableSpec.setAscending(false);
         autoPickTableSpecs.put(i, tableSpec);
       }
     } finally {
@@ -180,4 +182,63 @@ public class TeamDataSource {
 
     return autoPickTableSpecs;
   }
+
+  public void updateAutoPickTable(int teamID, TableSpec tableSpec) {
+    String sql = "UPDATE autoPickSources " +
+        "SET DataSet = ?, SortColumn = ?, Ascending = ? " +
+        "WHERE TeamID = ?";
+
+    Statement statement = null;
+    try {
+      statement = prepareStatementUpdate(sql,
+          tableSpec.getPlayerDataSet().getDisplayName(),
+          tableSpec.getSortCol().getColumnName(),
+          tableSpec.isAscending(), teamID);
+    } catch (SQLException e) {
+      logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input.", e);
+    } finally {
+      close(statement);
+    }
+  }
+
+
+  protected Statement prepareStatementUpdate(String sql, Object... params) throws SQLException {
+    PreparedStatement preparedStatement = prepareStatement(sql, Lists.newArrayList(params));
+
+    preparedStatement.executeUpdate();
+    return preparedStatement;
+  }
+
+  private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
+    PreparedStatement preparedStatement = db.getConnection().prepareStatement(sql);
+
+    int i = 1;
+    for (Object param : params) {
+      if (param instanceof String) {
+        preparedStatement.setString(i, (String) param);
+      } else if (param instanceof Integer) {
+        preparedStatement.setInt(i, (Integer) param);
+      } else if (param instanceof Long) {
+        preparedStatement.setLong(i, (Long) param);
+      } else if (param instanceof Boolean) {
+        preparedStatement.setBoolean(i, (Boolean) param);
+      } else {
+        throw new IllegalArgumentException("Unknown type of param: " + param + " of type " + param.getClass());
+      }
+      i++;
+    }
+    return preparedStatement;
+  }
+
+
+  private void close(Statement statement) {
+    try {
+      Connection connection = statement.getConnection();
+      statement.close();
+      connection.close();
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to close SQL connection after use.", e);
+    }
+  }
+
 }

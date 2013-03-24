@@ -137,6 +137,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> {
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
+    tableSpec.setSortCol(PlayerColumn.RATING);
+    tableSpec.setAscending(false);
 
     addStyleName(BASE_CSS.table());
     setPageSize(40);

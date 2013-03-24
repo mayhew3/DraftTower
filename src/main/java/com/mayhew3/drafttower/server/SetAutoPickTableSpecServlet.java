@@ -24,14 +24,17 @@ import java.util.Map;
 public class SetAutoPickTableSpecServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
+  private final TeamDataSource teamDataSource;
   private final Map<String, Integer> teamTokens;
   private final Map<Integer, TableSpec> autoPickTableSpecs;
 
   @Inject
   public SetAutoPickTableSpecServlet(BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens,
-      @AutoPickTableSpecs Map<Integer, TableSpec> autoPickTableSpecs) {
+                                     TeamDataSource teamDataSource,
+                                     @TeamTokens Map<String, Integer> teamTokens,
+                                     @AutoPickTableSpecs Map<Integer, TableSpec> autoPickTableSpecs) {
     this.beanFactory = beanFactory;
+    this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.autoPickTableSpecs = autoPickTableSpecs;
   }
@@ -41,7 +44,11 @@ public class SetAutoPickTableSpecServlet extends HttpServlet {
     String requestStr = CharStreams.toString(req.getReader());
     SetAutoPickTableSpecRequest request =
         AutoBeanCodex.decode(beanFactory, SetAutoPickTableSpecRequest.class, requestStr).as();
-    autoPickTableSpecs.put(teamTokens.get(request.getTeamToken()),
-        request.getTableSpec());
+    int teamID = teamTokens.get(request.getTeamToken());
+    TableSpec tableSpec = request.getTableSpec();
+    autoPickTableSpecs.put(teamID,
+        tableSpec);
+
+    teamDataSource.updateAutoPickTable(teamID, tableSpec);
   }
 }
