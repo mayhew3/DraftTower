@@ -155,6 +155,28 @@ public class RosterUtilTest {
   }
 
   @Test
+  public void testNoPositionsOpen() throws Exception {
+    Assert.assertEquals(Sets.<Position>newHashSet(),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, FB),
+            pick(3, SB),
+            pick(4, SS),
+            pick(5, TB),
+            pick(6, OF),
+            pick(7, OF),
+            pick(8, OF),
+            pick(9, OF),
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P))));
+  }
+
+  @Test
   public void testGetOpenPositionsSingleEligibility() throws Exception {
     Assert.assertEquals(Sets.newHashSet(FB, SB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(

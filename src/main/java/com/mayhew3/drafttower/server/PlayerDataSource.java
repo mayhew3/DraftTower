@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.UNF;
 import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
 
 /**
  * Looks up players in the database.
@@ -174,15 +173,17 @@ public class PlayerDataSource {
                     return input.getTeam() == team;
                   }
                 })));
-        String filter = "Position in (";
-        filter += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
-          @Override
-          public String apply(Position input) {
-            return "'" + input.getShortName() + "'";
-          }
-        }));
-        filter += ") ";
-        filters.add(filter);
+        if (!openPositions.isEmpty()) {
+          String filter = "Position in (";
+          filter += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
+            @Override
+            public String apply(Position input) {
+              return "'" + input.getShortName() + "'";
+            }
+          }));
+          filter += ") ";
+          filters.add(filter);
+        }
       } else {
         filters.add("Position = '" + positionFilter.getShortName() + "' ");
       }
@@ -277,6 +278,9 @@ public class PlayerDataSource {
       while (resultSet.next()) {
         if (firstReserve == null) {
           firstReserve = resultSet.getLong("PlayerID");
+          if (openPositions.isEmpty()) {
+            return firstReserve;
+          }
         }
         List<String> eligibility = splitEligibilities(resultSet.getString("Eligibility"));
         for (String position : eligibility) {
