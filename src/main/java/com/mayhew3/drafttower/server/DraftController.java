@@ -225,12 +225,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setOver(round >= 22);
     status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
 
-    List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
-    if (currentTeamKeepers != null && round < currentTeamKeepers.size()) {
+    if (isCurrentPickKeeper()) {
+      List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
       doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true, true);
     } else if (!status.isOver()) {
       startPickTimer(pickLengthMs);
     }
+  }
+
+  private boolean isCurrentPickKeeper() {
+    List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
+    int round = status.getPicks().size() / numTeams;
+    return currentTeamKeepers != null && round < currentTeamKeepers.size();
   }
 
   private Set<Integer> getNextPickKeeperTeams(int round) {
@@ -278,17 +284,14 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     if (status.getPicks().isEmpty()) {
       logger.warning("Attempt to back out pick when there are no picks!");
     } else {
-      int pickToRemove = status.getPicks().size();
-
       boolean wasPaused = status.isPaused();
-
-      logger.info("Backed out pick " + pickToRemove);
-
-      removePick(pickToRemove);
-
-      goBackOneTeam();
+      do {
+        int pickToRemove = status.getPicks().size();
+        logger.info("Backed out pick " + pickToRemove);
+        removePick(pickToRemove);
+        goBackOneTeam();
+      } while (isCurrentPickKeeper());
       newPick();
-
       if (wasPaused) {
         pausePick();
       }
