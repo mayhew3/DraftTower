@@ -13,13 +13,15 @@ import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
 
 /**
  * Widget containing the entire UI.
  */
 @Singleton
-public class MainPageWidget extends Composite
-    implements LoginEvent.Handler {
+public class MainPageWidget extends Composite implements
+    LoginEvent.Handler,
+    ShowPlayerPopupEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -65,6 +67,8 @@ public class MainPageWidget extends Composite
 
   private final PopupPanel depthChartsPopup;
   private final PopupPanel barGraphsPopup;
+  private final PopupPanel playerPopup;
+  private final Frame playerPopupFrame;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
@@ -111,7 +115,18 @@ public class MainPageWidget extends Composite
     barGraphsPopup.setGlassStyleName(CSS.glassPanel());
     barGraphsPopup.setWidget(barGraphs);
 
+    playerPopup = new PopupPanel();
+    playerPopup.setModal(true);
+    playerPopup.setAutoHideEnabled(true);
+    playerPopup.setGlassEnabled(true);
+    playerPopup.setGlassStyleName(CSS.glassPanel());
+    playerPopupFrame = new Frame();
+    playerPopupFrame.setSize("810px", "450px");
+    playerPopupFrame.getElement().setAttribute("seamless", "true");
+    playerPopup.setWidget(playerPopupFrame);
+
     eventBus.addHandler(LoginEvent.TYPE, this);
+    eventBus.addHandler(ShowPlayerPopupEvent.TYPE, this);
   }
 
   @Override
@@ -134,5 +149,16 @@ public class MainPageWidget extends Composite
 
   public int getQueueAreaTop() {
     return queueArea.getAbsoluteTop();
+  }
+
+  @Override
+  public void showPlayerPopup(ShowPlayerPopupEvent event) {
+    // TODO(m3): use real ID
+    String playerCbsId = "1182834";
+    playerPopupFrame.setUrl("http://uncharted.baseball.cbssports.com/players/playerpage/snippet/"
+        + playerCbsId
+        + "?loc=snippet&selected_tab=news&selected_subtab=");
+    playerPopup.center();
+    playerPopup.show();
   }
 }

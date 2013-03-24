@@ -27,6 +27,7 @@ import com.mayhew3.drafttower.client.DraftTowerGinModule.QueueAreaTop;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
+import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
 import com.mayhew3.drafttower.shared.*;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
@@ -47,6 +48,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String injury();
+      String nameCell();
     }
 
     @Source("UnclaimedPlayerTable.css")
@@ -72,10 +74,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     private final PlayerColumn column;
 
     public PlayerTableColumn(PlayerColumn column) {
-      super(column == RANK ? new RankCell() : new TextCell());
+      super(createCell(column));
       this.column = column;
       setSortable(true);
       setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK);
+      if (column == NAME) {
+        setCellStyleNames(CSS.nameCell());
+      }
 
       if (column == RANK) {
         setFieldUpdater(new FieldUpdater<Player, String>() {
@@ -190,6 +195,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       playerColumns.put(column, playerTableColumn);
     }
 
+    playerColumns.get(NAME).setFieldUpdater(new FieldUpdater<Player, String>() {
+      @Override
+      public void update(int index, Player player, String value) {
+        eventBus.fireEvent(new ShowPlayerPopupEvent(player));
+      }
+    });
+
     dataProvider.addDataDisplay(this);
     addColumnSortHandler(new AsyncHandler(this) {
       @Override
@@ -231,6 +243,16 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         computePageSize();
       }
     });
+  }
+
+  private AbstractCell<String> createCell(PlayerColumn column) {
+    if (column == RANK) {
+      return new RankCell();
+    } else if (column == NAME) {
+      return new ClickableTextCell();
+    } else {
+      return new TextCell();
+    }
   }
 
   void computePageSize() {
