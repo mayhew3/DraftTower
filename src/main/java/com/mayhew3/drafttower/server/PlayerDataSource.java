@@ -148,13 +148,18 @@ public class PlayerDataSource {
     sql = addFilters(request, team, sql);
 
     PlayerColumn sortCol = tableSpec.getSortCol();
+    String sortColumnName;
+    String sortColumnDirection;
     if (sortCol != null) {
-      sql += "order by case when " + sortCol.getColumnName() + " is null then 1 else 0 end, "
-          + sortCol.getColumnName() + " " + (tableSpec.isAscending() ? "asc " : "desc ");
+      sortColumnName = sortCol.getColumnName();
+      sortColumnDirection = (tableSpec.isAscending() ? "asc " : "desc ");
     } else {
-      sql += "order by " + playerDataSet.getStartingSort() + " ";
+      sortColumnName = playerDataSet.getStartingSort();
+      sortColumnDirection = playerDataSet.getStartingSortDirection();
     }
-    sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
+    sql += "order by case when " + sortColumnName + " is null then 1 else 0 end, "
+        + sortColumnName + " " + sortColumnDirection + " "
+        + "limit " + request.getRowStart() + ", " + request.getRowCount();
 
     return executeQuery(sql);
   }
