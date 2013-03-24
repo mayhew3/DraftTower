@@ -16,7 +16,7 @@
 .table td {
   border-right: none !important;
   border-left: none !important;
-  border-top-color: transparent !important;
+  border-top: 2px solid transparent;
   border-bottom: 2px solid transparent;
 }
 
@@ -33,6 +33,10 @@
   z-index: 2;
 }
 
-.dropHover td {
+.dropHoverTop td {
+  border-top-color: black;
+}
+
+.dropHoverBottom td {
   border-bottom-color: black;
 }

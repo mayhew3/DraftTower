@@ -100,10 +100,18 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
           Player draggedPlayer = dragAndDropContext.getDraggableData();
           Player droppedPlayer = dragAndDropContext.getDroppableData();
           if (draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
+            int prevRank = Integer.parseInt(draggedPlayer.getColumnValues().get(RANK));
+            int targetRank = Integer.parseInt(droppedPlayer.getColumnValues().get(RANK));
+            if (prevRank > targetRank && !isTopDrop(dragAndDropContext, false)) {
+              targetRank++;
+            }
+            if (prevRank < targetRank && isTopDrop(dragAndDropContext, false)) {
+              targetRank--;
+            }
             eventBus.fireEvent(new ChangePlayerRankEvent(
                 draggedPlayer.getPlayerId(),
-                Integer.parseInt(droppedPlayer.getColumnValues().get(RANK)) + 1,
-                Integer.parseInt(draggedPlayer.getColumnValues().get(RANK))));
+                targetRank,
+                prevRank));
           }
         }
       };
