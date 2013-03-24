@@ -1,3 +1,11 @@
 .injury {
   color: red;
 }
+
+.nameCell {
+  cursor: pointer;
+}
+
+.nameCell:hover {
+  text-decoration: underline;
+}
