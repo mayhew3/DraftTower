@@ -13,6 +13,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.IsUsersAutoPickTableSpecEvent;
+import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickTableSpecEvent;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
@@ -26,7 +27,8 @@ import static com.mayhew3.drafttower.shared.Position.*;
  * Widget containing player table, position filter buttons, and paging controls.
  */
 public class PlayerTablePanel extends Composite implements
-    IsUsersAutoPickTableSpecEvent.Handler {
+    IsUsersAutoPickTableSpecEvent.Handler,
+    LoginEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -75,9 +77,7 @@ public class PlayerTablePanel extends Composite implements
       ToggleButton button = new ToggleButton(playerDataSet.getDisplayName(), new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-          for (Entry<PlayerDataSet, ToggleButton> buttonEntry : dataSetButtons.entrySet()) {
-            buttonEntry.getValue().setDown(buttonEntry.getKey() == playerDataSet);
-          }
+          updateDataSetButtons(playerDataSet);
           table.setPlayerDataSet(playerDataSet);
         }
       });
@@ -157,11 +157,23 @@ public class PlayerTablePanel extends Composite implements
     initWidget(container);
 
     eventBus.addHandler(IsUsersAutoPickTableSpecEvent.TYPE, this);
+    eventBus.addHandler(LoginEvent.TYPE, this);
+  }
+
+  private void updateDataSetButtons(PlayerDataSet playerDataSet) {
+    for (Entry<PlayerDataSet, ToggleButton> buttonEntry : dataSetButtons.entrySet()) {
+      buttonEntry.getValue().setDown(buttonEntry.getKey() == playerDataSet);
+    }
   }
 
   @Override
   public void onSetAutoPickTableSpec(IsUsersAutoPickTableSpecEvent event) {
     useForAutoPick.setValue(event.isUsersAutoPickTableSpec());
     useForAutoPick.setEnabled(!event.isUsersAutoPickTableSpec());
+  }
+
+  @Override
+  public void onLogin(LoginEvent event) {
+    updateDataSetButtons(event.getLoginResponse().getInitialTableSpec().getPlayerDataSet());
   }
 }

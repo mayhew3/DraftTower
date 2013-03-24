@@ -104,8 +104,10 @@ public class LoginWidget extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
               if (response.getStatusCode() == 200) {
-                teamsInfo.setLoginResponse(AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as());
-                eventBus.fireEvent(new LoginEvent());
+                LoginResponse loginResponse =
+                    AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as();
+                teamsInfo.setLoginResponse(loginResponse);
+                eventBus.fireEvent(new LoginEvent(loginResponse));
               } else {
                 UIObject.setVisible(error, true);
               }

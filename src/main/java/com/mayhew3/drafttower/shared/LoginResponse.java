@@ -18,4 +18,7 @@ public interface LoginResponse {
   // Can't use Integer as key - see https://code.google.com/p/google-web-toolkit/issues/detail?id=7395
   Map<String, Team> getTeams();
   void setTeams(Map<String, Team> teams);
+
+  TableSpec getInitialTableSpec();
+  void setInitialTableSpec(TableSpec tableSpec);
 }
