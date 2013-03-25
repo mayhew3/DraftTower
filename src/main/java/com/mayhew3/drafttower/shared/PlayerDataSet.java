@@ -9,8 +9,7 @@ import java.util.ArrayList;
 
 /** Data sources for player stats. */
 public enum PlayerDataSet {
-  WIZARD("Wizard", "UnclaimedDisplayPlayersWithCatsByQuality", null),
-  CBS("CBSSports", "projectionsView", "CBSSports"),
+  CBSSPORTS("CBSSports", "projectionsView", "CBSSports"),
   GURU("GURU", "projectionsView", "GURU"),
   CUSTOM("Custom", "rankingsView", null);
 

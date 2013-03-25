@@ -123,8 +123,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TableSpec tableSpec = request.getTableSpec();
     PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
 
-    String sql = "select count(1) as TotalPlayers " +
-        "from " + playerDataSet.getTableName() + " ";
+    String sql = "select count(1) as TotalPlayers from ";
+    sql = getFromJoins(playerDataSet, sql);
 
     sql = addFilters(request, team, sql);
 
@@ -146,14 +146,58 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TableSpec tableSpec = request.getTableSpec();
     PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
 
-    String sql = "select * from " + playerDataSet.getTableName() + " ";
+    String sql = "select * from ";
+    sql = getFromJoins(playerDataSet, sql);
 
     sql = addFilters(request, team, sql);
 
     sql = addOrdering(tableSpec, sql);
-    sql += "limit " + request.getRowStart() + ", " + request.getRowCount();
+    sql += " limit " + request.getRowStart() + ", " + request.getRowCount();
 
     return executeQuery(sql);
+  }
+
+  private String getFromJoins(PlayerDataSet playerDataSet, String sql) {
+    if (playerDataSet.equals(PlayerDataSet.CUSTOM)) {
+      return sql + " " + playerDataSet.getTableName() + " ";
+    } else {
+      String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
+          "  NULL AS OBP,\n" +
+          "  NULL AS SLG,\n" +
+          "  NULL AS RHR,\n" +
+          "  NULL AS RBI,\n" +
+          "  NULL AS HR,\n" +
+          "  NULL AS SBC,\n" +
+          "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, Rating\n" +
+          "FROM projectionsPitching)\n" +
+          "UNION\n" +
+          "(SELECT PlayerID, 'Batter' AS Role,\n" +
+          "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
+          "  NULL AS INN,\n" +
+          "  NULL AS ERA,\n" +
+          "  NULL AS WHIP,\n" +
+          "  NULL AS WL,\n" +
+          "  NULL AS K,\n" +
+          "  NULL AS S,\n" +
+          "  Rank, DataSource, Rating\n" +
+          "FROM projectionsBatting)";
+
+      sql +=
+          "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
+              " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
+              "ds.name as Source, " +
+              " p.Injury,\n" +
+              " pa.*\n" +
+          "FROM (" + subselect + ") pa\n" +
+          "INNER JOIN Players p\n" +
+          " ON pa.PlayerID = p.ID\n" +
+          "INNER JOIN data_sources ds\n" +
+          " ON pa.DataSource = ds.ID\n" +
+          "WHERE PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
+          "AND PlayerID NOT IN (SELECT PlayerID FROM Keepers)) p_all ";
+
+      return sql;
+    }
   }
 
   private String addOrdering(TableSpec tableSpec, String sql) {
@@ -217,7 +261,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     if (filters.isEmpty()) {
       return sql;
     } else {
-      return sql + "where " + Joiner.on(" and ").join(filters) + " ";
+      return sql + " where " + Joiner.on(" and ").join(filters) + " ";
     }
   }
 
@@ -227,8 +271,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sourceFilter = playerDataSet.getSourceFilter();
     if (sourceFilter != null) {
       filters.add("Source = '" + sourceFilter + "' ");
-      filters.add("Drafted = 0");
-      filters.add("Keeper = 0");
     }
 
 
@@ -278,7 +320,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public long getBestPlayerId(TableSpec tableSpec, final Integer team, Set<Position> openPositions) throws SQLException {
     PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
 
-    String sql = "select PlayerID, Eligibility from " + playerDataSet.getTableName() + " ";
+    String sql = "select PlayerID, Eligibility from ";
+    sql = getFromJoins(playerDataSet, sql);
 
     List<String> filters = Lists.newArrayList();
     addTableSpecFilters(team, filters, tableSpec);

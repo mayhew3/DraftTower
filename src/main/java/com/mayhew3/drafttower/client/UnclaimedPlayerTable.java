@@ -158,9 +158,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     this.queueAreaTopProvider = queueAreaTopProvider;
 
     tableSpec = beanFactory.createTableSpec().as();
-    tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
-    tableSpec.setSortCol(PlayerColumn.RATING);
-    tableSpec.setAscending(false);
+    tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    tableSpec.setSortCol(PlayerColumn.RANK);
+    tableSpec.setAscending(true);
 
     addStyleName(BASE_CSS.table());
     setPageSize(40);

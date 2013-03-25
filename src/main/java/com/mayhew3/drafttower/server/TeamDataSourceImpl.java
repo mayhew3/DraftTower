@@ -167,13 +167,13 @@ public class TeamDataSourceImpl implements TeamDataSource {
       }
 
     } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBS, as backup.");
+      logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBSSPORTS, as backup.");
       autoPickTableSpecs = Maps.newHashMap();
       for (int i = 1; i <= numTeams; i++) {
         TableSpec tableSpec = beanFactory.createTableSpec().as();
-        tableSpec.setPlayerDataSet(PlayerDataSet.WIZARD);
-        tableSpec.setSortCol(PlayerColumn.RATING);
-        tableSpec.setAscending(false);
+        tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
+        tableSpec.setSortCol(PlayerColumn.RANK);
+        tableSpec.setAscending(true);
         autoPickTableSpecs.put(i, tableSpec);
       }
     } finally {
