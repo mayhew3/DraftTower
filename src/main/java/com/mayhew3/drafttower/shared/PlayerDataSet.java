@@ -9,32 +9,17 @@ import java.util.ArrayList;
 
 /** Data sources for player stats. */
 public enum PlayerDataSet {
-  CBSSPORTS("CBSSports", "projectionsView", "CBSSports"),
-  GURU("GURU", "projectionsView", "GURU"),
-  CUSTOM("Custom", "rankingsView", null);
+  CBSSPORTS("CBSSports"),
+  GURU("GURU");
 
   private final String displayName;
-  private final String tableName;
-  private final String sourceFilter;
 
-  PlayerDataSet(String displayName,
-                String tableName,
-                String sourceFilter) {
+  PlayerDataSet(String displayName) {
     this.displayName = displayName;
-    this.tableName = tableName;
-    this.sourceFilter = sourceFilter;
   }
 
   public String getDisplayName() {
     return displayName;
-  }
-
-  public String getTableName() {
-    return tableName;
-  }
-
-  public String getSourceFilter() {
-    return sourceFilter;
   }
 
   public static Optional<PlayerDataSet> getDataSetWithName(final String displayName) {

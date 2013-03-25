@@ -120,11 +120,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
-    TableSpec tableSpec = request.getTableSpec();
-    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
-
     String sql = "select count(1) as TotalPlayers from ";
-    sql = getFromJoins(playerDataSet, sql);
+    sql = getFromJoins(team, sql);
 
     sql = addFilters(request, team, sql);
 
@@ -144,10 +141,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       throws SQLException {
 
     TableSpec tableSpec = request.getTableSpec();
-    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
 
     String sql = "select * from ";
-    sql = getFromJoins(playerDataSet, sql);
+    sql = getFromJoins(team, sql);
 
     sql = addFilters(request, team, sql);
 
@@ -157,47 +153,47 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return executeQuery(sql);
   }
 
-  private String getFromJoins(PlayerDataSet playerDataSet, String sql) {
-    if (playerDataSet.equals(PlayerDataSet.CUSTOM)) {
-      return sql + " " + playerDataSet.getTableName() + " ";
-    } else {
-      String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
-          "  NULL AS OBP,\n" +
-          "  NULL AS SLG,\n" +
-          "  NULL AS RHR,\n" +
-          "  NULL AS RBI,\n" +
-          "  NULL AS HR,\n" +
-          "  NULL AS SBC,\n" +
-          "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, Rating\n" +
-          "FROM projectionsPitching)\n" +
-          "UNION\n" +
-          "(SELECT PlayerID, 'Batter' AS Role,\n" +
-          "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
-          "  NULL AS INN,\n" +
-          "  NULL AS ERA,\n" +
-          "  NULL AS WHIP,\n" +
-          "  NULL AS WL,\n" +
-          "  NULL AS K,\n" +
-          "  NULL AS S,\n" +
-          "  Rank, DataSource, Rating\n" +
-          "FROM projectionsBatting)";
+  private String getFromJoins(int team, String sql) {
+    String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
+        "  NULL AS OBP,\n" +
+        "  NULL AS SLG,\n" +
+        "  NULL AS RHR,\n" +
+        "  NULL AS RBI,\n" +
+        "  NULL AS HR,\n" +
+        "  NULL AS SBC,\n" +
+        "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, Rating\n" +
+        "FROM projectionsPitching)\n" +
+        "UNION\n" +
+        "(SELECT PlayerID, 'Batter' AS Role,\n" +
+        "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
+        "  NULL AS INN,\n" +
+        "  NULL AS ERA,\n" +
+        "  NULL AS WHIP,\n" +
+        "  NULL AS WL,\n" +
+        "  NULL AS K,\n" +
+        "  NULL AS S,\n" +
+        "  Rank, DataSource, Rating\n" +
+        "FROM projectionsBatting)";
 
-      sql +=
-          "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
-              " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
-              "ds.name as Source, " +
-              " p.Injury,\n" +
-              " pa.*\n" +
-          "FROM (" + subselect + ") pa\n" +
-          "INNER JOIN Players p\n" +
-          " ON pa.PlayerID = p.ID\n" +
-          "INNER JOIN data_sources ds\n" +
-          " ON pa.DataSource = ds.ID\n" +
-          "WHERE PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
-          "AND PlayerID NOT IN (SELECT PlayerID FROM Keepers)) p_all ";
+    sql +=
+        "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
+            " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
+            "ds.name as Source, " +
+            "cr.Rank as MyRank, " +
+            " p.Injury,\n" +
+            " pa.*\n" +
+            "FROM (" + subselect + ") pa\n" +
+            "INNER JOIN Players p\n" +
+            " ON pa.PlayerID = p.ID\n" +
+            "INNER JOIN data_sources ds\n" +
+            " ON pa.DataSource = ds.ID\n" +
+            "INNER JOIN customRankings cr\n" +
+            " ON cr.PlayerID = pa.PlayerID\n" +
+            "WHERE cr.TeamID = " + team + " \n" +
+            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
+            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM Keepers)) p_all ";
 
-      return sql;
-    }
+    return sql;
   }
 
   private String addOrdering(TableSpec tableSpec, String sql) {
@@ -256,7 +252,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       filters.add("Injury IS NULL");
     }
 
-    addTableSpecFilters(team, filters, request.getTableSpec());
+    addTableSpecFilter(filters, request.getTableSpec());
 
     if (filters.isEmpty()) {
       return sql;
@@ -265,19 +261,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private void addTableSpecFilters(int team, List<String> filters, TableSpec tableSpec) {
-    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
-
-    String sourceFilter = playerDataSet.getSourceFilter();
+  private void addTableSpecFilter(List<String> filters, TableSpec tableSpec) {
+    String sourceFilter = tableSpec.getPlayerDataSet().getDisplayName();
     if (sourceFilter != null) {
       filters.add("Source = '" + sourceFilter + "' ");
-    }
-
-
-    if (playerDataSet.equals(PlayerDataSet.CUSTOM)) {
-      filters.add("Drafted = 0");
-      filters.add("Keeper = 0");
-      filters.add("TeamID = " + team);
     }
   }
 
@@ -318,13 +305,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public long getBestPlayerId(TableSpec tableSpec, final Integer team, Set<Position> openPositions) throws SQLException {
-    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
 
     String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(playerDataSet, sql);
+    sql = getFromJoins(team, sql);
 
     List<String> filters = Lists.newArrayList();
-    addTableSpecFilters(team, filters, tableSpec);
+    addTableSpecFilter(filters, tableSpec);
 
     if (!filters.isEmpty()) {
       sql += " where " + Joiner.on(" and ").join(filters) + " ";

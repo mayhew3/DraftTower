@@ -63,9 +63,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   private class RankCell extends EditTextCell {
     @Override
     public void onBrowserEvent(final Context context, final com.google.gwt.dom.client.Element parent, final String value, final NativeEvent event, final ValueUpdater<String> valueUpdater) {
-      if (tableSpec.getPlayerDataSet() == PlayerDataSet.CUSTOM) {
-        super.onBrowserEvent(context, parent, value, event, valueUpdater);
-      }
+      super.onBrowserEvent(context, parent, value, event, valueUpdater);
     }
   }
 
@@ -77,16 +75,16 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       super(createCell(column));
       this.column = column;
       setSortable(true);
-      setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK);
+      setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK);
       if (column == NAME) {
         setCellStyleNames(CSS.nameCell());
       }
 
-      if (column == RANK) {
+      if (column == MYRANK) {
         setFieldUpdater(new FieldUpdater<Player, String>() {
           @Override
           public void update(int index, Player player, String newRank) {
-            String currentRank = player.getColumnValues().get(RANK);
+            String currentRank = player.getColumnValues().get(MYRANK);
             if (!newRank.equals(currentRank)) {
               try {
                 eventBus.fireEvent(new ChangePlayerRankEvent(player.getPlayerId(),
@@ -105,8 +103,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
           Player draggedPlayer = dragAndDropContext.getDraggableData();
           Player droppedPlayer = dragAndDropContext.getDroppableData();
           if (draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
-            int prevRank = Integer.parseInt(draggedPlayer.getColumnValues().get(RANK));
-            int targetRank = Integer.parseInt(droppedPlayer.getColumnValues().get(RANK));
+            int prevRank = Integer.parseInt(draggedPlayer.getColumnValues().get(MYRANK));
+            int targetRank = Integer.parseInt(droppedPlayer.getColumnValues().get(MYRANK));
             if (prevRank > targetRank && !isTopDrop(dragAndDropContext, false)) {
               targetRank++;
             }
@@ -138,7 +136,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   public static final PlayerColumn COLUMNS[] = {
-      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING
+      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, RATING, MYRANK
   };
 
   private final Provider<Integer> queueAreaTopProvider;
@@ -246,7 +244,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   private AbstractCell<String> createCell(PlayerColumn column) {
-    if (column == RANK) {
+    if (column == MYRANK) {
       return new RankCell();
     } else if (column == NAME) {
       return new ClickableTextCell();
@@ -304,8 +302,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   private void updateDropEnabled() {
-    boolean dropEnabled = tableSpec.getPlayerDataSet() == PlayerDataSet.CUSTOM
-        && getSortedColumn() == RANK;
+    boolean dropEnabled = getSortedColumn() == MYRANK;
     for (int i = 0; i < getColumnCount(); i++) {
       Column<Player, ?> column = getColumn(i);
       if (column instanceof DragAndDropColumn) {
@@ -335,5 +332,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     columnSortList.push(new ColumnSortInfo(playerColumns.get(tableSpec.getSortCol()),
         tableSpec.isAscending()));
     setVisibleRangeAndClearData(getVisibleRange(), true);
+    updateDropEnabled();
   }
 }
