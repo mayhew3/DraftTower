@@ -10,7 +10,8 @@ import java.util.ArrayList;
 /** Data sources for player stats. */
 public enum PlayerDataSet {
   CBSSPORTS("CBSSports"),
-  GURU("GURU");
+  GURU("GURU"),
+  AVERAGES("Averages");
 
   private final String displayName;
 
