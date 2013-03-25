@@ -29,5 +29,7 @@ public interface PlayerDataSource {
 
   void populateDraftStatus(DraftStatus status) throws SQLException;
 
+  void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException;
+
   GraphsData getGraphsData(int team) throws SQLException;
 }

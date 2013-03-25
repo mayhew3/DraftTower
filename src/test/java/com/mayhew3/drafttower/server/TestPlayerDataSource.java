@@ -52,6 +52,10 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
+  public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException {
+  }
+
+  @Override
   public GraphsData getGraphsData(int team) throws SQLException {
     return null;
   }

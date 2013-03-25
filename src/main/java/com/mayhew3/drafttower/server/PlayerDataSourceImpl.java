@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -122,7 +124,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
 
     String sql = "select count(1) as TotalPlayers from ";
-    sql = getFromJoins(team, sql, getPositionFilterClause(request, team));
+    sql = getFromJoins(team, sql, getPositionFilterClause(request, team), true);
 
     sql = addFilters(request, sql);
 
@@ -144,7 +146,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TableSpec tableSpec = request.getTableSpec();
 
     String sql = "select * from ";
-    sql = getFromJoins(team, sql, getPositionFilterClause(request, team));
+    sql = getFromJoins(team, sql, getPositionFilterClause(request, team), true);
 
     sql = addFilters(request, sql);
 
@@ -158,7 +160,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public long getBestPlayerId(TableSpec tableSpec, final Integer team, Set<Position> openPositions) throws SQLException {
 
     String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions));
+    sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true);
 
     List<String> filters = Lists.newArrayList();
     addTableSpecFilter(filters, tableSpec);
@@ -200,7 +202,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player utility methods
 
-  private String getFromJoins(int team, String sql, String positionFilterString) {
+  private String getFromJoins(int team, String sql, String positionFilterString, boolean filterClaimed) {
     String wizardFilterClause = "";
     String playerFilterClause = "";
 
@@ -257,9 +259,14 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "INNER JOIN customRankings cr\n" +
             " ON cr.PlayerID = pa.PlayerID\n" +
             "WHERE cr.TeamID = " + team + " \n" +
-            playerFilterClause +
-            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
-            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM Keepers)) p_all ";
+            playerFilterClause;
+
+    if (filterClaimed) {
+      sql += " AND pa.PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
+          " AND pa.PlayerID NOT IN (SELECT PlayerID FROM Keepers) ";
+    }
+
+    sql += " ) p_all ";
 
     return sql;
   }
@@ -507,6 +514,86 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       close(resultSet);
     }
   }
+
+  @Override
+  public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException {
+    final int team = teamTokens.get(request.getTeamToken());
+    TableSpec tableSpec = request.getTableSpec();
+
+    if (tableSpec.getSortCol() == PlayerColumn.MYRANK) {
+      logger.log(SEVERE, "Cannot set MyRank to MyRank column.");
+      return;
+    }
+
+    logger.log(INFO, "Request from Team " + team + " to copy player ranks from " + tableSpec.getPlayerDataSet().getDisplayName()
+        + ", " + tableSpec.getSortCol().getShortName() + ".");
+
+    prepareTmpTable(team);
+
+    logger.log(FINE, "Cleared temp table for " + team);
+
+    String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
+        " SELECT " + team + ", PlayerID \n" +
+        " FROM ";
+    sql = getFromJoins(team, sql, null, false);
+
+    List<String> filters = Lists.newArrayList();
+    addTableSpecFilter(filters, tableSpec);
+
+    if (!filters.isEmpty()) {
+      sql += " where " + Joiner.on(" and ").join(filters) + " ";
+    }
+
+    sql = addOrdering(tableSpec, sql);
+
+    Statement statement  = executeUpdate(sql);
+    close(statement);
+
+    logger.log(FINE, "Executed big insert for " + team);
+
+    sql = "select min(rank) as lower_bound, max(rank) as upper_bound \n" +
+        "from tmp_rankings \n" +
+        "where teamID = " + team;
+    ResultSet resultSet = executeQuery(sql);
+    resultSet.next();
+
+    logger.log(FINE, "Executed bounds query for " + team);
+
+    int lowerBound = resultSet.getInt("lower_bound");
+    int upperBound = resultSet.getInt("upper_bound");
+
+    logger.log(FINE, "Got bounds off of result set.");
+
+    close(resultSet);
+
+    logger.log(FINE, "Closed bounds connections.");
+
+    int offset = lowerBound - 1;
+
+    sql = "update customRankings \n" +
+        "set Rank = " + (upperBound - offset + 1) + "\n" +
+        "where teamid = " + team;
+    statement = executeUpdate(sql);
+    close(statement);
+
+    logger.log(FINE, "Executed base update for " + team);
+
+    sql = "update customRankings cr\n" +
+        "inner join tmp_rankings tr\n" +
+        " on (cr.PlayerID = tr.PlayerID and cr.TeamID = tr.TeamID)\n" +
+        "set cr.Rank = tr.Rank - " + offset + " \n" +
+        "where tr.teamID = " + team;
+    statement = executeUpdate(sql);
+    close(statement);
+
+    logger.log(FINE, "Executed big update for " + team);
+  }
+
+
+  private void prepareTmpTable(int teamID) throws SQLException {
+    executeUpdate("delete from tmp_rankings where teamID = " + teamID);
+  }
+
 
   @Override
   public GraphsData getGraphsData(int team) throws SQLException {

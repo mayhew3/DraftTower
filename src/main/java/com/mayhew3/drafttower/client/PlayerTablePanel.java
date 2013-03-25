@@ -12,11 +12,14 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.IsUsersAutoPickTableSpecEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickTableSpecEvent;
+import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.TableSpec;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,6 +59,7 @@ public class PlayerTablePanel extends Composite implements
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
   private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
+  private final Button copyRanks;
 
   @Inject
   public PlayerTablePanel(final UnclaimedPlayerTable table, final EventBus eventBus) {
@@ -150,6 +154,18 @@ public class PlayerTablePanel extends Composite implements
       }
     });
     container.add(useForAutoPick);
+
+    copyRanks = new Button("Copy this order to MyRank");
+    copyRanks.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        TableSpec tableSpec = table.getTableSpec();
+        if (tableSpec.getSortCol() != PlayerColumn.MYRANK) {
+          eventBus.fireEvent(new CopyAllPlayerRanksEvent(tableSpec));
+        }
+      }
+    });
+    container.add(copyRanks);
 
     SimplePager pager = new SimplePager();
     pager.setDisplay(table);

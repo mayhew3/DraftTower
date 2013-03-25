@@ -45,6 +45,11 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
+  public static @interface CopyPlayerRanksUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
   public static @interface SetAutoPickTableSpecUrl {}
 
   @BindingAnnotation
@@ -92,6 +97,14 @@ public class DraftTowerGinModule extends AbstractGinModule {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.CHANGE_PLAYER_RANK_ENDPOINT)
+        .buildString();
+  }
+
+  @Provides @CopyPlayerRanksUrl
+  public String getUpdateAllPlayerRanksUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.COPY_ALL_PLAYER_RANKS_ENDPOINT)
         .buildString();
   }
 
