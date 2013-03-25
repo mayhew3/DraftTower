@@ -14,14 +14,10 @@ import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
-import static com.mayhew3.drafttower.shared.Position.DH;
-import static com.mayhew3.drafttower.shared.Position.UNF;
+import static com.mayhew3.drafttower.shared.Position.*;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -119,11 +115,16 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return keepers;
   }
 
-  private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
-    String sql = "select count(1) as TotalPlayers from ";
-    sql = getFromJoins(team, sql);
 
-    sql = addFilters(request, team, sql);
+
+  // Unclaimed Player Queries
+
+  private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
+
+    String sql = "select count(1) as TotalPlayers from ";
+    sql = getFromJoins(team, sql, getPositionFilterClause(request, team));
+
+    sql = addFilters(request, sql);
 
     ResultSet resultSet = null;
     try {
@@ -143,9 +144,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TableSpec tableSpec = request.getTableSpec();
 
     String sql = "select * from ";
-    sql = getFromJoins(team, sql);
+    sql = getFromJoins(team, sql, getPositionFilterClause(request, team));
 
-    sql = addFilters(request, team, sql);
+    sql = addFilters(request, sql);
 
     sql = addOrdering(tableSpec, sql);
     sql += " limit " + request.getRowStart() + ", " + request.getRowCount();
@@ -153,161 +154,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return executeQuery(sql);
   }
 
-  private String getFromJoins(int team, String sql) {
-    String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
-        "  NULL AS OBP,\n" +
-        "  NULL AS SLG,\n" +
-        "  NULL AS RHR,\n" +
-        "  NULL AS RBI,\n" +
-        "  NULL AS HR,\n" +
-        "  NULL AS SBC,\n" +
-        "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, Rating\n" +
-        "FROM projectionsPitching)\n" +
-        "UNION\n" +
-        "(SELECT PlayerID, 'Batter' AS Role,\n" +
-        "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
-        "  NULL AS INN,\n" +
-        "  NULL AS ERA,\n" +
-        "  NULL AS WHIP,\n" +
-        "  NULL AS WL,\n" +
-        "  NULL AS K,\n" +
-        "  NULL AS S,\n" +
-        "  Rank, DataSource, Rating\n" +
-        "FROM projectionsBatting)";
-
-    sql +=
-        "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
-            " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
-            "ds.name as Source, " +
-            "cr.Rank as MyRank, " +
-            " p.Injury,\n" +
-            " pa.*\n" +
-            "FROM (" + subselect + ") pa\n" +
-            "INNER JOIN Players p\n" +
-            " ON pa.PlayerID = p.ID\n" +
-            "INNER JOIN data_sources ds\n" +
-            " ON pa.DataSource = ds.ID\n" +
-            "INNER JOIN customRankings cr\n" +
-            " ON cr.PlayerID = pa.PlayerID\n" +
-            "WHERE cr.TeamID = " + team + " \n" +
-            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
-            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM Keepers)) p_all ";
-
-    return sql;
-  }
-
-  private String addOrdering(TableSpec tableSpec, String sql) {
-    PlayerColumn sortCol = tableSpec.getSortCol();
-    String sortColumnName;
-    String sortColumnDirection;
-    if (sortCol != null) {
-      sortColumnName = sortCol.getColumnName();
-      sortColumnDirection = (tableSpec.isAscending() ? "asc " : "desc ");
-    } else {
-      throw new IllegalStateException("Expected tableSpec to always have non-null sort column.");
-    }
-
-    sql += " order by case when " + sortColumnName + " is null then 1 else 0 end, "
-        + sortColumnName + " " + sortColumnDirection + " ";
-    return sql;
-  }
-
-  private String addFilters(UnclaimedPlayerListRequest request, final int team, String sql) {
-    Position positionFilter = request.getPositionFilter();
-    List<String> filters = Lists.newArrayList();
-    if (positionFilter != null) {
-      if (positionFilter == UNF) {
-        ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
-        Set<Position> openPositions = RosterUtil.getOpenPositions(
-            Lists.newArrayList(Iterables.filter(picks,
-                new Predicate<DraftPick>() {
-                  @Override
-                  public boolean apply(DraftPick input) {
-                    return input.getTeam() == team;
-                  }
-                })));
-        if (!openPositions.isEmpty()) {
-          String filter = "Position in (";
-          filter += Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
-            @Override
-            public String apply(Position input) {
-              return "'" + input.getShortName() + "'";
-            }
-          }));
-          filter += ") ";
-          filters.add(filter);
-        }
-      } else {
-        filters.add("Position = '" + positionFilter.getShortName() + "' ");
-      }
-    }
-
-    String searchQuery = request.getSearchQuery();
-    if (!Strings.isNullOrEmpty(searchQuery)) {
-      String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
-      filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
-    }
-
-    if (request.getHideInjuries()) {
-      filters.add("Injury IS NULL");
-    }
-
-    addTableSpecFilter(filters, request.getTableSpec());
-
-    if (filters.isEmpty()) {
-      return sql;
-    } else {
-      return sql + " where " + Joiner.on(" and ").join(filters) + " ";
-    }
-  }
-
-  private void addTableSpecFilter(List<String> filters, TableSpec tableSpec) {
-    String sourceFilter = tableSpec.getPlayerDataSet().getDisplayName();
-    if (sourceFilter != null) {
-      filters.add("Source = '" + sourceFilter + "' ");
-    }
-  }
-
-  @Override
-  public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
-    String sql = "select Player,Eligibility " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where PlayerID = " + queueEntry.getPlayerId();
-
-    ResultSet resultSet = executeQuery(sql);
-    try {
-      resultSet.next();
-      queueEntry.setPlayerName(resultSet.getString("Player"));
-      queueEntry.setEligibilities(
-          splitEligibilities(resultSet.getString("Eligibility")));
-    } finally {
-      close(resultSet);
-    }
-  }
-
-  @Override
-  public void populateDraftPick(DraftPick draftPick) throws SQLException {
-    String sql = "select FirstName,LastName,Eligibility " +
-        "from AllPlayers " +
-        "where ID = " + draftPick.getPlayerId();
-
-    ResultSet resultSet = executeQuery(sql);
-    try {
-      resultSet.next();
-      draftPick.setPlayerName(
-          resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
-      draftPick.setEligibilities(
-          splitEligibilities(resultSet.getString("Eligibility")));
-    } finally {
-      close(resultSet);
-    }
-  }
-
   @Override
   public long getBestPlayerId(TableSpec tableSpec, final Integer team, Set<Position> openPositions) throws SQLException {
 
     String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(team, sql);
+    sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions));
 
     List<String> filters = Lists.newArrayList();
     addTableSpecFilter(filters, tableSpec);
@@ -339,11 +190,182 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           }
         }
       }
+      //noinspection ConstantConditions
       return firstReserve;
     } finally {
       close(resultSet);
     }
   }
+
+
+  // Unclaimed Player utility methods
+
+  private String getFromJoins(int team, String sql, String positionFilterString) {
+    String wizardFilterClause = "";
+    String playerFilterClause = "";
+
+    if (positionFilterString != null) {
+      wizardFilterClause = " and Position " + positionFilterString + " ";
+      playerFilterClause = " and pa.PlayerID IN (SELECT PlayerID FROM Eligibilities WHERE Position " + positionFilterString + ") ";
+    }
+
+
+    String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
+        "  NULL AS OBP,\n" +
+        "  NULL AS SLG,\n" +
+        "  NULL AS RHR,\n" +
+        "  NULL AS RBI,\n" +
+        "  NULL AS HR,\n" +
+        "  NULL AS SBC,\n" +
+        "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, \n" +
+        "  (select coalesce(max(Rating), 0)\n" +
+        "   from wizardRatings\n" +
+        "   where projectionRow = projectionsPitching.ID\n" +
+        "   and batting = 0\n" +
+        "  ) as Wizard " +
+        " FROM projectionsPitching)\n" +
+        " UNION\n" +
+        " (SELECT PlayerID, 'Batter' AS Role,\n" +
+        "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
+        "  NULL AS INN,\n" +
+        "  NULL AS ERA,\n" +
+        "  NULL AS WHIP,\n" +
+        "  NULL AS WL,\n" +
+        "  NULL AS K,\n" +
+        "  NULL AS S,\n" +
+        "  Rank, DataSource, \n" +
+        "  (select coalesce(max(Rating), 0)\n" +
+        "   from wizardRatings\n" +
+        "   where projectionRow = projectionsBatting.ID\n" +
+        "   and batting = 1 \n" +
+        wizardFilterClause +
+        "  ) as Wizard \n" +
+        " FROM projectionsBatting)";
+
+    sql +=
+        "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
+            " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
+            "ds.name as Source, " +
+            "cr.Rank as MyRank, " +
+            " p.Injury,\n" +
+            " pa.*\n" +
+            "FROM (" + subselect + ") pa\n" +
+            "INNER JOIN Players p\n" +
+            " ON pa.PlayerID = p.ID\n" +
+            "INNER JOIN data_sources ds\n" +
+            " ON pa.DataSource = ds.ID\n" +
+            "INNER JOIN customRankings cr\n" +
+            " ON cr.PlayerID = pa.PlayerID\n" +
+            "WHERE cr.TeamID = " + team + " \n" +
+            playerFilterClause +
+            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
+            "AND pa.PlayerID NOT IN (SELECT PlayerID FROM Keepers)) p_all ";
+
+    return sql;
+  }
+
+
+  private String addFilters(UnclaimedPlayerListRequest request, String sql) {
+    List<String> filters = Lists.newArrayList();
+
+    String searchQuery = request.getSearchQuery();
+    if (!Strings.isNullOrEmpty(searchQuery)) {
+      String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
+      filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
+    }
+
+    if (request.getHideInjuries()) {
+      filters.add("Injury IS NULL");
+    }
+
+    addTableSpecFilter(filters, request.getTableSpec());
+
+    if (filters.isEmpty()) {
+      return sql;
+    } else {
+      return sql + " where " + Joiner.on(" and ").join(filters) + " ";
+    }
+  }
+
+  private void addTableSpecFilter(List<String> filters, TableSpec tableSpec) {
+    String sourceFilter = tableSpec.getPlayerDataSet().getDisplayName();
+    if (sourceFilter != null) {
+      filters.add("Source = '" + sourceFilter + "' ");
+    }
+  }
+
+
+  private String addOrdering(TableSpec tableSpec, String sql) {
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    String sortColumnName;
+    String sortColumnDirection;
+    if (sortCol != null) {
+      sortColumnName = sortCol.getColumnName();
+      sortColumnDirection = (tableSpec.isAscending() ? "asc " : "desc ");
+    } else {
+      throw new IllegalStateException("Expected tableSpec to always have non-null sort column.");
+    }
+
+    sql += " order by case when " + sortColumnName + " is null then 1 else 0 end, "
+        + sortColumnName + " " + sortColumnDirection + " ";
+    return sql;
+  }
+
+
+  // Open Positions
+
+  private String getPositionFilterClause(UnclaimedPlayerListRequest request, int team) {
+    Position positionFilter = request.getPositionFilter();
+
+    if (positionFilter == null) {
+      return null;
+    } else if (positionFilter == UNF) {
+      Set<Position> openPositions = getOpenPositions(team);
+      return createFilterStringFromPositions(openPositions);
+    } else {
+      return " = '" + positionFilter.getShortName() + "' ";
+    }
+  }
+
+  private Set<Position> getOpenPositions(final int team) {
+    ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
+    return RosterUtil.getOpenPositions(
+        Lists.newArrayList(Iterables.filter(picks,
+            new Predicate<DraftPick>() {
+              @Override
+              public boolean apply(DraftPick input) {
+                return input.getTeam() == team;
+              }
+            })));
+  }
+
+  private String createFilterStringFromPositions(Set<Position> openPositions) {
+    // needs no filter if all positions are open, {P, DH} are open, or all positions are full (reserve time!)
+    if (openPositions.isEmpty() || hasAllOpenPositions(openPositions)) {
+      return null;
+    } else {
+      String joined = Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
+        @Override
+        public String apply(Position input) {
+          return "'" + input.getShortName() + "'";
+        }
+      }));
+      return " in (" + joined + ") ";
+    }
+  }
+
+  private boolean hasAllOpenPositions(Set<Position> openPositions) {
+    Set<Position> allPositions = Sets.newHashSet(Position.values());
+    allPositions.remove(UNF);
+    allPositions.remove(RS);
+    return openPositions.size() == allPositions.size()
+        || (openPositions.contains(DH) && openPositions.contains(P));
+  }
+
+
+
+
+  // Player Rank
 
   @Override
   public void changePlayerRank(ChangePlayerRankRequest request) {
@@ -394,6 +416,42 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
+
+
+  @Override
+  public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
+    String sql = "select Player,Eligibility " +
+        "from UnclaimedDisplayPlayersWithCatsByQuality " +
+        "where PlayerID = " + queueEntry.getPlayerId();
+
+    ResultSet resultSet = executeQuery(sql);
+    try {
+      resultSet.next();
+      queueEntry.setPlayerName(resultSet.getString("Player"));
+      queueEntry.setEligibilities(
+          splitEligibilities(resultSet.getString("Eligibility")));
+    } finally {
+      close(resultSet);
+    }
+  }
+
+  @Override
+  public void populateDraftPick(DraftPick draftPick) throws SQLException {
+    String sql = "select FirstName,LastName,Eligibility " +
+        "from AllPlayers " +
+        "where ID = " + draftPick.getPlayerId();
+
+    ResultSet resultSet = executeQuery(sql);
+    try {
+      resultSet.next();
+      draftPick.setPlayerName(
+          resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
+      draftPick.setEligibilities(
+          splitEligibilities(resultSet.getString("Eligibility")));
+    } finally {
+      close(resultSet);
+    }
+  }
 
   @Override
   public void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException {
@@ -487,6 +545,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         ? Lists.newArrayList("DH")
         : Lists.newArrayList(eligibility.split(","));
   }
+
+
+
+  // DB utility methods
 
   private ResultSet executeQuery(String sql) throws SQLException {
     Statement statement = db.getConnection().createStatement();

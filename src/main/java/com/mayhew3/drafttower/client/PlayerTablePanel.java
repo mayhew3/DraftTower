@@ -48,7 +48,7 @@ public class PlayerTablePanel extends Composite implements
   }
 
   private static final Position[] POSITIONS = {
-      null, C, FB, SB, TB, SS, OF, DH, P, UNF
+      UNF, null, C, FB, SB, TB, SS, OF, DH, P
   };
 
   private Map<PlayerDataSet, ToggleButton> dataSetButtons = Maps.newEnumMap(PlayerDataSet.class);
@@ -110,10 +110,13 @@ public class PlayerTablePanel extends Composite implements
         positionFilterButtons.put(position, button);
       } else {
         allButton = button;
+      }
+      if (position == UNF) {
         button.setDown(true);
       }
       filterButtons.add(button);
     }
+    table.setPositionFilter(UNF);
     container.add(filterButtons);
 
     container.add(new InlineLabel("Search: "));
