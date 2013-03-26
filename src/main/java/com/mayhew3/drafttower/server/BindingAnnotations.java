@@ -26,9 +26,4 @@ public class BindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface Queues {}
-
-  @BindingAnnotation
-  @Target({FIELD, PARAMETER, METHOD})
-  @Retention(RUNTIME)
-  public static @interface AutoPickTableSpecs {}
 }

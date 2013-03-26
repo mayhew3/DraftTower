@@ -3,7 +3,6 @@ package com.mayhew3.drafttower.client;
 import com.google.common.collect.Maps;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
@@ -58,13 +57,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   protected static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
   static {
     CSS.ensureInjected();
-  }
-
-  private class RankCell extends EditTextCell {
-    @Override
-    public void onBrowserEvent(final Context context, final com.google.gwt.dom.client.Element parent, final String value, final NativeEvent event, final ValueUpdater<String> valueUpdater) {
-      super.onBrowserEvent(context, parent, value, event, valueUpdater);
-    }
   }
 
   public class PlayerTableColumn extends DragAndDropColumn<Player, String> {
@@ -157,7 +149,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
-    tableSpec.setSortCol(PlayerColumn.RANK);
+    tableSpec.setSortCol(PlayerColumn.MYRANK);
     tableSpec.setAscending(true);
 
     addStyleName(BASE_CSS.table());
@@ -245,7 +237,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
   private AbstractCell<String> createCell(PlayerColumn column) {
     if (column == MYRANK) {
-      return new RankCell();
+      return new EditTextCell();
     } else if (column == NAME) {
       return new ClickableTextCell();
     } else {
@@ -326,7 +318,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
   @Override
   public void onLogin(LoginEvent event) {
-    tableSpec = event.getLoginResponse().getInitialTableSpec();
     ColumnSortList columnSortList = getColumnSortList();
     columnSortList.clear();
     columnSortList.push(new ColumnSortInfo(playerColumns.get(tableSpec.getSortCol()),

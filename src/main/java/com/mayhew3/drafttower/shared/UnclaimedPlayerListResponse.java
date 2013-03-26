@@ -12,7 +12,4 @@ public interface UnclaimedPlayerListResponse {
 
   int getTotalPlayers();
   void setTotalPlayers(int totalPlayers);
-
-  boolean isUsersAutoPickTableSpec();
-  void setUsersAutoPickTableSpec(boolean usersAutoPickTableSpec);
 }
