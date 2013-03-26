@@ -29,6 +29,7 @@ public enum PlayerColumn {
   K("K", "Strikeouts (Pitcher)", "K"),
   S("S", "Saves", "S"),
   RANK("Rank", "Rank", "Rank"),
+  DRAFT("Draft", "Average Position in CBS Drafts", "Draft"),
   WIZARD("Wizard", "Wizard", "Wizard"),
   MYRANK("MyRank", "MyRank", "MyRank");
 

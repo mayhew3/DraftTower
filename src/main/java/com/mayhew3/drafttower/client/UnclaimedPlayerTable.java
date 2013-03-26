@@ -67,7 +67,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       super(createCell(column));
       this.column = column;
       setSortable(true);
-      setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK);
+      setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK || column == DRAFT);
 
       if (column != NAME && column != POS && column != ELIG) {
         setHorizontalAlignment(ALIGN_RIGHT);
@@ -132,7 +132,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   public static final PlayerColumn COLUMNS[] = {
-      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, MYRANK
+      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
   };
 
   private final Provider<Integer> queueAreaTopProvider;
