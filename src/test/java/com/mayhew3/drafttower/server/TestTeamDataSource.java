@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.Maps;
-import com.mayhew3.drafttower.shared.TableSpec;
 import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
@@ -27,12 +26,4 @@ public class TestTeamDataSource implements TeamDataSource {
     return Maps.newHashMap();
   }
 
-  @Override
-  public Map<Integer, TableSpec> getAutoPickTableSpecs(int numTeams) {
-    return Maps.newHashMap();
-  }
-
-  @Override
-  public void updateAutoPickTable(int teamID, TableSpec tableSpec) {
-  }
 }

@@ -31,7 +31,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(TableSpec tableSpec, Integer team, Set<Position> openPositions) throws SQLException {
+  public long getBestPlayerId(Integer team, Set<Position> openPositions) throws SQLException {
     return 0;
   }
 

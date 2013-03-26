@@ -14,13 +14,14 @@ import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.*;
 
 /**
  * Looks up players in the database.
@@ -157,19 +158,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(TableSpec tableSpec, final Integer team, Set<Position> openPositions) throws SQLException {
+  public long getBestPlayerId(final Integer team, Set<Position> openPositions) throws SQLException {
 
     String sql = "select PlayerID, Eligibility from ";
     sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true);
 
     List<String> filters = Lists.newArrayList();
-    addTableSpecFilter(filters, tableSpec);
-
     if (!filters.isEmpty()) {
       sql += " where " + Joiner.on(" and ").join(filters) + " ";
     }
 
-    sql = addOrdering(tableSpec, sql);
+    sql += "order by MyRank asc;";
 
     ResultSet resultSet = null;
     try {
