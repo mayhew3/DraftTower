@@ -68,6 +68,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       this.column = column;
       setSortable(true);
       setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK);
+
+      if (column != NAME && column != POS && column != ELIG) {
+        setHorizontalAlignment(ALIGN_RIGHT);
+      }
       if (column == NAME) {
         setCellStyleNames(CSS.nameCell());
       }
