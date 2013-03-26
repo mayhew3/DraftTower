@@ -65,6 +65,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
+        player.setCBSId(resultSet.getInt("CBS_ID"));
         ImmutableMap.Builder<PlayerColumn, String> columnMap = ImmutableMap.builder();
 
         PlayerColumn[] playerColumns = PlayerColumn.values();
@@ -218,8 +219,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS RBI,\n" +
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
-        "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, \n" +
-        "  (select coalesce(max(Rating), 0)\n" +
+        "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
+        "  (select format(coalesce(max(Rating), 0), 3)\n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
         "   and batting = 0\n" +
@@ -234,8 +235,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS WL,\n" +
         "  NULL AS K,\n" +
         "  NULL AS S,\n" +
-        "  Rank, DataSource, \n" +
-        "  (select coalesce(max(Rating), 0)\n" +
+        "  Rank, Draft, DataSource, \n" +
+        "  (select format(coalesce(max(Rating), 0), 3) \n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsBatting.ID\n" +
         "   and batting = 1 \n" +
@@ -244,7 +245,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " FROM projectionsBatting)";
 
     sql +=
-        "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
+        "(SELECT p.PlayerString as Player, p.CBS_ID, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
             " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
             "ds.name as Source, " +
             "cr.Rank as MyRank, " +

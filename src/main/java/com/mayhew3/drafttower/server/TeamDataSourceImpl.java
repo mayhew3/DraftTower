@@ -67,16 +67,19 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
   @Override
   public boolean isCommissionerTeam(int team) throws SQLException {
-    String sql = "select users.UserRole " +
+    String sql = "select userrole.Role " +
         "from users " +
         "inner join teams " +
         " on teams.userid = users.user " +
-        "where teams.DraftOrder = '" + team + "'";
+        "inner join userrole " +
+        " on userrole.user = users.user " +
+        "where teams.DraftOrder = '" + team + "' " +
+        "and userrole.site = 'uncharted'";
 
     ResultSet resultSet = null;
     try {
       resultSet = executeQuery(sql);
-      return resultSet.next() && resultSet.getString("UserRole").equals("admin");
+      return resultSet.next() && resultSet.getString("Role").equals("admin");
     }  finally {
       close(resultSet);
     }

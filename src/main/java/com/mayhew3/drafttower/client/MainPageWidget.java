@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.shared.Player;
 
 /**
  * Widget containing the entire UI.
@@ -153,10 +154,10 @@ public class MainPageWidget extends Composite implements
 
   @Override
   public void showPlayerPopup(ShowPlayerPopupEvent event) {
-    // TODO(m3): use real ID
-    String playerCbsId = "1182834";
+    Player player = event.getPlayer();
+    long cbsId = player.getCBSId();
     playerPopupFrame.setUrl("http://uncharted.baseball.cbssports.com/players/playerpage/snippet/"
-        + playerCbsId
+        + cbsId
         + "?loc=snippet&selected_tab=news&selected_subtab=");
     playerPopup.center();
     playerPopup.show();
