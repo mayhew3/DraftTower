@@ -9,6 +9,8 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.ColumnSortEvent.Handler;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
@@ -60,9 +62,12 @@ public class PlayerTablePanel extends Composite implements
   private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
+  private final UnclaimedPlayerTable table;
 
   @Inject
   public PlayerTablePanel(final UnclaimedPlayerTable table, final EventBus eventBus) {
+    this.table = table;
+
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
@@ -167,6 +172,14 @@ public class PlayerTablePanel extends Composite implements
     });
     container.add(copyRanks);
 
+    updateCopyRanksEnabled();
+    table.addColumnSortHandler(new Handler() {
+      @Override
+      public void onColumnSort(ColumnSortEvent event) {
+        updateCopyRanksEnabled();
+      }
+    });
+
     SimplePager pager = new SimplePager();
     pager.setDisplay(table);
     container.add(pager);
@@ -177,6 +190,10 @@ public class PlayerTablePanel extends Composite implements
 
     eventBus.addHandler(IsUsersAutoPickTableSpecEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
+  }
+
+  private void updateCopyRanksEnabled() {
+    copyRanks.setEnabled(table.getSortedColumn() != PlayerColumn.MYRANK);
   }
 
   private void updateDataSetButtons(PlayerDataSet playerDataSet) {
