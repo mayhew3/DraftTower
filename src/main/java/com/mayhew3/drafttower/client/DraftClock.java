@@ -52,6 +52,7 @@ public class DraftClock extends Composite implements
   interface MyUiBinder extends UiBinder<Widget, DraftClock> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
+  private final DraftSocketHandler socketHandler;
   private final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
@@ -63,6 +64,7 @@ public class DraftClock extends Composite implements
   public DraftClock(DraftSocketHandler socketHandler,
       TeamsInfo teamsInfo,
       EventBus eventBus) {
+    this.socketHandler = socketHandler;
     this.teamsInfo = teamsInfo;
     this.eventBus = eventBus;
 
@@ -88,7 +90,8 @@ public class DraftClock extends Composite implements
       if (status.getCurrentPickDeadline() == 0 || status.isOver()) {
         clockDisplay.setText(" ");
       } else if (!status.isPaused()) {
-        long timeLeftMs = status.getCurrentPickDeadline() - System.currentTimeMillis();
+        long timeLeftMs = status.getCurrentPickDeadline() -
+            (System.currentTimeMillis() + socketHandler.getServerClockDiff());
         timeLeftMs = Math.max(0, timeLeftMs);
         long minutes = timeLeftMs / MILLIS_PER_MINUTE;
         long seconds = (timeLeftMs % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND;
