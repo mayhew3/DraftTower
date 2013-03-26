@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
+import com.mayhew3.drafttower.shared.ServletEndpoints;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
@@ -55,16 +56,25 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
     @Override
     public void onMessage(String msg) {
-      DraftCommand cmd = AutoBeanCodex.decode(beanFactory, DraftCommand.class, msg).as();
-      if (cmd.getCommandType() == IDENTIFY) {
-        teamToken = cmd.getTeamToken();
-      }
-      try {
-        for (DraftCommandListener listener : listeners) {
-            listener.onDraftCommand(cmd);
+      if (msg.startsWith(ServletEndpoints.CLOCK_SYNC)) {
+        try {
+          connection.sendMessage(msg + ServletEndpoints.CLOCK_SYNC_SEP + System.currentTimeMillis());
+        } catch (IOException e) {
+          // TODO?
+          e.printStackTrace();
         }
-      } catch (TerminateSocketException e) {
-        connection.close(1008, e.getMessage());
+      } else {
+        DraftCommand cmd = AutoBeanCodex.decode(beanFactory, DraftCommand.class, msg).as();
+        if (cmd.getCommandType() == IDENTIFY) {
+          teamToken = cmd.getTeamToken();
+        }
+        try {
+          for (DraftCommandListener listener : listeners) {
+            listener.onDraftCommand(cmd);
+          }
+        } catch (TerminateSocketException e) {
+          connection.close(1008, e.getMessage());
+        }
       }
     }
 

@@ -1,5 +1,9 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.Lists;
+import com.google.gwt.core.client.Duration;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.event.shared.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -11,8 +15,12 @@ import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
 import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.ServletEndpoints;
 import com.sksamuel.gwt.websockets.Websocket;
 import com.sksamuel.gwt.websockets.WebsocketListener;
+
+import java.util.Collections;
+import java.util.List;
 
 import static com.mayhew3.drafttower.shared.DraftCommand.Command.*;
 
@@ -29,12 +37,17 @@ public class DraftSocketHandler implements
     ForcePickPlayerEvent.Handler,
     WakeUpEvent.Handler {
 
+  private static final int CLOCK_SYNC_CYCLES = 5;
+
   private final BeanFactory beanFactory;
   private final Websocket socket;
   private final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
   private DraftStatus draftStatus;
+
+  private List<Integer> serverClockDiffs = Lists.newArrayList();
+  private int serverClockDiff;
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,
@@ -59,12 +72,25 @@ public class DraftSocketHandler implements
   public void onOpen() {
     eventBus.fireEvent(new SocketConnectEvent());
     sendDraftCommand(IDENTIFY);
+    for (int i = 0; i < CLOCK_SYNC_CYCLES; i++) {
+      Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+        @Override
+        public boolean execute() {
+          socket.send(ServletEndpoints.CLOCK_SYNC + Duration.currentTimeMillis());
+          return false;
+        }
+      }, 2000 * i);
+    }
   }
 
   @Override
   public void onMessage(String msg) {
-    draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
-    eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
+    if (msg.startsWith(ServletEndpoints.CLOCK_SYNC)) {
+      processClockSync(msg);
+    } else {
+      draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
+      eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
+    }
   }
 
   @Override
@@ -130,5 +156,38 @@ public class DraftSocketHandler implements
   @Override
   public void onWakeUp(WakeUpEvent event) {
     sendDraftCommand(WAKE_UP);
+  }
+
+  public int getServerClockDiff() {
+    if (serverClockDiffs.size() < CLOCK_SYNC_CYCLES && !serverClockDiffs.isEmpty()) {
+      return serverClockDiffs.get(0);
+    }
+    return serverClockDiff;
+  }
+
+  private void processClockSync(String msg) {
+    String[] response = msg.substring(ServletEndpoints.CLOCK_SYNC.length()).split(ServletEndpoints.CLOCK_SYNC_SEP);
+    double currentTime = Duration.currentTimeMillis();
+    double latency = currentTime - Double.parseDouble(response[0]);
+    double serverTime = Long.parseLong(response[1]) + (latency / 2);
+    serverClockDiffs.add((int) (serverTime - currentTime));
+    if (serverClockDiffs.size() >= CLOCK_SYNC_CYCLES) {
+      Collections.sort(serverClockDiffs);
+      int median = serverClockDiffs.get(CLOCK_SYNC_CYCLES / 2 + 1);
+      int squareDiffs = 0;
+      for (int value : serverClockDiffs) {
+        squareDiffs += (value - median) * (value - median);
+      }
+      double stdDev = Math.sqrt(squareDiffs / (double) CLOCK_SYNC_CYCLES);
+      int total = 0;
+      int denom = 0;
+      for (int value : serverClockDiffs) {
+        if (Math.abs(value - median) <= stdDev) {
+          total += value;
+          denom++;
+        }
+      }
+      serverClockDiff = total / denom;
+    }
   }
 }
