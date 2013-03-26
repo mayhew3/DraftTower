@@ -13,6 +13,9 @@ public interface Player {
   long getPlayerId();
   void setPlayerId(long playerId);
 
+  long getCBSId();
+  void setCBSId(long cbsId);
+
   Map<PlayerColumn, String> getColumnValues();
   void setColumnValues(Map<PlayerColumn, String> columnValues);
 

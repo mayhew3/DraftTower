@@ -65,6 +65,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
+        player.setCBSId(resultSet.getInt("CBS_ID"));
         ImmutableMap.Builder<PlayerColumn, String> columnMap = ImmutableMap.builder();
 
         PlayerColumn[] playerColumns = PlayerColumn.values();
@@ -244,7 +245,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " FROM projectionsBatting)";
 
     sql +=
-        "(SELECT p.PlayerString as Player, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
+        "(SELECT p.PlayerString as Player, p.CBS_ID, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
             " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
             "ds.name as Source, " +
             "cr.Rank as MyRank, " +
