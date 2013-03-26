@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.mayhew3.drafttower.shared.TableSpec;
 import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
@@ -16,8 +15,4 @@ public interface TeamDataSource {
   boolean isCommissionerTeam(int team) throws SQLException;
 
   Map<String, Team> getTeams() throws SQLException;
-
-  Map<Integer,TableSpec> getAutoPickTableSpecs(int numTeams);
-
-  void updateAutoPickTable(int teamID, TableSpec tableSpec);
 }

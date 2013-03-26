@@ -5,8 +5,13 @@
   width: 100%;
 }
 
-.hideInjuries {
+.rightSideControls {
   float: right;
+}
+
+.hideInjuries {
+  display: block;
+  margin-bottom: 10px;
 }
 
 .filterButton {
@@ -46,6 +51,12 @@ td:last-child > .filterButton {
   border-right-width: 1px;
 }
 
-.autoPick {
-  display: block;
+.headerElement {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: top;
+}
+
+.headerLine {
+  margin-bottom: 10px;
 }

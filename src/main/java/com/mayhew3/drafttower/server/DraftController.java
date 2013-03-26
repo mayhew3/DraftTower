@@ -10,7 +10,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickTableSpecs;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
 import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -50,7 +49,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Map<String, Integer> teamTokens;
   private final ListMultimap<Integer, Integer> keepers;
   private final ListMultimap<Integer, QueueEntry> queues;
-  private final Map<Integer, TableSpec> autoPickTableSpecs;
 
   private final int numTeams;
 
@@ -69,7 +67,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
-      @AutoPickTableSpecs Map<Integer, TableSpec> autoPickTableSpecs,
       @NumTeams int numTeams) throws SQLException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
@@ -78,7 +75,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
-    this.autoPickTableSpecs = autoPickTableSpecs;
     this.numTeams = numTeams;
     this.status = status;
     status.setConnectedTeams(Sets.<Integer>newHashSet());
@@ -159,8 +155,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private void doPick(final Integer team, long playerId, boolean auto, boolean keeper) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId(autoPickTableSpecs.get(team),
-            team,
+        playerId = playerDataSource.getBestPlayerId(team,
             RosterUtil.getOpenPositions(
                 Lists.newArrayList(Iterables.filter(status.getPicks(),
                     new Predicate<DraftPick>() {

@@ -15,9 +15,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
-import com.mayhew3.drafttower.client.events.IsUsersAutoPickTableSpecEvent;
-import com.mayhew3.drafttower.client.events.LoginEvent;
-import com.mayhew3.drafttower.client.events.SetAutoPickTableSpecEvent;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
@@ -26,20 +23,21 @@ import com.mayhew3.drafttower.shared.TableSpec;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.mayhew3.drafttower.shared.PlayerDataSet.CBSSPORTS;
 import static com.mayhew3.drafttower.shared.Position.*;
 
 /**
  * Widget containing player table, position filter buttons, and paging controls.
  */
-public class PlayerTablePanel extends Composite implements
-    IsUsersAutoPickTableSpecEvent.Handler,
-    LoginEvent.Handler {
+public class PlayerTablePanel extends Composite {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
+      String headerElement();
+      String headerLine();
       String hideInjuries();
-      String autoPick();
+      String rightSideControls();
       String filterButton();
     }
 
@@ -60,7 +58,6 @@ public class PlayerTablePanel extends Composite implements
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
   private final TextBox nameSearch;
-  private final CheckBox useForAutoPick;
   private final Button copyRanks;
   private final UnclaimedPlayerTable table;
 
@@ -71,6 +68,10 @@ public class PlayerTablePanel extends Composite implements
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
+    FlowPanel rightSideControls = new FlowPanel();
+    rightSideControls.addStyleName(CSS.rightSideControls());
+    container.add(rightSideControls);
+
     CheckBox hideInjuries = new CheckBox("Hide injured players");
     hideInjuries.setStyleName(CSS.hideInjuries());
     hideInjuries.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -79,9 +80,34 @@ public class PlayerTablePanel extends Composite implements
         table.setHideInjuries(event.getValue());
       }
     });
-    container.add(hideInjuries);
+    rightSideControls.add(hideInjuries);
+
+    copyRanks = new Button("Copy this order to MyRank");
+    copyRanks.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        TableSpec tableSpec = table.getTableSpec();
+        if (tableSpec.getSortCol() != PlayerColumn.MYRANK) {
+          eventBus.fireEvent(new CopyAllPlayerRanksEvent(tableSpec));
+        }
+      }
+    });
+    rightSideControls.add(copyRanks);
+
+    updateCopyRanksEnabled();
+    table.addColumnSortHandler(new Handler() {
+      @Override
+      public void onColumnSort(ColumnSortEvent event) {
+        updateCopyRanksEnabled();
+      }
+    });
+
+    FlowPanel buttonPanels = new FlowPanel();
+    buttonPanels.addStyleName(CSS.headerLine());
+    container.add(buttonPanels);
 
     HorizontalPanel dataSetButtonPanel = new HorizontalPanel();
+    dataSetButtonPanel.addStyleName(CSS.headerElement());
     for (final PlayerDataSet playerDataSet : PlayerDataSet.values()) {
       ToggleButton button = new ToggleButton(playerDataSet.getDisplayName(), new ClickHandler() {
         @Override
@@ -91,15 +117,16 @@ public class PlayerTablePanel extends Composite implements
         }
       });
       button.addStyleName(CSS.filterButton());
-      if (dataSetButtons.isEmpty()) {
+      if (playerDataSet == CBSSPORTS) {
         button.setDown(true);
       }
       dataSetButtons.put(playerDataSet, button);
       dataSetButtonPanel.add(button);
     }
-    container.add(dataSetButtonPanel);
+    buttonPanels.add(dataSetButtonPanel);
 
     HorizontalPanel filterButtons = new HorizontalPanel();
+    filterButtons.addStyleName(CSS.headerElement());
     for (final Position position : POSITIONS) {
       ToggleButton button = new ToggleButton(position == null ? "All" : position.getShortName(),
           new ClickHandler() {
@@ -126,9 +153,17 @@ public class PlayerTablePanel extends Composite implements
       filterButtons.add(button);
     }
     table.setPositionFilter(UNF);
-    container.add(filterButtons);
+    buttonPanels.add(filterButtons);
 
-    container.add(new InlineLabel("Search: "));
+    FlowPanel pagerAndSearch = new FlowPanel();
+    SimplePager pager = new SimplePager();
+    pager.addStyleName(CSS.headerElement());
+    pager.setDisplay(table);
+    pagerAndSearch.add(pager);
+
+    FlowPanel search = new FlowPanel();
+    search.addStyleName(CSS.headerElement());
+    search.add(new InlineLabel("Search: "));
     nameSearch = new TextBox();
     final InlineLabel clear = new InlineLabel(" X ");
     clear.setVisible(false);
@@ -147,49 +182,14 @@ public class PlayerTablePanel extends Composite implements
         table.setNameFilter("");
       }
     });
-    container.add(nameSearch);
-    container.add(clear);
-
-    useForAutoPick = new CheckBox("Use this order for auto-pick");
-    useForAutoPick.setStyleName(CSS.autoPick());
-    useForAutoPick.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-      @Override
-      public void onValueChange(ValueChangeEvent<Boolean> event) {
-        eventBus.fireEvent(new SetAutoPickTableSpecEvent(table.getTableSpec()));
-      }
-    });
-    container.add(useForAutoPick);
-
-    copyRanks = new Button("Copy this order to MyRank");
-    copyRanks.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent event) {
-        TableSpec tableSpec = table.getTableSpec();
-        if (tableSpec.getSortCol() != PlayerColumn.MYRANK) {
-          eventBus.fireEvent(new CopyAllPlayerRanksEvent(tableSpec));
-        }
-      }
-    });
-    container.add(copyRanks);
-
-    updateCopyRanksEnabled();
-    table.addColumnSortHandler(new Handler() {
-      @Override
-      public void onColumnSort(ColumnSortEvent event) {
-        updateCopyRanksEnabled();
-      }
-    });
-
-    SimplePager pager = new SimplePager();
-    pager.setDisplay(table);
-    container.add(pager);
+    search.add(nameSearch);
+    search.add(clear);
+    pagerAndSearch.add(search);
+    container.add(pagerAndSearch);
 
     container.add(table);
 
     initWidget(container);
-
-    eventBus.addHandler(IsUsersAutoPickTableSpecEvent.TYPE, this);
-    eventBus.addHandler(LoginEvent.TYPE, this);
   }
 
   private void updateCopyRanksEnabled() {
@@ -200,16 +200,5 @@ public class PlayerTablePanel extends Composite implements
     for (Entry<PlayerDataSet, ToggleButton> buttonEntry : dataSetButtons.entrySet()) {
       buttonEntry.getValue().setDown(buttonEntry.getKey() == playerDataSet);
     }
-  }
-
-  @Override
-  public void onSetAutoPickTableSpec(IsUsersAutoPickTableSpecEvent event) {
-    useForAutoPick.setValue(event.isUsersAutoPickTableSpec());
-    useForAutoPick.setEnabled(!event.isUsersAutoPickTableSpec());
-  }
-
-  @Override
-  public void onLogin(LoginEvent event) {
-    updateDataSetButtons(event.getLoginResponse().getInitialTableSpec().getPlayerDataSet());
   }
 }

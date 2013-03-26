@@ -20,5 +20,4 @@ public interface LoginResponse {
   void setTeams(Map<String, Team> teams);
 
   TableSpec getInitialTableSpec();
-  void setInitialTableSpec(TableSpec tableSpec);
 }

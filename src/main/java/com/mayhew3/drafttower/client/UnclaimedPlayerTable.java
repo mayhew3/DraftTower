@@ -149,7 +149,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
-    tableSpec.setSortCol(PlayerColumn.RANK);
+    tableSpec.setSortCol(PlayerColumn.MYRANK);
     tableSpec.setAscending(true);
 
     addStyleName(BASE_CSS.table());
@@ -318,7 +318,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
   @Override
   public void onLogin(LoginEvent event) {
-    tableSpec = event.getLoginResponse().getInitialTableSpec();
     ColumnSortList columnSortList = getColumnSortList();
     columnSortList.clear();
     columnSortList.push(new ColumnSortInfo(playerColumns.get(tableSpec.getSortCol()),

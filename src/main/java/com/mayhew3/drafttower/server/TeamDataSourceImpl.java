@@ -1,18 +1,16 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mayhew3.drafttower.shared.*;
+import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -130,79 +128,6 @@ public class TeamDataSourceImpl implements TeamDataSource {
       connection.close();
     } catch (SQLException e) {
       logger.log(Level.SEVERE, "Unable to close connection after use.", e);
-    }
-  }
-
-  @Override
-  public Map<Integer,TableSpec> getAutoPickTableSpecs(int numTeams) {
-    String sql = "SELECT * FROM autoPickSources";
-
-    HashMap<Integer,TableSpec> autoPickTableSpecs = Maps.newHashMap();
-
-    ResultSet resultSet = null;
-    try {
-      resultSet = executeQuery(sql);
-      while (resultSet.next()) {
-        int teamID = resultSet.getInt("teamID");
-
-        String dataSetName = resultSet.getString("DataSet");
-        String sortColumnName = resultSet.getString("SortColumn");
-
-        Optional<PlayerDataSet> dataSet = PlayerDataSet.getDataSetWithName(dataSetName);
-        Optional<PlayerColumn> sortColumn = PlayerColumn.getColumnWithDBName(sortColumnName);
-
-        if (!dataSet.isPresent()) {
-          throw new RuntimeException("Team " + teamID + " is linked to unrecognized DataSet '" + dataSetName + "'.");
-        }
-        if (!sortColumn.isPresent()) {
-          throw new RuntimeException("Team " + teamID + " is linked to unrecognized Sort Column '" + sortColumnName + "'.");
-        }
-
-        TableSpec tableSpec = beanFactory.createTableSpec().as();
-        tableSpec.setPlayerDataSet(dataSet.get());
-        tableSpec.setSortCol(sortColumn.get());
-        tableSpec.setAscending(resultSet.getBoolean("Ascending"));
-
-        autoPickTableSpecs.put(teamID, tableSpec);
-      }
-
-    } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBSSPORTS, as backup.");
-      autoPickTableSpecs = Maps.newHashMap();
-      for (int i = 1; i <= numTeams; i++) {
-        TableSpec tableSpec = beanFactory.createTableSpec().as();
-        tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
-        tableSpec.setSortCol(PlayerColumn.RANK);
-        tableSpec.setAscending(true);
-        autoPickTableSpecs.put(i, tableSpec);
-      }
-    } finally {
-      close(resultSet);
-    }
-
-    if (autoPickTableSpecs.size() != numTeams) {
-      throw new RuntimeException("Expected " + numTeams + " autopick preferences, but there are only " + autoPickTableSpecs.size() + ".");
-    }
-
-    return autoPickTableSpecs;
-  }
-
-  @Override
-  public void updateAutoPickTable(int teamID, TableSpec tableSpec) {
-    String sql = "UPDATE autoPickSources " +
-        "SET DataSet = ?, SortColumn = ?, Ascending = ? " +
-        "WHERE TeamID = ?";
-
-    Statement statement = null;
-    try {
-      statement = prepareStatementUpdate(sql,
-          tableSpec.getPlayerDataSet().getDisplayName(),
-          tableSpec.getSortCol().getColumnName(),
-          tableSpec.isAscending(), teamID);
-    } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input.", e);
-    } finally {
-      close(statement);
     }
   }
 
