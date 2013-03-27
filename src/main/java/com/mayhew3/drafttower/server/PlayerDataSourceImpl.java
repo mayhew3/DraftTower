@@ -220,7 +220,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
         "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
-        "  (select format(coalesce(max(Rating), 0), 3)\n" +
+        "  (select round(coalesce(max(Rating), 0), 3)\n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
         "   and batting = 0\n" +
@@ -236,7 +236,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS K,\n" +
         "  NULL AS S,\n" +
         "  Rank, Draft, DataSource, \n" +
-        "  (select format(coalesce(max(Rating), 0), 3) \n" +
+        "  (select round(coalesce(max(Rating), 0), 3) \n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsBatting.ID\n" +
         "   and batting = 1 \n" +
