@@ -51,6 +51,10 @@ td:last-child > .filterButton {
   border-right-width: 1px;
 }
 
+.autoPick {
+  display: block;
+}
+
 .headerElement {
   display: inline-block;
   margin-right: 10px;

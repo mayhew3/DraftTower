@@ -1,16 +1,18 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.Team;
+import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -134,6 +136,58 @@ public class TeamDataSourceImpl implements TeamDataSource {
     }
   }
 
+  @Override
+  public Map<Integer,PlayerDataSet> getAutoPickWizards() {
+    String sql = "SELECT * FROM autoPickWizards";
+
+    HashMap<Integer,PlayerDataSet> autoPickWizards = Maps.newHashMap();
+
+    ResultSet resultSet = null;
+    try {
+      resultSet = executeQuery(sql);
+      while (resultSet.next()) {
+        int teamID = resultSet.getInt("teamID");
+
+        String dataSetName = resultSet.getString("WizardTable");
+
+        if (dataSetName != null) {
+          Optional<PlayerDataSet> dataSet = PlayerDataSet.getDataSetWithName(dataSetName);
+
+          if (!dataSet.isPresent()) {
+            throw new RuntimeException("Team " + teamID + " is linked to unrecognized DataSet '" + dataSetName + "'.");
+          }
+
+          autoPickWizards.put(teamID, dataSet.get());
+        }
+      }
+
+    } catch (SQLException e) {
+      logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBSSPORTS, as backup.");
+    } finally {
+      close(resultSet);
+    }
+
+    return autoPickWizards;
+  }
+
+  @Override
+  public void updateAutoPickWizard(int teamID, PlayerDataSet wizardTable) {
+    String sql = "UPDATE autoPickWizards " +
+        "SET WizardTable = ? " +
+        "WHERE TeamID = ?";
+    String wizardTableName = wizardTable == null ? "" : wizardTable.getDisplayName();
+
+    Statement statement = null;
+    try {
+      statement = prepareStatementUpdate(sql,
+          wizardTableName, teamID);
+    } catch (SQLException e) {
+      logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input, wizardTable is '" + wizardTableName + "'", e);
+    } finally {
+      close(statement);
+    }
+  }
+
 
   protected Statement prepareStatementUpdate(String sql, Object... params) throws SQLException {
     PreparedStatement preparedStatement = prepareStatement(sql, Lists.newArrayList(params));
@@ -148,7 +202,11 @@ public class TeamDataSourceImpl implements TeamDataSource {
     int i = 1;
     for (Object param : params) {
       if (param instanceof String) {
-        preparedStatement.setString(i, (String) param);
+        if ("".equals(param)) {
+          preparedStatement.setNull(i, Types.VARCHAR);
+        } else {
+          preparedStatement.setString(i, (String) param);
+        }
       } else if (param instanceof Integer) {
         preparedStatement.setInt(i, (Integer) param);
       } else if (param instanceof Long) {

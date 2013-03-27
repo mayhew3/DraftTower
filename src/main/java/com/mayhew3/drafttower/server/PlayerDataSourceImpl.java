@@ -159,17 +159,24 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(final Integer team, Set<Position> openPositions) throws SQLException {
+  public long getBestPlayerId(PlayerDataSet wizardTable, final Integer team, Set<Position> openPositions) throws SQLException {
 
     String sql = "select PlayerID, Eligibility from ";
     sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true);
 
     List<String> filters = Lists.newArrayList();
+    addDataSetFilter(filters, wizardTable);
+
     if (!filters.isEmpty()) {
       sql += " where " + Joiner.on(" and ").join(filters) + " ";
     }
 
-    sql += "order by MyRank asc;";
+    if (wizardTable == null) {
+      sql += " order by MyRank asc";
+    } else {
+      String wizardColumnName = PlayerColumn.WIZARD.getColumnName();
+      sql += " order by case when " + wizardColumnName + " is null then 1 else 0 end, " + wizardColumnName + " desc ";
+    }
 
     ResultSet resultSet = null;
     try {
@@ -298,6 +305,14 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sourceFilter = tableSpec.getPlayerDataSet().getDisplayName();
     if (sourceFilter != null) {
       filters.add("Source = '" + sourceFilter + "' ");
+    }
+  }
+
+  private void addDataSetFilter(List<String> filters, PlayerDataSet playerDataSet) {
+    if (playerDataSet == null) {
+      filters.add("Source = '" + PlayerDataSet.CBSSPORTS.getDisplayName() + "' ");
+    } else {
+      filters.add("Source = '" + playerDataSet.getDisplayName() + "' ");
     }
   }
 

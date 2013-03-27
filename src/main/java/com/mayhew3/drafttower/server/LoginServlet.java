@@ -5,8 +5,10 @@ import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
+import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.LoginResponse;
+import com.mayhew3.drafttower.shared.PlayerDataSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,14 +28,17 @@ public class LoginServlet extends HttpServlet {
   private final TeamDataSource teamDataSource;
   private final BeanFactory beanFactory;
   private final Map<String, Integer> teamTokens;
+  private final Map<Integer, PlayerDataSet> autoPickWizardTables;
 
   @Inject
   public LoginServlet(TeamDataSource teamDataSource,
       BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens) {
+      @TeamTokens Map<String, Integer> teamTokens,
+      @AutoPickWizards Map<Integer, PlayerDataSet> autoPickWizardTables) {
     this.teamDataSource = teamDataSource;
     this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
+    this.autoPickWizardTables = autoPickWizardTables;
   }
 
   @Override
@@ -46,6 +51,7 @@ public class LoginServlet extends HttpServlet {
       LoginResponse response = responseBean.as();
       response.setTeam(team);
       response.setTeamToken(teamToken);
+      response.setInitialWizardTable(autoPickWizardTables.get(team));
       try {
         response.setTeams(teamDataSource.getTeams());
         response.setCommissionerTeam(teamDataSource.isCommissionerTeam(team));

@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
@@ -15,4 +16,8 @@ public interface TeamDataSource {
   boolean isCommissionerTeam(int team) throws SQLException;
 
   Map<String, Team> getTeams() throws SQLException;
+
+  Map<Integer,PlayerDataSet> getAutoPickWizards();
+
+  void updateAutoPickWizard(int teamID, PlayerDataSet wizardTable);
 }

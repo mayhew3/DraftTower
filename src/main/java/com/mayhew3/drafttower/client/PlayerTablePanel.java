@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,11 +16,15 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
+import com.mayhew3.drafttower.client.events.IsUsersAutoPickWizardTableEvent;
+import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.TableSpec;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -29,7 +34,9 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * Widget containing player table, position filter buttons, and paging controls.
  */
-public class PlayerTablePanel extends Composite {
+public class PlayerTablePanel extends Composite implements
+    IsUsersAutoPickWizardTableEvent.Handler,
+    LoginEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -38,6 +45,7 @@ public class PlayerTablePanel extends Composite {
       String headerLine();
       String hideInjuries();
       String rightSideControls();
+      String autoPick();
       String filterButton();
     }
 
@@ -58,6 +66,7 @@ public class PlayerTablePanel extends Composite {
   private ToggleButton allButton;
   private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
   private final TextBox nameSearch;
+  private final CheckBox useForAutoPick;
   private final Button copyRanks;
   private final UnclaimedPlayerTable table;
 
@@ -81,6 +90,22 @@ public class PlayerTablePanel extends Composite {
       }
     });
     rightSideControls.add(hideInjuries);
+
+
+    useForAutoPick = new CheckBox("Use this wizard for auto-pick");
+    useForAutoPick.setStyleName(CSS.autoPick());
+    useForAutoPick.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        if (event.getValue()) {
+          eventBus.fireEvent(new SetAutoPickWizardEvent(table.getTableSpec().getPlayerDataSet()));
+        } else {
+          eventBus.fireEvent(new SetAutoPickWizardEvent(null));
+        }
+      }
+    });
+    rightSideControls.add(useForAutoPick);
+
 
     copyRanks = new Button("Copy this order to MyRank");
     copyRanks.addClickHandler(new ClickHandler() {
@@ -190,15 +215,36 @@ public class PlayerTablePanel extends Composite {
     container.add(table);
 
     initWidget(container);
+
+    eventBus.addHandler(IsUsersAutoPickWizardTableEvent.TYPE, this);
+    eventBus.addHandler(LoginEvent.TYPE, this);
   }
 
   private void updateCopyRanksEnabled() {
-    copyRanks.setEnabled(table.getSortedColumn() != PlayerColumn.MYRANK);
+    List<PlayerColumn> invalidColumns = Lists.newArrayList(PlayerColumn.WIZARD, PlayerColumn.MYRANK);
+    copyRanks.setEnabled(!invalidColumns.contains(table.getSortedColumn()));
   }
 
   private void updateDataSetButtons(PlayerDataSet playerDataSet) {
     for (Entry<PlayerDataSet, ToggleButton> buttonEntry : dataSetButtons.entrySet()) {
       buttonEntry.getValue().setDown(buttonEntry.getKey() == playerDataSet);
+    }
+  }
+
+  @Override
+  public void onSetAutoPickWizard(IsUsersAutoPickWizardTableEvent event) {
+    boolean usersAutoPickWizardTable = event.isUsersAutoPickWizardTable();
+    boolean shouldBeEnabled = usersAutoPickWizardTable || table.getSortedColumn().equals(PlayerColumn.WIZARD);
+
+    useForAutoPick.setValue(usersAutoPickWizardTable);
+    useForAutoPick.setEnabled(shouldBeEnabled);
+  }
+
+  @Override
+  public void onLogin(LoginEvent event) {
+    PlayerDataSet initialWizardTable = event.getLoginResponse().getInitialWizardTable();
+    if (initialWizardTable != null) {
+      updateDataSetButtons(initialWizardTable);
     }
   }
 }

@@ -322,6 +322,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
   @Override
   public void onLogin(LoginEvent event) {
+    PlayerDataSet initialWizardTable = event.getLoginResponse().getInitialWizardTable();
+    if (initialWizardTable != null) {
+      tableSpec.setPlayerDataSet(initialWizardTable);
+      tableSpec.setSortCol(PlayerColumn.WIZARD);
+      tableSpec.setAscending(false);
+    }
+
     ColumnSortList columnSortList = getColumnSortList();
     columnSortList.clear();
     columnSortList.push(new ColumnSortInfo(playerColumns.get(tableSpec.getSortCol()),

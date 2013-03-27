@@ -19,7 +19,7 @@ public interface PlayerDataSource {
 
   void populateDraftPick(DraftPick draftPick) throws SQLException;
 
-  long getBestPlayerId(Integer team, Set<Position> openPositions) throws SQLException;
+  long getBestPlayerId(PlayerDataSet wizardTable, Integer team, Set<Position> openPositions) throws SQLException;
 
   void changePlayerRank(ChangePlayerRankRequest request);
 

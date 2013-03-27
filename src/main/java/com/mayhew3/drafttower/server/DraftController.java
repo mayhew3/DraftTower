@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
 import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -36,8 +37,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
-  private static final long PICK_LENGTH_MS = 15 * 1000;
-  private static final long ROBOT_PICK_LENGTH_MS = 10 * 1000;
+  private static final long PICK_LENGTH_MS = 20 * 1000;
+  private static final long ROBOT_PICK_LENGTH_MS = 7 * 1000;
 
   private final Lock lock = new ReentrantLock();
 
@@ -49,6 +50,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final Map<String, Integer> teamTokens;
   private final ListMultimap<Integer, Integer> keepers;
   private final ListMultimap<Integer, QueueEntry> queues;
+  private final Map<Integer, PlayerDataSet> autoPickWizardTables;
 
   private final int numTeams;
 
@@ -67,6 +69,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       @TeamTokens Map<String, Integer> teamTokens,
       @Keepers ListMultimap<Integer, Integer> keepers,
       @Queues ListMultimap<Integer, QueueEntry> queues,
+      @AutoPickWizards Map<Integer, PlayerDataSet> autoPickWizardTables,
       @NumTeams int numTeams) throws SQLException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
@@ -75,6 +78,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
+    this.autoPickWizardTables = autoPickWizardTables;
     this.numTeams = numTeams;
     this.status = status;
     status.setConnectedTeams(Sets.<Integer>newHashSet());
@@ -155,7 +159,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private void doPick(final Integer team, long playerId, boolean auto, boolean keeper) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId(team,
+        playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(team),
+            team,
             RosterUtil.getOpenPositions(
                 Lists.newArrayList(Iterables.filter(status.getPicks(),
                     new Predicate<DraftPick>() {
@@ -193,7 +198,6 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
     Collection<Entry<Integer,QueueEntry>> queueEntries = queues.entries();
     synchronized (queues) {
-      // TODO(m3): persist to database
       for (Iterator<Entry<Integer, QueueEntry>> iterator = queueEntries.iterator(); iterator.hasNext();) {
         Entry<Integer, QueueEntry> entry = iterator.next();
         if (entry.getValue().getPlayerId() == playerId) {

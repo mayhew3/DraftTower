@@ -50,6 +50,11 @@ public class DraftTowerGinModule extends AbstractGinModule {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
+  public static @interface SetAutoPickWizardUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
   public static @interface QueuesUrl {}
 
   @BindingAnnotation
@@ -100,6 +105,14 @@ public class DraftTowerGinModule extends AbstractGinModule {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.COPY_ALL_PLAYER_RANKS_ENDPOINT)
+        .buildString();
+  }
+
+  @Provides @SetAutoPickWizardUrl
+  public String getSetAutoPickWizardTableUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.SET_AUTOPICK_WIZARD_ENDPOINT)
         .buildString();
   }
 

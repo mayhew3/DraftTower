@@ -11,9 +11,8 @@ import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
 import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.QueueEntry;
+import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
+import com.mayhew3.drafttower.shared.*;
 
 import javax.servlet.ServletException;
 import java.util.Map;
@@ -36,6 +35,11 @@ public class ServerTestSafeModule extends AbstractModule {
   @Provides @Singleton @Queues
   public ListMultimap<Integer, QueueEntry> getQueues() {
     return ArrayListMultimap.create();
+  }
+
+  @Provides @Singleton @AutoPickWizards
+  public Map<Integer, PlayerDataSet> getAutoPickWizardTables(TeamDataSource teamDataSource) {
+    return teamDataSource.getAutoPickWizards();
   }
 
   @Provides @Singleton

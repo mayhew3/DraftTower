@@ -19,5 +19,6 @@ public interface LoginResponse {
   Map<String, Team> getTeams();
   void setTeams(Map<String, Team> teams);
 
-  TableSpec getInitialTableSpec();
+  PlayerDataSet getInitialWizardTable();
+  void setInitialWizardTable(PlayerDataSet playerDataSet);
 }

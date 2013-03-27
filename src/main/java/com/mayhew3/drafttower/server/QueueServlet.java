@@ -64,7 +64,6 @@ public class QueueServlet extends HttpServlet {
         QueueEntry queueEntry = beanFactory.createQueueEntry().as();
         queueEntry.setPlayerId(request.getPlayerId());
         playerDataSource.populateQueueEntry(queueEntry);
-        // TODO(m3): persist to database
         Integer team = teamTokens.get(request.getTeamToken());
         if (request.getPosition() != null) {
           List<QueueEntry> queue = queues.get(team);
@@ -87,7 +86,6 @@ public class QueueServlet extends HttpServlet {
           AutoBeanCodex.decode(beanFactory, EnqueueOrDequeuePlayerRequest.class, requestStr).as();
       List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
       synchronized (queues) {
-        // TODO(m3): persist to database
         Iterables.removeIf(queue, new QueueEntryPredicate(request.getPlayerId()));
       }
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_REORDER)) {
@@ -97,7 +95,6 @@ public class QueueServlet extends HttpServlet {
       synchronized (queues) {
         int startIndex = Iterables.indexOf(queue, new QueueEntryPredicate(request.getPlayerId()));
         int endIndex = Math.min(request.getNewPosition(), queue.size());
-        // TODO(m3): persist to database
         if (startIndex < endIndex) {
           Collections.rotate(queue.subList(startIndex, endIndex + 1), -1);
         } else if (endIndex < startIndex) {

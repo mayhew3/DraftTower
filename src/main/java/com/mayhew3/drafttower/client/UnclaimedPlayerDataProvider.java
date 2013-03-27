@@ -10,9 +10,12 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.ChangePlayerRankUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.CopyPlayerRanksUrl;
+import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickWizardUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
+import com.mayhew3.drafttower.client.events.IsUsersAutoPickWizardTableEvent;
+import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.Set;
@@ -23,13 +26,16 @@ import java.util.Set;
 @Singleton
 public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> implements
     ChangePlayerRankEvent.Handler,
+    SetAutoPickWizardEvent.Handler,
     CopyAllPlayerRanksEvent.Handler {
 
   private final BeanFactory beanFactory;
   private final String playerInfoUrl;
   private final String changePlayerRankUrl;
   private final String copyPlayerRanksUrl;
+  private final String setAutoPickWizardUrl;
   private final TeamsInfo teamsInfo;
+  private final EventBus eventBus;
 
   @Inject
   public UnclaimedPlayerDataProvider(
@@ -37,15 +43,19 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       @UnclaimedPlayerInfoUrl String playerInfoUrl,
       @ChangePlayerRankUrl String changePlayerRankUrl,
       @CopyPlayerRanksUrl String copyPlayerRanksUrl,
+      @SetAutoPickWizardUrl String setAutoPickWizardUrl,
       TeamsInfo teamsInfo,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.playerInfoUrl = playerInfoUrl;
     this.changePlayerRankUrl = changePlayerRankUrl;
     this.copyPlayerRanksUrl = copyPlayerRanksUrl;
+    this.setAutoPickWizardUrl = setAutoPickWizardUrl;
     this.teamsInfo = teamsInfo;
+    this.eventBus = eventBus;
 
     eventBus.addHandler(ChangePlayerRankEvent.TYPE, this);
+    eventBus.addHandler(SetAutoPickWizardEvent.TYPE, this);
     eventBus.addHandler(CopyAllPlayerRanksEvent.TYPE, this);
   }
 
@@ -84,6 +94,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
                       response.getText()).as();
               display.setRowData(rowStart, playerListResponse.getPlayers());
               display.setRowCount(playerListResponse.getTotalPlayers(), true);
+              eventBus.fireEvent(new IsUsersAutoPickWizardTableEvent(playerListResponse.isUsersAutoPickWizardTable()));
               if (display instanceof UnclaimedPlayerTable) {
                 ((UnclaimedPlayerTable) display).computePageSize();
               }
@@ -171,4 +182,40 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public void onSetAutoPickWizard(SetAutoPickWizardEvent event) {
+    if (!teamsInfo.isLoggedIn()) {
+      return;
+    }
+    RequestBuilder requestBuilder =
+        new RequestBuilder(RequestBuilder.POST, setAutoPickWizardUrl);
+    try {
+      AutoBean<SetWizardTableRequest> requestBean =
+          beanFactory.createSetAutoPickWizardRequest();
+      SetWizardTableRequest request = requestBean.as();
+      request.setTeamToken(teamsInfo.getTeamToken());
+
+      request.setPlayerDataSet(event.getWizardTable());
+
+      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
+          new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+              for (HasData<Player> dataDisplay : getDataDisplays()) {
+                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
+              }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+              // TODO
+            }
+          });
+    } catch (RequestException e) {
+      // TODO
+      throw new RuntimeException(e);
+    }
+  }
+
 }
