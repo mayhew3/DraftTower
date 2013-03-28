@@ -223,6 +223,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
 
     String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
+        " APP as G, NULL AS AB, \n" +
         "  NULL AS OBP,\n" +
         "  NULL AS SLG,\n" +
         "  NULL AS RHR,\n" +
@@ -238,6 +239,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " FROM projectionsPitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
+        " G, AB, \n" +
         "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
         "  NULL AS INN,\n" +
         "  NULL AS ERA,\n" +

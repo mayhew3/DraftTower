@@ -132,7 +132,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   public static final PlayerColumn COLUMNS[] = {
-      NAME, MLB, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
+      NAME, MLB, ELIG, G, AB, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
   };
 
   private final Provider<Integer> queueAreaTopProvider;

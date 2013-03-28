@@ -1,14 +1,5 @@
 package com.mayhew3.drafttower.shared;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-
 /**
  * Player column values.
  */
@@ -16,6 +7,8 @@ public enum PlayerColumn {
   NAME("Name", "Name", "Player"),
   MLB("MLB", "MLB Team", "MLBTeam"),
   ELIG("Elig", "Eligible Positions", "Eligibility"),
+  G("G", "Games Played", "G"),
+  AB("AB", "At Bats", "AB"),
   OBP("OBP", "On-Base Percentage", "OBP"),
   SLG("SLG", "Slugging Percentage", "SLG"),
   RHR("R-HR", "Runs - Home Runs", "RHR"),
@@ -55,13 +48,4 @@ public enum PlayerColumn {
     return columnName;
   }
 
-  public static Optional<PlayerColumn> getColumnWithDBName(final String dbName) {
-    ArrayList<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
-    return Iterables.tryFind(playerColumns, new Predicate<PlayerColumn>() {
-      @Override
-      public boolean apply(PlayerColumn input) {
-        return dbName.equalsIgnoreCase(input.getColumnName());
-      }
-    });
-  }
 }
