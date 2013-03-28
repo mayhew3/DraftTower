@@ -47,7 +47,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String injury();
-      String nameCell();
+      String newsCell();
     }
 
     @Source("UnclaimedPlayerTable.css")
@@ -71,9 +71,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
       if (column != NAME && column != POS && column != ELIG) {
         setHorizontalAlignment(ALIGN_RIGHT);
-      }
-      if (column == NAME) {
-        setCellStyleNames(CSS.nameCell());
       }
 
       if (column == MYRANK) {
@@ -187,14 +184,24 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
               .appendHtmlConstant("</span>")
               .toSafeHtml());
       playerColumns.put(column, playerTableColumn);
-    }
 
-    playerColumns.get(NAME).setFieldUpdater(new FieldUpdater<Player, String>() {
-      @Override
-      public void update(int index, Player player, String value) {
-        eventBus.fireEvent(new ShowPlayerPopupEvent(player));
+      if (column == NAME) {
+        Column<Player, String> newsColumn = new Column<Player, String>(new ClickableTextCell()) {
+          @Override
+          public String getValue(Player object) {
+            return "?";
+          }
+        };
+        newsColumn.setFieldUpdater(new FieldUpdater<Player, String>() {
+          @Override
+          public void update(int index, Player player, String value) {
+            eventBus.fireEvent(new ShowPlayerPopupEvent(player));
+          }
+        });
+        newsColumn.setCellStyleNames(CSS.newsCell());
+        addColumn(newsColumn);
       }
-    });
+    }
 
     dataProvider.addDataDisplay(this);
     addColumnSortHandler(new AsyncHandler(this) {
@@ -242,8 +249,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   private AbstractCell<String> createCell(PlayerColumn column) {
     if (column == MYRANK) {
       return new EditTextCell();
-    } else if (column == NAME) {
-      return new ClickableTextCell();
     } else {
       return new TextCell();
     }
