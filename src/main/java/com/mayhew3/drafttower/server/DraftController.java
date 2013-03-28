@@ -37,7 +37,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
-  private static final long PICK_LENGTH_MS = 20 * 1000;
+  private static final long PICK_LENGTH_MS = 75 * 1000;
   private static final long ROBOT_PICK_LENGTH_MS = 7 * 1000;
 
   private final Lock lock = new ReentrantLock();
