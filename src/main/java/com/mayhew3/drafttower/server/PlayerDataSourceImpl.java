@@ -442,14 +442,14 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
-    String sql = "select Player,Eligibility " +
-        "from UnclaimedDisplayPlayersWithCatsByQuality " +
-        "where PlayerID = " + queueEntry.getPlayerId();
+    String sql = "select PlayerString,Eligibility " +
+        "from Players " +
+        "where ID = " + queueEntry.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
     try {
       resultSet.next();
-      queueEntry.setPlayerName(resultSet.getString("Player"));
+      queueEntry.setPlayerName(resultSet.getString("PlayerString"));
       queueEntry.setEligibilities(
           splitEligibilities(resultSet.getString("Eligibility")));
     } finally {
