@@ -11,15 +11,23 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
+import com.mayhew3.drafttower.shared.DraftPick;
+import com.mayhew3.drafttower.shared.DraftStatus;
 import gwtquery.plugins.draggable.client.DraggableOptions;
 import gwtquery.plugins.draggable.client.DraggableOptions.CursorAt;
 import gwtquery.plugins.draggable.client.DraggableOptions.RevertOption;
+import gwtquery.plugins.draggable.client.events.DragStartEvent;
+import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
+import gwtquery.plugins.draggable.client.events.DragStopEvent;
+import gwtquery.plugins.draggable.client.events.DragStopEvent.DragStopEventHandler;
 import gwtquery.plugins.droppable.client.DroppableOptions;
 import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.DroppableOptions.DroppableTolerance;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTable;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
+
+import java.util.List;
 
 /**
  * Class description...
@@ -43,16 +51,31 @@ abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
 
   protected final EventBus eventBus;
   private HandlerRegistration mouseMoveHandler;
+  private DraftStatus lastStatus;
+  private boolean isDragging;
+  private Runnable runAfterDrag;
 
   public PlayerTable(final EventBus eventBus) {
     this.eventBus = eventBus;
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
-  }
 
-  @Override
-  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    // TODO: limit to status updates that change player list?
-    setVisibleRangeAndClearData(getVisibleRange(), true);
+
+    addDragStartHandler(new DragStartEventHandler() {
+      @Override
+      public void onDragStart(DragStartEvent dragStartEvent) {
+        isDragging = true;
+      }
+    });
+    addDragStopHandler(new DragStopEventHandler() {
+      @Override
+      public void onDragStop(DragStopEvent dragStopEvent) {
+        isDragging = false;
+        if (runAfterDrag != null) {
+          runAfterDrag.run();
+          runAfterDrag = null;
+        }
+      }
+    });
   }
 
   protected void initDragging(DragAndDropColumn<T, String> column, DroppableFunction onDrop) {
@@ -124,4 +147,38 @@ abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
     }
     return droppable;
   }
+
+  @Override
+  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
+    boolean refresh = false;
+    if (lastStatus == null) {
+      refresh = true;
+    } else {
+      List<DraftPick> oldPicks = lastStatus.getPicks();
+      List<DraftPick> newPicks = event.getStatus().getPicks();
+      if (newPicks.size() < oldPicks.size()) {
+        // Pick backed out.
+        refresh = true;
+      }
+      if (newPicks.size() > oldPicks.size()) {
+        // Picks have been made.
+        refresh = needsRefresh(oldPicks, newPicks);
+      }
+    }
+    if (refresh) {
+      if (isDragging) {
+        runAfterDrag = new Runnable() {
+          @Override
+          public void run() {
+            setVisibleRangeAndClearData(getVisibleRange(), true);
+          }
+        };
+      } else {
+        setVisibleRangeAndClearData(getVisibleRange(), true);
+      }
+    }
+    lastStatus = event.getStatus();
+  }
+
+  protected abstract boolean needsRefresh(List<DraftPick> oldPicks, List<DraftPick> newPicks);
 }

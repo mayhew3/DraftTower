@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -32,16 +33,19 @@ public class QueueServlet extends HttpServlet {
   private final PlayerDataSource playerDataSource;
   private final Map<String, Integer> teamTokens;
   private final ListMultimap<Integer, QueueEntry> queues;
+  private final DraftStatus status;
 
   @Inject
   public QueueServlet(BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       @TeamTokens Map<String, Integer> teamTokens,
-      @Queues ListMultimap<Integer, QueueEntry> queues) {
+      @Queues ListMultimap<Integer, QueueEntry> queues,
+      DraftStatus status) {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
     this.queues = queues;
+    this.status = status;
   }
 
   @Override
@@ -58,13 +62,25 @@ public class QueueServlet extends HttpServlet {
 
       resp.getWriter().append(AutoBeanCodex.encode(response).getPayload());
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_ADD)) {
-      EnqueueOrDequeuePlayerRequest request =
+      final EnqueueOrDequeuePlayerRequest request =
           AutoBeanCodex.decode(beanFactory, EnqueueOrDequeuePlayerRequest.class, requestStr).as();
       try {
-        QueueEntry queueEntry = beanFactory.createQueueEntry().as();
-        queueEntry.setPlayerId(request.getPlayerId());
-        playerDataSource.populateQueueEntry(queueEntry);
         Integer team = teamTokens.get(request.getTeamToken());
+        final long playerId = request.getPlayerId();
+        if (Iterables.any(status.getPicks(), new Predicate<DraftPick>() {
+          @Override
+          public boolean apply(DraftPick pick) {
+            return pick.getPlayerId() == playerId;
+          }
+        })) {
+          List<QueueEntry> queue = queues.get(team);
+          synchronized (queues) {
+            Iterables.removeIf(queue, new QueueEntryPredicate(playerId));
+          }
+        }
+        QueueEntry queueEntry = beanFactory.createQueueEntry().as();
+        queueEntry.setPlayerId(playerId);
+        playerDataSource.populateQueueEntry(queueEntry);
         if (request.getPosition() != null) {
           List<QueueEntry> queue = queues.get(team);
           synchronized (queues) {

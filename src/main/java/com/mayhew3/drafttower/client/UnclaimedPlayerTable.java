@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
@@ -34,6 +36,7 @@ import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
@@ -47,7 +50,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String injury();
-      String nameCell();
+      String newsCell();
     }
 
     @Source("UnclaimedPlayerTable.css")
@@ -71,9 +74,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
       if (column != NAME && column != POS && column != ELIG) {
         setHorizontalAlignment(ALIGN_RIGHT);
-      }
-      if (column == NAME) {
-        setCellStyleNames(CSS.nameCell());
       }
 
       if (column == MYRANK) {
@@ -187,14 +187,24 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
               .appendHtmlConstant("</span>")
               .toSafeHtml());
       playerColumns.put(column, playerTableColumn);
-    }
 
-    playerColumns.get(NAME).setFieldUpdater(new FieldUpdater<Player, String>() {
-      @Override
-      public void update(int index, Player player, String value) {
-        eventBus.fireEvent(new ShowPlayerPopupEvent(player));
+      if (column == NAME) {
+        Column<Player, String> newsColumn = new Column<Player, String>(new ClickableTextCell()) {
+          @Override
+          public String getValue(Player object) {
+            return "?";
+          }
+        };
+        newsColumn.setFieldUpdater(new FieldUpdater<Player, String>() {
+          @Override
+          public void update(int index, Player player, String value) {
+            eventBus.fireEvent(new ShowPlayerPopupEvent(player));
+          }
+        });
+        newsColumn.setCellStyleNames(CSS.newsCell());
+        addColumn(newsColumn);
       }
-    });
+    }
 
     dataProvider.addDataDisplay(this);
     addColumnSortHandler(new AsyncHandler(this) {
@@ -242,8 +252,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   private AbstractCell<String> createCell(PlayerColumn column) {
     if (column == MYRANK) {
       return new EditTextCell();
-    } else if (column == NAME) {
-      return new ClickableTextCell();
     } else {
       return new TextCell();
     }
@@ -335,5 +343,21 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         tableSpec.isAscending()));
     setVisibleRangeAndClearData(getVisibleRange(), true);
     updateDropEnabled();
+  }
+
+  @Override
+  protected boolean needsRefresh(List<DraftPick> oldPicks, List<DraftPick> newPicks) {
+    for (int i = oldPicks.size(); i < newPicks.size(); i++) {
+      final long pickedPlayerId = newPicks.get(i).getPlayerId();
+      if (Iterables.any(getVisibleItems(), new Predicate<Player>() {
+        @Override
+        public boolean apply(Player player) {
+          return player.getPlayerId() == pickedPlayerId;
+        }
+      })) {
+        return true;
+      }
+    }
+    return false;
   }
 }
