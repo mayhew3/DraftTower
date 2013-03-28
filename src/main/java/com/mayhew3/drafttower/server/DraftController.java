@@ -119,6 +119,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
             throw new TerminateSocketException("Team already connected!");
           }
           status.getConnectedTeams().add(team);
+          status.getRobotTeams().remove(team);
           break;
         case START_DRAFT:
           newPick();

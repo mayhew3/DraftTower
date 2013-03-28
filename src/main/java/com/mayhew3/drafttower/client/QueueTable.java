@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
@@ -15,13 +16,17 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.QueueEntry;
+import com.mayhew3.drafttower.shared.QueueEntryPredicate;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
 import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
+
+import java.util.List;
 
 /**
  * Table displaying players queue.
@@ -150,7 +155,13 @@ public class QueueTable extends PlayerTable<QueueEntry> {
   }
 
   @Override
-  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    setVisibleRangeAndClearData(getVisibleRange(), true);
+  protected boolean needsRefresh(List<DraftPick> oldPicks, List<DraftPick> newPicks) {
+    for (int i = oldPicks.size(); i < newPicks.size(); i++) {
+      long pickedPlayerId = newPicks.get(i).getPlayerId();
+      if (Iterables.any(getVisibleItems(), new QueueEntryPredicate(pickedPlayerId))) {
+        return true;
+      }
+    }
+    return false;
   }
 }

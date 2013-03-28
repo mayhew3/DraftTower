@@ -2,10 +2,14 @@
   color: red;
 }
 
-.nameCell {
+.newsCell {
   cursor: pointer;
+  color: rgba(0, 0, 0, 0);
+  padding-left: 3px !important;
+  padding-right: 3px !important;
 }
 
-.nameCell:hover {
-  text-decoration: underline;
+tr:hover .newsCell {
+  visibility: visible;
+  color: black;
 }
