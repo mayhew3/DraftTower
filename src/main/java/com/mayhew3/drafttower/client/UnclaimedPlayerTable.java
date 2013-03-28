@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
@@ -34,6 +36,7 @@ import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
@@ -340,5 +343,21 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         tableSpec.isAscending()));
     setVisibleRangeAndClearData(getVisibleRange(), true);
     updateDropEnabled();
+  }
+
+  @Override
+  protected boolean needsRefresh(List<DraftPick> oldPicks, List<DraftPick> newPicks) {
+    for (int i = oldPicks.size(); i < newPicks.size(); i++) {
+      final long pickedPlayerId = newPicks.get(i).getPlayerId();
+      if (Iterables.any(getVisibleItems(), new Predicate<Player>() {
+        @Override
+        public boolean apply(Player player) {
+          return player.getPlayerId() == pickedPlayerId;
+        }
+      })) {
+        return true;
+      }
+    }
+    return false;
   }
 }
