@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
  */
 public enum PlayerColumn {
   NAME("Name", "Name", "Player"),
-  POS("Pos", "Position", "Position"),
+  MLB("MLB", "MLB Team", "MLBTeam"),
   ELIG("Elig", "Eligible Positions", "Eligibility"),
   OBP("OBP", "On-Base Percentage", "OBP"),
   SLG("SLG", "Slugging Percentage", "SLG"),

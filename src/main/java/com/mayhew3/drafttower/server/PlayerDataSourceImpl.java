@@ -68,7 +68,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         player.setCBSId(resultSet.getInt("CBS_ID"));
         ImmutableMap.Builder<PlayerColumn, String> columnMap = ImmutableMap.builder();
 
-        PlayerColumn[] playerColumns = PlayerColumn.values();
+        List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
+        playerColumns.remove(PlayerColumn.NAME);
+        columnMap.put(PlayerColumn.NAME, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+
         for (PlayerColumn playerColumn : playerColumns) {
           String columnString = resultSet.getString(playerColumn.getColumnName());
           if (columnString != null) {

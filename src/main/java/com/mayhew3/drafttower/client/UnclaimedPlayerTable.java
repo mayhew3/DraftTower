@@ -72,8 +72,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       setSortable(true);
       setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK || column == DRAFT);
 
-      if (column != NAME && column != POS && column != ELIG) {
-        setHorizontalAlignment(ALIGN_RIGHT);
+      if (column != NAME && column != MLB && column != ELIG) {
+        setHorizontalAlignment(ALIGN_CENTER);
       }
 
       if (column == MYRANK) {
@@ -132,7 +132,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   public static final PlayerColumn COLUMNS[] = {
-      NAME, POS, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
+      NAME, MLB, ELIG, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
   };
 
   private final Provider<Integer> queueAreaTopProvider;
