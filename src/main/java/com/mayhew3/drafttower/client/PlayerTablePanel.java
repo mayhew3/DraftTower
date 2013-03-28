@@ -3,6 +3,8 @@ package com.mayhew3.drafttower.client;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -246,5 +248,11 @@ public class PlayerTablePanel extends Composite implements
     if (initialWizardTable != null) {
       updateDataSetButtons(initialWizardTable);
     }
+    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+      @Override
+      public void execute() {
+        updateCopyRanksEnabled();
+      }
+    });
   }
 }
