@@ -176,6 +176,13 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       }
     }
 
+    for (DraftPick pick : status.getPicks()) {
+      if (pick.getPlayerId() == playerId) {
+        logger.log(SEVERE, "Player " + playerId + " was already picked");
+        return;
+      }
+    }
+
     logger.info("Team " + team
         + (auto ? " auto-picked" : " picked")
         + " player " + playerId);
