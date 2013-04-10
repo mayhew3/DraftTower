@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
 /**
@@ -72,6 +73,11 @@ public class PickWidget extends Composite implements
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     status = event.getStatus();
+    for (DraftPick pick : event.getStatus().getPicks()) {
+      if (pick.getPlayerId() == selectedPlayerId) {
+        clearSelectedPlayer();
+      }
+    }
     updateButtonsEnabled();
   }
 
