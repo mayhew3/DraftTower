@@ -14,7 +14,7 @@ public class LoginEvent extends GwtEvent<Handler> {
     void onLogin(LoginEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final LoginResponse loginResponse;
 

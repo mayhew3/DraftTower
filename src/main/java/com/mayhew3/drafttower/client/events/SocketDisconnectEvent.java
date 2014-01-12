@@ -13,7 +13,7 @@ public class SocketDisconnectEvent extends GwtEvent<Handler> {
     void onDisconnect(SocketDisconnectEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   @Override
   public Type<Handler> getAssociatedType() {

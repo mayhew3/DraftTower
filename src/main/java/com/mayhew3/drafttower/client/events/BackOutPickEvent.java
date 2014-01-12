@@ -13,7 +13,7 @@ public class BackOutPickEvent extends GwtEvent<Handler> {
     void onBackOutPick(BackOutPickEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   @Override
   public Type<Handler> getAssociatedType() {

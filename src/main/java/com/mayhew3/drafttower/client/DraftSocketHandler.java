@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.common.collect.Lists;
 import com.google.gwt.core.client.Duration;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
@@ -19,6 +18,7 @@ import com.mayhew3.drafttower.shared.ServletEndpoints;
 import com.sksamuel.gwt.websockets.Websocket;
 import com.sksamuel.gwt.websockets.WebsocketListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,11 +50,11 @@ public class DraftSocketHandler implements
   private DraftStatus draftStatus;
   private long latestStatusSerialId = -1;
 
-  private List<Integer> serverClockDiffs = Lists.newArrayList();
+  private List<Integer> serverClockDiffs = new ArrayList<>();
   private int serverClockDiff;
 
   private int backoff = INITIAL_BACKOFF_MS;
-  private List<String> queuedMsgs = Lists.newArrayList();
+  private List<String> queuedMsgs = new ArrayList<>();
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,

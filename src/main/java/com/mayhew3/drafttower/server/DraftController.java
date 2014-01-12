@@ -5,7 +5,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -81,9 +80,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.autoPickWizardTables = autoPickWizardTables;
     this.numTeams = numTeams;
     this.status = status;
-    status.setConnectedTeams(Sets.<Integer>newHashSet());
-    status.setRobotTeams(Sets.<Integer>newHashSet());
-    status.setPicks(Lists.<DraftPick>newArrayList());
+    status.setConnectedTeams(new HashSet<Integer>());
+    status.setRobotTeams(new HashSet<Integer>());
+    status.setPicks(new ArrayList<DraftPick>());
     playerDataSource.populateDraftStatus(status);
     int round = status.getPicks().size() / numTeams;
     status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
@@ -252,7 +251,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private Set<Integer> getNextPickKeeperTeams(int round) {
-    Set<Integer> nextPickKeeperTeams = Sets.newHashSet();
+    Set<Integer> nextPickKeeperTeams = new HashSet<>();
     if (round <= 3) {
       for (int i = 1; i <= numTeams; i++) {
         if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(i).size()) {

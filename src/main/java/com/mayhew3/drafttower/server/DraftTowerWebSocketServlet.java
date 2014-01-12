@@ -1,7 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -13,6 +11,8 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -96,8 +96,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   private final BeanFactory beanFactory;
 
-  private List<DraftCommandListener> listeners = Lists.newArrayList();
-  private Set<DraftTowerWebSocket> openSockets = Sets.newHashSet();
+  private List<DraftCommandListener> listeners = new ArrayList<>();
+  private Set<DraftTowerWebSocket> openSockets = new HashSet<>();
 
   @Inject
   public DraftTowerWebSocketServlet(BeanFactory beanFactory) {

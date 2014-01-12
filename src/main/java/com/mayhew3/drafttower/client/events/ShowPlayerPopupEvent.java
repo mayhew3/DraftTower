@@ -14,7 +14,7 @@ public class ShowPlayerPopupEvent extends GwtEvent<Handler> {
     void showPlayerPopup(ShowPlayerPopupEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final Player player;
 

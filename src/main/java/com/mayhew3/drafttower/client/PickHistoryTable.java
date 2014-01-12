@@ -64,7 +64,7 @@ public class PickHistoryTable extends CellTable<DraftPick> implements
       }
     }, "Player");
 
-    pickProvider = new ListDataProvider<DraftPick>();
+    pickProvider = new ListDataProvider<>();
     pickProvider.addDataDisplay(this);
 
     setRowStyles(new RowStyles<DraftPick>() {

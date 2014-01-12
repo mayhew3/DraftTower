@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.shared;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -83,7 +84,7 @@ public class RosterUtil {
   }
 
   public static Set<Position> getOpenPositions(List<DraftPick> picks) {
-    Set<Position> openPositions = Sets.newHashSet();
+    Set<Position> openPositions = EnumSet.noneOf(Position.class);
     int reservesAllowed = 0;
     doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
         ArrayListMultimap.<Position, DraftPick>create(), false, reservesAllowed);

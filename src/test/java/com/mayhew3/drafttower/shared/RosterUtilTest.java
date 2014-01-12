@@ -6,6 +6,7 @@ import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -150,13 +151,13 @@ public class RosterUtilTest {
 
   @Test
   public void testAllPositionsOpen() throws Exception {
-    Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH, P),
+    Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(ImmutableList.<DraftPick>of()));
   }
 
   @Test
   public void testNoPositionsOpen() throws Exception {
-    Assert.assertEquals(Sets.<Position>newHashSet(),
+    Assert.assertEquals(EnumSet.noneOf(Position.class),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, FB),
@@ -178,7 +179,7 @@ public class RosterUtilTest {
 
   @Test
   public void testGetOpenPositionsSingleEligibility() throws Exception {
-    Assert.assertEquals(Sets.newHashSet(FB, SB, SS, OF, DH, P),
+    Assert.assertEquals(EnumSet.of(FB, SB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, TB))));
@@ -186,15 +187,15 @@ public class RosterUtilTest {
 
   @Test
   public void testGetOpenPositionsMultiEligibility() throws Exception {
-    Assert.assertEquals(Sets.newHashSet(FB, SB, TB, SS, OF, DH, P),
+    Assert.assertEquals(EnumSet.of(FB, SB, TB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, SB, SS))));
-    Assert.assertEquals(Sets.newHashSet(C, FB, TB, OF, DH, P),
+    Assert.assertEquals(EnumSet.of(C, FB, TB, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, SB),
             pick(2, SB, SS))));
-    Assert.assertEquals(Sets.newHashSet(C, FB, TB, OF, DH, P),
+    Assert.assertEquals(EnumSet.of(C, FB, TB, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, SB, SS),
             pick(2, SB))));
@@ -202,7 +203,7 @@ public class RosterUtilTest {
 
   @Test
   public void testGetOpenPositionsMultiSlotPosition() throws Exception {
-    Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH, P),
+    Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, P),
             pick(2, P),
@@ -210,7 +211,7 @@ public class RosterUtilTest {
             pick(4, P),
             pick(5, P),
             pick(6, P))));
-    Assert.assertEquals(Sets.newHashSet(C, FB, SB, TB, SS, OF, DH),
+    Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH),
         RosterUtil.getOpenPositions(Lists.newArrayList(
             pick(1, P),
             pick(2, P),

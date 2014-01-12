@@ -13,7 +13,7 @@ public class ChangePlayerRankEvent extends GwtEvent<Handler> {
     void onChangePlayerRank(ChangePlayerRankEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final long playerId;
   private final int newRank;

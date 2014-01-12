@@ -15,7 +15,7 @@ public class CopyAllPlayerRanksEvent extends GwtEvent<Handler> {
     void onCopyAllPlayerRanks(CopyAllPlayerRanksEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final TableSpec tableSpec;
 

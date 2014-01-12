@@ -228,7 +228,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     });
     updateDropEnabled();
 
-    final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<Player>();
+    final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<>();
     setSelectionModel(selectionModel);
     getSelectionModel().addSelectionChangeHandler(new Handler() {
       @Override

@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 
@@ -8,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -29,7 +29,7 @@ public class CbsIdScraper {
   }
 
   public static Map<String, Integer> getPlayerStringToCbsIdMap() throws IOException {
-    final Map<String, Integer> playerStringToCbsId = Maps.newHashMap();
+    final Map<String, Integer> playerStringToCbsId = new HashMap<>();
     LineProcessor<Object> lineProcessor = new LineProcessor<Object>() {
       @Override
       public boolean processLine(String line) throws IOException {
