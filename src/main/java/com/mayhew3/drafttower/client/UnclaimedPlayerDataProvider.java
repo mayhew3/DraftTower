@@ -1,7 +1,9 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
@@ -66,49 +68,40 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, playerInfoUrl);
-    try {
-      AutoBean<UnclaimedPlayerListRequest> requestBean =
-          beanFactory.createUnclaimedPlayerListRequest();
-      UnclaimedPlayerListRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
+    AutoBean<UnclaimedPlayerListRequest> requestBean =
+        beanFactory.createUnclaimedPlayerListRequest();
+    UnclaimedPlayerListRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
 
-      final int rowStart = display.getVisibleRange().getStart();
-      int rowCount = display.getVisibleRange().getLength();
-      request.setRowCount(rowCount);
-      request.setRowStart(rowStart);
+    final int rowStart = display.getVisibleRange().getStart();
+    int rowCount = display.getVisibleRange().getLength();
+    request.setRowCount(rowCount);
+    request.setRowStart(rowStart);
 
-      if (display instanceof UnclaimedPlayerTable) {
-        UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
-        request.setPositionFilter(table.getPositionFilter());
-        request.setHideInjuries(table.getHideInjuries());
-        request.setTableSpec(table.getTableSpec());
-        request.setSearchQuery(table.getNameFilter());
-      }
-
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              UnclaimedPlayerListResponse playerListResponse =
-                  AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
-                      response.getText()).as();
-              display.setRowData(rowStart, playerListResponse.getPlayers());
-              display.setRowCount(playerListResponse.getTotalPlayers(), true);
-              eventBus.fireEvent(new IsUsersAutoPickWizardTableEvent(playerListResponse.isUsersAutoPickWizardTable()));
-              if (display instanceof UnclaimedPlayerTable) {
-                ((UnclaimedPlayerTable) display).computePageSize();
-              }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
+    if (display instanceof UnclaimedPlayerTable) {
+      UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
+      request.setPositionFilter(table.getPositionFilter());
+      request.setHideInjuries(table.getHideInjuries());
+      request.setTableSpec(table.getTableSpec());
+      request.setSearchQuery(table.getNameFilter());
     }
+
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            UnclaimedPlayerListResponse playerListResponse =
+                AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
+                    response.getText()).as();
+            display.setRowData(rowStart, playerListResponse.getPlayers());
+            display.setRowCount(playerListResponse.getTotalPlayers(), true);
+            eventBus.fireEvent(new IsUsersAutoPickWizardTableEvent(playerListResponse.isUsersAutoPickWizardTable()));
+            if (display instanceof UnclaimedPlayerTable) {
+              ((UnclaimedPlayerTable) display).computePageSize();
+            }
+          }
+        });
   }
 
   @Override
@@ -118,34 +111,25 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, changePlayerRankUrl);
-    try {
-      AutoBean<ChangePlayerRankRequest> requestBean =
-          beanFactory.createChangePlayerRankRequest();
-      ChangePlayerRankRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
+    AutoBean<ChangePlayerRankRequest> requestBean =
+        beanFactory.createChangePlayerRankRequest();
+    ChangePlayerRankRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
 
-      request.setPlayerId(event.getPlayerId());
-      request.setNewRank(event.getNewRank());
-      request.setPrevRank(event.getPrevRank());
+    request.setPlayerId(event.getPlayerId());
+    request.setNewRank(event.getNewRank());
+    request.setPrevRank(event.getPrevRank());
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              for (HasData<Player> dataDisplay : getDataDisplays()) {
-                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-              }
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            for (HasData<Player> dataDisplay : getDataDisplays()) {
+              dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+          }
+        });
   }
 
   @Override
@@ -154,33 +138,24 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       return;
     }
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, copyPlayerRanksUrl);
-    try {
-      AutoBean<CopyAllPlayerRanksRequest> requestBean =
-          beanFactory.createCopyAllPlayerRanksRequest();
-      CopyAllPlayerRanksRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
+    AutoBean<CopyAllPlayerRanksRequest> requestBean =
+        beanFactory.createCopyAllPlayerRanksRequest();
+    CopyAllPlayerRanksRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
 
-      request.setTableSpec(event.getTableSpec());
+    request.setTableSpec(event.getTableSpec());
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              Set<HasData<Player>> dataDisplays = getDataDisplays();
-              for (HasData<Player> dataDisplay : dataDisplays) {
-                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-              }
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            Set<HasData<Player>> dataDisplays = getDataDisplays();
+            for (HasData<Player> dataDisplay : dataDisplays) {
+              dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+          }
+        });
   }
 
   @Override
@@ -190,32 +165,23 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, setAutoPickWizardUrl);
-    try {
-      AutoBean<SetWizardTableRequest> requestBean =
-          beanFactory.createSetAutoPickWizardRequest();
-      SetWizardTableRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
+    AutoBean<SetWizardTableRequest> requestBean =
+        beanFactory.createSetAutoPickWizardRequest();
+    SetWizardTableRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
 
-      request.setPlayerDataSet(event.getWizardTable());
+    request.setPlayerDataSet(event.getWizardTable());
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              for (HasData<Player> dataDisplay : getDataDisplays()) {
-                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-              }
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            for (HasData<Player> dataDisplay : getDataDisplays()) {
+              dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+          }
+        });
   }
 
 }

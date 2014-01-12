@@ -3,7 +3,9 @@ package com.mayhew3.drafttower.client;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
@@ -55,40 +57,31 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, queuesUrl + "/" + ServletEndpoints.QUEUE_GET);
-    try {
-      AutoBean<GetPlayerQueueRequest> requestBean =
-          beanFactory.createPlayerQueueRequest();
-      GetPlayerQueueRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
+    AutoBean<GetPlayerQueueRequest> requestBean =
+        beanFactory.createPlayerQueueRequest();
+    GetPlayerQueueRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              GetPlayerQueueResponse queueResponse =
-                  AutoBeanCodex.decode(beanFactory, GetPlayerQueueResponse.class,
-                      response.getText()).as();
-              queue = queueResponse.getQueue();
-              if (queue.isEmpty()) {
-                QueueEntry fakeEntry = beanFactory.createQueueEntry().as();
-                fakeEntry.setPlayerId(-1);
-                fakeEntry.setPlayerName("Drag players here");
-                fakeEntry.setEligibilities(ImmutableList.<String>of());
-                queue = ImmutableList.of(fakeEntry);
-              }
-              display.setRowData(0, queue);
-              display.setRowCount(queue.size());
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            GetPlayerQueueResponse queueResponse =
+                AutoBeanCodex.decode(beanFactory, GetPlayerQueueResponse.class,
+                    response.getText()).as();
+            queue = queueResponse.getQueue();
+            if (queue.isEmpty()) {
+              QueueEntry fakeEntry = beanFactory.createQueueEntry().as();
+              fakeEntry.setPlayerId(-1);
+              fakeEntry.setPlayerName("Drag players here");
+              fakeEntry.setEligibilities(ImmutableList.<String>of());
+              queue = ImmutableList.of(fakeEntry);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+            display.setRowData(0, queue);
+            display.setRowCount(queue.size());
+          }
+        });
   }
 
   @Override
@@ -111,32 +104,23 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, queuesUrl + "/" + action);
-    try {
-      AutoBean<EnqueueOrDequeuePlayerRequest> requestBean =
-          beanFactory.createEnqueueOrDequeuePlayerRequest();
-      EnqueueOrDequeuePlayerRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
-      request.setPlayerId(playerId);
-      request.setPosition(position);
+    AutoBean<EnqueueOrDequeuePlayerRequest> requestBean =
+        beanFactory.createEnqueueOrDequeuePlayerRequest();
+    EnqueueOrDequeuePlayerRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
+    request.setPlayerId(playerId);
+    request.setPosition(position);
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              for (HasData<QueueEntry> dataDisplay : getDataDisplays()) {
-                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-              }
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            for (HasData<QueueEntry> dataDisplay : getDataDisplays()) {
+              dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+          }
+        });
   }
 
   @Override
@@ -146,32 +130,23 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, queuesUrl + "/" + ServletEndpoints.QUEUE_REORDER);
-    try {
-      AutoBean<ReorderPlayerQueueRequest> requestBean =
-          beanFactory.createReorderPlayerQueueRequest();
-      ReorderPlayerQueueRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
-      request.setPlayerId(event.getPlayerId());
-      request.setNewPosition(event.getNewPosition());
+    AutoBean<ReorderPlayerQueueRequest> requestBean =
+        beanFactory.createReorderPlayerQueueRequest();
+    ReorderPlayerQueueRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
+    request.setPlayerId(event.getPlayerId());
+    request.setNewPosition(event.getNewPosition());
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              for (HasData<QueueEntry> dataDisplay : getDataDisplays()) {
-                dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-              }
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            for (HasData<QueueEntry> dataDisplay : getDataDisplays()) {
+              dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+          }
+        });
   }
 
   public boolean isPlayerQueued(long playerId) {
