@@ -81,7 +81,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     @Override
     public void onClose(int closeCode, String message) {
       openSockets.remove(this);
-      if (closeCode != 1008) {
+      if (closeCode != 1008 && teamToken != null) {
         for (DraftCommandListener listener : listeners) {
           listener.onClientDisconnected(teamToken);
         }
