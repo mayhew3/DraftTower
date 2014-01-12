@@ -27,8 +27,8 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
     DraftStatusChangedEvent.Handler {
 
   class PickAndPosition {
-    private DraftPick pick;
-    private Position position;
+    private final DraftPick pick;
+    private final Position position;
 
     private PickAndPosition(DraftPick pick, Position position) {
       this.pick = pick;
@@ -38,7 +38,7 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
 
   private final TeamsInfo teamsInfo;
 
-  private ListDataProvider<PickAndPosition> rosterProvider;
+  private final ListDataProvider<PickAndPosition> rosterProvider;
 
   @Inject
   public MyRosterTable(TeamsInfo teamsInfo,

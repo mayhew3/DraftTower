@@ -32,7 +32,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private final BeanFactory beanFactory;
   private final DraftStatus draftStatus;
   private final Map<String, Integer> teamTokens;
-  private int numTeams;
+  private final int numTeams;
 
   @Inject
   public PlayerDataSourceImpl(DataSource db,

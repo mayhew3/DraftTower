@@ -3,7 +3,7 @@
   <component name="WebContextManager">
     <option name="state">
       <map>
-        <entry key="file://$PROJECT_DIR$/src/main/java/com/mayhew3/drafttower/client/LoginWidget.css" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/java/com/mayhew3/drafttower/client" value="file://$PROJECT_DIR$/src/main/webapp" />
       </map>
     </option>
   </component>

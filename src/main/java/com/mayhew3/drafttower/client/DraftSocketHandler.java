@@ -50,11 +50,11 @@ public class DraftSocketHandler implements
   private DraftStatus draftStatus;
   private long latestStatusSerialId = -1;
 
-  private List<Integer> serverClockDiffs = new ArrayList<>();
+  private final List<Integer> serverClockDiffs = new ArrayList<>();
   private int serverClockDiff;
 
   private int backoff = INITIAL_BACKOFF_MS;
-  private List<String> queuedMsgs = new ArrayList<>();
+  private final List<String> queuedMsgs = new ArrayList<>();
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,

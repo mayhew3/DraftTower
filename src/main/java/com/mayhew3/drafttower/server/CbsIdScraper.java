@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class CbsIdScraper {
 
-  public static final Pattern PLAYER_REGEX = Pattern.compile("/players/playerpage/(\\d+)\">([^<]+)</a>([^<]+)");
+  private static final Pattern PLAYER_REGEX = Pattern.compile("/players/playerpage/(\\d+)\">([^<]+)</a>([^<]+)");
 
   public static void main(String[] args) throws Exception {
     FileWriter fileWriter = new FileWriter("database/cbsIds.csv");
@@ -28,7 +28,7 @@ public class CbsIdScraper {
     fileWriter.close();
   }
 
-  public static Map<String, Integer> getPlayerStringToCbsIdMap() throws IOException {
+  private static Map<String, Integer> getPlayerStringToCbsIdMap() throws IOException {
     final Map<String, Integer> playerStringToCbsId = new HashMap<>();
     LineProcessor<Object> lineProcessor = new LineProcessor<Object>() {
       @Override

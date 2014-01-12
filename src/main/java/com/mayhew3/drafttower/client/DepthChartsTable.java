@@ -28,7 +28,7 @@ import java.util.*;
 public class DepthChartsTable extends CellTable<Integer> implements
     DraftStatusChangedEvent.Handler {
 
-  private ListDataProvider<Integer> depthChartsProvider;
+  private final ListDataProvider<Integer> depthChartsProvider;
   private Map<Integer, Multimap<Position, DraftPick>> rosters;
 
   @Inject

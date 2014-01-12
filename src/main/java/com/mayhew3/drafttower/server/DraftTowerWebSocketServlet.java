@@ -96,8 +96,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   private final BeanFactory beanFactory;
 
-  private List<DraftCommandListener> listeners = new ArrayList<>();
-  private Set<DraftTowerWebSocket> openSockets = new HashSet<>();
+  private final List<DraftCommandListener> listeners = new ArrayList<>();
+  private final Set<DraftTowerWebSocket> openSockets = new HashSet<>();
 
   @Inject
   public DraftTowerWebSocketServlet(BeanFactory beanFactory) {

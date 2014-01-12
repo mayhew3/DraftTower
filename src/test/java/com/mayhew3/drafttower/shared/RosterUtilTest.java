@@ -15,6 +15,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * Tests for {@link RosterUtil}.
  */
+@SuppressWarnings("unchecked")
 public class RosterUtilTest {
 
   private static final BeanFactory beanFactory = AutoBeanFactorySource.create(BeanFactory.class);

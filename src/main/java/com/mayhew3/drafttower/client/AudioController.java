@@ -7,7 +7,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 /**
  * Controls audio clips.
@@ -16,7 +15,6 @@ public class AudioController extends Composite implements
     DraftStatusChangedEvent.Handler {
 
   private final TeamsInfo teamsInfo;
-  private final int numTeams;
   private final Audio onDeck;
   private final Audio onTheClock;
   private final Audio itsOver;
@@ -24,10 +22,8 @@ public class AudioController extends Composite implements
 
   @Inject
   public AudioController(TeamsInfo teamsInfo,
-      @NumTeams int numTeams,
       EventBus eventBus) {
     this.teamsInfo = teamsInfo;
-    this.numTeams = numTeams;
     FlowPanel container = new FlowPanel();
     container.setSize("0", "0");
 

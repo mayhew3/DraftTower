@@ -2,7 +2,6 @@ package com.mayhew3.drafttower.client;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -36,6 +35,7 @@ import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -131,17 +131,17 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     BASE_CSS.ensureInjected();
   }
 
-  public static final PlayerColumn COLUMNS[] = {
+  private static final PlayerColumn COLUMNS[] = {
       NAME, MLB, ELIG, G, AB, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
   };
 
   private final Provider<Integer> queueAreaTopProvider;
 
   private Position positionFilter;
-  private TableSpec tableSpec;
+  private final TableSpec tableSpec;
   private boolean hideInjuries;
   private String nameFilter;
-  private Map<PlayerColumn, PlayerTableColumn> playerColumns = Maps.newEnumMap(PlayerColumn.class);
+  private final Map<PlayerColumn, PlayerTableColumn> playerColumns = new EnumMap<>(PlayerColumn.class);
 
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -275,10 +275,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
   private boolean isSortedAscending() {
     ColumnSortList columnSortList = getColumnSortList();
-    if (columnSortList.size() > 0) {
-      return columnSortList.get(0).isAscending();
-    }
-    return false;
+    return columnSortList.size() > 0 && columnSortList.get(0).isAscending();
   }
 
   public Position getPositionFilter() {
@@ -305,12 +302,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
   }
 
+  @SuppressWarnings("unchecked")
   private void updateDropEnabled() {
     boolean dropEnabled = getSortedColumn() == MYRANK;
     for (int i = 0; i < getColumnCount(); i++) {
       Column<Player, ?> column = getColumn(i);
       if (column instanceof DragAndDropColumn) {
-        ((DragAndDropColumn) column).getDroppableOptions().setDisabled(!dropEnabled);
+        ((DragAndDropColumn<Player, ?>) column).getDroppableOptions().setDisabled(!dropEnabled);
       }
     }
   }

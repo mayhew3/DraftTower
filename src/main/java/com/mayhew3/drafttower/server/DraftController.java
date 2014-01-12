@@ -53,11 +53,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   private final int numTeams;
 
-  private DraftStatus status;
+  private final DraftStatus status;
   private long pausedPickTime;
 
-  private ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
-  private ScheduledFuture currentPickTimer;
+  private final ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
+  private ScheduledFuture<?> currentPickTimer;
 
   @Inject
   public DraftController(DraftTowerWebSocketServlet socketServlet,

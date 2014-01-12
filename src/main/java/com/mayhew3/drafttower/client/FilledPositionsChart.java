@@ -17,6 +17,7 @@ import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,8 +67,8 @@ public class FilledPositionsChart extends Composite implements
   };
 
   private final int numTeams;
-  private final Map<Position, InlineLabel> barLabels = Maps.newEnumMap(Position.class);
-  private final Map<Position, Label> bars = Maps.newEnumMap(Position.class);
+  private final Map<Position, InlineLabel> barLabels = new EnumMap<>(Position.class);
+  private final Map<Position, Label> bars = new EnumMap<>(Position.class);
 
   @Inject
   public FilledPositionsChart(@NumTeams int numTeams,

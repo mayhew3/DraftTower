@@ -16,7 +16,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
  */
 public class RosterUtil {
 
-  public static Map<Position, Integer> POSITIONS_AND_COUNTS = ImmutableMap.<Position, Integer>builder()
+  public static final Map<Position, Integer> POSITIONS_AND_COUNTS = ImmutableMap.<Position, Integer>builder()
       .put(C, 1)
       .put(FB, 1)
       .put(SB, 1)
@@ -28,7 +28,7 @@ public class RosterUtil {
       .put(RS, 6)
       .build();
 
-  private static List<Position> POSITIONS = Lists.newArrayList(
+  private static final List<Position> POSITIONS = Lists.newArrayList(
       C, FB, SB, TB, SS, OF, OF, OF, DH,
       P, P, P, P, P, P, P);
 

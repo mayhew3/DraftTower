@@ -16,8 +16,8 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.BarChart;
-import com.google.gwt.visualization.client.visualizations.BarChart.Options;
+import com.google.gwt.visualization.client.visualizations.corechart.*;
+import com.google.gwt.visualization.client.visualizations.corechart.CoreChart.Type;
 import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -93,7 +93,7 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
       public void run() {
         apiLoaded = true;
       }
-    }, BarChart.PACKAGE);
+    }, CoreChart.PACKAGE);
 
     addAttachHandler(new AttachEvent.Handler() {
       @Override
@@ -121,15 +121,20 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
 
   private Options getOptions(PlayerColumn graphStat) {
     Options options = Options.create();
+    options.setType(Type.BARS);
     options.setColors("#aa4643", "#4572a7");
-    options.setSize(400, 100);
-    options.setEnableTooltip(false);
-    options.setShowCategories(true);
+    options.setWidth(400);
+    options.setHeight(100);
+    options.set("enableInteractivity", false);
     options.setTitle(graphStat.getLongName());
-    options.setTitleFontSize(12);
+    TextStyle titleTextStyle = TextStyle.create();
+    titleTextStyle.setFontSize(12);
+    options.setTitleTextStyle(titleTextStyle);
     options.setLegend(LegendPosition.NONE);
-    options.setMin(0);
-    options.setMax(MAX_VALUES.get(graphStat));
+    AxisOptions hAxisOptions = AxisOptions.create();
+    hAxisOptions.setMinValue(0);
+    hAxisOptions.setMaxValue(MAX_VALUES.get(graphStat));
+    options.setHAxisOptions(hAxisOptions);
     return options;
   }
 

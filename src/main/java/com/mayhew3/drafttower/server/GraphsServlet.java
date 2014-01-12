@@ -42,7 +42,7 @@ public class GraphsServlet extends HttpServlet {
     String requestStr = CharStreams.toString(req.getReader());
     GetGraphsDataRequest request =
         AutoBeanCodex.decode(beanFactory, GetGraphsDataRequest.class, requestStr).as();
-    GraphsData response = null;
+    GraphsData response;
     try {
       response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
     } catch (SQLException e) {
