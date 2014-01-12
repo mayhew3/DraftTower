@@ -32,6 +32,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   public class DraftTowerWebSocket implements WebSocket.OnTextMessage {
 
+    private static final int MAX_RETRIES = 5;
+
     private Connection connection;
     private String teamToken;
 
@@ -46,11 +48,14 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     }
 
     public void sendMessage(String message) {
-      try {
-        connection.sendMessage(message);
-      } catch (IOException e) {
-        // TODO?
-        e.printStackTrace();
+      for (int i = 0; i < MAX_RETRIES; i++) {
+        try {
+          connection.sendMessage(message);
+          break;
+        } catch (IOException e) {
+          // retry...
+          e.printStackTrace();
+        }
       }
     }
 
@@ -60,7 +65,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
         try {
           connection.sendMessage(msg + ServletEndpoints.CLOCK_SYNC_SEP + System.currentTimeMillis());
         } catch (IOException e) {
-          // TODO?
+          // welp
           e.printStackTrace();
         }
       } else {
