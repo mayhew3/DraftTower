@@ -39,6 +39,9 @@ public class DraftSocketHandler implements
 
   private static final int CLOCK_SYNC_CYCLES = 5;
 
+  private static final int INITIAL_BACKOFF_MS = 5;
+  private static final int MAX_BACKOFF_MS = 5000;
+
   private final BeanFactory beanFactory;
   private final Websocket socket;
   private final TeamsInfo teamsInfo;
@@ -48,6 +51,9 @@ public class DraftSocketHandler implements
 
   private List<Integer> serverClockDiffs = Lists.newArrayList();
   private int serverClockDiff;
+
+  private int backoff = INITIAL_BACKOFF_MS;
+  private List<String> queuedMsgs = Lists.newArrayList();
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,
@@ -70,6 +76,7 @@ public class DraftSocketHandler implements
 
   @Override
   public void onOpen() {
+    backoff = INITIAL_BACKOFF_MS;
     eventBus.fireEvent(new SocketConnectEvent());
     sendDraftCommand(IDENTIFY);
     for (int i = 0; i < CLOCK_SYNC_CYCLES; i++) {
@@ -81,6 +88,10 @@ public class DraftSocketHandler implements
         }
       }, 2000 * i);
     }
+    for (String queuedMsg : queuedMsgs) {
+      sendMessage(queuedMsg);
+    }
+    queuedMsgs.clear();
   }
 
   @Override
@@ -96,7 +107,14 @@ public class DraftSocketHandler implements
   @Override
   public void onClose() {
     eventBus.fireEvent(new SocketDisconnectEvent());
-    // TODO: attempt reconnect?
+    Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+      @Override
+      public boolean execute() {
+        socket.open();
+        return false;
+      }
+    }, backoff);
+    backoff = Math.max(backoff * 2, MAX_BACKOFF_MS);
   }
 
   private void sendDraftCommand(DraftCommand.Command commandType) {
@@ -119,7 +137,11 @@ public class DraftSocketHandler implements
   }
 
   public void sendMessage(String msg) {
-    socket.send(msg);
+    if (socket.getState() == 1) {
+      socket.send(msg);
+    } else {
+      queuedMsgs.add(msg);
+    }
   }
 
   @Override
