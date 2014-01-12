@@ -19,6 +19,7 @@ public class AudioController extends Composite implements
   private final Audio onTheClock;
   private final Audio itsOver;
   private int lastTeam = -1;
+  private boolean itWasOver;
 
   @Inject
   public AudioController(TeamsInfo teamsInfo,
@@ -54,7 +55,10 @@ public class AudioController extends Composite implements
 
     DraftStatus status = event.getStatus();
     if (status.isOver()) {
-      itsOver.play();
+      if (!itWasOver) {
+        itsOver.play();
+      }
+      itWasOver = true;
     } else if (status.getCurrentPickDeadline() > 0 && status.getCurrentTeam() != lastTeam) {
       if (teamsInfo.isMyPick(status)) {
         onTheClock.play();
