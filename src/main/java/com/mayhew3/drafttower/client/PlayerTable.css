@@ -1,6 +1,7 @@
 .table {
   font-size: 90%;
   width: 100%;
+  cursor: default;
 }
 
 .table td,
