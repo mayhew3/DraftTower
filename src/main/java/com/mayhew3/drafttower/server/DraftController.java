@@ -371,6 +371,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private String getEncodedStatus() {
+    status.setSerialId(status.getSerialId() + 1);
     return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
   }
 }

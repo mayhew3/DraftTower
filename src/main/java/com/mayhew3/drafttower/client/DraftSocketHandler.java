@@ -48,6 +48,7 @@ public class DraftSocketHandler implements
   private final EventBus eventBus;
 
   private DraftStatus draftStatus;
+  private long latestStatusSerialId = -1;
 
   private List<Integer> serverClockDiffs = Lists.newArrayList();
   private int serverClockDiff;
@@ -100,7 +101,10 @@ public class DraftSocketHandler implements
       processClockSync(msg);
     } else {
       draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
-      eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
+      if (latestStatusSerialId < draftStatus.getSerialId()) {
+        eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
+        latestStatusSerialId = draftStatus.getSerialId();
+      }
     }
   }
 
