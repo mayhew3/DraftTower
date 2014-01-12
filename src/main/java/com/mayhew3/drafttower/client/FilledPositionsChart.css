@@ -29,4 +29,10 @@
   top: 3px;
   bottom: 3px;
   z-index: -1;
+  background-image: -moz-linear-gradient(top,  rgba(0,0,255,0.2) 0%, rgba(0,0,255,0) 100%); /* FF3.6+ */
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,255,0.2)), color-stop(100%,rgba(0,0,255,0))); /* Chrome,Safari4+ */
+  background-image: -webkit-linear-gradient(top,  rgba(0,0,255,0.2) 0%,rgba(0,0,255,0) 100%); /* Chrome10+,Safari5.1+ */
+  background-image: -o-linear-gradient(top,  rgba(0,0,255,0.2) 0%,rgba(0,0,255,0) 100%); /* Opera 11.10+ */
+  background-image: -ms-linear-gradient(top,  rgba(0,0,255,0.2) 0%,rgba(0,0,255,0) 100%); /* IE10+ */
+  background-image: linear-gradient(to bottom,  rgba(0,0,255,0.2) 0%,rgba(0,0,255,0) 100%); /* W3C */
 }
