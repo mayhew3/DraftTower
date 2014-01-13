@@ -49,6 +49,7 @@ public class PlayerTablePanel extends Composite implements
       String rightSideControls();
       String autoPick();
       String filterButton();
+      String search();
       String clearSearch();
     }
 
@@ -191,6 +192,7 @@ public class PlayerTablePanel extends Composite implements
 
     FlowPanel search = new FlowPanel();
     search.addStyleName(CSS.headerElement());
+    search.addStyleName(CSS.search());
     search.add(new InlineLabel("Search: "));
     nameSearch = new TextBox();
     final InlineLabel clear = new InlineLabel(" X ");
