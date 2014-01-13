@@ -39,6 +39,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
 /**
@@ -51,6 +52,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     interface Css extends CssResource {
       String injury();
       String newsCell();
+      String rightAlign();
     }
 
     @Source("UnclaimedPlayerTable.css")
@@ -73,7 +75,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK || column == DRAFT);
 
       if (column != NAME && column != MLB && column != ELIG) {
-        setHorizontalAlignment(ALIGN_CENTER);
+        setHorizontalAlignment(ALIGN_RIGHT);
       }
 
       if (column == MYRANK) {
@@ -186,6 +188,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
               .appendEscaped(column.getShortName())
               .appendHtmlConstant("</span>")
               .toSafeHtml());
+      if (playerTableColumn.getHorizontalAlignment() == ALIGN_RIGHT) {
+        getHeader(getColumnIndex(playerTableColumn)).setHeaderStyleNames(CSS.rightAlign());
+      }
       playerColumns.put(column, playerTableColumn);
 
       if (column == NAME) {

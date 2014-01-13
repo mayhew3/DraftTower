@@ -13,3 +13,7 @@ tr:hover .newsCell {
   visibility: visible;
   color: black;
 }
+
+.rightAlign {
+  text-align: right !important;
+}
