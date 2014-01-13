@@ -63,3 +63,7 @@ td:last-child > .filterButton {
 .headerLine {
   margin-bottom: 10px;
 }
+
+.clearSearch {
+  cursor: pointer;
+}

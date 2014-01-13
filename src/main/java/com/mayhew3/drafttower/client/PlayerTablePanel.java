@@ -49,6 +49,7 @@ public class PlayerTablePanel extends Composite implements
       String rightSideControls();
       String autoPick();
       String filterButton();
+      String clearSearch();
     }
 
     @Source("PlayerTablePanel.css")
@@ -193,6 +194,7 @@ public class PlayerTablePanel extends Composite implements
     search.add(new InlineLabel("Search: "));
     nameSearch = new TextBox();
     final InlineLabel clear = new InlineLabel(" X ");
+    clear.setStyleName(CSS.clearSearch());
     clear.setVisible(false);
     nameSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
