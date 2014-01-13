@@ -13,7 +13,7 @@ public class ForcePickPlayerEvent extends GwtEvent<Handler> {
     void onForcePick(ForcePickPlayerEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final Long playerId;
 

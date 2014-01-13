@@ -1,7 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -13,6 +11,8 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,6 +32,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   public class DraftTowerWebSocket implements WebSocket.OnTextMessage {
 
+    private static final int MAX_RETRIES = 5;
+
     private Connection connection;
     private String teamToken;
 
@@ -46,11 +48,14 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     }
 
     public void sendMessage(String message) {
-      try {
-        connection.sendMessage(message);
-      } catch (IOException e) {
-        // TODO?
-        e.printStackTrace();
+      for (int i = 0; i < MAX_RETRIES; i++) {
+        try {
+          connection.sendMessage(message);
+          break;
+        } catch (IOException e) {
+          // retry...
+          e.printStackTrace();
+        }
       }
     }
 
@@ -60,7 +65,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
         try {
           connection.sendMessage(msg + ServletEndpoints.CLOCK_SYNC_SEP + System.currentTimeMillis());
         } catch (IOException e) {
-          // TODO?
+          // welp
           e.printStackTrace();
         }
       } else {
@@ -81,7 +86,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     @Override
     public void onClose(int closeCode, String message) {
       openSockets.remove(this);
-      if (closeCode != 1008) {
+      if (closeCode != 1008 && teamToken != null) {
         for (DraftCommandListener listener : listeners) {
           listener.onClientDisconnected(teamToken);
         }
@@ -91,8 +96,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   private final BeanFactory beanFactory;
 
-  private List<DraftCommandListener> listeners = Lists.newArrayList();
-  private Set<DraftTowerWebSocket> openSockets = Sets.newHashSet();
+  private final List<DraftCommandListener> listeners = new ArrayList<>();
+  private final Set<DraftTowerWebSocket> openSockets = new HashSet<>();
 
   @Inject
   public DraftTowerWebSocketServlet(BeanFactory beanFactory) {

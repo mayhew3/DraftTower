@@ -13,7 +13,7 @@ public class PickPlayerEvent extends GwtEvent<Handler> {
     void onPlayerPicked(PickPlayerEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final long playerId;
 

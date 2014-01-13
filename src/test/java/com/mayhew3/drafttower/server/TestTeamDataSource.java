@@ -1,12 +1,11 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.Maps;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
-import com.mayhew3.drafttower.shared.TableSpec;
 import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,12 +24,12 @@ public class TestTeamDataSource implements TeamDataSource {
 
   @Override
   public Map<String, Team> getTeams() throws SQLException {
-    return Maps.newHashMap();
+    return new HashMap<>();
   }
 
   @Override
   public Map<Integer, PlayerDataSet> getAutoPickWizards() {
-    return Maps.newHashMap();
+    return new HashMap<>();
   }
 
   @Override

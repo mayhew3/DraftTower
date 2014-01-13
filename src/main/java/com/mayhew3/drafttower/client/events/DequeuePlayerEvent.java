@@ -13,7 +13,7 @@ public class DequeuePlayerEvent extends GwtEvent<Handler> {
     void onPlayerDequeued(DequeuePlayerEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final long playerId;
 

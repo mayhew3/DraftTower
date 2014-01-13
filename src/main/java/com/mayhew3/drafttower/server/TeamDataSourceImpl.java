@@ -4,10 +4,11 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mayhew3.drafttower.shared.*;
+import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.PlayerDataSet;
+import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
@@ -140,7 +141,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
   public Map<Integer,PlayerDataSet> getAutoPickWizards() {
     String sql = "SELECT * FROM autoPickWizards";
 
-    HashMap<Integer,PlayerDataSet> autoPickWizards = Maps.newHashMap();
+    HashMap<Integer,PlayerDataSet> autoPickWizards = new HashMap<>();
 
     ResultSet resultSet = null;
     try {

@@ -13,7 +13,7 @@ public class ReorderPlayerQueueEvent extends GwtEvent<Handler> {
     void onQueueReordered(ReorderPlayerQueueEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final long playerId;
   private final int newPosition;

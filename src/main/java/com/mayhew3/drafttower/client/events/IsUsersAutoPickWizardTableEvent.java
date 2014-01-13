@@ -14,7 +14,7 @@ public class IsUsersAutoPickWizardTableEvent extends GwtEvent<Handler> {
     void onSetAutoPickWizard(IsUsersAutoPickWizardTableEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final boolean isUsersAutoPickWizardTable;
 

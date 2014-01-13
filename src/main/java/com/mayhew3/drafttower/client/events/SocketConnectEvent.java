@@ -13,7 +13,7 @@ public class SocketConnectEvent extends GwtEvent<Handler> {
     void onConnect(SocketConnectEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   @Override
   public Type<Handler> getAssociatedType() {

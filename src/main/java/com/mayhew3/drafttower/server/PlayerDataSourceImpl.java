@@ -14,10 +14,7 @@ import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
@@ -35,7 +32,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private final BeanFactory beanFactory;
   private final DraftStatus draftStatus;
   private final Map<String, Integer> teamTokens;
-  private int numTeams;
+  private final int numTeams;
 
   @Inject
   public PlayerDataSourceImpl(DataSource db,
@@ -57,7 +54,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     Integer team = teamTokens.get(request.getTeamToken());
 
-    List<Player> players = Lists.newArrayList();
+    List<Player> players = new ArrayList<>();
 
     ResultSet resultSet = null;
     try {
@@ -167,7 +164,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sql = "select PlayerID, Eligibility from ";
     sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true);
 
-    List<String> filters = Lists.newArrayList();
+    List<String> filters = new ArrayList<>();
     addDataSetFilter(filters, wizardTable);
 
     if (!filters.isEmpty()) {
@@ -285,7 +282,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
 
   private String addFilters(UnclaimedPlayerListRequest request, String sql) {
-    List<String> filters = Lists.newArrayList();
+    List<String> filters = new ArrayList<>();
 
     String searchQuery = request.getSearchQuery();
     if (!Strings.isNullOrEmpty(searchQuery)) {
@@ -382,7 +379,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   private boolean hasAllOpenPositions(Set<Position> openPositions) {
-    Set<Position> allPositions = Sets.newHashSet(Position.values());
+    Set<Position> allPositions = EnumSet.allOf(Position.class);
     allPositions.remove(UNF);
     allPositions.remove(RS);
     return openPositions.size() == allPositions.size()
@@ -557,7 +554,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " FROM ";
     sql = getFromJoins(team, sql, null, false);
 
-    List<String> filters = Lists.newArrayList();
+    List<String> filters = new ArrayList<>();
     addTableSpecFilter(filters, tableSpec);
 
     if (!filters.isEmpty()) {
@@ -620,9 +617,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sql = "select * from teamscoringwithzeroes";
 
     GraphsData graphsData = beanFactory.createGraphsData().as();
-    Map<PlayerColumn, Float> myValues = Maps.newHashMap();
+    Map<PlayerColumn, Float> myValues = new HashMap<>();
     graphsData.setMyValues(myValues);
-    Map<PlayerColumn, Float> avgValues = Maps.newHashMap();
+    Map<PlayerColumn, Float> avgValues = new HashMap<>();
     graphsData.setAvgValues(avgValues);
 
     ResultSet resultSet = executeQuery(sql);

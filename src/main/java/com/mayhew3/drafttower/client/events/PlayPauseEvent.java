@@ -13,7 +13,7 @@ public class PlayPauseEvent extends GwtEvent<Handler> {
     void onPlayPause(PlayPauseEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   @Override
   public Type<Handler> getAssociatedType() {

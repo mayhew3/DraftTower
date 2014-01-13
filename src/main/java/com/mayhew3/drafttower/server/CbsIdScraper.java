@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 
@@ -8,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class CbsIdScraper {
 
-  public static final Pattern PLAYER_REGEX = Pattern.compile("/players/playerpage/(\\d+)\">([^<]+)</a>([^<]+)");
+  private static final Pattern PLAYER_REGEX = Pattern.compile("/players/playerpage/(\\d+)\">([^<]+)</a>([^<]+)");
 
   public static void main(String[] args) throws Exception {
     FileWriter fileWriter = new FileWriter("database/cbsIds.csv");
@@ -28,8 +28,8 @@ public class CbsIdScraper {
     fileWriter.close();
   }
 
-  public static Map<String, Integer> getPlayerStringToCbsIdMap() throws IOException {
-    final Map<String, Integer> playerStringToCbsId = Maps.newHashMap();
+  private static Map<String, Integer> getPlayerStringToCbsIdMap() throws IOException {
+    final Map<String, Integer> playerStringToCbsId = new HashMap<>();
     LineProcessor<Object> lineProcessor = new LineProcessor<Object>() {
       @Override
       public boolean processLine(String line) throws IOException {

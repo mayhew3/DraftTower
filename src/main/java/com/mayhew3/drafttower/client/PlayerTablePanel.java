@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -26,6 +25,7 @@ import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.TableSpec;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,6 +49,8 @@ public class PlayerTablePanel extends Composite implements
       String rightSideControls();
       String autoPick();
       String filterButton();
+      String search();
+      String clearSearch();
     }
 
     @Source("PlayerTablePanel.css")
@@ -64,9 +66,9 @@ public class PlayerTablePanel extends Composite implements
       UNF, null, C, FB, SB, TB, SS, OF, DH, P
   };
 
-  private Map<PlayerDataSet, ToggleButton> dataSetButtons = Maps.newEnumMap(PlayerDataSet.class);
+  private final Map<PlayerDataSet, ToggleButton> dataSetButtons = new EnumMap<>(PlayerDataSet.class);
   private ToggleButton allButton;
-  private Map<Position, ToggleButton> positionFilterButtons = Maps.newEnumMap(Position.class);
+  private final Map<Position, ToggleButton> positionFilterButtons = new EnumMap<>(Position.class);
   private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
@@ -190,9 +192,11 @@ public class PlayerTablePanel extends Composite implements
 
     FlowPanel search = new FlowPanel();
     search.addStyleName(CSS.headerElement());
+    search.addStyleName(CSS.search());
     search.add(new InlineLabel("Search: "));
     nameSearch = new TextBox();
     final InlineLabel clear = new InlineLabel(" X ");
+    clear.setStyleName(CSS.clearSearch());
     clear.setVisible(false);
     nameSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override

@@ -11,7 +11,6 @@
 
 .hideInjuries {
   display: block;
-  margin-bottom: 10px;
 }
 
 .filterButton {
@@ -63,4 +62,12 @@ td:last-child > .filterButton {
 
 .headerLine {
   margin-bottom: 10px;
+}
+
+.search {
+  padding: 3px;
+}
+
+.clearSearch {
+  cursor: pointer;
 }

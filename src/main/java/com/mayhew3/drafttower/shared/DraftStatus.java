@@ -8,6 +8,9 @@ import java.util.Set;
  */
 public interface DraftStatus {
 
+  long getSerialId();
+  void setSerialId(long serialId);
+
   long getCurrentPickDeadline();
   void setCurrentPickDeadline(long deadline);
 

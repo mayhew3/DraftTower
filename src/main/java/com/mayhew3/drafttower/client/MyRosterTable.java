@@ -16,6 +16,7 @@ import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -26,8 +27,8 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
     DraftStatusChangedEvent.Handler {
 
   class PickAndPosition {
-    private DraftPick pick;
-    private Position position;
+    private final DraftPick pick;
+    private final Position position;
 
     private PickAndPosition(DraftPick pick, Position position) {
       this.pick = pick;
@@ -37,7 +38,7 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
 
   private final TeamsInfo teamsInfo;
 
-  private ListDataProvider<PickAndPosition> rosterProvider;
+  private final ListDataProvider<PickAndPosition> rosterProvider;
 
   @Inject
   public MyRosterTable(TeamsInfo teamsInfo,
@@ -65,7 +66,7 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
       }
     }, "Elig");
 
-    rosterProvider = new ListDataProvider<PickAndPosition>();
+    rosterProvider = new ListDataProvider<>();
     rosterProvider.addDataDisplay(this);
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
@@ -82,7 +83,7 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
               }
             }));
     Multimap<Position,DraftPick> roster = RosterUtil.constructRoster(myPicks);
-    List<PickAndPosition> picksAndPositions = Lists.newArrayList();
+    List<PickAndPosition> picksAndPositions = new ArrayList<>();
     for (Entry<Position, Integer> position : RosterUtil.POSITIONS_AND_COUNTS.entrySet()) {
       int rowsCreated = 0;
       if (roster.containsKey(position.getKey())) {

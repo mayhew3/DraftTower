@@ -35,7 +35,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="DraftTower" target="1.6" />
+      <module name="DraftTower" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

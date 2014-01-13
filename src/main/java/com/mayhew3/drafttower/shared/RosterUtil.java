@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.shared;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,7 +16,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
  */
 public class RosterUtil {
 
-  public static Map<Position, Integer> POSITIONS_AND_COUNTS = ImmutableMap.<Position, Integer>builder()
+  public static final Map<Position, Integer> POSITIONS_AND_COUNTS = ImmutableMap.<Position, Integer>builder()
       .put(C, 1)
       .put(FB, 1)
       .put(SB, 1)
@@ -27,7 +28,7 @@ public class RosterUtil {
       .put(RS, 6)
       .build();
 
-  private static List<Position> POSITIONS = Lists.newArrayList(
+  private static final List<Position> POSITIONS = Lists.newArrayList(
       C, FB, SB, TB, SS, OF, OF, OF, DH,
       P, P, P, P, P, P, P);
 
@@ -83,7 +84,7 @@ public class RosterUtil {
   }
 
   public static Set<Position> getOpenPositions(List<DraftPick> picks) {
-    Set<Position> openPositions = Sets.newHashSet();
+    Set<Position> openPositions = EnumSet.noneOf(Position.class);
     int reservesAllowed = 0;
     doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,
         ArrayListMultimap.<Position, DraftPick>create(), false, reservesAllowed);

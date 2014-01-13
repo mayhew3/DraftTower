@@ -13,7 +13,7 @@ public class EnqueuePlayerEvent extends GwtEvent<Handler> {
     void onPlayerEnqueued(EnqueuePlayerEvent event);
   }
 
-  public static final Type<Handler> TYPE = new Type<Handler>();
+  public static final Type<Handler> TYPE = new Type<>();
 
   private final long playerId;
   private final Integer position;

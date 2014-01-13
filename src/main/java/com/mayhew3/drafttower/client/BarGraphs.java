@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
@@ -14,8 +16,8 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.BarChart;
-import com.google.gwt.visualization.client.visualizations.BarChart.Options;
+import com.google.gwt.visualization.client.visualizations.corechart.*;
+import com.google.gwt.visualization.client.visualizations.corechart.CoreChart.Type;
 import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -91,7 +93,7 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
       public void run() {
         apiLoaded = true;
       }
-    }, BarChart.PACKAGE);
+    }, CoreChart.PACKAGE);
 
     addAttachHandler(new AttachEvent.Handler() {
       @Override
@@ -119,15 +121,20 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
 
   private Options getOptions(PlayerColumn graphStat) {
     Options options = Options.create();
+    options.setType(Type.BARS);
     options.setColors("#aa4643", "#4572a7");
-    options.setSize(400, 100);
-    options.setEnableTooltip(false);
-    options.setShowCategories(true);
+    options.setWidth(400);
+    options.setHeight(100);
+    options.set("enableInteractivity", false);
     options.setTitle(graphStat.getLongName());
-    options.setTitleFontSize(12);
+    TextStyle titleTextStyle = TextStyle.create();
+    titleTextStyle.setFontSize(12);
+    options.setTitleTextStyle(titleTextStyle);
     options.setLegend(LegendPosition.NONE);
-    options.setMin(0);
-    options.setMax(MAX_VALUES.get(graphStat));
+    AxisOptions hAxisOptions = AxisOptions.create();
+    hAxisOptions.setMinValue(0);
+    hAxisOptions.setMaxValue(MAX_VALUES.get(graphStat));
+    options.setHAxisOptions(hAxisOptions);
     return options;
   }
 
@@ -144,43 +151,34 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
     }
     RequestBuilder requestBuilder =
         new RequestBuilder(RequestBuilder.POST, graphsUrl);
-    try {
-      AutoBean<GetGraphsDataRequest> requestBean =
-          beanFactory.createGetGraphsDataRequest();
-      GetGraphsDataRequest request = requestBean.as();
-      request.setTeamToken(teamsInfo.getTeamToken());
+    AutoBean<GetGraphsDataRequest> requestBean =
+        beanFactory.createGetGraphsDataRequest();
+    GetGraphsDataRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
 
-      requestBuilder.sendRequest(AutoBeanCodex.encode(requestBean).getPayload(),
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              GraphsData graphsData =
-                  AutoBeanCodex.decode(beanFactory, GraphsData.class, response.getText()).as();
-              container.clear();
-              addLabels();
-              for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-                DataTable data = DataTable.create();
-                data.addColumn(ColumnType.STRING);
-                data.addColumn(ColumnType.NUMBER, "Me");
-                data.addColumn(ColumnType.NUMBER, "Avg");
-                data.addRows(1);
-                data.setValue(0, 0, "");
-                data.setValue(0, 1, graphsData.getMyValues().get(graphStat));
-                data.setValue(0, 2, graphsData.getAvgValues().get(graphStat));
-                BarChart barChart = new BarChart(data, getOptions(graphStat));
-                barChart.addStyleName(CSS.graph());
-                container.add(barChart);
-              }
+    RequestCallbackWithBackoff.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload(),
+        new RequestCallbackWithBackoff() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            GraphsData graphsData =
+                AutoBeanCodex.decode(beanFactory, GraphsData.class, response.getText()).as();
+            container.clear();
+            addLabels();
+            for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+              DataTable data = DataTable.create();
+              data.addColumn(ColumnType.STRING);
+              data.addColumn(ColumnType.NUMBER, "Me");
+              data.addColumn(ColumnType.NUMBER, "Avg");
+              data.addRows(1);
+              data.setValue(0, 0, "");
+              data.setValue(0, 1, graphsData.getMyValues().get(graphStat));
+              data.setValue(0, 2, graphsData.getAvgValues().get(graphStat));
+              BarChart barChart = new BarChart(data, getOptions(graphStat));
+              barChart.addStyleName(CSS.graph());
+              container.add(barChart);
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              // TODO
-            }
-          });
-    } catch (RequestException e) {
-      // TODO
-      throw new RuntimeException(e);
-    }
+          }
+        });
   }
 }

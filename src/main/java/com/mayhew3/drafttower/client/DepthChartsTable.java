@@ -5,7 +5,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.event.shared.EventBus;
@@ -21,9 +20,7 @@ import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Table displaying user's roster so far.
@@ -31,7 +28,7 @@ import java.util.Map;
 public class DepthChartsTable extends CellTable<Integer> implements
     DraftStatusChangedEvent.Handler {
 
-  private ListDataProvider<Integer> depthChartsProvider;
+  private final ListDataProvider<Integer> depthChartsProvider;
   private Map<Integer, Multimap<Position, DraftPick>> rosters;
 
   @Inject
@@ -49,7 +46,7 @@ public class DepthChartsTable extends CellTable<Integer> implements
       addColumn(createPositionColumn(position), position.getShortName());
     }
 
-    depthChartsProvider = new ListDataProvider<Integer>();
+    depthChartsProvider = new ListDataProvider<>();
     depthChartsProvider.addDataDisplay(this);
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
@@ -75,8 +72,8 @@ public class DepthChartsTable extends CellTable<Integer> implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    rosters = Maps.newHashMap();
-    List<Integer> teams = Lists.newArrayList();
+    rosters = new HashMap<>();
+    List<Integer> teams = new ArrayList<>();
     List<DraftPick> picks = event.getStatus().getPicks();
     for (DraftPick draftPick : picks) {
       final int team = draftPick.getTeam();

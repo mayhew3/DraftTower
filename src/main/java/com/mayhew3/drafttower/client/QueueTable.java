@@ -41,7 +41,7 @@ public class QueueTable extends PlayerTable<QueueEntry> {
     addStyleName(BASE_CSS.table());
     setPageSize(Integer.MAX_VALUE);
 
-    addColumn(new IdentityColumn<QueueEntry>(new AbstractCell<QueueEntry>() {
+    addColumn(new IdentityColumn<>(new AbstractCell<QueueEntry>() {
       @Override
       public void render(Context context, QueueEntry value, SafeHtmlBuilder sb) {
         sb.append(context.getIndex() + 1);
@@ -99,7 +99,7 @@ public class QueueTable extends PlayerTable<QueueEntry> {
       }
     });
 
-    final SingleSelectionModel<QueueEntry> selectionModel = new SingleSelectionModel<QueueEntry>();
+    final SingleSelectionModel<QueueEntry> selectionModel = new SingleSelectionModel<>();
     setSelectionModel(selectionModel);
     getSelectionModel().addSelectionChangeHandler(new Handler() {
       @Override
