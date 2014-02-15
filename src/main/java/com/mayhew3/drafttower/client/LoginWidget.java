@@ -153,7 +153,12 @@ public class LoginWidget extends Composite {
 
   private void autoLoginFailed() {
     setVisible(true);
-    username.setFocus(true);
+    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+      @Override
+      public void execute() {
+        username.setFocus(true);
+      }
+    });
   }
 
   private void loginFailed() {
