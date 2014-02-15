@@ -32,6 +32,9 @@
         <g:Label styleName="{style.css.actionLink}" ui:field="showBarGraphs">
           Show team comparisons
         </g:Label>
+        <g:Label styleName="{style.css.actionLink}" ui:field="logout">
+          Log out
+        </g:Label>
       </div>
       <div class="{style.css.centerColumn}">
         <d:PlayerTablePanel ui:field="unclaimedPlayers"/>

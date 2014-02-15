@@ -54,6 +54,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       String rightAlign();
       String batterStat();
       String pitcherStat();
+      String splitHeader();
     }
 
     @Source("UnclaimedPlayerTable.css")
@@ -96,6 +97,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         if (positionFilter == Position.UNF || positionFilter == null) {
           return new SafeHtmlBuilder()
               .appendHtmlConstant("<span class=\"")
+              .appendEscaped(CSS.splitHeader())
+              .appendHtmlConstant("\">")
+              .appendHtmlConstant("<span class=\"")
               .appendEscaped(CSS.batterStat())
               .appendHtmlConstant("\">")
               .appendEscaped(column.getShortName())
@@ -103,6 +107,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
               .appendEscaped(CSS.pitcherStat())
               .appendHtmlConstant("\">")
               .appendEscaped(pitcherColumn.getShortName())
+              .appendHtmlConstant("</span>")
               .appendHtmlConstant("</span>")
               .toSafeHtml();
         }
