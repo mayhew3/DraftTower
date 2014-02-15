@@ -74,7 +74,7 @@ public class PickWidget extends Composite implements
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     status = event.getStatus();
     for (DraftPick pick : event.getStatus().getPicks()) {
-      if (pick.getPlayerId() == selectedPlayerId) {
+      if (selectedPlayerId != null && pick.getPlayerId() == selectedPlayerId) {
         clearSelectedPlayer();
       }
     }
