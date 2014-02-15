@@ -6,6 +6,8 @@ import java.util.Map;
  * Response to successful login.
  */
 public interface LoginResponse {
+  public static final String TEAM_TOKEN_COOKIE = "tt";
+
   String getTeamToken();
   void setTeamToken(String teamToken);
 

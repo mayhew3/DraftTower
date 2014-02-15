@@ -15,6 +15,7 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -74,12 +75,18 @@ public class LoginWidget extends Composite {
     this.eventBus = eventBus;
     initWidget(uiBinder.createAndBindUi(this));
     UIObject.setVisible(error, false);
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        username.setFocus(true);
-      }
-    });
+
+    String storedTeamToken = Cookies.getCookie(LoginResponse.TEAM_TOKEN_COOKIE);
+    if (storedTeamToken != null) {
+      doAutoLogin();
+    } else {
+      Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+        @Override
+        public void execute() {
+          username.setFocus(true);
+        }
+      });
+    }
   }
 
   @UiHandler("password")
@@ -94,12 +101,33 @@ public class LoginWidget extends Composite {
     doLogin();
   }
 
+  private void doAutoLogin() {
+    setVisible(false);
+    doLogin("",
+        new Runnable() {
+          @Override
+          public void run() {
+            autoLoginFailed();
+          }
+        });
+  }
+
   private void doLogin() {
     UIObject.setVisible(error, false);
+    doLogin("username=" + username.getValue() + "&password=" + password.getValue(),
+        new Runnable() {
+          @Override
+          public void run() {
+            loginFailed();
+          }
+        });
+  }
+
+  private void doLogin(String requestParams, final Runnable failureCallback) {
     RequestBuilder requestBuilder = new RequestBuilder(POST, loginUrl);
     requestBuilder.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
     try {
-      requestBuilder.sendRequest("username=" + username.getValue() + "&password=" + password.getValue(),
+      requestBuilder.sendRequest(requestParams,
           new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -109,17 +137,26 @@ public class LoginWidget extends Composite {
                 teamsInfo.setLoginResponse(loginResponse);
                 eventBus.fireEvent(new LoginEvent(loginResponse));
               } else {
-                UIObject.setVisible(error, true);
+                failureCallback.run();
               }
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-              UIObject.setVisible(error, true);
+              failureCallback.run();
             }
           });
     } catch (RequestException e) {
-      UIObject.setVisible(error, true);
+      failureCallback.run();
     }
+  }
+
+  private void autoLoginFailed() {
+    setVisible(true);
+    username.setFocus(true);
+  }
+
+  private void loginFailed() {
+    UIObject.setVisible(error, true);
   }
 }

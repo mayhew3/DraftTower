@@ -9,11 +9,14 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.Player;
 
 /**
@@ -64,6 +67,7 @@ public class MainPageWidget extends Composite implements
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;
   @UiField Label showBarGraphs;
+  @UiField Label logout;
   @UiField DivElement queueArea;
 
   private final PopupPanel depthChartsPopup;
@@ -146,6 +150,12 @@ public class MainPageWidget extends Composite implements
   public void handleShowBarGraphsClick(ClickEvent e) {
     barGraphsPopup.center();
     barGraphsPopup.show();
+  }
+
+  @UiHandler("logout")
+  public void handleLogoutClick(ClickEvent e) {
+    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
+    Window.Location.reload();
   }
 
   public int getQueueAreaTop() {
