@@ -78,7 +78,7 @@ abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
     });
   }
 
-  protected void initDragging(DragAndDropColumn<T, String> column, DroppableFunction onDrop) {
+  protected void initDragging(DragAndDropColumn<T, ?> column, DroppableFunction onDrop) {
     DraggableOptions draggableOptions = column.getDraggableOptions();
     Element helper = DOM.createDiv();
     helper.addClassName(BASE_CSS.dragHelper());

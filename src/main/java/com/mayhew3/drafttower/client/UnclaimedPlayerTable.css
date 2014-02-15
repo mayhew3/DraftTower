@@ -17,3 +17,11 @@ tr:hover .newsCell {
 .rightAlign {
   text-align: right !important;
 }
+
+.batterStat {
+  color: #0A0;
+}
+
+.pitcherStat {
+  color: #00C;
+}

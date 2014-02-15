@@ -11,10 +11,9 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
-import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.view.client.Range;
@@ -53,6 +52,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       String injury();
       String newsCell();
       String rightAlign();
+      String batterStat();
+      String pitcherStat();
     }
 
     @Source("UnclaimedPlayerTable.css")
@@ -64,35 +65,86 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     CSS.ensureInjected();
   }
 
-  public class PlayerTableColumn extends DragAndDropColumn<Player, String> {
-
+  private class PlayerColumnHeader extends Header<SafeHtml> {
     private final PlayerColumn column;
+    private final PlayerColumn pitcherColumn;
 
-    public PlayerTableColumn(PlayerColumn column) {
-      super(createCell(column));
+    public PlayerColumnHeader(PlayerColumn column, PlayerColumn pitcherColumn) {
+      super(new SafeHtmlCell());
+      this.column = column;
+      this.pitcherColumn = pitcherColumn;
+    }
+
+    @Override
+    public SafeHtml getValue() {
+      return new SafeHtmlBuilder()
+                    .appendHtmlConstant("<span title=\"")
+                    .appendEscaped(getLongName())
+                    .appendHtmlConstant("\">")
+                    .append(getShortName())
+                    .appendHtmlConstant("</span>")
+                    .toSafeHtml();
+    }
+
+    private SafeHtml getShortName() {
+      if (pitcherColumn != null) {
+        if (positionFilter == Position.P) {
+          return new SafeHtmlBuilder()
+              .appendEscaped(pitcherColumn.getShortName())
+              .toSafeHtml();
+        }
+        if (positionFilter == Position.UNF || positionFilter == null) {
+          return new SafeHtmlBuilder()
+              .appendHtmlConstant("<span class=\"")
+              .appendEscaped(CSS.batterStat())
+              .appendHtmlConstant("\">")
+              .appendEscaped(column.getShortName())
+              .appendHtmlConstant("</span>/<span class=\"")
+              .appendEscaped(CSS.pitcherStat())
+              .appendHtmlConstant("\">")
+              .appendEscaped(pitcherColumn.getShortName())
+              .appendHtmlConstant("</span>")
+              .toSafeHtml();
+        }
+      }
+      return new SafeHtmlBuilder()
+          .appendEscaped(column.getShortName())
+          .toSafeHtml();
+    }
+
+    private String getLongName() {
+      if (pitcherColumn != null) {
+        if (positionFilter == Position.P) {
+          return pitcherColumn.getLongName();
+        }
+        if (positionFilter == Position.UNF || positionFilter == null) {
+          return column.getLongName() + "/" + pitcherColumn.getLongName();
+        }
+      }
+      return column.getLongName();
+    }
+  }
+
+  private static class PlayerValue {
+    private Player player;
+    private String value;
+
+    private PlayerValue(Player player, String value) {
+      this.player = player;
+      this.value = value;
+    }
+  }
+
+  private abstract class PlayerTableColumn<C> extends DragAndDropColumn<Player, C> {
+    protected final PlayerColumn column;
+
+    public PlayerTableColumn(Cell<C> cell, PlayerColumn column) {
+      super(cell);
       this.column = column;
       setSortable(true);
-      setDefaultSortAscending(column == ERA || column == WHIP || column == NAME || column == RANK || column == MYRANK || column == DRAFT);
 
       if (column != NAME && column != MLB && column != ELIG) {
         setHorizontalAlignment(ALIGN_RIGHT);
-      }
-
-      if (column == MYRANK) {
-        setFieldUpdater(new FieldUpdater<Player, String>() {
-          @Override
-          public void update(int index, Player player, String newRank) {
-            String currentRank = player.getColumnValues().get(MYRANK);
-            if (!newRank.equals(currentRank)) {
-              try {
-                eventBus.fireEvent(new ChangePlayerRankEvent(player.getPlayerId(),
-                    Integer.parseInt(newRank), Integer.parseInt(currentRank)));
-              } catch (NumberFormatException e) {
-                // whatevs
-              }
-            }
-          }
-        });
       }
 
       DroppableFunction onDrop = new DroppableFunction() {
@@ -119,13 +171,86 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       initDragging(this, onDrop);
     }
 
+    public PlayerColumn getColumn() {
+      return column;
+    }
+
+    public abstract PlayerColumn getSortedColumn();
+
+    protected abstract void updateDefaultSort();
+  }
+
+  public class NonStatPlayerTableColumn extends PlayerTableColumn<String> {
+
+    public NonStatPlayerTableColumn(PlayerColumn column) {
+      super(createCell(column), column);
+
+      setDefaultSortAscending(column == NAME
+          || column == RANK
+          || column == MYRANK
+          || column == DRAFT);
+
+      if (column == MYRANK) {
+        setFieldUpdater(new FieldUpdater<Player, String>() {
+          @Override
+          public void update(int index, Player player, String newRank) {
+            String currentRank = player.getColumnValues().get(MYRANK);
+            if (!newRank.equals(currentRank)) {
+              try {
+                eventBus.fireEvent(new ChangePlayerRankEvent(player.getPlayerId(),
+                    Integer.parseInt(newRank), Integer.parseInt(currentRank)));
+              } catch (NumberFormatException e) {
+                // whatevs
+              }
+            }
+          }
+        });
+      }
+    }
+
     @Override
     public String getValue(Player player) {
       return player.getColumnValues().get(column);
     }
 
-    public PlayerColumn getColumn() {
+    @Override
+    public PlayerColumn getSortedColumn() {
       return column;
+    }
+
+    @Override
+    protected void updateDefaultSort() {
+      // No-op.
+    }
+  }
+
+  public class StatPlayerTableColumn extends PlayerTableColumn<PlayerValue> {
+
+    private final PlayerColumn pitcherColumn;
+
+    public StatPlayerTableColumn(PlayerColumn column, PlayerColumn pitcherColumn) {
+      super(createStatCell(), column);
+      this.pitcherColumn = pitcherColumn;
+      updateDefaultSort();
+    }
+
+    @Override
+    protected void updateDefaultSort() {
+      setDefaultSortAscending((pitcherColumn == ERA && positionFilter == Position.P)
+          || (pitcherColumn == WHIP && positionFilter == Position.P));
+    }
+
+    @Override
+    public PlayerValue getValue(Player player) {
+      if (pitcherColumn != null && player.getColumnValues().containsKey(pitcherColumn)) {
+        return new PlayerValue(player, player.getColumnValues().get(pitcherColumn));
+      }
+      return new PlayerValue(player, player.getColumnValues().get(column));
+    }
+
+    @Override
+    public PlayerColumn getSortedColumn() {
+      return positionFilter == Position.P ? pitcherColumn : column;
     }
   }
 
@@ -134,7 +259,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   private static final PlayerColumn COLUMNS[] = {
-      NAME, MLB, ELIG, G, AB, HR, RBI, OBP, SLG, RHR, SBCS, INN, K, ERA, WHIP, WL, S, RANK, WIZARD, DRAFT, MYRANK
+      NAME, MLB, ELIG, G, AB, HR, RBI, OBP, SLG, RHR, SBCS, RANK, WIZARD, DRAFT, MYRANK
+  };
+  private static final PlayerColumn PITCHER_COLUMNS[] = {
+      null, null, null, null, null, INN, K, ERA, WHIP, WL, S, null, null, null, null, null
   };
 
   private final Provider<Integer> queueAreaTopProvider;
@@ -143,7 +271,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   private final TableSpec tableSpec;
   private boolean hideInjuries;
   private String nameFilter;
-  private final Map<PlayerColumn, PlayerTableColumn> playerColumns = new EnumMap<>(PlayerColumn.class);
+  private final Map<PlayerColumn, PlayerTableColumn<?>> playerColumns = new EnumMap<>(PlayerColumn.class);
 
   @Inject
   public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
@@ -160,6 +288,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     addStyleName(BASE_CSS.table());
     setPageSize(40);
+    ((AbstractHeaderOrFooterBuilder<?>) getHeaderBuilder()).setSortIconStartOfLine(false);
 
     addColumn(new Column<Player, SafeHtml>(new SafeHtmlCell()) {
       @Override
@@ -178,16 +307,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       }
     });
 
-    for (PlayerColumn column : COLUMNS) {
-      PlayerTableColumn playerTableColumn = new PlayerTableColumn(column);
-      addColumn(playerTableColumn,
-          new SafeHtmlBuilder()
-              .appendHtmlConstant("<span title=\"")
-              .appendEscaped(column.getLongName())
-              .appendHtmlConstant("\">")
-              .appendEscaped(column.getShortName())
-              .appendHtmlConstant("</span>")
-              .toSafeHtml());
+    for (int i = 0; i < COLUMNS.length; i++) {
+      PlayerColumn column = COLUMNS[i];
+      PlayerColumn pitcherColumn = PITCHER_COLUMNS[i];
+      PlayerTableColumn<?> playerTableColumn = pitcherColumn == null
+          ? new NonStatPlayerTableColumn(column)
+          : new StatPlayerTableColumn(column, pitcherColumn);
+      addColumn(playerTableColumn, new PlayerColumnHeader(column, pitcherColumn));
       if (playerTableColumn.getHorizontalAlignment() == ALIGN_RIGHT) {
         getHeader(getColumnIndex(playerTableColumn)).setHeaderStyleNames(CSS.rightAlign());
       }
@@ -262,6 +388,38 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     }
   }
 
+  private AbstractCell<PlayerValue> createStatCell() {
+    return new AbstractSafeHtmlCell<PlayerValue>(new AbstractSafeHtmlRenderer<PlayerValue>() {
+      @Override
+      public SafeHtml render(PlayerValue value) {
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        if (positionFilter == Position.UNF || positionFilter == null) {
+          String style;
+          if (value.player.getColumnValues().get(ELIG).contains(Position.P.getShortName())) {
+            style = CSS.pitcherStat();
+          } else {
+            style = CSS.batterStat();
+          }
+          builder.appendHtmlConstant("<span class=\"")
+              .appendEscaped(style)
+              .appendHtmlConstant("\">")
+              .appendEscaped(value.value)
+              .appendHtmlConstant("</span>");
+        } else {
+          builder.appendEscaped(value.value);
+        }
+        return builder.toSafeHtml();
+      }
+    }) {
+      @Override
+      protected void render(Context context, SafeHtml value, SafeHtmlBuilder sb) {
+        if (value != null) {
+          sb.append(value);
+        }
+      }
+    };
+  }
+
   void computePageSize() {
     int availableHeight = queueAreaTopProvider.get() - getRowElement(0).getAbsoluteTop();
     int pageSize = availableHeight / getRowElement(0).getOffsetHeight();
@@ -273,7 +431,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public PlayerColumn getSortedColumn() {
     ColumnSortList columnSortList = getColumnSortList();
     if (columnSortList.size() > 0) {
-      return ((PlayerTableColumn) columnSortList.get(0).getColumn()).getColumn();
+      PlayerTableColumn<?> column = (PlayerTableColumn<?>) columnSortList.get(0).getColumn();
+      return column.getSortedColumn();
     }
     return null;
   }
@@ -292,7 +451,14 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   public void setPositionFilter(Position positionFilter) {
+    boolean reSort = (this.positionFilter == Position.P) != (positionFilter == Position.P);
     this.positionFilter = positionFilter;
+    for (PlayerTableColumn<?> playerTableColumn : playerColumns.values()) {
+      playerTableColumn.updateDefaultSort();
+    }
+    if (reSort) {
+      ColumnSortEvent.fire(this, getColumnSortList());
+    }
     setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
   }
 
