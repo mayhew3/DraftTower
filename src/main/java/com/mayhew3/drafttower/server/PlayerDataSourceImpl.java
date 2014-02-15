@@ -346,6 +346,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } else if (positionFilter == UNF) {
       Set<Position> openPositions = getOpenPositions(team);
       return createFilterStringFromPositions(openPositions);
+    } else if (positionFilter == BAT) {
+      return " <> '" + P.getShortName() + "' ";
     } else {
       return " = '" + positionFilter.getShortName() + "' ";
     }
@@ -381,6 +383,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private boolean hasAllOpenPositions(Set<Position> openPositions) {
     Set<Position> allPositions = EnumSet.allOf(Position.class);
     allPositions.remove(UNF);
+    allPositions.remove(BAT);
     allPositions.remove(RS);
     return openPositions.size() == allPositions.size()
         || (openPositions.contains(DH) && openPositions.contains(P));

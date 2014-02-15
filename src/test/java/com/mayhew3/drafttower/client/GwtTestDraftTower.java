@@ -21,4 +21,8 @@ public class GwtTestDraftTower extends GWTTestCase {
   public String getModuleName() {
     return "com.mayhew3.drafttower.DraftTowerJUnit";
   }
+
+  public void testNothing() {
+    // Dummy test to avoid "no tests" error.
+  }
 }

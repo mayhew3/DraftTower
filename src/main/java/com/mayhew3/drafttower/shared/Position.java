@@ -14,6 +14,7 @@ public enum Position {
   DH("DH", "Designated Hitter"),
 
   // Filtering:
+  BAT("Batters", "All Batters"),
   UNF("Unfilled", "Unfilled Positions"),
 
   // Misc:
