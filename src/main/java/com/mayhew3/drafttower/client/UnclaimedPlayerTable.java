@@ -16,6 +16,7 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
@@ -270,6 +271,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       null, null, null, null, null, INN, K, ERA, WHIP, WL, S, null, null, null, null, null
   };
 
+  public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
+  public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
+  public static final boolean DEFAULT_SORT_ASCENDING = true;
+
   private final Provider<Integer> queueAreaTopProvider;
 
   private Position positionFilter;
@@ -279,7 +284,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   private final Map<PlayerColumn, PlayerTableColumn<?>> playerColumns = new EnumMap<>(PlayerColumn.class);
 
   @Inject
-  public UnclaimedPlayerTable(UnclaimedPlayerDataProvider dataProvider,
+  public UnclaimedPlayerTable(AsyncDataProvider<Player> dataProvider,
       BeanFactory beanFactory,
       final EventBus eventBus,
       @QueueAreaTop Provider<Integer> queueAreaTopProvider) {
@@ -287,9 +292,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     this.queueAreaTopProvider = queueAreaTopProvider;
 
     tableSpec = beanFactory.createTableSpec().as();
-    tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
-    tableSpec.setSortCol(PlayerColumn.MYRANK);
-    tableSpec.setAscending(true);
+    tableSpec.setPlayerDataSet(DEFAULT_DATA_SET);
+    tableSpec.setSortCol(DEFAULT_SORT_COL);
+    tableSpec.setAscending(DEFAULT_SORT_ASCENDING);
 
     addStyleName(BASE_CSS.table());
     setPageSize(40);
@@ -398,20 +403,22 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       @Override
       public SafeHtml render(PlayerValue value) {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
-        if (positionFilter == Position.UNF || positionFilter == null) {
-          String style;
-          if (value.player.getColumnValues().get(ELIG).contains(Position.P.getShortName())) {
-            style = CSS.pitcherStat();
+        if (value.value != null) {
+          if (positionFilter == Position.UNF || positionFilter == null) {
+            String style;
+            if (value.player.getColumnValues().get(ELIG).contains(Position.P.getShortName())) {
+              style = CSS.pitcherStat();
+            } else {
+              style = CSS.batterStat();
+            }
+            builder.appendHtmlConstant("<span class=\"")
+                .appendEscaped(style)
+                .appendHtmlConstant("\">")
+                .appendEscaped(value.value)
+                .appendHtmlConstant("</span>");
           } else {
-            style = CSS.batterStat();
+            builder.appendEscaped(value.value);
           }
-          builder.appendHtmlConstant("<span class=\"")
-              .appendEscaped(style)
-              .appendHtmlConstant("\">")
-              .appendEscaped(value.value)
-              .appendHtmlConstant("</span>");
-        } else {
-          builder.appendEscaped(value.value);
         }
         return builder.toSafeHtml();
       }

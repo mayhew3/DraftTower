@@ -31,12 +31,12 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     SetAutoPickWizardEvent.Handler,
     CopyAllPlayerRanksEvent.Handler {
 
-  private final BeanFactory beanFactory;
-  private final String playerInfoUrl;
+  protected final BeanFactory beanFactory;
+  protected final String playerInfoUrl;
   private final String changePlayerRankUrl;
   private final String copyPlayerRanksUrl;
   private final String setAutoPickWizardUrl;
-  private final TeamsInfo teamsInfo;
+  protected final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
   @Inject
