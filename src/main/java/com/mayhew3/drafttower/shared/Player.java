@@ -74,8 +74,29 @@ public interface Player {
   String getDraft();
   void setDraft(String value);
 
-  String getWizard();
-  void setWizard(String value);
+  String getWizardP();
+  void setWizardP(String value);
+
+  String getWizardC();
+  void setWizardC(String value);
+
+  String getWizard1B();
+  void setWizard1B(String value);
+
+  String getWizard2B();
+  void setWizard2B(String value);
+
+  String getWizard3B();
+  void setWizard3B(String value);
+
+  String getWizardSS();
+  void setWizardSS(String value);
+
+  String getWizardOF();
+  void setWizardOF(String value);
+
+  String getWizardDH();
+  void setWizardDH(String value);
 
   String getMyRank();
   void setMyRank(String value);

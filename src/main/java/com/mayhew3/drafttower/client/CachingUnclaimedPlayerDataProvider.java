@@ -34,10 +34,12 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   private static final class SortSpec {
     private final PlayerColumn column;
+    private final Position wizardPosition;
     private final boolean ascending;
 
-    private SortSpec(PlayerColumn column, boolean ascending) {
+    private SortSpec(PlayerColumn column, Position position, boolean ascending) {
       this.column = column;
+      wizardPosition = column == PlayerColumn.WIZARD ? position : null;
       this.ascending = ascending;
     }
 
@@ -50,6 +52,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
       if (ascending != sortSpec.ascending) return false;
       if (column != sortSpec.column) return false;
+      if (wizardPosition != sortSpec.wizardPosition) return false;
 
       return true;
     }
@@ -57,6 +60,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     @Override
     public int hashCode() {
       int result = column.hashCode();
+      result = 31 * result + (wizardPosition != null ? wizardPosition.hashCode() : 0);
       result = 31 * result + (ascending ? 1 : 0);
       return result;
     }
@@ -66,8 +70,12 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     private final Map<SortSpec, List<Player>> playersBySortCol = new HashMap<>();
     private final Set<Long> pickedPlayers = new HashSet<>();
 
-    private PlayerList(List<Player> players, PlayerColumn defaultSortCol, boolean defaultSortAscending) {
-      playersBySortCol.put(new SortSpec(defaultSortCol, defaultSortAscending), players);
+    private PlayerList(List<Player> players,
+        PlayerColumn defaultSortCol,
+        Position defaultPositionFilter,
+        boolean defaultSortAscending) {
+      playersBySortCol.put(
+          new SortSpec(defaultSortCol, defaultPositionFilter, defaultSortAscending), players);
     }
 
     private Iterable<Player> getPlayers(TableSpec tableSpec,
@@ -76,11 +84,14 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
         final boolean hideInjuries,
         final String nameFilter) {
       // TODO(kprevas): refetch when nameFilter is set to get 0 AB/0 INN players?
-      SortSpec sortSpec = new SortSpec(tableSpec.getSortCol(), tableSpec.isAscending());
+      SortSpec sortSpec = new SortSpec(tableSpec.getSortCol(), positionFilter, tableSpec.isAscending());
       if (!playersBySortCol.containsKey(sortSpec)) {
         List<Player> players = playersBySortCol.values().iterator().next();
+        Comparator<Player> comparator = sortSpec.column == PlayerColumn.WIZARD
+            ? PlayerColumn.getWizardComparator(sortSpec.ascending, positionFilter, openPositions.get())
+            : sortSpec.column.getComparator(sortSpec.ascending);
         playersBySortCol.put(sortSpec,
-            Ordering.from(sortSpec.column.getComparator(sortSpec.ascending)).sortedCopy(players));
+            Ordering.from(comparator).sortedCopy(players));
       }
       return Iterables.limit(Iterables.skip(Iterables.filter(
           playersBySortCol.get(sortSpec),
@@ -91,7 +102,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
                       || PlayerColumn.NAME.get(player).toLowerCase()
                           .contains(nameFilter.toLowerCase()))
                   && (!hideInjuries || player.getInjury() == null)
-                  && (positionFilter == null || positionFilter.apply(player, openPositions))
+                  && (positionFilter == null || positionFilter.apply(player, openPositions.get()))
                   && !pickedPlayers.contains(player.getPlayerId());
             }
           }), rowStart), rowCount);
@@ -110,8 +121,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
   }
 
   private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
-
-  private Set<Position> openPositions;
+  private final OpenPositions openPositions;
 
   @Inject
   public CachingUnclaimedPlayerDataProvider(BeanFactory beanFactory,
@@ -120,8 +130,10 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
       @CopyPlayerRanksUrl String copyPlayerRanksUrl,
       @SetAutoPickWizardUrl String setAutoPickWizardUrl,
       TeamsInfo teamsInfo,
-      EventBus eventBus) {
+      EventBus eventBus,
+      OpenPositions openPositions) {
     super(beanFactory, playerInfoUrl, changePlayerRankUrl, copyPlayerRanksUrl, setAutoPickWizardUrl, teamsInfo, eventBus);
+    this.openPositions = openPositions;
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
   }
@@ -130,12 +142,14 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
   public void onLogin(LoginEvent event) {
     requestData(UnclaimedPlayerTable.DEFAULT_DATA_SET,
         UnclaimedPlayerTable.DEFAULT_SORT_COL,
+        UnclaimedPlayerTable.DEFAULT_POSITION_FILTER,
         UnclaimedPlayerTable.DEFAULT_SORT_ASCENDING, null);
   }
 
   private void requestData(
       final PlayerDataSet dataSet,
       final PlayerColumn defaultSortCol,
+      final Position defaultPositionFilter,
       final boolean defaultSortAscending,
       final Runnable callback) {
     if (!teamsInfo.isLoggedIn()) {
@@ -166,7 +180,10 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
                 AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
                     response.getText()).as();
             playersByDataSet.put(dataSet,
-                new PlayerList(playerListResponse.getPlayers(), defaultSortCol, defaultSortAscending));
+                new PlayerList(playerListResponse.getPlayers(),
+                    defaultSortCol,
+                    defaultPositionFilter,
+                    defaultSortAscending));
             if (callback != null) {
               callback.run();
             }
@@ -185,7 +202,10 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
       TableSpec tableSpec = table.getTableSpec();
       String nameFilter = table.getNameFilter();
       if (!playersByDataSet.containsKey(tableSpec.getPlayerDataSet())) {
-        requestData(tableSpec.getPlayerDataSet(), tableSpec.getSortCol(), tableSpec.isAscending(),
+        requestData(tableSpec.getPlayerDataSet(),
+            tableSpec.getSortCol(),
+            positionFilter,
+            tableSpec.isAscending(),
             new Runnable() {
               @Override
               public void run() {
@@ -209,13 +229,5 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     for (PlayerList playerList : playersByDataSet.values()) {
       playerList.ensurePlayersRemoved(picks);
     }
-    openPositions = RosterUtil.getOpenPositions(
-        Lists.newArrayList(Iterables.filter(picks,
-            new Predicate<DraftPick>() {
-              @Override
-              public boolean apply(DraftPick input) {
-                return input.getTeam() == teamsInfo.getTeam();
-              }
-            })));
   }
 }

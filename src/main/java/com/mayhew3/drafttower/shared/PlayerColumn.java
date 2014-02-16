@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
 import java.util.Comparator;
+import java.util.Set;
 
 /**
  * Player column values.
@@ -74,6 +75,21 @@ public enum PlayerColumn {
     };
   }
 
+  public static Comparator<Player> getWizardComparator(
+      final boolean ascending, final Position position, final Set<Position> openPositions) {
+    return new Comparator<Player>() {
+      @Override
+      public int compare(Player p1, Player p2) {
+        int rtn;
+        String p1Value = getWizard(p1, position, openPositions);
+        String p2Value = getWizard(p2, position, openPositions);
+        rtn = Float.compare(p1Value == null ? Float.MIN_VALUE : Float.parseFloat(p1Value),
+            p2Value == null ? Float.MIN_VALUE : Float.parseFloat(p2Value));
+        return ascending ? rtn : -rtn;
+      }
+    };
+  }
+
   public boolean isDefaultSortAscending() {
     return defaultSortAscending;
   }
@@ -118,8 +134,6 @@ public enum PlayerColumn {
         return player.getRank();
       case DRAFT:
         return player.getDraft();
-      case WIZARD:
-        return player.getWizard();
       case MYRANK:
         return player.getMyRank();
       default:
@@ -186,11 +200,105 @@ public enum PlayerColumn {
       case DRAFT:
         player.setDraft(value);
         break;
-      case WIZARD:
-        player.setWizard(value);
-        break;
       case MYRANK:
         player.setMyRank(value);
+        break;
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  public static String getWizard(Player player, Position position, Set<Position> openPositions) {
+    if (position == null) {
+      return getMax(
+          player.getWizardP(),
+          player.getWizardC(),
+          player.getWizard1B(),
+          player.getWizard2B(),
+          player.getWizard3B(),
+          player.getWizardSS(),
+          player.getWizardOF(),
+          player.getWizardDH());
+    }
+    switch (position) {
+      case P:
+        return player.getWizardP();
+      case C:
+        return player.getWizardC();
+      case FB:
+        return player.getWizard1B();
+      case SB:
+        return player.getWizard2B();
+      case TB:
+        return player.getWizard3B();
+      case SS:
+        return player.getWizardSS();
+      case OF:
+        return player.getWizardOF();
+      case DH:
+        return player.getWizardDH();
+      case BAT:
+        return getMax(
+            player.getWizardC(),
+            player.getWizard1B(),
+            player.getWizard2B(),
+            player.getWizard3B(),
+            player.getWizardSS(),
+            player.getWizardOF(),
+            player.getWizardDH());
+      case UNF:
+        return getMax(
+            openPositions.contains(Position.P) ? player.getWizardP() : null,
+            openPositions.contains(Position.C) ? player.getWizardC() : null,
+            openPositions.contains(Position.FB) ? player.getWizard1B() : null,
+            openPositions.contains(Position.SB) ? player.getWizard2B() : null,
+            openPositions.contains(Position.TB) ? player.getWizard3B() : null,
+            openPositions.contains(Position.SS) ? player.getWizardSS() : null,
+            openPositions.contains(Position.OF) ? player.getWizardOF() : null,
+            openPositions.contains(Position.DH) ? player.getWizardDH() : null);
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  private static String getMax(String... values) {
+    Float max = null;
+    for (String value : values) {
+      if (value != null) {
+        float parsedValue = Float.parseFloat(value);
+        if (max == null || parsedValue > max) {
+          max = parsedValue;
+        }
+      }
+    }
+    return max == null ? null : max.toString();
+  }
+
+  public static void setWizard(Player player, String value, Position position) {
+    switch (position) {
+      case P:
+        player.setWizardP(value);
+        break;
+      case C:
+        player.setWizardC(value);
+        break;
+      case FB:
+        player.setWizard1B(value);
+        break;
+      case SB:
+        player.setWizard2B(value);
+        break;
+      case TB:
+        player.setWizard3B(value);
+        break;
+      case SS:
+        player.setWizardSS(value);
+        break;
+      case OF:
+        player.setWizardOF(value);
+        break;
+      case DH:
+        player.setWizardDH(value);
         break;
       default:
         throw new IllegalArgumentException();

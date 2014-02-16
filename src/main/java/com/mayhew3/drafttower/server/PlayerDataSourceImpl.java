@@ -72,9 +72,18 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
 
         for (PlayerColumn playerColumn : playerColumns) {
-          String columnString = resultSet.getString(playerColumn.getColumnName());
-          if (columnString != null) {
-            playerColumn.set(player, columnString);
+          if (playerColumn == PlayerColumn.WIZARD) {
+            for (Position position : REAL_POSITIONS) {
+              String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
+              if (columnString != null) {
+                PlayerColumn.setWizard(player, columnString, position);
+              }
+            }
+          } else {
+            String columnString = resultSet.getString(playerColumn.getColumnName());
+            if (columnString != null) {
+              playerColumn.set(player, columnString);
+            }
           }
         }
 
@@ -234,7 +243,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
         "   and batting = 0\n" +
-        "  ) as Wizard " +
+        "  ) as Wizard, " +
+        "  (select round(Rating, 3)\n" +
+        "   from wizardRatings\n" +
+        "   where projectionRow = projectionsPitching.ID\n" +
+        "   and batting = 0\n" +
+        "  ) as WizardP, " +
+        getNullBattingWizardClauses() +
         " FROM projectionsPitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
@@ -252,7 +267,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "   where projectionRow = projectionsBatting.ID\n" +
         "   and batting = 1 \n" +
         wizardFilterClause +
-        "  ) as Wizard \n" +
+        "  ) as Wizard, \n" +
+        "  NULL as WizardP, \n" +
+        getBattingWizardClauses() +
         " FROM projectionsBatting)";
 
     sql +=
@@ -282,6 +299,38 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return sql;
   }
 
+  private String getBattingWizardClauses() {
+    StringBuilder builder = new StringBuilder();
+    for (Position position : Position.BATTING_POSITIONS) {
+      if (builder.length() > 0) {
+        builder.append(", ");
+      }
+      builder.append("  (select round(Rating, 3)\n" +
+              "   from wizardRatings\n" +
+              "   where projectionRow = projectionsBatting.ID\n" +
+              "   and batting = 1 \n" +
+              "   and Position = '")
+          .append(position.getShortName())
+          .append("'\n" +
+              "  ) as Wizard")
+          .append(position.getShortName())
+          .append(" \n");
+    }
+    return builder.toString();
+  }
+
+  private String getNullBattingWizardClauses() {
+    StringBuilder builder = new StringBuilder();
+    for (Position position : Position.BATTING_POSITIONS) {
+      if (builder.length() > 0) {
+        builder.append(", ");
+      }
+      builder.append("  NULL as Wizard")
+          .append(position.getShortName())
+          .append(" \n");
+    }
+    return builder.toString();
+  }
 
   private String addFilters(UnclaimedPlayerListRequest request, String sql) {
     List<String> filters = new ArrayList<>();

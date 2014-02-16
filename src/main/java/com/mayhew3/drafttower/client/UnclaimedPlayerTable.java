@@ -214,7 +214,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     public String getValue(Player player) {
-      return column.get(player);
+      if (column == WIZARD) {
+        return PlayerColumn.getWizard(player, positionFilter, openPositions.get());
+      } else {
+        return column.get(player);
+      }
     }
 
     @Override
@@ -271,8 +275,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
   public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
   public static final boolean DEFAULT_SORT_ASCENDING = true;
+  public static final Position DEFAULT_POSITION_FILTER = Position.UNF;
 
   private final Provider<Integer> queueAreaTopProvider;
+  private final OpenPositions openPositions;
 
   private Position positionFilter;
   private final TableSpec tableSpec;
@@ -284,9 +290,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public UnclaimedPlayerTable(AsyncDataProvider<Player> dataProvider,
       BeanFactory beanFactory,
       final EventBus eventBus,
-      @QueueAreaTop Provider<Integer> queueAreaTopProvider) {
+      @QueueAreaTop Provider<Integer> queueAreaTopProvider,
+      OpenPositions openPositions) {
     super(eventBus);
     this.queueAreaTopProvider = queueAreaTopProvider;
+    this.openPositions = openPositions;
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(DEFAULT_DATA_SET);

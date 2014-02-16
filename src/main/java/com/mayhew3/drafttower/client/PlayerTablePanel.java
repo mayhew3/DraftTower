@@ -183,7 +183,7 @@ public class PlayerTablePanel extends Composite implements
       }
       filterButtons.add(button);
     }
-    table.setPositionFilter(UNF);
+    table.setPositionFilter(UnclaimedPlayerTable.DEFAULT_POSITION_FILTER);
     buttonPanels.add(filterButtons);
 
     FlowPanel pagerAndSearch = new FlowPanel();
