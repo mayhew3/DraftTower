@@ -236,7 +236,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS RBI,\n" +
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
-        "  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
+        "  ROUND(INN, 0) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max(Rating), 0), 3)\n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
