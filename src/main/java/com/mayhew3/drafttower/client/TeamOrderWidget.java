@@ -44,6 +44,9 @@ public class TeamOrderWidget extends Composite implements
   private final int numTeams;
   private final TeamsInfo teamsInfo;
   private final FlowPanel container;
+  private Label roundLabel;
+  private SimplePanel teamLogos[];
+  private Label statusMessage;
 
   @Inject
   public TeamOrderWidget(@NumTeams int numTeams,
@@ -61,20 +64,31 @@ public class TeamOrderWidget extends Composite implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    container.clear();
+    if (container.getWidgetCount() == 0) {
+      roundLabel = new Label();
+      roundLabel.addStyleName(CSS.round());
+      container.add(roundLabel);
+      teamLogos = new SimplePanel[numTeams];
+      for (int team = 1; team <= numTeams; team++) {
+        SimplePanel teamLogo = new SimplePanel();
+        Label name = new Label(teamsInfo.getShortTeamName(team));
+        teamLogo.setWidget(name);
+        teamLogo.setStyleName(CSS.teamLogo());
+        teamLogo.setStyleName(CSS.me(),
+            team == teamsInfo.getTeam());
+        teamLogos[team - 1] = teamLogo;
+        container.add(teamLogo);
+      }
+      statusMessage = new Label();
+      statusMessage.setStyleName(CSS.statusMessage());
+      container.add(statusMessage);
+    }
     DraftStatus status = event.getStatus();
-    Label roundLabel = new Label(status.isOver()
-        ? "It's over!"
-        : "Round " + (status.getPicks().size() / numTeams + 1));
-    roundLabel.addStyleName(CSS.round());
-    container.add(roundLabel);
+    roundLabel.setText(status.isOver()
+              ? "It's over!"
+              : "Round " + (status.getPicks().size() / numTeams + 1));
     for (int team = 1; team <= numTeams; team++) {
-      SimplePanel teamLogo = new SimplePanel();
-      Label name = new Label(teamsInfo.getShortTeamName(team));
-      teamLogo.setWidget(name);
-      teamLogo.setStyleName(CSS.teamLogo());
-      teamLogo.setStyleName(CSS.me(),
-          team == teamsInfo.getTeam());
+      SimplePanel teamLogo = teamLogos[team - 1];
       teamLogo.setStyleName(CSS.currentPick(),
           team == status.getCurrentTeam());
       teamLogo.setStyleName(CSS.disconnected(),
@@ -83,18 +97,14 @@ public class TeamOrderWidget extends Composite implements
           status.getRobotTeams().contains(team));
       teamLogo.setStyleName(CSS.keeper(),
           status.getNextPickKeeperTeams().contains(team));
-      container.add(teamLogo);
     }
     if (status.getCurrentPickDeadline() > 0) {
       if (teamsInfo.isMyPick(status)) {
-        Label statusMessage = new Label("Your pick!");
-        statusMessage.setStyleName(CSS.statusMessage());
-        container.add(statusMessage);
-      }
-      if (teamsInfo.isOnDeck(status)) {
-        Label statusMessage = new Label("On deck!");
-        statusMessage.setStyleName(CSS.statusMessage());
-        container.add(statusMessage);
+        statusMessage.setText("Your pick!");
+      } else if (teamsInfo.isOnDeck(status)) {
+        statusMessage.setText("On deck!");
+      } else {
+        statusMessage.setText("");
       }
     }
   }

@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
+import java.util.Set;
+
 /**
  * Player position.
  */
@@ -43,5 +45,20 @@ public enum Position {
       }
     }
     throw new IllegalArgumentException("No position " + shortName);
+  }
+
+  public boolean apply(Player player, Set<Position> openPositions) {
+    String eligibilities = player.getColumnValues().get(PlayerColumn.ELIG);
+    if (this == BAT || this == DH) {
+      return !eligibilities.contains(P.getShortName());
+    }
+    if (this == UNF) {
+      for (Position openPosition : openPositions) {
+        if (eligibilities.contains(openPosition.getShortName())) {
+          return true;
+        }
+      }
+    }
+    return eligibilities.contains(getShortName());
   }
 }

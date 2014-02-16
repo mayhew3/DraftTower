@@ -153,7 +153,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     sql = addFilters(request, sql);
 
     sql = addOrdering(tableSpec, sql);
-    sql += " limit " + request.getRowStart() + ", " + request.getRowCount();
+    if (request.getRowCount() > 0) {
+      sql += " limit " + request.getRowStart() + ", " + request.getRowCount();
+    }
 
     return executeQuery(sql);
   }
@@ -288,6 +290,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     if (!Strings.isNullOrEmpty(searchQuery)) {
       String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
       filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
+    } else {
+      filters.add("(AB > 0 or INN > 0)");
     }
 
     if (request.getHideInjuries()) {

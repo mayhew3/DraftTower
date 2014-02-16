@@ -16,7 +16,6 @@ import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickWizardUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
-import com.mayhew3.drafttower.client.events.IsUsersAutoPickWizardTableEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.shared.*;
 
@@ -31,12 +30,12 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     SetAutoPickWizardEvent.Handler,
     CopyAllPlayerRanksEvent.Handler {
 
-  private final BeanFactory beanFactory;
-  private final String playerInfoUrl;
+  protected final BeanFactory beanFactory;
+  protected final String playerInfoUrl;
   private final String changePlayerRankUrl;
   private final String copyPlayerRanksUrl;
   private final String setAutoPickWizardUrl;
-  private final TeamsInfo teamsInfo;
+  protected final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
   @Inject
@@ -96,7 +95,6 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
                     response.getText()).as();
             display.setRowData(rowStart, playerListResponse.getPlayers());
             display.setRowCount(playerListResponse.getTotalPlayers(), true);
-            eventBus.fireEvent(new IsUsersAutoPickWizardTableEvent(playerListResponse.isUsersAutoPickWizardTable()));
             if (display instanceof UnclaimedPlayerTable) {
               ((UnclaimedPlayerTable) display).computePageSize();
             }

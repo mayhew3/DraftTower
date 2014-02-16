@@ -86,9 +86,13 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     playerDataSource.populateDraftStatus(status);
     int round = status.getPicks().size() / numTeams;
     status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
-    status.setCurrentTeam(status.getPicks().isEmpty()
+    int currentTeam = status.getPicks().isEmpty()
         ? 1
-        : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1) % numTeams);
+        : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1);
+    if (currentTeam > numTeams) {
+      currentTeam -= numTeams;
+    }
+    status.setCurrentTeam(currentTeam);
     socketServlet.addListener(this);
   }
 

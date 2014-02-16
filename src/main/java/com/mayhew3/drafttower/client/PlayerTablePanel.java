@@ -17,7 +17,6 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
-import com.mayhew3.drafttower.client.events.IsUsersAutoPickWizardTableEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.shared.PlayerColumn;
@@ -37,7 +36,6 @@ import static com.mayhew3.drafttower.shared.Position.*;
  * Widget containing player table, position filter buttons, and paging controls.
  */
 public class PlayerTablePanel extends Composite implements
-    IsUsersAutoPickWizardTableEvent.Handler,
     LoginEvent.Handler {
 
   interface Resources extends ClientBundle {
@@ -73,6 +71,7 @@ public class PlayerTablePanel extends Composite implements
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
   private final UnclaimedPlayerTable table;
+  private PlayerDataSet wizardTable;
 
   @Inject
   public PlayerTablePanel(final UnclaimedPlayerTable table, final EventBus eventBus) {
@@ -102,10 +101,11 @@ public class PlayerTablePanel extends Composite implements
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
         if (event.getValue()) {
-          eventBus.fireEvent(new SetAutoPickWizardEvent(table.getTableSpec().getPlayerDataSet()));
+          wizardTable = table.getTableSpec().getPlayerDataSet();
         } else {
-          eventBus.fireEvent(new SetAutoPickWizardEvent(null));
+          wizardTable = null;
         }
+        eventBus.fireEvent(new SetAutoPickWizardEvent(wizardTable));
       }
     });
     rightSideControls.add(useForAutoPick);
@@ -128,6 +128,7 @@ public class PlayerTablePanel extends Composite implements
       @Override
       public void onColumnSort(ColumnSortEvent event) {
         updateCopyRanksEnabled();
+        updateUserForAutoPickCheckbox();
       }
     });
 
@@ -143,6 +144,7 @@ public class PlayerTablePanel extends Composite implements
         public void onClick(ClickEvent event) {
           updateDataSetButtons(playerDataSet);
           table.setPlayerDataSet(playerDataSet);
+          updateUserForAutoPickCheckbox();
         }
       });
       button.addStyleName(CSS.filterButton());
@@ -222,7 +224,6 @@ public class PlayerTablePanel extends Composite implements
 
     initWidget(container);
 
-    eventBus.addHandler(IsUsersAutoPickWizardTableEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
   }
 
@@ -237,9 +238,8 @@ public class PlayerTablePanel extends Composite implements
     }
   }
 
-  @Override
-  public void onSetAutoPickWizard(IsUsersAutoPickWizardTableEvent event) {
-    boolean usersAutoPickWizardTable = event.isUsersAutoPickWizardTable();
+  private void updateUserForAutoPickCheckbox() {
+    boolean usersAutoPickWizardTable = table.getTableSpec().getPlayerDataSet() == wizardTable;
     boolean shouldBeEnabled = usersAutoPickWizardTable || table.getSortedColumn().equals(PlayerColumn.WIZARD);
 
     useForAutoPick.setValue(usersAutoPickWizardTable);
@@ -248,9 +248,10 @@ public class PlayerTablePanel extends Composite implements
 
   @Override
   public void onLogin(LoginEvent event) {
-    PlayerDataSet initialWizardTable = event.getLoginResponse().getInitialWizardTable();
-    if (initialWizardTable != null) {
-      updateDataSetButtons(initialWizardTable);
+    wizardTable = event.getLoginResponse().getInitialWizardTable();
+    if (wizardTable != null) {
+      updateDataSetButtons(wizardTable);
+      updateUserForAutoPickCheckbox();
     }
     Scheduler.get().scheduleDeferred(new ScheduledCommand() {
       @Override
