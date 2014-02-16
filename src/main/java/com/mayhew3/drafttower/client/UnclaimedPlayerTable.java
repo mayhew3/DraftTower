@@ -191,10 +191,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     public NonStatPlayerTableColumn(PlayerColumn column) {
       super(createCell(column), column);
 
-      setDefaultSortAscending(column == NAME
-          || column == RANK
-          || column == MYRANK
-          || column == DRAFT);
+      setDefaultSortAscending(column.isDefaultSortAscending());
 
       if (column == MYRANK) {
         setFieldUpdater(new FieldUpdater<Player, String>() {
@@ -242,8 +239,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     protected void updateDefaultSort() {
-      setDefaultSortAscending((pitcherColumn == ERA && positionFilter == Position.P)
-          || (pitcherColumn == WHIP && positionFilter == Position.P));
+      setDefaultSortAscending(pitcherColumn.isDefaultSortAscending() && positionFilter == Position.P);
     }
 
     @Override
