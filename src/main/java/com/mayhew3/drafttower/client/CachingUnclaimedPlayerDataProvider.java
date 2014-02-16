@@ -88,7 +88,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
             @Override
             public boolean apply(Player player) {
               return (nameFilter == null
-                      || player.getColumnValues().get(PlayerColumn.NAME).toLowerCase()
+                      || PlayerColumn.NAME.get(player).toLowerCase()
                           .contains(nameFilter.toLowerCase()))
                   && (!hideInjuries || player.getInjury() == null)
                   && (positionFilter == null || positionFilter.apply(player, openPositions))

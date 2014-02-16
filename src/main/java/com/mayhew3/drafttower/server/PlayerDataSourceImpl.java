@@ -4,7 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -63,20 +66,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
         player.setCBSId(resultSet.getInt("CBS_ID"));
-        ImmutableMap.Builder<PlayerColumn, String> columnMap = ImmutableMap.builder();
 
         List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
         playerColumns.remove(PlayerColumn.NAME);
-        columnMap.put(PlayerColumn.NAME, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+        PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
 
         for (PlayerColumn playerColumn : playerColumns) {
           String columnString = resultSet.getString(playerColumn.getColumnName());
           if (columnString != null) {
-            columnMap.put(playerColumn, columnString);
+            playerColumn.set(player, columnString);
           }
         }
-
-        player.setColumnValues(columnMap.build());
 
         String injury = resultSet.getString("Injury");
         if (injury != null) {

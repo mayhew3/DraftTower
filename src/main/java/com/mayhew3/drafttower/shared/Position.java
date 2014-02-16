@@ -48,7 +48,7 @@ public enum Position {
   }
 
   public boolean apply(Player player, Set<Position> openPositions) {
-    String eligibilities = player.getColumnValues().get(PlayerColumn.ELIG);
+    String eligibilities = PlayerColumn.ELIG.get(player);
     if (this == BAT || this == DH) {
       return !eligibilities.contains(P.getShortName());
     }
