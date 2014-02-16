@@ -12,7 +12,4 @@ public interface UnclaimedPlayerListResponse {
 
   int getTotalPlayers();
   void setTotalPlayers(int totalPlayers);
-
-  boolean isUsersAutoPickWizardTable();
-  void setUsersAutoPickWizardTable(boolean usersAutoPickWizardTable);
 }

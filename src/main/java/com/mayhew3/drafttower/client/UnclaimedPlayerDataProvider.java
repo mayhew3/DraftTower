@@ -16,7 +16,6 @@ import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickWizardUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
-import com.mayhew3.drafttower.client.events.IsUsersAutoPickWizardTableEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.shared.*;
 
@@ -96,7 +95,6 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
                     response.getText()).as();
             display.setRowData(rowStart, playerListResponse.getPlayers());
             display.setRowCount(playerListResponse.getTotalPlayers(), true);
-            eventBus.fireEvent(new IsUsersAutoPickWizardTableEvent(playerListResponse.isUsersAutoPickWizardTable()));
             if (display instanceof UnclaimedPlayerTable) {
               ((UnclaimedPlayerTable) display).computePageSize();
             }

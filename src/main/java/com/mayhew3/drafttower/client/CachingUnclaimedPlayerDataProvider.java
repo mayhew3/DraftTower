@@ -197,7 +197,6 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
             tableSpec, rowStart, rowCount, positionFilter, hideInjuries, nameFilter);
         table.setRowData(rowStart, Lists.newArrayList(players));
         table.setRowCount(playerList.getTotalPlayers(), true);
-        // TODO(kprevas): autopick checkbox
         table.computePageSize();
       }
     }
