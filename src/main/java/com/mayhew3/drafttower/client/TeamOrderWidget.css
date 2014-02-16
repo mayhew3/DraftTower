@@ -14,7 +14,11 @@
   text-align: center;
   padding: 3px;
   border: 1px solid black;
-  margin-bottom: 5px;}
+  margin-bottom: 5px;
+
+  -webkit-transition: color ease 1s, border-color ease 1s, opacity ease 1s;
+  transition: color ease 1s, border-color ease 1s, opacity ease 1s;
+}
 
 .me {
   border-color: green;
@@ -23,6 +27,52 @@
 
 .currentPick {
   border-color: red;
+  color: red;
+}
+
+@keyframes myPick {
+  from {
+    color: green;
+    border-color: green;
+  }
+  to {
+    color: red;
+    border-color: red;
+  }
+}
+
+@-webkit-keyframes myPick {
+  from {
+    color: green;
+    border-color: green;
+  }
+  to {
+    color: red;
+    border-color: red;
+  }
+}
+
+@keyframes myPickBgd {
+  from {
+    background-color: green;
+  }
+  to {
+    background-color: red;
+  }
+}
+
+@-webkit-keyframes myPickBgd {
+  from {
+    background-color: green;
+  }
+  to {
+    background-color: red;
+  }
+}
+
+.me.currentPick {
+  -webkit-animation: myPick 1s infinite alternate;
+  animation: myPick 1s infinite alternate;
 }
 
 .currentPick:after {
@@ -35,6 +85,11 @@
   bottom: 0;
   right: 0;
   line-height: 25px;
+}
+
+.me.currentPick:after {
+  -webkit-animation: myPickBgd 1s infinite alternate;
+  animation: myPickBgd 1s infinite alternate;
 }
 
 .disconnected {
