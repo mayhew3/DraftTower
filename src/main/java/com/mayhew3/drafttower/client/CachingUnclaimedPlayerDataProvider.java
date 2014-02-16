@@ -34,12 +34,12 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   private static final class SortSpec {
     private final PlayerColumn column;
-    private final Position wizardPosition;
+    private final EnumSet<Position> wizardPosition;
     private final boolean ascending;
 
-    private SortSpec(PlayerColumn column, Position position, boolean ascending) {
+    private SortSpec(PlayerColumn column, EnumSet<Position> positions, boolean ascending) {
       this.column = column;
-      wizardPosition = column == PlayerColumn.WIZARD ? position : null;
+      wizardPosition = column == PlayerColumn.WIZARD ? positions : null;
       this.ascending = ascending;
     }
 
@@ -72,7 +72,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
     private PlayerList(List<Player> players,
         PlayerColumn defaultSortCol,
-        Position defaultPositionFilter,
+        EnumSet<Position> defaultPositionFilter,
         boolean defaultSortAscending) {
       playersBySortCol.put(
           new SortSpec(defaultSortCol, defaultPositionFilter, defaultSortAscending), players);
@@ -80,7 +80,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
     private Iterable<Player> getPlayers(TableSpec tableSpec,
         int rowStart, int rowCount,
-        final Position positionFilter,
+        final EnumSet<Position> positionFilter,
         final boolean hideInjuries,
         final String nameFilter) {
       // TODO(kprevas): refetch when nameFilter is set to get 0 AB/0 INN players?
@@ -88,7 +88,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
       if (!playersBySortCol.containsKey(sortSpec)) {
         List<Player> players = playersBySortCol.values().iterator().next();
         Comparator<Player> comparator = sortSpec.column == PlayerColumn.WIZARD
-            ? PlayerColumn.getWizardComparator(sortSpec.ascending, positionFilter, openPositions.get())
+            ? PlayerColumn.getWizardComparator(sortSpec.ascending, positionFilter)
             : sortSpec.column.getComparator(sortSpec.ascending);
         playersBySortCol.put(sortSpec,
             Ordering.from(comparator).sortedCopy(players));
@@ -102,7 +102,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
                       || PlayerColumn.NAME.get(player).toLowerCase()
                           .contains(nameFilter.toLowerCase()))
                   && (!hideInjuries || player.getInjury() == null)
-                  && (positionFilter == null || positionFilter.apply(player, openPositions.get()))
+                  && (positionFilter == null || Position.apply(player, positionFilter))
                   && !pickedPlayers.contains(player.getPlayerId());
             }
           }), rowStart), rowCount);
@@ -142,14 +142,14 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
   public void onLogin(LoginEvent event) {
     requestData(UnclaimedPlayerTable.DEFAULT_DATA_SET,
         UnclaimedPlayerTable.DEFAULT_SORT_COL,
-        UnclaimedPlayerTable.DEFAULT_POSITION_FILTER,
+        openPositions.get(),
         UnclaimedPlayerTable.DEFAULT_SORT_ASCENDING, null);
   }
 
   private void requestData(
       final PlayerDataSet dataSet,
       final PlayerColumn defaultSortCol,
-      final Position defaultPositionFilter,
+      final EnumSet<Position> defaultPositionFilter,
       final boolean defaultSortAscending,
       final Runnable callback) {
     if (!teamsInfo.isLoggedIn()) {
@@ -197,7 +197,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     int rowCount = display.getVisibleRange().getLength();
     if (display instanceof UnclaimedPlayerTable) {
       UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
-      Position positionFilter = table.getPositionFilter();
+      EnumSet<Position> positionFilter = table.getPositionFilter();
       boolean hideInjuries = table.getHideInjuries();
       TableSpec tableSpec = table.getTableSpec();
       String nameFilter = table.getNameFilter();

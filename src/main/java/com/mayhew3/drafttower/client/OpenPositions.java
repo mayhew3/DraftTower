@@ -10,8 +10,7 @@ import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 
 /**
  * Tracks open positions for the user's team.
@@ -20,7 +19,7 @@ public class OpenPositions implements DraftStatusChangedEvent.Handler {
 
   private final TeamsInfo teamsInfo;
 
-  private Set<Position> openPositions = new HashSet<>();
+  private EnumSet<Position> openPositions = EnumSet.allOf(Position.class);
 
   @Inject
   public OpenPositions(TeamsInfo teamsInfo,
@@ -31,17 +30,18 @@ public class OpenPositions implements DraftStatusChangedEvent.Handler {
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    openPositions = RosterUtil.getOpenPositions(
+    openPositions.clear();
+    openPositions.addAll(RosterUtil.getOpenPositions(
         Lists.newArrayList(Iterables.filter(event.getStatus().getPicks(),
             new Predicate<DraftPick>() {
               @Override
               public boolean apply(DraftPick input) {
                 return input.getTeam() == teamsInfo.getTeam();
               }
-            })));
+            }))));
   }
 
-  public Set<Position> get() {
+  public EnumSet<Position> get() {
     return openPositions;
   }
 }

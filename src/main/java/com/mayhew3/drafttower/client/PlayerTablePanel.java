@@ -24,9 +24,7 @@ import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.TableSpec;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerDataSet.CBSSPORTS;
@@ -60,13 +58,36 @@ public class PlayerTablePanel extends Composite implements
     CSS.ensureInjected();
   }
 
-  private static final Position[] POSITIONS = {
-      UNF, null, BAT, C, FB, SB, TB, SS, OF, DH, P
-  };
+  private static class PositionFilter {
+    private final String name;
+    private final EnumSet<Position> positions;
+
+    private PositionFilter(String name, EnumSet<Position> positions) {
+      this.name = name;
+      this.positions = positions;
+    }
+    
+    private PositionFilter(Position singlePosition) {
+      this.name = singlePosition.getShortName();
+      this.positions = EnumSet.of(singlePosition);
+    }
+  }
+
+  private static final List<PositionFilter> POSITION_FILTERS = Arrays.asList(
+      null,  // Unfilled - populated in constructor. 
+      new PositionFilter("All", EnumSet.allOf(Position.class)),
+      new PositionFilter("Batters", Position.BATTING_POSITIONS),
+      new PositionFilter(C),
+      new PositionFilter(FB),
+      new PositionFilter(SB),
+      new PositionFilter(TB),
+      new PositionFilter(SS),
+      new PositionFilter(OF),
+      new PositionFilter(DH),
+      new PositionFilter(P));
 
   private final Map<PlayerDataSet, ToggleButton> dataSetButtons = new EnumMap<>(PlayerDataSet.class);
-  private ToggleButton allButton;
-  private final Map<Position, ToggleButton> positionFilterButtons = new EnumMap<>(Position.class);
+  private final Map<PositionFilter, ToggleButton> positionFilterButtons = new HashMap<>();
   private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
@@ -74,7 +95,10 @@ public class PlayerTablePanel extends Composite implements
   private PlayerDataSet wizardTable;
 
   @Inject
-  public PlayerTablePanel(final UnclaimedPlayerTable table, final EventBus eventBus) {
+  public PlayerTablePanel(final UnclaimedPlayerTable table,
+      OpenPositions openPositions,
+      final EventBus eventBus) {
+    POSITION_FILTERS.set(0, new PositionFilter("Unfilled", openPositions.get()));
     this.table = table;
 
     FlowPanel container = new FlowPanel();
@@ -158,32 +182,25 @@ public class PlayerTablePanel extends Composite implements
 
     HorizontalPanel filterButtons = new HorizontalPanel();
     filterButtons.addStyleName(CSS.headerElement());
-    for (final Position position : POSITIONS) {
-      ToggleButton button = new ToggleButton(position == null ? "All" : position.getShortName(),
+    for (final PositionFilter positionFilter : POSITION_FILTERS) {
+      ToggleButton button = new ToggleButton(positionFilter.name,
           new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-              if (position != null) {
-                allButton.setDown(false);
+              for (Entry<PositionFilter, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
+                buttonEntry.getValue().setDown(buttonEntry.getKey() == positionFilter);
               }
-              for (Entry<Position, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
-                buttonEntry.getValue().setDown(buttonEntry.getKey() == position);
-              }
-              table.setPositionFilter(position);
+              table.setPositionFilter(positionFilter.positions);
             }
           });
       button.addStyleName(CSS.filterButton());
-      if (position != null) {
-        positionFilterButtons.put(position, button);
-      } else {
-        allButton = button;
-      }
-      if (position == UNF) {
+      positionFilterButtons.put(positionFilter, button);
+      if (positionFilter == POSITION_FILTERS.get(0)) {
         button.setDown(true);
       }
       filterButtons.add(button);
     }
-    table.setPositionFilter(UnclaimedPlayerTable.DEFAULT_POSITION_FILTER);
+    table.setPositionFilter(POSITION_FILTERS.get(0).positions);
     buttonPanels.add(filterButtons);
 
     FlowPanel pagerAndSearch = new FlowPanel();

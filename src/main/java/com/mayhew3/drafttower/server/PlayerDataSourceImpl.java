@@ -2,8 +2,6 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -135,7 +133,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
 
     String sql = "select count(1) as TotalPlayers from ";
-    sql = getFromJoins(team, sql, getPositionFilterClause(request, team), true);
+    sql = getFromJoins(team, sql, null, true);
 
     sql = addFilters(request, sql);
 
@@ -157,7 +155,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TableSpec tableSpec = request.getTableSpec();
 
     String sql = "select * from ";
-    sql = getFromJoins(team, sql, getPositionFilterClause(request, team), true);
+    sql = getFromJoins(team, sql, null, true);
 
     sql = addFilters(request, sql);
 
@@ -335,17 +333,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private String addFilters(UnclaimedPlayerListRequest request, String sql) {
     List<String> filters = new ArrayList<>();
 
-    String searchQuery = request.getSearchQuery();
-    if (!Strings.isNullOrEmpty(searchQuery)) {
-      String sanitizedQuery = request.getSearchQuery().replaceAll("[^\\w]", "");
-      filters.add("(FirstName like '%" + sanitizedQuery +"%' or LastName like '%" + sanitizedQuery + "%') ");
-    } else {
-      filters.add("(AB > 0 or INN > 0)");
-    }
-
-    if (request.getHideInjuries()) {
-      filters.add("Injury IS NULL");
-    }
+    filters.add("(AB > 0 or INN > 0)");
 
     addTableSpecFilter(filters, request.getTableSpec());
 
@@ -391,33 +379,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Open Positions
 
-  private String getPositionFilterClause(UnclaimedPlayerListRequest request, int team) {
-    Position positionFilter = request.getPositionFilter();
-
-    if (positionFilter == null) {
-      return null;
-    } else if (positionFilter == UNF) {
-      Set<Position> openPositions = getOpenPositions(team);
-      return createFilterStringFromPositions(openPositions);
-    } else if (positionFilter == BAT) {
-      return " <> '" + P.getShortName() + "' ";
-    } else {
-      return " = '" + positionFilter.getShortName() + "' ";
-    }
-  }
-
-  private Set<Position> getOpenPositions(final int team) {
-    ArrayList<DraftPick> picks = Lists.newArrayList(draftStatus.getPicks());
-    return RosterUtil.getOpenPositions(
-        Lists.newArrayList(Iterables.filter(picks,
-            new Predicate<DraftPick>() {
-              @Override
-              public boolean apply(DraftPick input) {
-                return input.getTeam() == team;
-              }
-            })));
-  }
-
   private String createFilterStringFromPositions(Set<Position> openPositions) {
     // needs no filter if all positions are open, {P, DH} are open, or all positions are full (reserve time!)
     if (openPositions.isEmpty() || hasAllOpenPositions(openPositions)) {
@@ -434,11 +395,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   private boolean hasAllOpenPositions(Set<Position> openPositions) {
-    Set<Position> allPositions = EnumSet.allOf(Position.class);
-    allPositions.remove(UNF);
-    allPositions.remove(BAT);
-    allPositions.remove(RS);
-    return openPositions.size() == allPositions.size()
+    return openPositions.size() == Position.REAL_POSITIONS.size()
         || (openPositions.contains(DH) && openPositions.contains(P));
   }
 
