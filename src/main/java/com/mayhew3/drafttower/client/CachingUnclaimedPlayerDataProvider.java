@@ -87,7 +87,9 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
           new Predicate<Player>() {
             @Override
             public boolean apply(Player player) {
-              return (nameFilter == null || player.getColumnValues().get(PlayerColumn.NAME).contains(nameFilter))
+              return (nameFilter == null
+                      || player.getColumnValues().get(PlayerColumn.NAME).toLowerCase()
+                          .contains(nameFilter.toLowerCase()))
                   && (!hideInjuries || player.getInjury() == null)
                   && (positionFilter == null || positionFilter.apply(player, openPositions))
                   && !pickedPlayers.contains(player.getPlayerId());
@@ -109,7 +111,6 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
 
-  private DraftStatus draftStatus;
   private Set<Position> openPositions;
 
   @Inject
@@ -204,12 +205,12 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    this.draftStatus = event.getStatus();
+    List<DraftPick> picks = event.getStatus().getPicks();
     for (PlayerList playerList : playersByDataSet.values()) {
-      playerList.ensurePlayersRemoved(event.getStatus().getPicks());
+      playerList.ensurePlayersRemoved(picks);
     }
     openPositions = RosterUtil.getOpenPositions(
-        Lists.newArrayList(Iterables.filter(draftStatus.getPicks(),
+        Lists.newArrayList(Iterables.filter(picks,
             new Predicate<DraftPick>() {
               @Override
               public boolean apply(DraftPick input) {
