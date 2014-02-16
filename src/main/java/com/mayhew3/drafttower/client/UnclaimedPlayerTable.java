@@ -160,8 +160,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
           Player draggedPlayer = dragAndDropContext.getDraggableData();
           Player droppedPlayer = dragAndDropContext.getDroppableData();
           if (draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
-            int prevRank = Integer.parseInt(draggedPlayer.getColumnValues().get(MYRANK));
-            int targetRank = Integer.parseInt(droppedPlayer.getColumnValues().get(MYRANK));
+            int prevRank = Integer.parseInt(MYRANK.get(draggedPlayer));
+            int targetRank = Integer.parseInt(MYRANK.get(droppedPlayer));
             if (prevRank > targetRank && !isTopDrop(dragAndDropContext, false)) {
               targetRank++;
             }
@@ -198,7 +198,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         setFieldUpdater(new FieldUpdater<Player, String>() {
           @Override
           public void update(int index, Player player, String newRank) {
-            String currentRank = player.getColumnValues().get(MYRANK);
+            String currentRank = MYRANK.get(player);
             if (!newRank.equals(currentRank)) {
               try {
                 eventBus.fireEvent(new ChangePlayerRankEvent(player.getPlayerId(),
@@ -214,7 +214,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     public String getValue(Player player) {
-      return player.getColumnValues().get(column);
+      if (column == WIZARD) {
+        return PlayerColumn.getWizard(player, positionFilter, openPositions.get());
+      } else {
+        return column.get(player);
+      }
     }
 
     @Override
@@ -245,10 +249,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     public PlayerValue getValue(Player player) {
-      if (pitcherColumn != null && player.getColumnValues().containsKey(pitcherColumn)) {
-        return new PlayerValue(player, player.getColumnValues().get(pitcherColumn));
+      if (pitcherColumn != null && pitcherColumn.get(player) != null) {
+        return new PlayerValue(player, pitcherColumn.get(player));
       }
-      return new PlayerValue(player, player.getColumnValues().get(column));
+      return new PlayerValue(player, column.get(player));
     }
 
     @Override
@@ -271,8 +275,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
   public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
   public static final boolean DEFAULT_SORT_ASCENDING = true;
+  public static final Position DEFAULT_POSITION_FILTER = Position.UNF;
 
   private final Provider<Integer> queueAreaTopProvider;
+  private final OpenPositions openPositions;
 
   private Position positionFilter;
   private final TableSpec tableSpec;
@@ -284,9 +290,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public UnclaimedPlayerTable(AsyncDataProvider<Player> dataProvider,
       BeanFactory beanFactory,
       final EventBus eventBus,
-      @QueueAreaTop Provider<Integer> queueAreaTopProvider) {
+      @QueueAreaTop Provider<Integer> queueAreaTopProvider,
+      OpenPositions openPositions) {
     super(eventBus);
     this.queueAreaTopProvider = queueAreaTopProvider;
+    this.openPositions = openPositions;
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(DEFAULT_DATA_SET);
@@ -361,7 +369,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         Player player = dragStartEvent.getDraggableData();
         dragStartEvent.getHelper().setInnerSafeHtml(
             new SafeHtmlBuilder().appendEscaped(
-                player.getColumnValues().get(NAME)).toSafeHtml());
+                NAME.get(player)).toSafeHtml());
       }
     });
     updateDropEnabled();
@@ -372,7 +380,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
         Player player = selectionModel.getSelectedObject();
-        eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), player.getColumnValues().get(NAME)));
+        eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), NAME.get(player)));
       }
     });
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
@@ -403,7 +411,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
         if (value.value != null) {
           if (positionFilter == Position.UNF || positionFilter == null) {
             String style;
-            if (value.player.getColumnValues().get(ELIG).contains(Position.P.getShortName())) {
+            if (ELIG.get(value.player).contains(Position.P.getShortName())) {
               style = CSS.pitcherStat();
             } else {
               style = CSS.batterStat();

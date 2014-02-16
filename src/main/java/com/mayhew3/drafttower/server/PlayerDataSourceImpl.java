@@ -4,7 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -63,20 +66,26 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
         player.setCBSId(resultSet.getInt("CBS_ID"));
-        ImmutableMap.Builder<PlayerColumn, String> columnMap = ImmutableMap.builder();
 
         List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
         playerColumns.remove(PlayerColumn.NAME);
-        columnMap.put(PlayerColumn.NAME, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+        PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
 
         for (PlayerColumn playerColumn : playerColumns) {
-          String columnString = resultSet.getString(playerColumn.getColumnName());
-          if (columnString != null) {
-            columnMap.put(playerColumn, columnString);
+          if (playerColumn == PlayerColumn.WIZARD) {
+            for (Position position : REAL_POSITIONS) {
+              String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
+              if (columnString != null) {
+                PlayerColumn.setWizard(player, columnString, position);
+              }
+            }
+          } else {
+            String columnString = resultSet.getString(playerColumn.getColumnName());
+            if (columnString != null) {
+              playerColumn.set(player, columnString);
+            }
           }
         }
-
-        player.setColumnValues(columnMap.build());
 
         String injury = resultSet.getString("Injury");
         if (injury != null) {
@@ -234,7 +243,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
         "   and batting = 0\n" +
-        "  ) as Wizard " +
+        "  ) as Wizard, " +
+        "  (select round(Rating, 3)\n" +
+        "   from wizardRatings\n" +
+        "   where projectionRow = projectionsPitching.ID\n" +
+        "   and batting = 0\n" +
+        "  ) as WizardP, " +
+        getNullBattingWizardClauses() +
         " FROM projectionsPitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
@@ -252,7 +267,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "   where projectionRow = projectionsBatting.ID\n" +
         "   and batting = 1 \n" +
         wizardFilterClause +
-        "  ) as Wizard \n" +
+        "  ) as Wizard, \n" +
+        "  NULL as WizardP, \n" +
+        getBattingWizardClauses() +
         " FROM projectionsBatting)";
 
     sql +=
@@ -282,6 +299,38 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return sql;
   }
 
+  private String getBattingWizardClauses() {
+    StringBuilder builder = new StringBuilder();
+    for (Position position : Position.BATTING_POSITIONS) {
+      if (builder.length() > 0) {
+        builder.append(", ");
+      }
+      builder.append("  (select round(Rating, 3)\n" +
+              "   from wizardRatings\n" +
+              "   where projectionRow = projectionsBatting.ID\n" +
+              "   and batting = 1 \n" +
+              "   and Position = '")
+          .append(position.getShortName())
+          .append("'\n" +
+              "  ) as Wizard")
+          .append(position.getShortName())
+          .append(" \n");
+    }
+    return builder.toString();
+  }
+
+  private String getNullBattingWizardClauses() {
+    StringBuilder builder = new StringBuilder();
+    for (Position position : Position.BATTING_POSITIONS) {
+      if (builder.length() > 0) {
+        builder.append(", ");
+      }
+      builder.append("  NULL as Wizard")
+          .append(position.getShortName())
+          .append(" \n");
+    }
+    return builder.toString();
+  }
 
   private String addFilters(UnclaimedPlayerListRequest request, String sql) {
     List<String> filters = new ArrayList<>();
