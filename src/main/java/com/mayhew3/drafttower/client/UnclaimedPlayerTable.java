@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
@@ -429,10 +430,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   void computePageSize() {
-    int availableHeight = queueAreaTopProvider.get() - getRowElement(0).getAbsoluteTop();
-    int pageSize = availableHeight / getRowElement(0).getOffsetHeight();
-    if (pageSize != getPageSize()) {
-      setPageSize(pageSize);
+    TableRowElement rowElement = getRowElement(0);
+    if (rowElement != null) {
+      int availableHeight = queueAreaTopProvider.get() - rowElement.getAbsoluteTop();
+      int pageSize = availableHeight / rowElement.getOffsetHeight();
+      if (pageSize != getPageSize()) {
+        setPageSize(pageSize);
+      }
     }
   }
 
