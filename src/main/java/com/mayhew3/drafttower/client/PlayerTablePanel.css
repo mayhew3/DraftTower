@@ -13,6 +13,10 @@
   display: block;
 }
 
+.buttonContainer {
+  position: relative;
+}
+
 .filterButton {
   border: 1px solid #d3d3d3;
   border-right-width: 0;
@@ -51,15 +55,21 @@
   filter: literal("progid:DXImageTransform.Microsoft.gradient( startColorstr='#abd0e3', endColorstr='#ffffff',GradientType=0 )"); /* IE6-9 */
 }
 
-td:first-child > .filterButton {
+td:first-child > div > .filterButton {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
-td:last-child > .filterButton {
+td:last-child > div > .filterButton {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
   border-right-width: 1px;
+}
+
+.filterCheckBox {
+  position: absolute;
+  top: 100%;
+  left: 10%;
 }
 
 .autoPick {
@@ -73,7 +83,7 @@ td:last-child > .filterButton {
 }
 
 .headerLine {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .search {
