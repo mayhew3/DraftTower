@@ -31,19 +31,16 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   private final DataSource db;
   private final BeanFactory beanFactory;
-  private final DraftStatus draftStatus;
   private final Map<String, Integer> teamTokens;
   private final int numTeams;
 
   @Inject
   public PlayerDataSourceImpl(DataSource db,
       BeanFactory beanFactory,
-      DraftStatus draftStatus,
       @TeamTokens Map<String, Integer> teamTokens,
       @NumTeams int numTeams) {
     this.db = db;
     this.beanFactory = beanFactory;
-    this.draftStatus = draftStatus;
     this.teamTokens = teamTokens;
     this.numTeams = numTeams;
   }
@@ -133,7 +130,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
 
     String sql = "select count(1) as TotalPlayers from ";
-    sql = getFromJoins(team, sql, null, true);
+    sql = getFromJoins(team, sql, null, true, false);
 
     sql = addFilters(request, sql);
 
@@ -155,7 +152,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TableSpec tableSpec = request.getTableSpec();
 
     String sql = "select * from ";
-    sql = getFromJoins(team, sql, null, true);
+    sql = getFromJoins(team, sql, null, true, true);
 
     sql = addFilters(request, sql);
 
@@ -171,7 +168,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public long getBestPlayerId(PlayerDataSet wizardTable, final Integer team, Set<Position> openPositions) throws SQLException {
 
     String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true);
+    sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true, false);
 
     List<String> filters = new ArrayList<>();
     addDataSetFilter(filters, wizardTable);
@@ -218,7 +215,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player utility methods
 
-  private String getFromJoins(int team, String sql, String positionFilterString, boolean filterClaimed) {
+  private String getFromJoins(int team, String sql, String positionFilterString, boolean filterClaimed, boolean allWizardPositions) {
     String wizardFilterClause = "";
     String playerFilterClause = "";
 
@@ -241,13 +238,16 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
         "   and batting = 0\n" +
-        "  ) as Wizard, " +
-        "  (select round(Rating, 3)\n" +
-        "   from wizardRatings\n" +
-        "   where projectionRow = projectionsPitching.ID\n" +
-        "   and batting = 0\n" +
-        "  ) as WizardP, " +
-        getNullBattingWizardClauses() +
+        "  ) as Wizard" +
+            (allWizardPositions ?
+            ",\n" +
+            "  (select round(Rating, 3)\n" +
+            "   from wizardRatings\n" +
+            "   where projectionRow = projectionsPitching.ID\n" +
+            "   and batting = 0\n" +
+            "  ) as WizardP, " +
+            getNullBattingWizardClauses()
+            : "") +
         " FROM projectionsPitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
@@ -265,9 +265,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "   where projectionRow = projectionsBatting.ID\n" +
         "   and batting = 1 \n" +
         wizardFilterClause +
-        "  ) as Wizard, \n" +
-        "  NULL as WizardP, \n" +
-        getBattingWizardClauses() +
+        "  ) as Wizard\n" +
+        (allWizardPositions
+            ? ",\n" +
+            "  NULL as WizardP, \n" +
+            getBattingWizardClauses()
+            : "") +
         " FROM projectionsBatting)";
 
     sql +=
@@ -565,7 +568,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
         " SELECT " + team + ", PlayerID \n" +
         " FROM ";
-    sql = getFromJoins(team, sql, null, false);
+    sql = getFromJoins(team, sql, null, false, false);
 
     List<String> filters = new ArrayList<>();
     addTableSpecFilter(filters, tableSpec);
