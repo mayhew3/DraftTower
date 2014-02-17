@@ -1,6 +1,6 @@
 package com.mayhew3.drafttower.shared;
 
-import java.util.Set;
+import java.util.EnumSet;
 
 /**
  * Player position.
@@ -15,15 +15,11 @@ public enum Position {
   OF("OF", "Outfield"),
   DH("DH", "Designated Hitter"),
 
-  // Filtering:
-  BAT("Batters", "All Batters"),
-  UNF("Unfilled", "Unfilled Positions"),
-
   // Misc:
   RS("RS", "Reserves");
 
-  public static final Position[] REAL_POSITIONS = {P, C, FB, SB, TB, SS, OF, DH};
-  public static final Position[] BATTING_POSITIONS = {C, FB, SB, TB, SS, OF, DH};
+  public static final EnumSet<Position> REAL_POSITIONS = EnumSet.of(P, C, FB, SB, TB, SS, OF, DH);
+  public static final EnumSet<Position> BATTING_POSITIONS = EnumSet.of(C, FB, SB, TB, SS, OF, DH);
 
   private final String shortName;
   private final String longName;
@@ -50,18 +46,13 @@ public enum Position {
     throw new IllegalArgumentException("No position " + shortName);
   }
 
-  public boolean apply(Player player, Set<Position> openPositions) {
+  public static boolean apply(Player player, EnumSet<Position> positions) {
     String eligibilities = PlayerColumn.ELIG.get(player);
-    if (this == BAT || this == DH) {
-      return !eligibilities.contains(P.getShortName());
-    }
-    if (this == UNF) {
-      for (Position openPosition : openPositions) {
-        if (eligibilities.contains(openPosition.getShortName())) {
-          return true;
-        }
+    for (Position position : positions) {
+      if (eligibilities.contains(position.getShortName())) {
+        return true;
       }
     }
-    return eligibilities.contains(getShortName());
+    return false;
   }
 }

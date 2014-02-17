@@ -3,6 +3,8 @@
   height: 10px;
   border-radius: 5px;
   background: red;
+  -webkit-transition: background ease 500ms;
+  transition: background ease 500ms;
 }
 
 .connected {

@@ -17,6 +17,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
+import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.shared.PlayerColumn;
@@ -24,9 +25,7 @@ import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.TableSpec;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerDataSet.CBSSPORTS;
@@ -36,7 +35,8 @@ import static com.mayhew3.drafttower.shared.Position.*;
  * Widget containing player table, position filter buttons, and paging controls.
  */
 public class PlayerTablePanel extends Composite implements
-    LoginEvent.Handler {
+    LoginEvent.Handler,
+    DraftStatusChangedEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -46,7 +46,9 @@ public class PlayerTablePanel extends Composite implements
       String hideInjuries();
       String rightSideControls();
       String autoPick();
+      String buttonContainer();
       String filterButton();
+      String filterCheckBox();
       String search();
       String clearSearch();
     }
@@ -60,21 +62,50 @@ public class PlayerTablePanel extends Composite implements
     CSS.ensureInjected();
   }
 
-  private static final Position[] POSITIONS = {
-      UNF, null, BAT, C, FB, SB, TB, SS, OF, DH, P
-  };
+  private static class PositionFilter {
+    private final String name;
+    private final EnumSet<Position> positions;
+
+    private PositionFilter(String name, EnumSet<Position> positions) {
+      this.name = name;
+      this.positions = positions;
+    }
+    
+    private PositionFilter(Position singlePosition) {
+      this.name = singlePosition.getShortName();
+      this.positions = EnumSet.of(singlePosition);
+    }
+  }
+
+  private static final List<PositionFilter> POSITION_FILTERS = Arrays.asList(
+      null,  // Unfilled - populated in constructor. 
+      new PositionFilter("All", EnumSet.allOf(Position.class)),
+      new PositionFilter("Batters", Position.BATTING_POSITIONS),
+      new PositionFilter(C),
+      new PositionFilter(FB),
+      new PositionFilter(SB),
+      new PositionFilter(TB),
+      new PositionFilter(SS),
+      new PositionFilter(OF),
+      new PositionFilter(DH),
+      new PositionFilter(P));
 
   private final Map<PlayerDataSet, ToggleButton> dataSetButtons = new EnumMap<>(PlayerDataSet.class);
-  private ToggleButton allButton;
-  private final Map<Position, ToggleButton> positionFilterButtons = new EnumMap<>(Position.class);
+  private final Map<PositionFilter, ToggleButton> positionFilterButtons = new HashMap<>();
+  private final Map<Position, CheckBox> positionOverrideCheckBoxes = new HashMap<>();
+  private final EnumSet<Position> excludedPositions = EnumSet.noneOf(Position.class);
   private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
   private final UnclaimedPlayerTable table;
   private PlayerDataSet wizardTable;
+  private PositionFilter positionFilter;
 
   @Inject
-  public PlayerTablePanel(final UnclaimedPlayerTable table, final EventBus eventBus) {
+  public PlayerTablePanel(final UnclaimedPlayerTable table,
+      OpenPositions openPositions,
+      final EventBus eventBus) {
+    POSITION_FILTERS.set(0, new PositionFilter("Unfilled", openPositions.get()));
     this.table = table;
 
     FlowPanel container = new FlowPanel();
@@ -158,32 +189,45 @@ public class PlayerTablePanel extends Composite implements
 
     HorizontalPanel filterButtons = new HorizontalPanel();
     filterButtons.addStyleName(CSS.headerElement());
-    for (final Position position : POSITIONS) {
-      ToggleButton button = new ToggleButton(position == null ? "All" : position.getShortName(),
+    for (final Position position : Position.REAL_POSITIONS) {
+      final CheckBox checkBox = new CheckBox();
+      checkBox.setValue(true);
+      checkBox.setStyleName(CSS.filterCheckBox());
+      checkBox.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          if (excludedPositions.contains(position)) {
+            excludedPositions.remove(position);
+          } else {
+            excludedPositions.add(position);
+          }
+          setPositionFilter(POSITION_FILTERS.get(0));
+        }
+      });
+      positionOverrideCheckBoxes.put(position, checkBox);
+    }
+    for (final PositionFilter positionFilter : POSITION_FILTERS) {
+      FlowPanel buttonContainer = new FlowPanel();
+      buttonContainer.setStyleName(CSS.buttonContainer());
+      ToggleButton button = new ToggleButton(positionFilter.name,
           new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-              if (position != null) {
-                allButton.setDown(false);
-              }
-              for (Entry<Position, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
-                buttonEntry.getValue().setDown(buttonEntry.getKey() == position);
-              }
-              table.setPositionFilter(position);
+              setPositionFilter(positionFilter);
             }
           });
       button.addStyleName(CSS.filterButton());
-      if (position != null) {
-        positionFilterButtons.put(position, button);
-      } else {
-        allButton = button;
-      }
-      if (position == UNF) {
+      positionFilterButtons.put(positionFilter, button);
+      if (positionFilter == POSITION_FILTERS.get(0)) {
         button.setDown(true);
       }
-      filterButtons.add(button);
+      buttonContainer.add(button);
+      if (positionFilter.positions.size() == 1) {
+        buttonContainer.add(positionOverrideCheckBoxes.get(positionFilter.positions.iterator().next()));
+      }
+      filterButtons.add(buttonContainer);
     }
-    table.setPositionFilter(UnclaimedPlayerTable.DEFAULT_POSITION_FILTER);
+    setPositionFilter(POSITION_FILTERS.get(0));
     buttonPanels.add(filterButtons);
 
     FlowPanel pagerAndSearch = new FlowPanel();
@@ -225,6 +269,24 @@ public class PlayerTablePanel extends Composite implements
     initWidget(container);
 
     eventBus.addHandler(LoginEvent.TYPE, this);
+    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
+  }
+
+  private void setPositionFilter(PositionFilter positionFilter) {
+    this.positionFilter = positionFilter;
+    for (Entry<PositionFilter, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
+      buttonEntry.getValue().setDown(buttonEntry.getKey() == positionFilter);
+    }
+    boolean unfilledSelected = positionFilter == POSITION_FILTERS.get(0);
+    for (Entry<Position, CheckBox> checkBoxEntry : positionOverrideCheckBoxes.entrySet()) {
+      checkBoxEntry.getValue().setVisible(unfilledSelected
+          && positionFilter.positions.contains(checkBoxEntry.getKey()));
+    }
+    EnumSet<Position> positions = EnumSet.copyOf(positionFilter.positions);
+    if (unfilledSelected) {
+      positions.removeAll(excludedPositions);
+    }
+    table.setPositionFilter(positions);
   }
 
   private void updateCopyRanksEnabled() {
@@ -259,5 +321,10 @@ public class PlayerTablePanel extends Composite implements
         updateCopyRanksEnabled();
       }
     });
+  }
+
+  @Override
+  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
+    setPositionFilter(positionFilter);
   }
 }

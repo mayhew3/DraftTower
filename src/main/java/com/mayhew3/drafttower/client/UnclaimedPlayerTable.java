@@ -37,6 +37,7 @@ import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -91,12 +92,12 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     private SafeHtml getShortName() {
       if (pitcherColumn != null) {
-        if (positionFilter == Position.P) {
+        if (isPitcherFilter(positionFilter)) {
           return new SafeHtmlBuilder()
               .appendEscaped(pitcherColumn.getShortName())
               .toSafeHtml();
         }
-        if (positionFilter == Position.UNF || positionFilter == null) {
+        if (isPitchersAndBattersFilter(positionFilter)) {
           return new SafeHtmlBuilder()
               .appendHtmlConstant("<span class=\"")
               .appendEscaped(CSS.splitHeader())
@@ -121,10 +122,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     private String getLongName() {
       if (pitcherColumn != null) {
-        if (positionFilter == Position.P) {
+        if (isPitcherFilter(positionFilter)) {
           return pitcherColumn.getLongName();
         }
-        if (positionFilter == Position.UNF || positionFilter == null) {
+        if (isPitchersAndBattersFilter(UnclaimedPlayerTable.this.positionFilter)) {
           return column.getLongName() + "/" + pitcherColumn.getLongName();
         }
       }
@@ -215,7 +216,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     @Override
     public String getValue(Player player) {
       if (column == WIZARD) {
-        return PlayerColumn.getWizard(player, positionFilter, openPositions.get());
+        return PlayerColumn.getWizard(player, positionFilter);
       } else {
         return column.get(player);
       }
@@ -244,7 +245,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     protected void updateDefaultSort() {
-      setDefaultSortAscending(pitcherColumn.isDefaultSortAscending() && positionFilter == Position.P);
+      setDefaultSortAscending(pitcherColumn.isDefaultSortAscending() && isPitcherFilter(positionFilter));
     }
 
     @Override
@@ -257,7 +258,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     public PlayerColumn getSortedColumn() {
-      return positionFilter == Position.P ? pitcherColumn : column;
+      return isPitcherFilter(UnclaimedPlayerTable.this.positionFilter) ? pitcherColumn : column;
     }
   }
 
@@ -275,12 +276,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
   public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
   public static final boolean DEFAULT_SORT_ASCENDING = true;
-  public static final Position DEFAULT_POSITION_FILTER = Position.UNF;
 
   private final Provider<Integer> queueAreaTopProvider;
-  private final OpenPositions openPositions;
 
-  private Position positionFilter;
+  private EnumSet<Position> positionFilter = EnumSet.allOf(Position.class);
   private final TableSpec tableSpec;
   private boolean hideInjuries;
   private String nameFilter;
@@ -290,11 +289,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public UnclaimedPlayerTable(AsyncDataProvider<Player> dataProvider,
       BeanFactory beanFactory,
       final EventBus eventBus,
-      @QueueAreaTop Provider<Integer> queueAreaTopProvider,
-      OpenPositions openPositions) {
+      @QueueAreaTop Provider<Integer> queueAreaTopProvider) {
     super(eventBus);
     this.queueAreaTopProvider = queueAreaTopProvider;
-    this.openPositions = openPositions;
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(DEFAULT_DATA_SET);
@@ -409,7 +406,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       public SafeHtml render(PlayerValue value) {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         if (value.value != null) {
-          if (positionFilter == Position.UNF || positionFilter == null) {
+          if (isPitchersAndBattersFilter(positionFilter)) {
             String style;
             if (ELIG.get(value.player).contains(Position.P.getShortName())) {
               style = CSS.pitcherStat();
@@ -462,7 +459,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     return columnSortList.size() > 0 && columnSortList.get(0).isAscending();
   }
 
-  public Position getPositionFilter() {
+  public EnumSet<Position> getPositionFilter() {
     return positionFilter;
   }
 
@@ -470,8 +467,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     return hideInjuries;
   }
 
-  public void setPositionFilter(Position positionFilter) {
-    boolean reSort = (this.positionFilter == Position.P) != (positionFilter == Position.P);
+  public void setPositionFilter(EnumSet<Position> positionFilter) {
+    boolean reSort = isPitcherFilter(this.positionFilter) != isPitcherFilter(positionFilter);
     this.positionFilter = positionFilter;
     for (PlayerTableColumn<?> playerTableColumn : playerColumns.values()) {
       playerTableColumn.updateDefaultSort();
@@ -548,5 +545,13 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       }
     }
     return false;
+  }
+
+  private static boolean isPitcherFilter(EnumSet<Position> positionFilter) {
+    return positionFilter.equals(EnumSet.of(Position.P));
+  }
+
+  private boolean isPitchersAndBattersFilter(EnumSet<Position> positionFilter) {
+    return positionFilter.contains(Position.P) && positionFilter.size() > 1;
   }
 }

@@ -1,7 +1,7 @@
 package com.mayhew3.drafttower.shared;
 
 import java.util.Comparator;
-import java.util.Set;
+import java.util.EnumSet;
 
 /**
  * Player column values.
@@ -76,13 +76,13 @@ public enum PlayerColumn {
   }
 
   public static Comparator<Player> getWizardComparator(
-      final boolean ascending, final Position position, final Set<Position> openPositions) {
+      final boolean ascending, final EnumSet<Position> positions) {
     return new Comparator<Player>() {
       @Override
       public int compare(Player p1, Player p2) {
         int rtn;
-        String p1Value = getWizard(p1, position, openPositions);
-        String p2Value = getWizard(p2, position, openPositions);
+        String p1Value = getWizard(p1, positions);
+        String p2Value = getWizard(p2, positions);
         rtn = Float.compare(p1Value == null ? Float.MIN_VALUE : Float.parseFloat(p1Value),
             p2Value == null ? Float.MIN_VALUE : Float.parseFloat(p2Value));
         return ascending ? rtn : -rtn;
@@ -208,57 +208,16 @@ public enum PlayerColumn {
     }
   }
 
-  public static String getWizard(Player player, Position position, Set<Position> openPositions) {
-    if (position == null) {
-      return getMax(
-          player.getWizardP(),
-          player.getWizardC(),
-          player.getWizard1B(),
-          player.getWizard2B(),
-          player.getWizard3B(),
-          player.getWizardSS(),
-          player.getWizardOF(),
-          player.getWizardDH());
-    }
-    switch (position) {
-      case P:
-        return player.getWizardP();
-      case C:
-        return player.getWizardC();
-      case FB:
-        return player.getWizard1B();
-      case SB:
-        return player.getWizard2B();
-      case TB:
-        return player.getWizard3B();
-      case SS:
-        return player.getWizardSS();
-      case OF:
-        return player.getWizardOF();
-      case DH:
-        return player.getWizardDH();
-      case BAT:
-        return getMax(
-            player.getWizardC(),
-            player.getWizard1B(),
-            player.getWizard2B(),
-            player.getWizard3B(),
-            player.getWizardSS(),
-            player.getWizardOF(),
-            player.getWizardDH());
-      case UNF:
-        return getMax(
-            openPositions.contains(Position.P) ? player.getWizardP() : null,
-            openPositions.contains(Position.C) ? player.getWizardC() : null,
-            openPositions.contains(Position.FB) ? player.getWizard1B() : null,
-            openPositions.contains(Position.SB) ? player.getWizard2B() : null,
-            openPositions.contains(Position.TB) ? player.getWizard3B() : null,
-            openPositions.contains(Position.SS) ? player.getWizardSS() : null,
-            openPositions.contains(Position.OF) ? player.getWizardOF() : null,
-            openPositions.contains(Position.DH) ? player.getWizardDH() : null);
-      default:
-        throw new IllegalArgumentException();
-    }
+  public static String getWizard(Player player, EnumSet<Position> positions) {
+    return getMax(
+        positions.contains(Position.P) ? player.getWizardP() : null,
+        positions.contains(Position.C) ? player.getWizardC() : null,
+        positions.contains(Position.FB) ? player.getWizard1B() : null,
+        positions.contains(Position.SB) ? player.getWizard2B() : null,
+        positions.contains(Position.TB) ? player.getWizard3B() : null,
+        positions.contains(Position.SS) ? player.getWizardSS() : null,
+        positions.contains(Position.OF) ? player.getWizardOF() : null,
+        positions.contains(Position.DH) ? player.getWizardDH() : null);
   }
 
   private static String getMax(String... values) {

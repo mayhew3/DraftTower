@@ -16,13 +16,4 @@ public interface UnclaimedPlayerListRequest {
 
   TableSpec getTableSpec();
   void setTableSpec(TableSpec tableSpec);
-
-  Position getPositionFilter();
-  void setPositionFilter(Position positionFilter);
-
-  String getSearchQuery();
-  void setSearchQuery(String searchQuery);
-
-  boolean getHideInjuries();
-  void setHideInjuries(boolean hideInjuries);
 }

@@ -45,6 +45,7 @@ public class DraftSocketHandler implements
   private final BeanFactory beanFactory;
   private final Websocket socket;
   private final TeamsInfo teamsInfo;
+  private final OpenPositions openPositions;
   private final EventBus eventBus;
 
   private DraftStatus draftStatus;
@@ -60,9 +61,11 @@ public class DraftSocketHandler implements
   public DraftSocketHandler(BeanFactory beanFactory,
       @DraftSocketUrl String socketUrl,
       TeamsInfo teamsInfo,
+      OpenPositions openPositions,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.teamsInfo = teamsInfo;
+    this.openPositions = openPositions;
     socket = new Websocket(socketUrl);
     socket.addListener(this);
 
@@ -102,6 +105,7 @@ public class DraftSocketHandler implements
     } else {
       draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
       if (latestStatusSerialId < draftStatus.getSerialId()) {
+        openPositions.onDraftStatusChanged(draftStatus);
         eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
         latestStatusSerialId = draftStatus.getSerialId();
       }
