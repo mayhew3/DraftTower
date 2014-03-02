@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -16,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
@@ -34,6 +36,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private final Map<String, Integer> teamTokens;
   private final int numTeams;
 
+  private final Map<String, List<Player>> cache = new ConcurrentHashMap<>();
+
   @Inject
   public PlayerDataSourceImpl(DataSource db,
       BeanFactory beanFactory,
@@ -48,56 +52,64 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request)
       throws ServletException {
+    Stopwatch stopwatch = new Stopwatch().start();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
     Integer team = teamTokens.get(request.getTeamToken());
 
-    List<Player> players = new ArrayList<>();
+    List<Player> players;
+    if (cache.containsKey(getKey(request.getTableSpec()))) {
+      players = cache.get(getKey(request.getTableSpec()));
+    } else {
+      players = new ArrayList<>();
 
-    ResultSet resultSet = null;
-    try {
-      resultSet = getResultSetForUnclaimedPlayerRows(request, team);
-      while (resultSet.next()) {
-        Player player = beanFactory.createPlayer().as();
-        player.setPlayerId(resultSet.getInt("PlayerID"));
-        player.setCBSId(resultSet.getInt("CBS_ID"));
+      ResultSet resultSet = null;
+      try {
+        resultSet = getResultSetForUnclaimedPlayerRows(request, team);
+        while (resultSet.next()) {
+          Player player = beanFactory.createPlayer().as();
+          player.setPlayerId(resultSet.getInt("PlayerID"));
+          player.setCBSId(resultSet.getInt("CBS_ID"));
 
-        List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
-        playerColumns.remove(PlayerColumn.NAME);
-        PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+          List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
+          playerColumns.remove(PlayerColumn.NAME);
+          PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
 
-        for (PlayerColumn playerColumn : playerColumns) {
-          if (playerColumn == PlayerColumn.WIZARD) {
-            for (Position position : REAL_POSITIONS) {
-              String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
+          for (PlayerColumn playerColumn : playerColumns) {
+            if (playerColumn == PlayerColumn.WIZARD) {
+              for (Position position : REAL_POSITIONS) {
+                String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
+                if (columnString != null) {
+                  PlayerColumn.setWizard(player, columnString, position);
+                }
+              }
+            } else {
+              String columnString = resultSet.getString(playerColumn.getColumnName());
               if (columnString != null) {
-                PlayerColumn.setWizard(player, columnString, position);
+                playerColumn.set(player, columnString);
               }
             }
-          } else {
-            String columnString = resultSet.getString(playerColumn.getColumnName());
-            if (columnString != null) {
-              playerColumn.set(player, columnString);
-            }
           }
-        }
 
-        String injury = resultSet.getString("Injury");
-        if (injury != null) {
-          player.setInjury(injury);
-        }
+          String injury = resultSet.getString("Injury");
+          if (injury != null) {
+            player.setInjury(injury);
+          }
 
-        players.add(player);
+          players.add(player);
+        }
+        cache.put(getKey(request.getTableSpec()), players);
+      } catch (SQLException e) {
+        throw new ServletException("Error getting next element of results.", e);
+      } finally {
+        close(resultSet);
       }
-    } catch (SQLException e) {
-      throw new ServletException("Error getting next element of results.", e);
-    } finally {
-      close(resultSet);
     }
 
     response.setPlayers(players);
-    response.setTotalPlayers(getTotalUnclaimedPlayerCount(request, team));
 
+    stopwatch.stop();
+    logger.info("Player table request took " + stopwatch.elapsedMillis() + "ms");
     return response;
   }
 
@@ -127,25 +139,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player Queries
 
-  private int getTotalUnclaimedPlayerCount(UnclaimedPlayerListRequest request, final int team) throws ServletException {
-
-    String sql = "select count(1) as TotalPlayers from ";
-    sql = getFromJoins(team, sql, null, true, false);
-
-    sql = addFilters(request, sql);
-
-    ResultSet resultSet = null;
-    try {
-      resultSet = executeQuery(sql);
-      resultSet.next();
-      return resultSet.getInt("TotalPlayers");
-    } catch (SQLException e) {
-      throw new ServletException("Couldn't find number of rows in table.", e);
-    } finally {
-      close(resultSet);
-    }
-  }
-
   private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final int team)
       throws SQLException {
 
@@ -157,9 +150,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     sql = addFilters(request, sql);
 
     sql = addOrdering(tableSpec, sql);
-    if (request.getRowCount() > 0) {
-      sql += " limit " + request.getRowStart() + ", " + request.getRowCount();
-    }
 
     return executeQuery(sql);
   }
@@ -731,5 +721,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
+  }
+
+  private static String getKey(TableSpec tableSpec) {
+    return tableSpec.getPlayerDataSet().ordinal() + ""
+        + tableSpec.getSortCol().ordinal() + ""
+        + (tableSpec.isAscending() ? "a" : "d");
   }
 }

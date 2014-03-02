@@ -121,7 +121,9 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
   }
 
   private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
+  private final Map<PlayerDataSet, Runnable> requestCallbackByDataSet = new HashMap<>();
   private final OpenPositions openPositions;
+  private List<DraftPick> picks;
 
   @Inject
   public CachingUnclaimedPlayerDataProvider(BeanFactory beanFactory,
@@ -143,7 +145,13 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     requestData(UnclaimedPlayerTable.DEFAULT_DATA_SET,
         UnclaimedPlayerTable.DEFAULT_SORT_COL,
         openPositions.get(),
-        UnclaimedPlayerTable.DEFAULT_SORT_ASCENDING, null);
+        UnclaimedPlayerTable.DEFAULT_SORT_ASCENDING,
+        new Runnable() {
+          @Override
+          public void run() {
+            // No-op.
+          }
+        });
   }
 
   private void requestData(
@@ -151,8 +159,13 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
       final PlayerColumn defaultSortCol,
       final EnumSet<Position> defaultPositionFilter,
       final boolean defaultSortAscending,
-      final Runnable callback) {
+      Runnable callback) {
     if (!teamsInfo.isLoggedIn()) {
+      return;
+    }
+    boolean requestInFlight = requestCallbackByDataSet.containsKey(dataSet);
+    requestCallbackByDataSet.put(dataSet, callback);
+    if (requestInFlight) {
       return;
     }
     RequestBuilder requestBuilder =
@@ -161,9 +174,6 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
         beanFactory.createUnclaimedPlayerListRequest();
     UnclaimedPlayerListRequest request = requestBean.as();
     request.setTeamToken(teamsInfo.getTeamToken());
-
-    request.setRowCount(-1);
-    request.setRowStart(-1);
 
     TableSpec tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(dataSet);
@@ -179,14 +189,18 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
             UnclaimedPlayerListResponse playerListResponse =
                 AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
                     response.getText()).as();
-            playersByDataSet.put(dataSet,
-                new PlayerList(playerListResponse.getPlayers(),
-                    defaultSortCol,
-                    defaultPositionFilter,
-                    defaultSortAscending));
+            PlayerList playerList = new PlayerList(
+                playerListResponse.getPlayers(),
+                defaultSortCol,
+                defaultPositionFilter,
+                defaultSortAscending);
+            playerList.ensurePlayersRemoved(picks);
+            playersByDataSet.put(dataSet, playerList);
+            Runnable callback = requestCallbackByDataSet.get(dataSet);
             if (callback != null) {
               callback.run();
             }
+            requestCallbackByDataSet.remove(dataSet);
           }
         });
   }
@@ -225,7 +239,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    List<DraftPick> picks = event.getStatus().getPicks();
+    picks = event.getStatus().getPicks();
     for (PlayerList playerList : playersByDataSet.values()) {
       playerList.ensurePlayersRemoved(picks);
     }

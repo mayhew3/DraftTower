@@ -8,12 +8,6 @@ public interface UnclaimedPlayerListRequest {
   String getTeamToken();
   void setTeamToken(String teamToken);
 
-  int getRowStart();
-  void setRowStart(int rowStart);
-
-  int getRowCount();
-  void setRowCount(int rowCount);
-
   TableSpec getTableSpec();
   void setTableSpec(TableSpec tableSpec);
 }
