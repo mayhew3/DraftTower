@@ -9,7 +9,4 @@ public interface UnclaimedPlayerListResponse {
 
   List<Player> getPlayers();
   void setPlayers(List<Player> players);
-
-  int getTotalPlayers();
-  void setTotalPlayers(int totalPlayers);
 }
