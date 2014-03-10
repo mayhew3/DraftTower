@@ -86,6 +86,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             } else {
               String columnString = resultSet.getString(playerColumn.getColumnName());
               if (columnString != null) {
+                if (columnString.startsWith("0.")) {
+                  columnString = columnString.substring(1);
+                }
                 playerColumn.set(player, columnString);
               }
             }
