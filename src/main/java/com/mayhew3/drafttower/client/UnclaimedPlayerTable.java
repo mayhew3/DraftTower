@@ -69,6 +69,16 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     CSS.ensureInjected();
   }
 
+  private static class ColumnSort {
+    private PlayerColumn column;
+    private boolean isAscending;
+
+    ColumnSort(PlayerColumn column, boolean ascending) {
+      this.column = column;
+      isAscending = ascending;
+    }
+  }
+
   private class PlayerColumnHeader extends Header<SafeHtml> {
     private final PlayerColumn column;
     private final PlayerColumn pitcherColumn;
@@ -185,6 +195,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     public abstract PlayerColumn getSortedColumn();
 
+    public abstract ColumnSort getSortedColumn(boolean isAscending);
+
     protected abstract void updateDefaultSort();
   }
 
@@ -228,6 +240,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     }
 
     @Override
+    public ColumnSort getSortedColumn(boolean isAscending) {
+      return new ColumnSort(column, isAscending);
+    }
+
+    @Override
     protected void updateDefaultSort() {
       // No-op.
     }
@@ -250,6 +267,12 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     public PlayerValue getValue(Player player) {
+      if (tableSpec.getSortCol() == column) {
+        return new PlayerValue(player, column.get(player));
+      }
+      if (tableSpec.getSortCol() == pitcherColumn) {
+        return new PlayerValue(player, pitcherColumn.get(player));
+      }
       if (pitcherColumn != null && pitcherColumn.get(player) != null) {
         return new PlayerValue(player, pitcherColumn.get(player));
       }
@@ -259,6 +282,18 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     @Override
     public PlayerColumn getSortedColumn() {
       return isPitcherFilter(UnclaimedPlayerTable.this.positionFilter) ? pitcherColumn : column;
+    }
+
+    @Override
+    public ColumnSort getSortedColumn(boolean isAscending) {
+      if (isPitcherFilter(positionFilter)) {
+        return new ColumnSort(pitcherColumn, isAscending);
+      } else if (isPitchersAndBattersFilter(positionFilter)) {
+        PlayerColumn sortColumn = isAscending ? pitcherColumn : column;
+        return new ColumnSort(sortColumn, sortColumn.isDefaultSortAscending());
+      } else {
+        return new ColumnSort(column, isAscending);
+      }
     }
   }
 
@@ -353,8 +388,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     addColumnSortHandler(new AsyncHandler(this) {
       @Override
       public void onColumnSort(ColumnSortEvent event) {
-        tableSpec.setSortCol(getSortedColumn());
-        tableSpec.setAscending(isSortedAscending());
+        ColumnSort sortedColumn = getSortedColumn(isSortedAscending());
+        tableSpec.setSortCol(sortedColumn.column);
+        tableSpec.setAscending(sortedColumn.isAscending);
         super.onColumnSort(event);
         updateDropEnabled();
       }
@@ -450,6 +486,15 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     if (columnSortList.size() > 0) {
       PlayerTableColumn<?> column = (PlayerTableColumn<?>) columnSortList.get(0).getColumn();
       return column.getSortedColumn();
+    }
+    return null;
+  }
+
+  public ColumnSort getSortedColumn(boolean isAscending) {
+    ColumnSortList columnSortList = getColumnSortList();
+    if (columnSortList.size() > 0) {
+      PlayerTableColumn<?> column = (PlayerTableColumn<?>) columnSortList.get(0).getColumn();
+      return column.getSortedColumn(isAscending);
     }
     return null;
   }
