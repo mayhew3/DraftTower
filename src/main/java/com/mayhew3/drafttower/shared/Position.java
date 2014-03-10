@@ -47,6 +47,9 @@ public enum Position {
   }
 
   public static boolean apply(Player player, EnumSet<Position> positions) {
+    if (positions.equals(EnumSet.of(DH))) {
+      return !apply(player, EnumSet.of(P));
+    }
     String eligibilities = PlayerColumn.ELIG.get(player);
     for (Position position : positions) {
       if (eligibilities.contains(position.getShortName())) {
