@@ -46,10 +46,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final PlayerDataSource playerDataSource;
   private final TeamDataSource teamDataSource;
 
-  private final Map<String, Integer> teamTokens;
-  private final ListMultimap<Integer, Integer> keepers;
-  private final ListMultimap<Integer, QueueEntry> queues;
-  private final Map<Integer, PlayerDataSet> autoPickWizardTables;
+  private final Map<String, TeamDraftOrder> teamTokens;
+  private final ListMultimap<TeamDraftOrder, Integer> keepers;
+  private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
+  private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
 
   private final int numTeams;
 
@@ -65,10 +65,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
       DraftStatus status,
-      @TeamTokens Map<String, Integer> teamTokens,
-      @Keepers ListMultimap<Integer, Integer> keepers,
-      @Queues ListMultimap<Integer, QueueEntry> queues,
-      @AutoPickWizards Map<Integer, PlayerDataSet> autoPickWizardTables,
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
+      @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
+      @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
+      @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
       @NumTeams int numTeams) throws SQLException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
@@ -104,32 +104,35 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   @Override
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
-    Integer team = teamTokens.get(cmd.getTeamToken());
-    if (cmd.getCommandType().isCommissionerOnly()) {
-      try {
-        if (!teamDataSource.isCommissionerTeam(team)) {
+    try {
+      TeamDraftOrder teamDraftOrder = teamTokens.get(cmd.getTeamToken());
+      if (teamDraftOrder == null) {
+        throw new TerminateSocketException("Bad team token.");
+      }
+      if (cmd.getCommandType().isCommissionerOnly()) {
+        try {
+          if (!teamDataSource.isCommissionerTeam(teamDraftOrder)) {
+            return;
+          }
+        } catch (SQLException e) {
+          logger.log(SEVERE, "Couldn't look up team for commissioner-only command.", e);
           return;
         }
-      } catch (SQLException e) {
-        logger.log(SEVERE, "Couldn't look up team for commissioner-only command.", e);
-        return;
       }
-    }
-    try {
       switch (cmd.getCommandType()) {
         case IDENTIFY:
-          if (status.getConnectedTeams().contains(team)) {
+          if (status.getConnectedTeams().contains(teamDraftOrder.get())) {
             throw new TerminateSocketException("Team already connected!");
           }
-          status.getConnectedTeams().add(team);
-          status.getRobotTeams().remove(team);
+          status.getConnectedTeams().add(teamDraftOrder.get());
+          status.getRobotTeams().remove(teamDraftOrder.get());
           break;
         case START_DRAFT:
           newPick();
           break;
         case DO_PICK:
-          if (!status.isOver() && team == status.getCurrentTeam()) {
-            doPick(team, cmd.getPlayerId(), false, false);
+          if (!status.isOver() && teamDraftOrder.get() == status.getCurrentTeam()) {
+            doPick(teamDraftOrder, cmd.getPlayerId(), false, false);
           }
           break;
         case PAUSE:
@@ -146,12 +149,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
             if (cmd.getPlayerId() == null) {
               autoPick();
             } else {
-              doPick(status.getCurrentTeam(), cmd.getPlayerId(), true, false);
+              doPick(new TeamDraftOrder(status.getCurrentTeam()), cmd.getPlayerId(), true, false);
             }
           }
           break;
         case WAKE_UP:
-          status.getRobotTeams().remove(team);
+          status.getRobotTeams().remove(teamDraftOrder.get());
           break;
       }
       sendStatusUpdates();
@@ -160,17 +163,17 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  private void doPick(final Integer team, long playerId, boolean auto, boolean keeper) {
+  private void doPick(final TeamDraftOrder teamDraftOrder, long playerId, boolean auto, boolean keeper) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
-        playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(team),
-            team,
+        playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
+            teamDraftOrder,
             RosterUtil.getOpenPositions(
                 Lists.newArrayList(Iterables.filter(status.getPicks(),
                     new Predicate<DraftPick>() {
                       @Override
-                      public boolean apply(DraftPick input) {
-                        return input.getTeam() == team;
+                      public boolean apply(DraftPick draftPick) {
+                        return draftPick.getTeam() == teamDraftOrder.get();
                       }
                     }))));
       } catch (SQLException e) {
@@ -186,12 +189,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       }
     }
 
-    logger.info("Team " + team
+    logger.info("Team " + teamDraftOrder
         + (auto ? " auto-picked" : " picked")
         + " player " + playerId);
 
     DraftPick pick = beanFactory.createDraftPick().as();
-    pick.setTeam(team);
+    pick.setTeam(teamDraftOrder.get());
     pick.setPlayerId(playerId);
     pick.setKeeper(keeper);
     try {
@@ -207,10 +210,10 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       logger.log(SEVERE, "SQL error posting draft pick for player ID " + playerId, e);
     }
 
-    Collection<Entry<Integer,QueueEntry>> queueEntries = queues.entries();
+    Collection<Entry<TeamDraftOrder, QueueEntry>> queueEntries = queues.entries();
     synchronized (queues) {
-      for (Iterator<Entry<Integer, QueueEntry>> iterator = queueEntries.iterator(); iterator.hasNext();) {
-        Entry<Integer, QueueEntry> entry = iterator.next();
+      for (Iterator<Entry<TeamDraftOrder, QueueEntry>> iterator = queueEntries.iterator(); iterator.hasNext();) {
+        Entry<TeamDraftOrder, QueueEntry> entry = iterator.next();
         if (entry.getValue().getPlayerId() == playerId) {
           iterator.remove();
         }
@@ -223,7 +226,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   @Override
   public void onClientDisconnected(String teamToken) {
-    status.getConnectedTeams().remove(teamTokens.get(teamToken));
+    if (teamTokens.containsKey(teamToken)) {
+      status.getConnectedTeams().remove(teamTokens.get(teamToken).get());
+    }
     socketServlet.sendMessage(getEncodedStatus());
   }
 
@@ -241,15 +246,16 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
 
     if (isCurrentPickKeeper()) {
-      List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
-      doPick(status.getCurrentTeam(), currentTeamKeepers.get(round), true, true);
+      TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
+      List<Integer> currentTeamKeepers = keepers.get(currentTeam);
+      doPick(currentTeam, currentTeamKeepers.get(round), true, true);
     } else if (!status.isOver()) {
       startPickTimer(pickLengthMs);
     }
   }
 
   private boolean isCurrentPickKeeper() {
-    List<Integer> currentTeamKeepers = keepers.get(status.getCurrentTeam());
+    List<Integer> currentTeamKeepers = keepers.get(new TeamDraftOrder(status.getCurrentTeam()));
     int round = status.getPicks().size() / numTeams;
     return currentTeamKeepers != null && round < currentTeamKeepers.size();
   }
@@ -258,7 +264,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     Set<Integer> nextPickKeeperTeams = new HashSet<>();
     if (round <= 3) {
       for (int i = 1; i <= numTeams; i++) {
-        if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(i).size()) {
+        if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(new TeamDraftOrder(i)).size()) {
           nextPickKeeperTeams.add(i);
         }
       }
@@ -325,17 +331,18 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
 
   /** Returns true if the team should go into robot mode. */
   private boolean autoPick() {
-    if (queues.containsKey(status.getCurrentTeam())) {
-      List<QueueEntry> queue = queues.get(status.getCurrentTeam());
+    TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
+    if (queues.containsKey(currentTeam)) {
+      List<QueueEntry> queue = queues.get(currentTeam);
       synchronized (queues) {
         if (!queue.isEmpty()) {
-          doPick(status.getCurrentTeam(), queue.remove(0).getPlayerId(), true, false);
+          doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
           return false;
         }
       }
     }
 
-    doPick(status.getCurrentTeam(), Player.BEST_DRAFT_PICK, true, false);
+    doPick(currentTeam, Player.BEST_DRAFT_PICK, true, false);
     return true;
   }
 

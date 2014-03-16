@@ -18,7 +18,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public ListMultimap<Integer, Integer> getAllKeepers() throws ServletException {
+  public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws ServletException {
     return ArrayListMultimap.create();
   }
 
@@ -31,7 +31,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, Integer team, Set<Position> openPositions) throws SQLException {
+  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, Set<Position> openPositions) throws SQLException {
     return 0;
   }
 
@@ -56,7 +56,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public GraphsData getGraphsData(int team) throws SQLException {
+  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws SQLException {
     return null;
   }
 }

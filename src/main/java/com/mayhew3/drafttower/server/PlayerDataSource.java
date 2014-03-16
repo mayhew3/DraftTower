@@ -13,15 +13,15 @@ import java.util.Set;
 public interface PlayerDataSource {
   UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws ServletException;
 
-  ListMultimap<Integer, Integer> getAllKeepers() throws ServletException;
+  ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws ServletException;
 
   void populateQueueEntry(QueueEntry queueEntry) throws SQLException;
 
   void populateDraftPick(DraftPick draftPick) throws SQLException;
 
-  long getBestPlayerId(PlayerDataSet wizardTable, Integer team, Set<Position> openPositions) throws SQLException;
+  long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, Set<Position> openPositions) throws SQLException;
 
-  void changePlayerRank(ChangePlayerRankRequest request);
+  void changePlayerRank(ChangePlayerRankRequest request) throws ServletException;
 
   void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException;
 
@@ -31,5 +31,5 @@ public interface PlayerDataSource {
 
   void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException;
 
-  GraphsData getGraphsData(int team) throws SQLException;
+  GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws SQLException;
 }

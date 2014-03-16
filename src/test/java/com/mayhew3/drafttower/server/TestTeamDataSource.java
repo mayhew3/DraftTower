@@ -13,12 +13,12 @@ import java.util.Map;
  */
 public class TestTeamDataSource implements TeamDataSource {
   @Override
-  public Integer getTeamNumber(String username, String password) throws ServletException {
+  public TeamDraftOrder getTeamDraftOrder(String username, String password) throws ServletException {
     return null;
   }
 
   @Override
-  public boolean isCommissionerTeam(int team) throws SQLException {
+  public boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) throws SQLException {
     return false;
   }
 
@@ -28,11 +28,21 @@ public class TestTeamDataSource implements TeamDataSource {
   }
 
   @Override
-  public Map<Integer, PlayerDataSet> getAutoPickWizards() {
+  public HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards() {
     return new HashMap<>();
   }
 
   @Override
-  public void updateAutoPickWizard(int teamID, PlayerDataSet wizardTable) {
+  public void updateAutoPickWizard(TeamDraftOrder teamDraftOrder, PlayerDataSet wizardTable) {
+  }
+
+  @Override
+  public TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws SQLException {
+    return new TeamDraftOrder(teamID.get());
+  }
+
+  @Override
+  public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws SQLException {
+    return new TeamId(draftOrder.get());
   }
 }

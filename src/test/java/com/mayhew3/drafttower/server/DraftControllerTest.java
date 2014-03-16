@@ -23,8 +23,8 @@ public class DraftControllerTest {
 
   @Inject private DraftController draftController;
   @Inject private DraftStatus draftStatus;
-  @Inject @Keepers private ListMultimap<Integer, Integer> keepers;
-  @Inject @Queues private ListMultimap<Integer, QueueEntry> queues;
+  @Inject @Keepers private ListMultimap<TeamDraftOrder, Integer> keepers;
+  @Inject @Queues private ListMultimap<TeamDraftOrder, QueueEntry> queues;
   @Inject private BeanFactory beanFactory;
 
   @Test
@@ -36,7 +36,7 @@ public class DraftControllerTest {
         beanFactory.createDraftPick().as(),
         beanFactory.createDraftPick().as()));
     draftStatus.setCurrentTeam(5);
-    keepers.put(4, 0);
+    keepers.put(new TeamDraftOrder(4), 0);
     draftController.backOutLastPick();
     Assert.assertEquals(3, draftStatus.getCurrentTeam());
     Assert.assertEquals(2, draftStatus.getPicks().size());
@@ -54,7 +54,7 @@ public class DraftControllerTest {
     reset();
     QueueEntry queueEntry = beanFactory.createQueueEntry().as();
     queueEntry.setPlayerId(0);
-    queues.put(1, queueEntry);
+    queues.put(new TeamDraftOrder(1), queueEntry);
     draftController.timerExpired();
     Assert.assertFalse(draftStatus.getRobotTeams().contains(1));
   }

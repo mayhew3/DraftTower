@@ -25,7 +25,7 @@ public class CopyAllPlayerRanksServlet extends HttpServlet {
 
   @Inject
   public CopyAllPlayerRanksServlet(BeanFactory beanFactory,
-                                   PlayerDataSource playerDataSource) {
+      PlayerDataSource playerDataSource) {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
   }

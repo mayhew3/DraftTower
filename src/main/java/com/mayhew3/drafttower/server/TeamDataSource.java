@@ -5,19 +5,24 @@ import com.mayhew3.drafttower.shared.Team;
 
 import javax.servlet.ServletException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Handles lookup and persistence of team-related data.
  */
 public interface TeamDataSource {
-  Integer getTeamNumber(String username, String password) throws ServletException;
+  TeamDraftOrder getTeamDraftOrder(String username, String password) throws ServletException;
 
-  boolean isCommissionerTeam(int team) throws SQLException;
+  boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) throws SQLException;
 
   Map<String, Team> getTeams() throws SQLException;
 
-  Map<Integer,PlayerDataSet> getAutoPickWizards();
+  HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards();
 
-  void updateAutoPickWizard(int teamID, PlayerDataSet wizardTable);
+  void updateAutoPickWizard(TeamDraftOrder teamDraftOrder, PlayerDataSet wizardTable);
+
+  TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws SQLException;
+
+  TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws SQLException;
 }
