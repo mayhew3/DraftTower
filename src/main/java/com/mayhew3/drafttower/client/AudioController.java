@@ -57,12 +57,16 @@ public class AudioController extends Composite implements
     if (onDeck == null || onTheClock == null) {
       return;
     }
-    onDeck.getAudioElement().pause();
-    onDeck.getAudioElement().setCurrentTime(0);
-    onTheClock.getAudioElement().pause();
-    onTheClock.getAudioElement().setCurrentTime(0);
-    itsOver.getAudioElement().pause();
-    itsOver.getAudioElement().setCurrentTime(0);
+    try {
+      onDeck.getAudioElement().pause();
+      onDeck.getAudioElement().setCurrentTime(0);
+      onTheClock.getAudioElement().pause();
+      onTheClock.getAudioElement().setCurrentTime(0);
+      itsOver.getAudioElement().pause();
+      itsOver.getAudioElement().setCurrentTime(0);
+    } catch (Exception e) {
+      // Something happens here sometimes - clearing cache fixes it, so idk
+    }
 
     DraftStatus status = event.getStatus();
     if (status.isOver()) {

@@ -123,7 +123,7 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
   private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
   private final Map<PlayerDataSet, Runnable> requestCallbackByDataSet = new HashMap<>();
   private final OpenPositions openPositions;
-  private List<DraftPick> picks;
+  private List<DraftPick> picks = new ArrayList<>();
 
   @Inject
   public CachingUnclaimedPlayerDataProvider(BeanFactory beanFactory,

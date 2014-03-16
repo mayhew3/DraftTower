@@ -31,17 +31,17 @@ public class ServerTestSafeModule extends AbstractModule {
   }
 
   @Provides @Singleton @Keepers
-  public ListMultimap<Integer, Integer> getKeepers(PlayerDataSource playerDataSource) throws ServletException {
+  public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataSource playerDataSource) throws ServletException {
     return playerDataSource.getAllKeepers();
   }
 
   @Provides @Singleton @Queues
-  public ListMultimap<Integer, QueueEntry> getQueues() {
+  public ListMultimap<TeamDraftOrder, QueueEntry> getQueues() {
     return ArrayListMultimap.create();
   }
 
   @Provides @Singleton @AutoPickWizards
-  public Map<Integer, PlayerDataSet> getAutoPickWizardTables(TeamDataSource teamDataSource) {
+  public Map<TeamDraftOrder, PlayerDataSet> getAutoPickWizardTables(TeamDataSource teamDataSource) {
     return teamDataSource.getAutoPickWizards();
   }
 
@@ -53,8 +53,8 @@ public class ServerTestSafeModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(DraftController.class).asEagerSingleton();
-    bind(new TypeLiteral<Map<String, Integer>>() {})
+    bind(new TypeLiteral<Map<String, TeamDraftOrder>>() {})
         .annotatedWith(TeamTokens.class)
-        .toInstance(new HashMap<String, Integer>());
+        .toInstance(new HashMap<String, TeamDraftOrder>());
   }
 }

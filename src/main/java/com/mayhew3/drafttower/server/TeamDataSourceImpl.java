@@ -1,6 +1,8 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
@@ -32,6 +34,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
   private final DataSource db;
   private final BeanFactory beanFactory;
   private Map<String, Team> teamNamesCache;
+  private BiMap<TeamId, TeamDraftOrder> teamIdDraftOrderMap;
 
   @Inject
   public TeamDataSourceImpl(DataSource db, BeanFactory beanFactory) {
@@ -41,8 +44,8 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
   /** Returns the team number corresponding to the given login credentials, or null for an invalid login. */
   @Override
-  public Integer getTeamNumber(String username, String password) throws ServletException {
-    String sql = "select teams.id " +
+  public TeamDraftOrder getTeamDraftOrder(String username, String password) throws ServletException {
+    String sql = "select teams.DraftOrder " +
         "from users " +
         "inner join userrole " +
         " on userrole.user = users.user " +
@@ -57,7 +60,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
     try {
       resultSet = executeQuery(sql);
       if (resultSet.next()) {
-        return resultSet.getInt("id");
+        return new TeamDraftOrder(resultSet.getInt("DraftOrder"));
       } else {
         return null;
       }
@@ -69,14 +72,14 @@ public class TeamDataSourceImpl implements TeamDataSource {
   }
 
   @Override
-  public boolean isCommissionerTeam(int team) throws SQLException {
+  public boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) throws SQLException {
     String sql = "select userrole.Role " +
         "from users " +
         "inner join teams " +
         " on teams.userid = users.user " +
         "inner join userrole " +
         " on userrole.user = users.user " +
-        "where teams.DraftOrder = '" + team + "' " +
+        "where teams.DraftOrder = '" + teamDraftOrder + "' " +
         "and userrole.site = 'uncharted'";
 
     ResultSet resultSet = null;
@@ -138,16 +141,16 @@ public class TeamDataSourceImpl implements TeamDataSource {
   }
 
   @Override
-  public Map<Integer,PlayerDataSet> getAutoPickWizards() {
+  public HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards() {
     String sql = "SELECT * FROM autoPickWizards";
 
-    HashMap<Integer,PlayerDataSet> autoPickWizards = new HashMap<>();
+    HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
 
     ResultSet resultSet = null;
     try {
       resultSet = executeQuery(sql);
       while (resultSet.next()) {
-        int teamID = resultSet.getInt("teamID");
+        TeamDraftOrder teamDraftOrder = getDraftOrderByTeamId(new TeamId(resultSet.getInt("teamID")));
 
         String dataSetName = resultSet.getString("WizardTable");
 
@@ -155,10 +158,10 @@ public class TeamDataSourceImpl implements TeamDataSource {
           Optional<PlayerDataSet> dataSet = PlayerDataSet.getDataSetWithName(dataSetName);
 
           if (!dataSet.isPresent()) {
-            throw new RuntimeException("Team " + teamID + " is linked to unrecognized DataSet '" + dataSetName + "'.");
+            throw new RuntimeException("Team " + teamDraftOrder + " is linked to unrecognized DataSet '" + dataSetName + "'.");
           }
 
-          autoPickWizards.put(teamID, dataSet.get());
+          autoPickWizards.put(teamDraftOrder, dataSet.get());
         }
       }
 
@@ -172,7 +175,42 @@ public class TeamDataSourceImpl implements TeamDataSource {
   }
 
   @Override
-  public void updateAutoPickWizard(int teamID, PlayerDataSet wizardTable) {
+  public TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws SQLException {
+    return getTeamIdDraftOrderMap().get(teamID);
+  }
+
+  @Override
+  public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws SQLException {
+    return getTeamIdDraftOrderMap().inverse().get(draftOrder);
+  }
+
+  private BiMap<TeamId, TeamDraftOrder> getTeamIdDraftOrderMap() throws SQLException {
+    if (teamIdDraftOrderMap == null) {
+      synchronized (this) {
+        if (teamIdDraftOrderMap == null) {
+          teamIdDraftOrderMap = HashBiMap.create();
+          String sql = "select id, DraftOrder " +
+              "from teams";
+
+          ResultSet resultSet = null;
+          try {
+            resultSet = executeQuery(sql);
+            while (resultSet.next()) {
+              teamIdDraftOrderMap.put(new TeamId(resultSet.getInt("id")),
+                  new TeamDraftOrder(resultSet.getInt("DraftOrder")));
+            }
+          }  finally {
+            close(resultSet);
+          }
+
+        }
+      }
+    }
+    return teamIdDraftOrderMap;
+  }
+
+  @Override
+  public void updateAutoPickWizard(TeamDraftOrder teamDraftOrder, PlayerDataSet wizardTable) {
     String sql = "UPDATE autoPickWizards " +
         "SET WizardTable = ? " +
         "WHERE TeamID = ?";
@@ -180,8 +218,8 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
     Statement statement = null;
     try {
-      statement = prepareStatementUpdate(sql,
-          wizardTableName, teamID);
+      statement = prepareStatementUpdate(sql, wizardTableName,
+          getTeamIdByDraftOrder(teamDraftOrder));
     } catch (SQLException e) {
       logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input, wizardTable is '" + wizardTableName + "'", e);
     } finally {

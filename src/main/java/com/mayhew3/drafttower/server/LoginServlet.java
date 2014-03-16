@@ -28,14 +28,14 @@ public class LoginServlet extends HttpServlet {
 
   private final TeamDataSource teamDataSource;
   private final BeanFactory beanFactory;
-  private final Map<String, Integer> teamTokens;
-  private final Map<Integer, PlayerDataSet> autoPickWizardTables;
+  private final Map<String, TeamDraftOrder> teamTokens;
+  private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
 
   @Inject
   public LoginServlet(TeamDataSource teamDataSource,
       BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens,
-      @AutoPickWizards Map<Integer, PlayerDataSet> autoPickWizardTables) {
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
+      @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables) {
     this.teamDataSource = teamDataSource;
     this.beanFactory = beanFactory;
     this.teamTokens = teamTokens;
@@ -53,27 +53,27 @@ public class LoginServlet extends HttpServlet {
         }
       }
     }
-    Integer team = teamDataSource.getTeamNumber(req.getParameter("username"), req.getParameter("password"));
-    if (team != null) {
+    TeamDraftOrder teamDraftOrder = teamDataSource.getTeamDraftOrder(req.getParameter("username"), req.getParameter("password"));
+    if (teamDraftOrder != null) {
       String teamToken = UUID.randomUUID().toString();
-      populateResponse(resp, team, teamToken);
-      teamTokens.put(teamToken, team);
+      populateResponse(resp, teamDraftOrder, teamToken);
+      teamTokens.put(teamToken, teamDraftOrder);
       resp.addCookie(new Cookie(LoginResponse.TEAM_TOKEN_COOKIE, teamToken));
     } else {
       resp.setStatus(403);
     }
   }
 
-  private void populateResponse(HttpServletResponse resp, Integer team, String teamToken) throws ServletException, IOException {
+  private void populateResponse(HttpServletResponse resp, TeamDraftOrder teamDraftOrder, String teamToken) throws ServletException, IOException {
     resp.setContentType("text/plain");
     AutoBean<LoginResponse> responseBean = beanFactory.createLoginResponse();
     LoginResponse response = responseBean.as();
-    response.setTeam(team);
+    response.setTeam(teamDraftOrder.get());
     response.setTeamToken(teamToken);
-    response.setInitialWizardTable(autoPickWizardTables.get(team));
+    response.setInitialWizardTable(autoPickWizardTables.get(teamDraftOrder));
     try {
       response.setTeams(teamDataSource.getTeams());
-      response.setCommissionerTeam(teamDataSource.isCommissionerTeam(team));
+      response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
     } catch (SQLException e) {
       throw new ServletException(e);
     }

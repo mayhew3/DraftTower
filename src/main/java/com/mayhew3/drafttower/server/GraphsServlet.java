@@ -26,12 +26,12 @@ public class GraphsServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
-  private final Map<String, Integer> teamTokens;
+  private final Map<String, TeamDraftOrder> teamTokens;
 
   @Inject
   public GraphsServlet(BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
-      @TeamTokens Map<String, Integer> teamTokens) {
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
@@ -44,12 +44,14 @@ public class GraphsServlet extends HttpServlet {
         AutoBeanCodex.decode(beanFactory, GetGraphsDataRequest.class, requestStr).as();
     GraphsData response;
     try {
-      response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
+      if (teamTokens.containsKey(request.getTeamToken())) {
+        response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
+        resp.getWriter().append(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(response)).getPayload());
+      }
     } catch (SQLException e) {
       throw new ServletException(e);
     }
 
-    resp.getWriter().append(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(response)).getPayload());
     resp.setContentType("text/json");
   }
 }

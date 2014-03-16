@@ -31,15 +31,15 @@ public class QueueServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
-  private final Map<String, Integer> teamTokens;
-  private final ListMultimap<Integer, QueueEntry> queues;
+  private final Map<String, TeamDraftOrder> teamTokens;
+  private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
   private final DraftStatus status;
 
   @Inject
   public QueueServlet(BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
-      @TeamTokens Map<String, Integer> teamTokens,
-      @Queues ListMultimap<Integer, QueueEntry> queues,
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
+      @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
       DraftStatus status) {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
@@ -55,9 +55,11 @@ public class QueueServlet extends HttpServlet {
       GetPlayerQueueRequest request =
           AutoBeanCodex.decode(beanFactory, GetPlayerQueueRequest.class, requestStr).as();
       AutoBean<GetPlayerQueueResponse> response = beanFactory.createPlayerQueueResponse();
-      List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
-      synchronized (queues) {
-        response.as().setQueue(Lists.newArrayList(queue));
+      if (teamTokens.containsKey(request.getTeamToken())) {
+        List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
+        synchronized (queues) {
+          response.as().setQueue(Lists.newArrayList(queue));
+        }
       }
 
       resp.getWriter().append(AutoBeanCodex.encode(response).getPayload());
@@ -65,33 +67,35 @@ public class QueueServlet extends HttpServlet {
       final EnqueueOrDequeuePlayerRequest request =
           AutoBeanCodex.decode(beanFactory, EnqueueOrDequeuePlayerRequest.class, requestStr).as();
       try {
-        Integer team = teamTokens.get(request.getTeamToken());
-        final long playerId = request.getPlayerId();
-        if (Iterables.any(status.getPicks(), new Predicate<DraftPick>() {
-          @Override
-          public boolean apply(DraftPick pick) {
-            return pick.getPlayerId() == playerId;
-          }
-        })) {
-          List<QueueEntry> queue = queues.get(team);
-          synchronized (queues) {
-            Iterables.removeIf(queue, new QueueEntryPredicate(playerId));
-          }
-        }
-        QueueEntry queueEntry = beanFactory.createQueueEntry().as();
-        queueEntry.setPlayerId(playerId);
-        playerDataSource.populateQueueEntry(queueEntry);
-        if (request.getPosition() != null) {
-          List<QueueEntry> queue = queues.get(team);
-          synchronized (queues) {
-            if (queue.isEmpty()) {
-              queue.add(queueEntry);
-            } else {
-              queue.add(request.getPosition(), queueEntry);
+        if (teamTokens.containsKey(request.getTeamToken())) {
+          TeamDraftOrder team = teamTokens.get(request.getTeamToken());
+          final long playerId = request.getPlayerId();
+          if (Iterables.any(status.getPicks(), new Predicate<DraftPick>() {
+            @Override
+            public boolean apply(DraftPick pick) {
+              return pick.getPlayerId() == playerId;
+            }
+          })) {
+            List<QueueEntry> queue = queues.get(team);
+            synchronized (queues) {
+              Iterables.removeIf(queue, new QueueEntryPredicate(playerId));
             }
           }
-        } else {
-          queues.put(team, queueEntry);
+          QueueEntry queueEntry = beanFactory.createQueueEntry().as();
+          queueEntry.setPlayerId(playerId);
+          playerDataSource.populateQueueEntry(queueEntry);
+          if (request.getPosition() != null) {
+            List<QueueEntry> queue = queues.get(team);
+            synchronized (queues) {
+              if (queue.isEmpty()) {
+                queue.add(queueEntry);
+              } else {
+                queue.add(request.getPosition(), queueEntry);
+              }
+            }
+          } else {
+            queues.put(team, queueEntry);
+          }
         }
       } catch (SQLException e) {
         log(e.getMessage(), e);
@@ -100,21 +104,25 @@ public class QueueServlet extends HttpServlet {
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_REMOVE)) {
       EnqueueOrDequeuePlayerRequest request =
           AutoBeanCodex.decode(beanFactory, EnqueueOrDequeuePlayerRequest.class, requestStr).as();
-      List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
-      synchronized (queues) {
-        Iterables.removeIf(queue, new QueueEntryPredicate(request.getPlayerId()));
+      if (teamTokens.containsKey(request.getTeamToken())) {
+        List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
+        synchronized (queues) {
+          Iterables.removeIf(queue, new QueueEntryPredicate(request.getPlayerId()));
+        }
       }
     } else if (req.getPathInfo().endsWith(ServletEndpoints.QUEUE_REORDER)) {
       ReorderPlayerQueueRequest request =
           AutoBeanCodex.decode(beanFactory, ReorderPlayerQueueRequest.class, requestStr).as();
-      List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
-      synchronized (queues) {
-        int startIndex = Iterables.indexOf(queue, new QueueEntryPredicate(request.getPlayerId()));
-        int endIndex = Math.min(request.getNewPosition(), queue.size());
-        if (startIndex < endIndex) {
-          Collections.rotate(queue.subList(startIndex, endIndex + 1), -1);
-        } else if (endIndex < startIndex) {
-          Collections.rotate(queue.subList(endIndex + 1, startIndex + 1), 1);
+      if (teamTokens.containsKey(request.getTeamToken())) {
+        List<QueueEntry> queue = queues.get(teamTokens.get(request.getTeamToken()));
+        synchronized (queues) {
+          int startIndex = Iterables.indexOf(queue, new QueueEntryPredicate(request.getPlayerId()));
+          int endIndex = Math.min(request.getNewPosition(), queue.size());
+          if (startIndex < endIndex) {
+            Collections.rotate(queue.subList(startIndex, endIndex + 1), -1);
+          } else if (endIndex < startIndex) {
+            Collections.rotate(queue.subList(endIndex + 1, startIndex + 1), 1);
+          }
         }
       }
     } else {

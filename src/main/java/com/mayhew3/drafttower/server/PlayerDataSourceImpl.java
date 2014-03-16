@@ -33,7 +33,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   private final DataSource db;
   private final BeanFactory beanFactory;
-  private final Map<String, Integer> teamTokens;
+  private final TeamDataSource teamDataSource;
+  private final Map<String, TeamDraftOrder> teamTokens;
   private final int numTeams;
 
   private final Map<String, List<Player>> cache = new ConcurrentHashMap<>();
@@ -41,10 +42,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Inject
   public PlayerDataSourceImpl(DataSource db,
       BeanFactory beanFactory,
-      @TeamTokens Map<String, Integer> teamTokens,
+      TeamDataSource teamDataSource,
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @NumTeams int numTeams) {
     this.db = db;
     this.beanFactory = beanFactory;
+    this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.numTeams = numTeams;
   }
@@ -55,8 +58,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     Stopwatch stopwatch = new Stopwatch().start();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
-    Integer team = teamTokens.get(request.getTeamToken());
-
     List<Player> players;
     if (cache.containsKey(getKey(request.getTableSpec()))) {
       players = cache.get(getKey(request.getTableSpec()));
@@ -65,6 +66,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
       ResultSet resultSet = null;
       try {
+        TeamId team = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
         resultSet = getResultSetForUnclaimedPlayerRows(request, team);
         while (resultSet.next()) {
           Player player = beanFactory.createPlayer().as();
@@ -117,8 +119,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public ListMultimap<Integer, Integer> getAllKeepers() throws ServletException {
-    ListMultimap<Integer, Integer> keepers = ArrayListMultimap.create();
+  public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws ServletException {
+    ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
     String sql = "select TeamID, PlayerID from Keepers";
 
@@ -126,9 +128,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     try {
       resultSet = executeQuery(sql);
       while (resultSet.next()) {
-        int teamID = resultSet.getInt("TeamID");
+        TeamId teamID = new TeamId(resultSet.getInt("TeamID"));
         int playerID = resultSet.getInt("PlayerID");
-        keepers.put(teamID, playerID);
+        keepers.put(teamDataSource.getDraftOrderByTeamId(teamID), playerID);
       }
     } catch (SQLException e) {
       throw new ServletException("Error retreiving keepers from database.", e);
@@ -142,13 +144,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player Queries
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final int team)
+  private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final TeamId teamID)
       throws SQLException {
 
     TableSpec tableSpec = request.getTableSpec();
 
     String sql = "select * from ";
-    sql = getFromJoins(team, sql, null, true, true);
+    sql = getFromJoins(teamID, sql, null, true, true);
 
     sql = addFilters(request, sql);
 
@@ -158,10 +160,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, final Integer team, Set<Position> openPositions) throws SQLException {
+  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, Set<Position> openPositions) throws SQLException {
+    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
 
     String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(team, sql, createFilterStringFromPositions(openPositions), true, false);
+    sql = getFromJoins(teamId, sql, createFilterStringFromPositions(openPositions), true, false);
 
     List<String> filters = new ArrayList<>();
     addDataSetFilter(filters, wizardTable);
@@ -208,7 +211,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player utility methods
 
-  private String getFromJoins(int team, String sql, String positionFilterString, boolean filterClaimed, boolean allWizardPositions) {
+  private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterClaimed, boolean allWizardPositions) {
     String wizardFilterClause = "";
     String playerFilterClause = "";
 
@@ -280,7 +283,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             " ON pa.DataSource = ds.ID\n" +
             "INNER JOIN customRankings cr\n" +
             " ON cr.PlayerID = pa.PlayerID\n" +
-            "WHERE cr.TeamID = " + team + " \n" +
+            "WHERE cr.TeamID = " + teamID + " \n" +
             playerFilterClause;
 
     if (filterClaimed) {
@@ -401,20 +404,26 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   // Player Rank
 
   @Override
-  public void changePlayerRank(ChangePlayerRankRequest request) {
-    int teamID = teamTokens.get(request.getTeamToken());
-    long playerId = request.getPlayerId();
-    int prevRank = request.getPrevRank();
-    int newRank = request.getNewRank();
+  public void changePlayerRank(ChangePlayerRankRequest request) throws ServletException {
+    try {
+      if (teamTokens.containsKey(request.getTeamToken())) {
+        TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
+        long playerId = request.getPlayerId();
+        int prevRank = request.getPrevRank();
+        int newRank = request.getNewRank();
 
-    logger.info("Change player rank for team " + teamID
-        + " player " + playerId + " from rank " + prevRank + " to new rank " + newRank);
+        logger.info("Change player rank for team " + teamID
+            + " player " + playerId + " from rank " + prevRank + " to new rank " + newRank);
 
-    shiftInBetweenRanks(teamID, prevRank, newRank);
-    updatePlayerRank(teamID, newRank, playerId);
+        shiftInBetweenRanks(teamID, prevRank, newRank);
+        updatePlayerRank(teamID, newRank, playerId);
+      }
+    } catch (SQLException e) {
+      throw new ServletException(e);
+    }
   }
 
-  private void shiftInBetweenRanks(int teamID, int prevRank, int newRank) {
+  private void shiftInBetweenRanks(TeamId teamID, int prevRank, int newRank) {
     String newRankForInbetween = "Rank-1";
     int lesserRank = prevRank+1;
     int greaterRank = newRank;
@@ -437,7 +446,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private void updatePlayerRank(int teamID, int newRank, long playerID) {
+  private void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
     String sql = "UPDATE CustomRankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
     Statement statement = null;
     try {
@@ -493,7 +502,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     int pick = ((overallPick-1) % numTeams) + 1;
 
     long playerID = draftPick.getPlayerId();
-    int teamID = draftPick.getTeam();
+    TeamId teamID = teamDataSource.getTeamIdByDraftOrder(new TeamDraftOrder(draftPick.getTeam()));
 
     String draftPosition = "'" + draftPick.getEligibilities().get(0) + "'";
     String sql = "INSERT INTO DraftResults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
@@ -543,7 +552,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException {
-    final int team = teamTokens.get(request.getTeamToken());
+    final TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
     TableSpec tableSpec = request.getTableSpec();
 
     if (tableSpec.getSortCol() == PlayerColumn.MYRANK) {
@@ -551,17 +560,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       return;
     }
 
-    logger.log(INFO, "Request from Team " + team + " to copy player ranks from " + tableSpec.getPlayerDataSet().getDisplayName()
+    logger.log(INFO, "Request from Team " + teamID + " to copy player ranks from " + tableSpec.getPlayerDataSet().getDisplayName()
         + ", " + tableSpec.getSortCol().getShortName() + ".");
 
-    prepareTmpTable(team);
+    prepareTmpTable(teamID);
 
-    logger.log(FINE, "Cleared temp table for " + team);
+    logger.log(FINE, "Cleared temp table for " + teamID);
 
     String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
-        " SELECT " + team + ", PlayerID \n" +
+        " SELECT " + teamID + ", PlayerID \n" +
         " FROM ";
-    sql = getFromJoins(team, sql, null, false, false);
+    sql = getFromJoins(teamID, sql, null, false, false);
 
     List<String> filters = new ArrayList<>();
     addTableSpecFilter(filters, tableSpec);
@@ -572,18 +581,18 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     sql = addOrdering(tableSpec, sql);
 
-    Statement statement  = executeUpdate(sql);
+    Statement statement = executeUpdate(sql);
     close(statement);
 
-    logger.log(FINE, "Executed big insert for " + team);
+    logger.log(FINE, "Executed big insert for " + teamID);
 
     sql = "select min(rank) as lower_bound, max(rank) as upper_bound \n" +
         "from tmp_rankings \n" +
-        "where teamID = " + team;
+        "where teamID = " + teamID;
     ResultSet resultSet = executeQuery(sql);
     resultSet.next();
 
-    logger.log(FINE, "Executed bounds query for " + team);
+    logger.log(FINE, "Executed bounds query for " + teamID);
 
     int lowerBound = resultSet.getInt("lower_bound");
     int upperBound = resultSet.getInt("upper_bound");
@@ -598,31 +607,32 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     sql = "update customRankings \n" +
         "set Rank = " + (upperBound - offset + 1) + "\n" +
-        "where teamid = " + team;
+        "where teamid = " + teamID;
     statement = executeUpdate(sql);
     close(statement);
 
-    logger.log(FINE, "Executed base update for " + team);
+    logger.log(FINE, "Executed base update for " + teamID);
 
     sql = "update customRankings cr\n" +
         "inner join tmp_rankings tr\n" +
         " on (cr.PlayerID = tr.PlayerID and cr.TeamID = tr.TeamID)\n" +
         "set cr.Rank = tr.Rank - " + offset + " \n" +
-        "where tr.teamID = " + team;
+        "where tr.teamID = " + teamID;
     statement = executeUpdate(sql);
     close(statement);
 
-    logger.log(FINE, "Executed big update for " + team);
+    logger.log(FINE, "Executed big update for " + teamID);
   }
 
 
-  private void prepareTmpTable(int teamID) throws SQLException {
+  private void prepareTmpTable(TeamId teamID) throws SQLException {
     executeUpdate("delete from tmp_rankings where teamID = " + teamID);
   }
 
 
   @Override
-  public GraphsData getGraphsData(int team) throws SQLException {
+  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws SQLException {
+    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
     String sql = "select * from teamscoringwithzeroes";
 
     GraphsData graphsData = beanFactory.createGraphsData().as();
@@ -637,7 +647,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         int resultTeam = resultSet.getInt("TeamID");
         for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
           float value = resultSet.getFloat(graphStat.getColumnName());
-          if (resultTeam == team) {
+          if (resultTeam == teamId.get()) {
             myValues.put(graphStat, value);
           }
           if (!avgValues.containsKey(graphStat)) {
