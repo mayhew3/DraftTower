@@ -17,6 +17,8 @@ import com.mayhew3.drafttower.client.DraftTowerGinModule.ChangePlayerRankUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.CopyPlayerRanksUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickWizardUrl;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
+import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
+import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.shared.*;
@@ -243,5 +245,17 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     for (PlayerList playerList : playersByDataSet.values()) {
       playerList.ensurePlayersRemoved(picks);
     }
+  }
+
+  @Override
+  public void onChangePlayerRank(ChangePlayerRankEvent event) {
+    playersByDataSet.clear();
+    super.onChangePlayerRank(event);
+  }
+
+  @Override
+  public void onCopyAllPlayerRanks(CopyAllPlayerRanksEvent event) {
+    playersByDataSet.clear();
+    super.onCopyAllPlayerRanks(event);
   }
 }

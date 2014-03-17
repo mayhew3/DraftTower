@@ -418,6 +418,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
         shiftInBetweenRanks(teamID, prevRank, newRank);
         updatePlayerRank(teamID, newRank, playerId);
+        cache.clear();
       }
     } catch (SQLException e) {
       throw new ServletException(e);
@@ -623,6 +624,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     close(statement);
 
     logger.log(FINE, "Executed big update for " + teamID);
+    cache.clear();
   }
 
 
