@@ -55,11 +55,13 @@
   filter: literal("progid:DXImageTransform.Microsoft.gradient( startColorstr='#abd0e3', endColorstr='#ffffff',GradientType=0 )"); /* IE6-9 */
 }
 
+td:first-child > .filterButton,
 td:first-child > div > .filterButton {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
+td:last-child > .filterButton,
 td:last-child > div > .filterButton {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
