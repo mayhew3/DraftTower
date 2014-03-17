@@ -18,6 +18,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
@@ -692,6 +693,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return preparedStatement;
   }
 
+  @SuppressWarnings("unchecked")
   private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
     PreparedStatement preparedStatement = db.getConnection().prepareStatement(sql);
 
@@ -703,6 +705,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         preparedStatement.setInt(i, (Integer) param);
       } else if (param instanceof Long) {
         preparedStatement.setLong(i, (Long) param);
+      } else if (param instanceof AtomicReference) {
+        preparedStatement.setInt(i, ((AtomicReference<Integer>) param).get());
       } else {
         throw new RuntimeException("Unknown type of param: " + param.getClass());
       }
@@ -726,8 +730,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private void close(Statement statement) {
+  private static void close(Statement statement) {
     try {
+      if (statement == null) {
+        return;
+      }
       Connection connection = statement.getConnection();
       statement.close();
       connection.close();
