@@ -24,6 +24,7 @@ import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * {@link UnclaimedPlayerDataProvider} which makes a single request (per dataset), then serves all
@@ -118,6 +119,47 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
       pickedPlayers.clear();
       for (DraftPick pick : picks) {
         pickedPlayers.add(pick.getPlayerId());
+      }
+    }
+
+    public void updatePlayerRank(long playerId, int prevRank, int newRank) {
+      List<Player> players = playersBySortCol.values().iterator().next();
+      int lesserRank = prevRank + 1;
+      int greaterRank = newRank;
+      if (prevRank > newRank) {
+        lesserRank = newRank;
+        greaterRank = prevRank - 1;
+      }
+      // Update all players.
+      for (Player player : players) {
+        if (player.getPlayerId() == playerId) {
+          player.setMyRank(Integer.toString(newRank));
+        } else {
+          int rank = Integer.parseInt(player.getMyRank());
+          if (rank >= lesserRank && rank <= greaterRank) {
+            if (prevRank > newRank) {
+              player.setMyRank(Integer.toString(rank + 1));
+            } else {
+              player.setMyRank(Integer.toString(rank - 1));
+            }
+          }
+        }
+      }
+      // Clear any cached sort orders sorted by rank.
+      Set<SortSpec> keysToRemove = new HashSet<>();
+      for (Entry<SortSpec, List<Player>> entry : playersBySortCol.entrySet()) {
+        SortSpec sortSpec = entry.getKey();
+        if (sortSpec.column == PlayerColumn.MYRANK) {
+          keysToRemove.add(sortSpec);
+        }
+      }
+      for (SortSpec sortSpec : keysToRemove) {
+        playersBySortCol.remove(sortSpec);
+      }
+      // Ensure we don't hit the server again if the only sort order we had was by rank.
+      if (playersBySortCol.isEmpty()) {
+        playersBySortCol.put(new SortSpec(PlayerColumn.MYRANK, EnumSet.allOf(Position.class), true),
+            Ordering.from(PlayerColumn.MYRANK.getComparator(true)).sortedCopy(players));
       }
     }
   }
@@ -249,7 +291,9 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   @Override
   public void onChangePlayerRank(ChangePlayerRankEvent event) {
-    playersByDataSet.clear();
+    for (PlayerList playerList : playersByDataSet.values()) {
+      playerList.updatePlayerRank(event.getPlayerId(), event.getPrevRank(), event.getNewRank());
+    }
     super.onChangePlayerRank(event);
   }
 

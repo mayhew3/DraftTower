@@ -60,15 +60,16 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
     List<Player> players;
-    if (cache.containsKey(getKey(request.getTableSpec()))) {
-      players = cache.get(getKey(request.getTableSpec()));
-    } else {
-      players = new ArrayList<>();
+    ResultSet resultSet = null;
+    try {
+      TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
+      String cacheKey = getKey(request.getTableSpec(), teamId);
+      if (cache.containsKey(cacheKey)) {
+        players = cache.get(cacheKey);
+      } else {
+        players = new ArrayList<>();
 
-      ResultSet resultSet = null;
-      try {
-        TeamId team = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
-        resultSet = getResultSetForUnclaimedPlayerRows(request, team);
+        resultSet = getResultSetForUnclaimedPlayerRows(request, teamId);
         while (resultSet.next()) {
           Player player = beanFactory.createPlayer().as();
           player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -104,12 +105,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
           players.add(player);
         }
-        cache.put(getKey(request.getTableSpec()), players);
-      } catch (SQLException e) {
-        throw new ServletException("Error getting next element of results.", e);
-      } finally {
-        close(resultSet);
+        cache.put(cacheKey, players);
       }
+    } catch (SQLException e) {
+      throw new ServletException("Error getting next element of results.", e);
+    } finally {
+      close(resultSet);
     }
 
     response.setPlayers(players);
@@ -745,9 +746,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private static String getKey(TableSpec tableSpec) {
+  private static String getKey(TableSpec tableSpec, TeamId teamId) {
     return tableSpec.getPlayerDataSet().ordinal() + ""
         + tableSpec.getSortCol().ordinal() + ""
-        + (tableSpec.isAscending() ? "a" : "d");
+        + (tableSpec.isAscending() ? "a" : "d")
+        + teamId.get();
   }
 }
