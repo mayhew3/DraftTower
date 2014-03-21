@@ -80,7 +80,6 @@ public class PlayerTablePanel extends Composite implements
   private static final List<PositionFilter> POSITION_FILTERS = Arrays.asList(
       null,  // Unfilled - populated in constructor. 
       new PositionFilter("All", EnumSet.allOf(Position.class)),
-      new PositionFilter("Batters", Position.BATTING_POSITIONS),
       new PositionFilter(C),
       new PositionFilter(FB),
       new PositionFilter(SB),

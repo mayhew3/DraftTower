@@ -51,6 +51,10 @@ public enum Position {
       return !apply(player, EnumSet.of(P));
     }
     String eligibilities = PlayerColumn.ELIG.get(player);
+    if (eligibilities == null) {
+      // DAVID AARDSMA!!!!
+      return false;
+    }
     for (Position position : positions) {
       if (eligibilities.contains(position.getShortName())) {
         return true;
