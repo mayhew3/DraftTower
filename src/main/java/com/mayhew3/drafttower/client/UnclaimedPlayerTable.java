@@ -597,6 +597,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   private boolean isPitchersAndBattersFilter(EnumSet<Position> positionFilter) {
-    return positionFilter.contains(Position.P) && positionFilter.size() > 1;
+    return positionFilter.isEmpty()
+        || (positionFilter.contains(Position.P) && positionFilter.size() > 1);
   }
 }

@@ -209,6 +209,9 @@ public enum PlayerColumn {
   }
 
   public static String getWizard(Player player, EnumSet<Position> positions) {
+    if (positions.isEmpty()) {
+      return getWizard(player, Position.REAL_POSITIONS);
+    }
     return getMax(
         positions.contains(Position.P) ? player.getWizardP() : null,
         positions.contains(Position.C) ? player.getWizardC() : null,

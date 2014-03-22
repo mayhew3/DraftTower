@@ -179,6 +179,50 @@ public class RosterUtilTest {
   }
 
   @Test
+  public void testNoPositionsOpenMultiPositionPlayers() throws Exception {
+    Assert.assertEquals(EnumSet.noneOf(Position.class),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, C, FB),
+            pick(2, FB),
+            pick(3, SB),
+            pick(4, SS),
+            pick(5, TB, FB, OF),
+            pick(6, OF),
+            pick(7, OF),
+            pick(8, OF, FB),
+            pick(9, FB),
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P))));
+  }
+
+  @Test
+  public void testGetOpenPositionsOneOpenOneReserve() throws Exception {
+    Assert.assertEquals(EnumSet.of(SB),
+        RosterUtil.getOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, FB),
+            pick(3, TB),
+            pick(4, SS),
+            pick(5, OF),
+            pick(6, OF),
+            pick(7, OF),
+            pick(8, OF, FB),
+            pick(9, TB, OF),
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P))));
+  }
+
+  @Test
   public void testGetOpenPositionsSingleEligibility() throws Exception {
     Assert.assertEquals(EnumSet.of(FB, SB, SS, OF, DH, P),
         RosterUtil.getOpenPositions(Lists.newArrayList(
