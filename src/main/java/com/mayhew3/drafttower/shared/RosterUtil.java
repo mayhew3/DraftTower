@@ -84,6 +84,11 @@ public class RosterUtil {
   }
 
   public static Set<Position> getOpenPositions(List<DraftPick> picks) {
+    Multimap<Position, DraftPick> optimalRoster = constructRoster(picks);
+    optimalRoster.removeAll(RS);
+    if (optimalRoster.size() == POSITIONS.size()) {
+      return EnumSet.noneOf(Position.class);
+    }
     Set<Position> openPositions = EnumSet.noneOf(Position.class);
     int reservesAllowed = 0;
     doGetOpenPositions(picks, Lists.newArrayList(POSITIONS), openPositions,

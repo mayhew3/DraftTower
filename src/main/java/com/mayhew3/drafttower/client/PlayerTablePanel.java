@@ -279,7 +279,8 @@ public class PlayerTablePanel extends Composite implements
     boolean unfilledSelected = positionFilter == POSITION_FILTERS.get(0);
     for (Entry<Position, CheckBox> checkBoxEntry : positionOverrideCheckBoxes.entrySet()) {
       checkBoxEntry.getValue().setVisible(unfilledSelected
-          && positionFilter.positions.contains(checkBoxEntry.getKey()));
+          && (positionFilter.positions.isEmpty()
+              || positionFilter.positions.contains(checkBoxEntry.getKey())));
     }
     EnumSet<Position> positions = EnumSet.copyOf(positionFilter.positions);
     if (unfilledSelected) {

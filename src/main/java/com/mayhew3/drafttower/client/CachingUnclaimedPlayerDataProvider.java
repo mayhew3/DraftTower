@@ -256,6 +256,9 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     if (display instanceof UnclaimedPlayerTable) {
       UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
       EnumSet<Position> positionFilter = table.getPositionFilter();
+      if (positionFilter.isEmpty()) {
+        positionFilter = Position.REAL_POSITIONS;
+      }
       boolean hideInjuries = table.getHideInjuries();
       TableSpec tableSpec = table.getTableSpec();
       String nameFilter = table.getNameFilter();
