@@ -219,7 +219,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
     Statement statement = null;
     try {
       statement = prepareStatementUpdate(sql, wizardTableName,
-          getTeamIdByDraftOrder(teamDraftOrder));
+          getTeamIdByDraftOrder(teamDraftOrder).get());
     } catch (SQLException e) {
       logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input, wizardTable is '" + wizardTableName + "'", e);
     } finally {
