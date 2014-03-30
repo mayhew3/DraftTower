@@ -107,7 +107,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     try {
       TeamDraftOrder teamDraftOrder = teamTokens.get(cmd.getTeamToken());
       if (teamDraftOrder == null) {
-        throw new TerminateSocketException("Bad team token.");
+        throw new TerminateSocketException(SocketTerminationReason.BAD_TEAM_TOKEN);
       }
       if (cmd.getCommandType().isCommissionerOnly()) {
         try {
@@ -122,7 +122,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       switch (cmd.getCommandType()) {
         case IDENTIFY:
           if (status.getConnectedTeams().contains(teamDraftOrder.get())) {
-            throw new TerminateSocketException("Team already connected!");
+            throw new TerminateSocketException(SocketTerminationReason.TEAM_ALREADY_CONNECTED);
           }
           status.getConnectedTeams().add(teamDraftOrder.get());
           status.getRobotTeams().remove(teamDraftOrder.get());

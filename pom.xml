@@ -66,11 +66,6 @@
       <version>${jetty-server.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.sksamuel.gwt</groupId>
-      <artifactId>gwt-websockets</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-gwt</artifactId>
       <version>13.0.1</version>

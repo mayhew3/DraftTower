@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.mayhew3.drafttower.shared.DraftCommand.Command.IDENTIFY;
+import static com.mayhew3.drafttower.shared.SocketTerminationReason.TEAM_ALREADY_CONNECTED;
 
 /**
  * Servlet for WebSocket communication with clients.
@@ -55,7 +56,6 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
           break;
         } catch (IOException e) {
           // retry...
-          e.printStackTrace();
         }
       }
     }
@@ -67,7 +67,6 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
           connection.sendMessage(msg + ServletEndpoints.CLOCK_SYNC_SEP + System.currentTimeMillis());
         } catch (IOException e) {
           // welp
-          e.printStackTrace();
         }
       } else {
         DraftCommand cmd = AutoBeanCodex.decode(beanFactory, DraftCommand.class, msg).as();
@@ -79,7 +78,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
             listener.onDraftCommand(cmd);
           }
         } catch (TerminateSocketException e) {
-          connection.close(1008, e.getMessage());
+          connection.close(e.getReason().getCloseCode(), e.getMessage());
         }
       }
     }
@@ -87,7 +86,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     @Override
     public void onClose(int closeCode, String message) {
       openSockets.remove(this);
-      if (closeCode != 1008 && teamToken != null) {
+      if (closeCode != TEAM_ALREADY_CONNECTED.getCloseCode() && teamToken != null) {
         for (DraftCommandListener listener : listeners) {
           listener.onClientDisconnected(teamToken);
         }
