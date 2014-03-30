@@ -113,7 +113,8 @@ public class DraftSocketHandler implements
   @Override
   public void onClose(SocketTerminationReason reason) {
     eventBus.fireEvent(new SocketDisconnectEvent());
-    if (reason == SocketTerminationReason.BAD_TEAM_TOKEN) {
+    if (reason == SocketTerminationReason.BAD_TEAM_TOKEN
+        || reason == SocketTerminationReason.TEAM_ALREADY_CONNECTED) {
       Window.Location.reload();
     } else {
       Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {

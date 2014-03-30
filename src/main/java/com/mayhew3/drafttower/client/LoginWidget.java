@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.base.Function;
 import com.google.common.net.HttpHeaders;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -23,6 +24,7 @@ import com.mayhew3.drafttower.client.DraftTowerGinModule.LoginUrl;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.LoginResponse;
+import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 import static com.google.gwt.http.client.RequestBuilder.POST;
 
@@ -62,7 +64,8 @@ public class LoginWidget extends Composite {
   @UiField TextBox username;
   @UiField PasswordTextBox password;
   @UiField Button login;
-  @UiField DivElement error;
+  @UiField DivElement invalidLogin;
+  @UiField DivElement alreadyLoggedIn;
 
   @Inject
   public LoginWidget(@LoginUrl String loginUrl,
@@ -74,7 +77,8 @@ public class LoginWidget extends Composite {
     this.beanFactory = beanFactory;
     this.eventBus = eventBus;
     initWidget(uiBinder.createAndBindUi(this));
-    UIObject.setVisible(error, false);
+    UIObject.setVisible(invalidLogin, false);
+    UIObject.setVisible(alreadyLoggedIn, false);
 
     String storedTeamToken = Cookies.getCookie(LoginResponse.TEAM_TOKEN_COOKIE);
     if (storedTeamToken != null) {
@@ -104,26 +108,29 @@ public class LoginWidget extends Composite {
   private void doAutoLogin() {
     setVisible(false);
     doLogin("",
-        new Runnable() {
+        new Function<SocketTerminationReason, Void>() {
           @Override
-          public void run() {
+          public Void apply(SocketTerminationReason reason) {
             autoLoginFailed();
+            return null;
           }
         });
   }
 
   private void doLogin() {
-    UIObject.setVisible(error, false);
+    UIObject.setVisible(invalidLogin, false);
+    UIObject.setVisible(alreadyLoggedIn, false);
     doLogin("username=" + username.getValue() + "&password=" + password.getValue(),
-        new Runnable() {
+        new Function<SocketTerminationReason, Void>() {
           @Override
-          public void run() {
-            loginFailed();
+          public Void apply(SocketTerminationReason reason) {
+            loginFailed(reason);
+            return null;
           }
         });
   }
 
-  private void doLogin(String requestParams, final Runnable failureCallback) {
+  private void doLogin(String requestParams, final Function<SocketTerminationReason, Void> failureCallback) {
     RequestBuilder requestBuilder = new RequestBuilder(POST, loginUrl);
     requestBuilder.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
     try {
@@ -134,20 +141,24 @@ public class LoginWidget extends Composite {
               if (response.getStatusCode() == 200) {
                 LoginResponse loginResponse =
                     AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as();
-                teamsInfo.setLoginResponse(loginResponse);
-                eventBus.fireEvent(new LoginEvent(loginResponse));
+                if (loginResponse.isAlreadyLoggedIn()) {
+                  failureCallback.apply(SocketTerminationReason.TEAM_ALREADY_CONNECTED);
+                } else {
+                  teamsInfo.setLoginResponse(loginResponse);
+                  eventBus.fireEvent(new LoginEvent(loginResponse));
+                }
               } else {
-                failureCallback.run();
+                failureCallback.apply(SocketTerminationReason.BAD_TEAM_TOKEN);
               }
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-              failureCallback.run();
+              failureCallback.apply(SocketTerminationReason.UNKNOWN_REASON);
             }
           });
     } catch (RequestException e) {
-      failureCallback.run();
+      failureCallback.apply(SocketTerminationReason.UNKNOWN_REASON);
     }
   }
 
@@ -161,7 +172,11 @@ public class LoginWidget extends Composite {
     });
   }
 
-  private void loginFailed() {
-    UIObject.setVisible(error, true);
+  private void loginFailed(SocketTerminationReason reason) {
+    if (reason == SocketTerminationReason.TEAM_ALREADY_CONNECTED) {
+      UIObject.setVisible(alreadyLoggedIn, true);
+    } else {
+      UIObject.setVisible(invalidLogin, true);
+    }
   }
 }
