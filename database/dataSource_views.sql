@@ -9,7 +9,7 @@ CREATE OR REPLACE VIEW projectionsAll AS
   NULL AS RBI,
   NULL AS HR,
   NULL AS SBC,
-  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, Rating
+  ROUND(INN, 1) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, DataSource, Rating, Draft
 FROM projectionsPitching)
 UNION
 (SELECT PlayerID, 'Batter' AS Role,
@@ -20,7 +20,7 @@ UNION
   NULL AS WL,
   NULL AS K,
   NULL AS S,
-  Rank, DataSource, Rating
+  Rank, DataSource, Rating, Draft
 FROM projectionsBatting)
 ORDER BY Rank;
 

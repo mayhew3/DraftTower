@@ -395,18 +395,16 @@ INNER JOIN Players p
  ON dr.PlayerID = p.ID;
 
 CREATE OR REPLACE VIEW DraftResultsLoad AS
-SELECT dr.PlayerID,
-  dr.Round,
-  dr.Pick,
-  dr.Keeper,
-  CONCAT_WS(' ', p.FirstName, p.LastName) AS PlayerName,
-  COALESCE(yb.Eligibility, 'P') AS Eligibility,
-  t.DraftOrder
-FROM DraftResults dr
-INNER JOIN Teams t
-  ON dr.TeamID = t.ID
-INNER JOIN Players p
-  ON dr.PlayerID = p.ID
-LEFT OUTER JOIN YearlyBatting yb
-  ON yb.PlayerID = dr.PlayerID
-WHERE dr.BackedOut = 0;
+  SELECT dr.PlayerID,
+    dr.Round,
+    dr.Pick,
+    dr.Keeper,
+    CONCAT_WS(' ', p.FirstName, p.LastName) AS PlayerName,
+    COALESCE(p.Eligibility, 'P') AS Eligibility,
+    t.DraftOrder
+  FROM DraftResults dr
+    INNER JOIN Teams t
+      ON dr.TeamID = t.ID
+    INNER JOIN Players p
+      ON dr.PlayerID = p.ID
+  WHERE dr.BackedOut = 0;
