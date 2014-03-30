@@ -39,9 +39,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
     @Override
     public void onOpen(Connection connection) {
-      synchronized (DraftTowerWebSocketServlet.this) {
-        openSockets.add(this);
-      }
+      openSockets.add(this);
       this.connection = connection;
       connection.setMaxIdleTime(0);
       for (DraftCommandListener listener : listeners) {
@@ -88,7 +86,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
     @Override
     public void onClose(int closeCode, String message) {
-//      openSockets.remove(this);
+      openSockets.remove(this);
       if (closeCode != 1008 && teamToken != null) {
         for (DraftCommandListener listener : listeners) {
           listener.onClientDisconnected(teamToken);
@@ -117,10 +115,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
   }
 
   public void sendMessage(String message) {
-    synchronized (this) {
-      for (DraftTowerWebSocket socket : openSockets) {
-        socket.sendMessage(message);
-      }
+    for (DraftTowerWebSocket socket : openSockets) {
+      socket.sendMessage(message);
     }
   }
 }
