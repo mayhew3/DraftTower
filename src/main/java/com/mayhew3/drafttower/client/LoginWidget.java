@@ -163,6 +163,7 @@ public class LoginWidget extends Composite {
   }
 
   private void autoLoginFailed() {
+    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
     setVisible(true);
     Scheduler.get().scheduleDeferred(new ScheduledCommand() {
       @Override
@@ -173,6 +174,7 @@ public class LoginWidget extends Composite {
   }
 
   private void loginFailed(SocketTerminationReason reason) {
+    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
     if (reason == SocketTerminationReason.TEAM_ALREADY_CONNECTED) {
       UIObject.setVisible(alreadyLoggedIn, true);
     } else {
