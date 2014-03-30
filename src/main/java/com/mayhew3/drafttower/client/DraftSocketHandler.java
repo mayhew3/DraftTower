@@ -4,19 +4,17 @@ import com.google.gwt.core.client.Duration;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.DraftTowerGinModule.DraftSocketUrl;
 import com.mayhew3.drafttower.client.events.*;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftCommand;
+import com.mayhew3.drafttower.client.websocket.Websocket;
+import com.mayhew3.drafttower.client.websocket.WebsocketListener;
+import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
-import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.ServletEndpoints;
-import com.sksamuel.gwt.websockets.Websocket;
-import com.sksamuel.gwt.websockets.WebsocketListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,16 +111,20 @@ public class DraftSocketHandler implements
   }
 
   @Override
-  public void onClose() {
+  public void onClose(SocketTerminationReason reason) {
     eventBus.fireEvent(new SocketDisconnectEvent());
-    Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-      @Override
-      public boolean execute() {
-        socket.open();
-        return false;
-      }
-    }, backoff);
-    backoff = Math.max(backoff * 2, MAX_BACKOFF_MS);
+    if (reason == SocketTerminationReason.BAD_TEAM_TOKEN) {
+      Window.Location.reload();
+    } else {
+      Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+        @Override
+        public boolean execute() {
+          socket.open();
+          return false;
+        }
+      }, backoff);
+      backoff = Math.max(backoff * 2, MAX_BACKOFF_MS);
+    }
   }
 
   private void sendDraftCommand(DraftCommand.Command commandType) {
