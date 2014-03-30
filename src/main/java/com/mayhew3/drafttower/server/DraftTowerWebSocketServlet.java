@@ -6,15 +6,15 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.mayhew3.drafttower.shared.DraftCommand.Command.IDENTIFY;
 
@@ -39,9 +39,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
     @Override
     public void onOpen(Connection connection) {
-      synchronized (DraftTowerWebSocketServlet.this) {
-        openSockets.add(this);
-      }
+      openSockets.add(this);
       this.connection = connection;
       connection.setMaxIdleTime(0);
       for (DraftCommandListener listener : listeners) {
@@ -88,7 +86,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
     @Override
     public void onClose(int closeCode, String message) {
-//      openSockets.remove(this);
+      openSockets.remove(this);
       if (closeCode != 1008 && teamToken != null) {
         for (DraftCommandListener listener : listeners) {
           listener.onClientDisconnected(teamToken);
@@ -99,8 +97,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   private final BeanFactory beanFactory;
 
-  private final List<DraftCommandListener> listeners = new ArrayList<>();
-  private final Set<DraftTowerWebSocket> openSockets = new HashSet<>();
+  private final List<DraftCommandListener> listeners = new CopyOnWriteArrayList<>();
+  private final Set<DraftTowerWebSocket> openSockets = new ConcurrentHashSet<>();
 
   @Inject
   public DraftTowerWebSocketServlet(BeanFactory beanFactory) {
@@ -117,10 +115,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
   }
 
   public void sendMessage(String message) {
-    synchronized (this) {
-      for (DraftTowerWebSocket socket : openSockets) {
-        socket.sendMessage(message);
-      }
+    for (DraftTowerWebSocket socket : openSockets) {
+      socket.sendMessage(message);
     }
   }
 }
