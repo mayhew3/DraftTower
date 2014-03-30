@@ -40,6 +40,7 @@
           <element id="library" level="project" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.1" />
           <element id="library" level="project" name="Maven: org.antlr:antlr-runtime:3.1.1" />
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.1" />
+          <element id="library" level="project" name="Maven: org.mockito:mockito-all:1.9.5" />
         </element>
       </element>
       <element id="gwt-compiler-output" facet="DraftTower/gwt/GWT" />

@@ -1,40 +1,58 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.guiceberry.junit4.GuiceBerryRule;
-import com.google.inject.Inject;
-import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
-import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.QueueEntry;
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
+import com.mayhew3.drafttower.shared.*;
 import junit.framework.Assert;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Tests for {@link DraftController}.
  */
 public class DraftControllerTest {
 
-  @Rule
-  public final GuiceBerryRule guiceBerry = new GuiceBerryRule(GuiceBerryEnv.class);
+  private DraftController draftController;
+  private DraftStatus draftStatus;
+  private ListMultimap<TeamDraftOrder, Integer> keepers;
+  private ListMultimap<TeamDraftOrder, QueueEntry> queues;
+  private BeanFactory beanFactory;
 
-  @Inject private DraftController draftController;
-  @Inject private DraftStatus draftStatus;
-  @Inject @Keepers private ListMultimap<TeamDraftOrder, Integer> keepers;
-  @Inject @Queues private ListMultimap<TeamDraftOrder, QueueEntry> queues;
-  @Inject private BeanFactory beanFactory;
+  @Before
+  public void setUp() throws Exception {
+    beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
+    draftStatus = beanFactory.createDraftStatus().as();
+    keepers = ArrayListMultimap.create();
+    queues = ArrayListMultimap.create();
+    draftController = new DraftController(
+        Mockito.mock(DraftTowerWebSocketServlet.class),
+        beanFactory,
+        Mockito.mock(PlayerDataSource.class),
+        Mockito.mock(TeamDataSource.class),
+        Mockito.mock(DraftTimer.class),
+        draftStatus,
+        new HashMap<String, TeamDraftOrder>(),
+        keepers,
+        queues,
+        new HashMap<TeamDraftOrder, PlayerDataSet>(),
+        10);
+  }
 
   @Test
   public void testBackOutLastPickSkipsKeepers() throws Exception {
     reset();
-    draftStatus.setPicks(Lists.newArrayList(
+    List<DraftPick> picks = Lists.newArrayList(
         beanFactory.createDraftPick().as(),
         beanFactory.createDraftPick().as(),
         beanFactory.createDraftPick().as(),
-        beanFactory.createDraftPick().as()));
+        beanFactory.createDraftPick().as());
+    draftStatus.setPicks(picks);
     draftStatus.setCurrentTeam(5);
     keepers.put(new TeamDraftOrder(4), 0);
     draftController.backOutLastPick();
