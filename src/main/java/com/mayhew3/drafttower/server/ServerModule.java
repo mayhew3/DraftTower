@@ -13,6 +13,6 @@ public class ServerModule extends AbstractModule {
   protected void configure() {
     install(new GinModuleAdapter(new SharedModule()));
     install(new ServerTestSafeModule());
-    install(new ServerDatabaseModule());
+    install(new ServerProductionModule());
   }
 }

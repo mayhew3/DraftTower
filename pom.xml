@@ -133,8 +133,12 @@
       <artifactId>guiceberry</artifactId>
       <version>3.1.0</version>
     </dependency>
+    <dependency>
+        <groupId>com.googlecode.gwt-test-utils</groupId>
+        <artifactId>gwt-test-utils</artifactId>
+        <version>0.45</version>
+      </dependency>
   </dependencies>
-
   <build>
     <!-- Generate compiled stuff in the folder used for developing mode -->
     <outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
@@ -150,7 +154,6 @@
           <execution>
             <goals>
               <goal>compile</goal>
-              <goal>test</goal>
             </goals>
             <configuration>
               <extraJvmArgs>-Xmx512M -Xss8M</extraJvmArgs>
@@ -191,6 +194,14 @@
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.16</version>
+        <configuration>
+          <argLine>-Xmx512M -XX:MaxPermSize=128M</argLine>
         </configuration>
       </plugin>
       <plugin>
