@@ -23,4 +23,7 @@ public interface LoginResponse {
 
   PlayerDataSet getInitialWizardTable();
   void setInitialWizardTable(PlayerDataSet playerDataSet);
+
+  boolean isAlreadyLoggedIn();
+  void setAlreadyLoggedIn(boolean alreadyLoggedIn);
 }

@@ -14,7 +14,8 @@
         <span class="{style.css.fieldLabel}">Password:</span>
         <g:PasswordTextBox styleName="{style.css.field}" ui:field="password"/>
       </div>
-      <div class="{style.css.error}" ui:field="error">Invalid login.</div>
+      <div class="{style.css.error}" ui:field="invalidLogin">Invalid login.</div>
+      <div class="{style.css.error}" ui:field="alreadyLoggedIn">Team already connected in another tab.</div>
       <div class="{style.css.loginButton}">
         <g:Button text="Login" ui:field="login"/>
       </div>
