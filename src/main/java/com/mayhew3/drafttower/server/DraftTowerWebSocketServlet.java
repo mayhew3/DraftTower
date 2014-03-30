@@ -6,15 +6,15 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.mayhew3.drafttower.shared.DraftCommand.Command.IDENTIFY;
 
@@ -96,8 +96,8 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
 
   private final BeanFactory beanFactory;
 
-  private final List<DraftCommandListener> listeners = new ArrayList<>();
-  private final Set<DraftTowerWebSocket> openSockets = new HashSet<>();
+  private final List<DraftCommandListener> listeners = new CopyOnWriteArrayList<>();
+  private final Set<DraftTowerWebSocket> openSockets = new ConcurrentHashSet<>();
 
   @Inject
   public DraftTowerWebSocketServlet(BeanFactory beanFactory) {
