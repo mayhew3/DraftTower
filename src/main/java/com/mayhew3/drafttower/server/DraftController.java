@@ -85,7 +85,6 @@ public class DraftController implements
     status.setPicks(new ArrayList<DraftPick>());
     playerDataSource.populateDraftStatus(status);
     int round = status.getPicks().size() / numTeams;
-    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
     int currentTeam = status.getPicks().isEmpty()
         ? 1
         : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1);
@@ -93,6 +92,7 @@ public class DraftController implements
       currentTeam -= numTeams;
     }
     status.setCurrentTeam(currentTeam);
+    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
 
     draftTimer.addListener(this);
     socketServlet.addListener(this);
@@ -165,7 +165,8 @@ public class DraftController implements
     }
   }
 
-  private void doPick(final TeamDraftOrder teamDraftOrder, long playerId, boolean auto, boolean keeper) {
+  @VisibleForTesting
+  void doPick(final TeamDraftOrder teamDraftOrder, long playerId, boolean auto, boolean keeper) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
         playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
@@ -259,12 +260,12 @@ public class DraftController implements
   private boolean isCurrentPickKeeper() {
     List<Integer> currentTeamKeepers = keepers.get(new TeamDraftOrder(status.getCurrentTeam()));
     int round = status.getPicks().size() / numTeams;
-    return currentTeamKeepers != null && round < currentTeamKeepers.size();
+    return round < currentTeamKeepers.size();
   }
 
   private Set<Integer> getNextPickKeeperTeams(int round) {
     Set<Integer> nextPickKeeperTeams = new HashSet<>();
-    if (round <= 3) {
+    if (round < 3) {
       for (int i = 1; i <= numTeams; i++) {
         if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(new TeamDraftOrder(i)).size()) {
           nextPickKeeperTeams.add(i);
@@ -334,13 +335,11 @@ public class DraftController implements
   /** Returns true if the team should go into robot mode. */
   private boolean autoPick() {
     TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
-    if (queues.containsKey(currentTeam)) {
-      List<QueueEntry> queue = queues.get(currentTeam);
-      synchronized (queues) {
-        if (!queue.isEmpty()) {
-          doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
-          return false;
-        }
+    List<QueueEntry> queue = queues.get(currentTeam);
+    synchronized (queues) {
+      if (!queue.isEmpty()) {
+        doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
+        return false;
       }
     }
 
@@ -349,7 +348,6 @@ public class DraftController implements
   }
 
   private void startPickTimer(long timeMs) {
-    draftTimer.cancel();
     draftTimer.start(timeMs);
   }
 

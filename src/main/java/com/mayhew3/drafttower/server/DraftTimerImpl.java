@@ -24,6 +24,7 @@ public class DraftTimerImpl implements DraftTimer {
 
   @Override
   public void start(long timeMs) {
+    cancel();
     currentPickTimer = pickTimer.schedule(new Runnable() {
       @Override
       public void run() {
