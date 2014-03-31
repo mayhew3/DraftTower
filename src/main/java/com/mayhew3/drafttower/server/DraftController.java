@@ -19,9 +19,6 @@ import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -32,7 +29,9 @@ import static java.util.logging.Level.SEVERE;
  * Class responsible for tracking draft state and handling commands from clients.
  */
 @Singleton
-public class DraftController implements DraftTowerWebSocketServlet.DraftCommandListener {
+public class DraftController implements
+    DraftTowerWebSocketServlet.DraftCommandListener,
+    DraftTimer.Listener {
 
   private static final Logger logger = Logger.getLogger(DraftController.class.getName());
 
@@ -45,6 +44,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
   private final TeamDataSource teamDataSource;
+  private final DraftTimer draftTimer;
 
   private final Map<String, TeamDraftOrder> teamTokens;
   private final ListMultimap<TeamDraftOrder, Integer> keepers;
@@ -56,14 +56,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private final DraftStatus status;
   private long pausedPickTime;
 
-  private final ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
-  private ScheduledFuture<?> currentPickTimer;
-
   @Inject
   public DraftController(DraftTowerWebSocketServlet socketServlet,
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
+      DraftTimer draftTimer,
       DraftStatus status,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
@@ -74,18 +72,19 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.teamDataSource = teamDataSource;
+    this.draftTimer = draftTimer;
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
     this.autoPickWizardTables = autoPickWizardTables;
     this.numTeams = numTeams;
     this.status = status;
+
     status.setConnectedTeams(new HashSet<Integer>());
     status.setRobotTeams(new HashSet<Integer>());
     status.setPicks(new ArrayList<DraftPick>());
     playerDataSource.populateDraftStatus(status);
     int round = status.getPicks().size() / numTeams;
-    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
     int currentTeam = status.getPicks().isEmpty()
         ? 1
         : (status.getPicks().get(status.getPicks().size() - 1).getTeam() + 1);
@@ -93,6 +92,9 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
       currentTeam -= numTeams;
     }
     status.setCurrentTeam(currentTeam);
+    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
+
+    draftTimer.addListener(this);
     socketServlet.addListener(this);
   }
 
@@ -163,7 +165,8 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
     }
   }
 
-  private void doPick(final TeamDraftOrder teamDraftOrder, long playerId, boolean auto, boolean keeper) {
+  @VisibleForTesting
+  void doPick(final TeamDraftOrder teamDraftOrder, long playerId, boolean auto, boolean keeper) {
     if (playerId == Player.BEST_DRAFT_PICK) {
       try {
         playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
@@ -233,7 +236,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void newPick() {
-    cancelPickTimer();
+    draftTimer.cancel();
     long pickLengthMs = status.getRobotTeams().contains(status.getCurrentTeam())
         ? ROBOT_PICK_LENGTH_MS
         : PICK_LENGTH_MS;
@@ -257,12 +260,12 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   private boolean isCurrentPickKeeper() {
     List<Integer> currentTeamKeepers = keepers.get(new TeamDraftOrder(status.getCurrentTeam()));
     int round = status.getPicks().size() / numTeams;
-    return currentTeamKeepers != null && round < currentTeamKeepers.size();
+    return round < currentTeamKeepers.size();
   }
 
   private Set<Integer> getNextPickKeeperTeams(int round) {
     Set<Integer> nextPickKeeperTeams = new HashSet<>();
-    if (round <= 3) {
+    if (round < 3) {
       for (int i = 1; i <= numTeams; i++) {
         if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(new TeamDraftOrder(i)).size()) {
           nextPickKeeperTeams.add(i);
@@ -289,7 +292,7 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void pausePick() {
-    cancelPickTimer();
+    draftTimer.cancel();
     status.setPaused(true);
     pausedPickTime = status.getCurrentPickDeadline() - System.currentTimeMillis();
   }
@@ -332,13 +335,11 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   /** Returns true if the team should go into robot mode. */
   private boolean autoPick() {
     TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
-    if (queues.containsKey(currentTeam)) {
-      List<QueueEntry> queue = queues.get(currentTeam);
-      synchronized (queues) {
-        if (!queue.isEmpty()) {
-          doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
-          return false;
-        }
+    List<QueueEntry> queue = queues.get(currentTeam);
+    synchronized (queues) {
+      if (!queue.isEmpty()) {
+        doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
+        return false;
       }
     }
 
@@ -347,32 +348,20 @@ public class DraftController implements DraftTowerWebSocketServlet.DraftCommandL
   }
 
   private void startPickTimer(long timeMs) {
-    cancelPickTimer();
-    currentPickTimer = pickTimer.schedule(new Runnable() {
-      @Override
-      public void run() {
-        lock.lock();
-        try {
-          timerExpired();
-        } finally {
-          lock.unlock();
-        }
+    draftTimer.start(timeMs);
+  }
+
+  @Override
+  public void timerExpired() {
+    lock.lock();
+    try {
+      int currentTeam = status.getCurrentTeam();
+      if (autoPick()) {
+        status.getRobotTeams().add(currentTeam);
       }
-    }, timeMs, TimeUnit.MILLISECONDS);
-  }
-
-  @VisibleForTesting void timerExpired() {
-    currentPickTimer = null;
-    int currentTeam = status.getCurrentTeam();
-    if (autoPick()) {
-      status.getRobotTeams().add(currentTeam);
-    }
-    sendStatusUpdates();
-  }
-
-  private void cancelPickTimer() {
-    if (currentPickTimer != null) {
-      currentPickTimer.cancel(true);
+      sendStatusUpdates();
+    } finally {
+      lock.unlock();
     }
   }
 

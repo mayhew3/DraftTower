@@ -14,6 +14,6 @@ public class GuiceBerryEnv extends AbstractModule {
     install(new GuiceBerryModule());
     install(new GinModuleAdapter(new SharedModule()));
     install(new ServerTestSafeModule());
-    install(new TestServerDatabaseModule());
+    install(new TestServerModule());
   }
 }

@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -667,7 +668,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return graphsData;
   }
 
-  private static List<String> splitEligibilities(String eligibility) {
+  @VisibleForTesting
+  static List<String> splitEligibilities(String eligibility) {
     return eligibility.isEmpty()
         ? Lists.newArrayList("DH")
         : Lists.newArrayList(eligibility.split(","));
