@@ -10,7 +10,8 @@ import javax.servlet.ServletException;
 import java.sql.SQLException;
 import java.util.*;
 
-import static com.mayhew3.drafttower.shared.Position.*;
+import static com.mayhew3.drafttower.shared.Position.OF;
+import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
  * {@link PlayerDataSource} for testing.
@@ -162,11 +163,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Player player = beanFactory.createPlayer().as();
     player.setName(UUID.randomUUID().toString());
     player.setTeam("XXX");
-    if (position != P && position != DH) {
-      player.setEligibility(position.getShortName() + ",DH");
-    } else {
-      player.setEligibility(position.getShortName());
-    }
+    player.setEligibility(position.getShortName());
     if (i == 5) {
       player.setInjury("busted wang");
     }
