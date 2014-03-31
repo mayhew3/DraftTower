@@ -484,7 +484,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Override
   public void populateDraftPick(DraftPick draftPick) throws SQLException {
     String sql = "select FirstName,LastName,Eligibility " +
-        "from AllPlayers " +
+        "from Players " +
         "where ID = " + draftPick.getPlayerId();
 
     ResultSet resultSet = executeQuery(sql);
@@ -638,7 +638,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Override
   public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws SQLException {
     TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
-    String sql = "select * from teamscoringwithzeroes";
+    String sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
 
     GraphsData graphsData = beanFactory.createGraphsData().as();
     Map<PlayerColumn, Float> myValues = new HashMap<>();
