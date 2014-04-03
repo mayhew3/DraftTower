@@ -56,6 +56,6 @@ public class ServerTestSafeModule extends AbstractGinModule {
 
   @Override
   protected void configure() {
-    bind(DraftController.class).asEagerSingleton();
+    bind(DraftController.class).to(DraftControllerImpl.class).asEagerSingleton();
   }
 }

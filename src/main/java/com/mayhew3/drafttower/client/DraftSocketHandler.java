@@ -9,10 +9,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.DraftSocketUrl;
 import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketListener;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.DraftSocketUrl;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
 

@@ -9,13 +9,13 @@ import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.ChangePlayerRankUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.CopyPlayerRanksUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickWizardUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.ChangePlayerRankUrl;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.CopyPlayerRanksUrl;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.SetAutoPickWizardUrl;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.Set;

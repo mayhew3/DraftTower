@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.common.base.Function;
-import com.google.common.net.HttpHeaders;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -10,7 +9,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.http.client.*;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -19,14 +17,10 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
-import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.LoginUrl;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
-
-import static com.google.gwt.http.client.RequestBuilder.POST;
 
 /**
  * Login form.
@@ -56,7 +50,7 @@ public class LoginWidget extends Composite {
   interface MyUiBinder extends UiBinder<Widget, LoginWidget> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-  private final String loginUrl;
+  private final ServerRpc serverRpc;
   private final TeamsInfo teamsInfo;
   private final BeanFactory beanFactory;
   private final EventBus eventBus;
@@ -68,11 +62,11 @@ public class LoginWidget extends Composite {
   @UiField DivElement alreadyLoggedIn;
 
   @Inject
-  public LoginWidget(@LoginUrl String loginUrl,
+  public LoginWidget(ServerRpc serverRpc,
       TeamsInfo teamsInfo,
       BeanFactory beanFactory,
       EventBus eventBus) {
-    this.loginUrl = loginUrl;
+    this.serverRpc = serverRpc;
     this.teamsInfo = teamsInfo;
     this.beanFactory = beanFactory;
     this.eventBus = eventBus;
@@ -107,7 +101,7 @@ public class LoginWidget extends Composite {
 
   private void doAutoLogin() {
     setVisible(false);
-    doLogin("",
+    doLogin("", "",
         new Function<SocketTerminationReason, Void>() {
           @Override
           public Void apply(SocketTerminationReason reason) {
@@ -120,7 +114,7 @@ public class LoginWidget extends Composite {
   private void doLogin() {
     UIObject.setVisible(invalidLogin, false);
     UIObject.setVisible(alreadyLoggedIn, false);
-    doLogin("username=" + username.getValue() + "&password=" + password.getValue(),
+    doLogin(username.getValue(), password.getValue(),
         new Function<SocketTerminationReason, Void>() {
           @Override
           public Void apply(SocketTerminationReason reason) {
@@ -130,36 +124,22 @@ public class LoginWidget extends Composite {
         });
   }
 
-  private void doLogin(String requestParams, final Function<SocketTerminationReason, Void> failureCallback) {
-    RequestBuilder requestBuilder = new RequestBuilder(POST, loginUrl);
-    requestBuilder.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-    try {
-      requestBuilder.sendRequest(requestParams,
-          new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-              if (response.getStatusCode() == 200) {
-                LoginResponse loginResponse =
-                    AutoBeanCodex.decode(beanFactory, LoginResponse.class, response.getText()).as();
-                if (loginResponse.isAlreadyLoggedIn()) {
-                  failureCallback.apply(SocketTerminationReason.TEAM_ALREADY_CONNECTED);
-                } else {
-                  teamsInfo.setLoginResponse(loginResponse);
-                  eventBus.fireEvent(new LoginEvent(loginResponse));
-                }
-              } else {
-                failureCallback.apply(SocketTerminationReason.BAD_TEAM_TOKEN);
-              }
+  private void doLogin(String username, String password,
+      final Function<SocketTerminationReason, Void> failureCallback) {
+    serverRpc.sendLoginRequest(username, password,
+        new Function<LoginResponse, Void>() {
+          @Override
+          public Void apply(LoginResponse loginResponse) {
+            if (loginResponse.isAlreadyLoggedIn()) {
+              failureCallback.apply(SocketTerminationReason.TEAM_ALREADY_CONNECTED);
+            } else {
+              teamsInfo.setLoginResponse(loginResponse);
+              eventBus.fireEvent(new LoginEvent(loginResponse));
             }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-              failureCallback.apply(SocketTerminationReason.UNKNOWN_REASON);
-            }
-          });
-    } catch (RequestException e) {
-      failureCallback.apply(SocketTerminationReason.UNKNOWN_REASON);
-    }
+            return null;
+          }
+        },
+        failureCallback);
   }
 
   private void autoLoginFailed() {

@@ -12,10 +12,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.QueuesUrl;
 import com.mayhew3.drafttower.client.events.DequeuePlayerEvent;
 import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
 import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.QueuesUrl;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.List;

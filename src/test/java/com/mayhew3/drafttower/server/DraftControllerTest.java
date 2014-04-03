@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Tests for {@link DraftController}.
+ * Tests for {@link DraftControllerImpl}.
  */
 public class DraftControllerTest {
 
@@ -57,8 +57,8 @@ public class DraftControllerTest {
         });
   }
 
-  private DraftController createDraftController() throws SQLException {
-    return new DraftController(
+  private DraftControllerImpl createDraftController() throws SQLException {
+    return new DraftControllerImpl(
         Mockito.mock(DraftTowerWebSocketServlet.class),
         beanFactory,
         playerDataSource,
@@ -76,7 +76,7 @@ public class DraftControllerTest {
   public void testFirstTeamCurrentWhenConstructingAfterFullRound() throws Exception{
     reset();
     picks = createPicksList(10);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     Assert.assertEquals(1, draftStatus.getCurrentTeam());
   }
 
@@ -86,7 +86,7 @@ public class DraftControllerTest {
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     Assert.assertEquals(Sets.newHashSet(4, 6), draftStatus.getNextPickKeeperTeams());
   }
 
@@ -97,7 +97,7 @@ public class DraftControllerTest {
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     Assert.assertEquals(Sets.newHashSet(6), draftStatus.getNextPickKeeperTeams());
   }
 
@@ -108,7 +108,7 @@ public class DraftControllerTest {
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     Assert.assertEquals(Sets.newHashSet(6), draftStatus.getNextPickKeeperTeams());
   }
 
@@ -122,7 +122,7 @@ public class DraftControllerTest {
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
     keepers.put(new TeamDraftOrder(6), 25);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     Assert.assertEquals(Sets.newHashSet(6), draftStatus.getNextPickKeeperTeams());
   }
 
@@ -134,7 +134,7 @@ public class DraftControllerTest {
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
     keepers.put(new TeamDraftOrder(6), 25);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     Assert.assertEquals(Sets.<Integer>newHashSet(), draftStatus.getNextPickKeeperTeams());
   }
 
@@ -142,7 +142,7 @@ public class DraftControllerTest {
   public void testBackOutLastPick() throws Exception {
     reset();
     picks = createPicksList(4);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.backOutLastPick();
     Assert.assertEquals(4, draftStatus.getCurrentTeam());
     Assert.assertEquals(3, draftStatus.getPicks().size());
@@ -152,7 +152,7 @@ public class DraftControllerTest {
   public void testBackOutLastPickByFirstTeam() throws Exception {
     reset();
     picks = createPicksList(10);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.backOutLastPick();
     Assert.assertEquals(10, draftStatus.getCurrentTeam());
     Assert.assertEquals(9, draftStatus.getPicks().size());
@@ -163,7 +163,7 @@ public class DraftControllerTest {
     reset();
     draftStatus.setPaused(true);
     picks = createPicksList(4);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.backOutLastPick();
     Assert.assertTrue(draftStatus.isPaused());
   }
@@ -173,7 +173,7 @@ public class DraftControllerTest {
     reset();
     picks = createPicksList(4);
     keepers.put(new TeamDraftOrder(4), 0);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.backOutLastPick();
     Assert.assertEquals(3, draftStatus.getCurrentTeam());
     Assert.assertEquals(2, draftStatus.getPicks().size());
@@ -182,7 +182,7 @@ public class DraftControllerTest {
   @Test
   public void testAutoPickNoQueueSetsRobotMode() throws Exception {
     reset();
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.timerExpired();
     Assert.assertTrue(draftStatus.getRobotTeams().contains(1));
   }
@@ -193,7 +193,7 @@ public class DraftControllerTest {
     QueueEntry queueEntry = beanFactory.createQueueEntry().as();
     queueEntry.setPlayerId(0);
     queues.put(new TeamDraftOrder(1), queueEntry);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.timerExpired();
     Assert.assertFalse(draftStatus.getRobotTeams().contains(1));
   }
@@ -202,7 +202,7 @@ public class DraftControllerTest {
   public void testPickAdvancesFromLastTeamToFirstTeam() throws Exception {
     reset();
     picks = createPicksList(9);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(10), 9, false, false);
     Assert.assertEquals(1, draftStatus.getCurrentTeam());
   }
@@ -211,7 +211,7 @@ public class DraftControllerTest {
   public void testInvalidPickDoesNotAdvanceTeam() throws Exception {
     reset();
     picks = createPicksList(9);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(10), 8, false, false);
     Assert.assertEquals(10, draftStatus.getCurrentTeam());
   }
@@ -221,7 +221,7 @@ public class DraftControllerTest {
     reset();
     picks = createPicksList(2);
     keepers.put(new TeamDraftOrder(4), 3);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(3), 2, false, false);
     Assert.assertEquals(5, draftStatus.getCurrentTeam());
     Assert.assertEquals(3, draftStatus.getPicks().get(3).getPlayerId());
@@ -232,7 +232,7 @@ public class DraftControllerTest {
     reset();
     picks = createPicksList(12);
     keepers.put(new TeamDraftOrder(4), 3);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(3), 12, false, false);
     Assert.assertEquals(4, draftStatus.getCurrentTeam());
   }
@@ -245,7 +245,7 @@ public class DraftControllerTest {
     queues.put(team3, createQueueEntry(0));
     queues.put(team3, createQueueEntry(1));
     queues.put(team6, createQueueEntry(0));
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(1), 0, false, false);
     Assert.assertEquals(1, queues.get(team3).size());
     Assert.assertEquals(1, queues.get(team3).get(0).getPlayerId());
@@ -256,7 +256,7 @@ public class DraftControllerTest {
   public void testItsOver() throws Exception {
     reset();
     picks = createPicksList(219);
-    DraftController draftController = createDraftController();
+    DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(10), 219, false, false);
     Assert.assertTrue(draftStatus.isOver());
   }
