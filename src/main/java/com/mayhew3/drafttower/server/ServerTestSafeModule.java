@@ -2,10 +2,9 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.inject.AbstractModule;
+import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
@@ -23,7 +22,7 @@ import java.util.Map;
 /**
  * Dependency bindings which can be used as-is in tests.
  */
-public class ServerTestSafeModule extends AbstractModule {
+public class ServerTestSafeModule extends AbstractGinModule {
 
   @Provides @Singleton
   public BeanFactory getBeanFactory() {
@@ -50,11 +49,13 @@ public class ServerTestSafeModule extends AbstractModule {
     return beanFactory.createDraftStatus().as();
   }
 
+  @Provides @Singleton @TeamTokens
+  public Map<String, TeamDraftOrder> getTeamTokens() {
+    return new HashMap<>();
+  }
+
   @Override
   protected void configure() {
     bind(DraftController.class).asEagerSingleton();
-    bind(new TypeLiteral<Map<String, TeamDraftOrder>>() {})
-        .annotatedWith(TeamTokens.class)
-        .toInstance(new HashMap<String, TeamDraftOrder>());
   }
 }

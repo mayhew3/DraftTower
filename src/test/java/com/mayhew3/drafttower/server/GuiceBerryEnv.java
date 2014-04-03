@@ -13,7 +13,7 @@ public class GuiceBerryEnv extends AbstractModule {
   protected void configure() {
     install(new GuiceBerryModule());
     install(new GinModuleAdapter(new SharedModule()));
-    install(new ServerTestSafeModule());
-    install(new TestServerModule());
+    install(new GinModuleAdapter(new ServerTestSafeModule()));
+    install(new GinModuleAdapter(new TestServerModule()));
   }
 }
