@@ -36,7 +36,12 @@ public class UnclaimedPlayerLookupServlet extends HttpServlet {
     String requestStr = CharStreams.toString(req.getReader());
     UnclaimedPlayerListRequest request =
         AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListRequest.class, requestStr).as();
-    UnclaimedPlayerListResponse response = playerDataSource.lookupUnclaimedPlayers(request);
+    UnclaimedPlayerListResponse response = null;
+    try {
+      response = playerDataSource.lookupUnclaimedPlayers(request);
+    } catch (DataSourceException e) {
+      throw new ServletException(e);
+    }
 
     resp.getWriter().append(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(response)).getPayload());
     resp.setContentType("text/json");

@@ -3,33 +3,32 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ListMultimap;
 import com.mayhew3.drafttower.shared.*;
 
-import javax.servlet.ServletException;
-import java.sql.SQLException;
 import java.util.Set;
 
 /**
  * Handles lookup and persistence of player-related data.
  */
 public interface PlayerDataSource {
-  UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws ServletException;
 
-  ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws ServletException;
+  UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws DataSourceException;
 
-  void populateQueueEntry(QueueEntry queueEntry) throws SQLException;
+  ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws DataSourceException;
 
-  void populateDraftPick(DraftPick draftPick) throws SQLException;
+  void populateQueueEntry(QueueEntry queueEntry) throws DataSourceException;
 
-  long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, Set<Position> openPositions) throws SQLException;
+  void populateDraftPick(DraftPick draftPick) throws DataSourceException;
 
-  void changePlayerRank(ChangePlayerRankRequest request) throws ServletException;
+  long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, Set<Position> openPositions) throws DataSourceException;
 
-  void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException;
+  void changePlayerRank(ChangePlayerRankRequest request) throws DataSourceException;
 
-  void backOutLastDraftPick(int pickToRemove) throws SQLException;
+  void postDraftPick(DraftPick draftPick, DraftStatus status) throws DataSourceException;
 
-  void populateDraftStatus(DraftStatus status) throws SQLException;
+  void backOutLastDraftPick(int pickToRemove) throws DataSourceException;
 
-  void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException;
+  void populateDraftStatus(DraftStatus status) throws DataSourceException;
 
-  GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws SQLException;
+  void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws DataSourceException;
+
+  GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws DataSourceException;
 }

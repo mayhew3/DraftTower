@@ -1,13 +1,12 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import java.sql.SQLException;
 import java.util.*;
 
 import static com.mayhew3.drafttower.shared.Position.OF;
@@ -52,19 +51,19 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws ServletException {
+  public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
     response.setPlayers(Lists.newArrayList(availablePlayers.values()));
     return response;
   }
 
   @Override
-  public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws ServletException {
+  public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() {
     return keepers;
   }
 
   @Override
-  public void populateQueueEntry(QueueEntry queueEntry) throws SQLException {
+  public void populateQueueEntry(QueueEntry queueEntry) {
     Player player = allPlayers.get(queueEntry.getPlayerId());
     queueEntry.setPlayerName(player.getName());
     queueEntry.setEligibilities(
@@ -72,7 +71,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public void populateDraftPick(DraftPick draftPick) throws SQLException {
+  public void populateDraftPick(DraftPick draftPick) {
     Player player = allPlayers.get(draftPick.getPlayerId());
     draftPick.setPlayerName(player.getName());
     draftPick.setEligibilities(
@@ -80,7 +79,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, final Set<Position> openPositions) throws SQLException {
+  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, final Set<Position> openPositions) {
     return Collections.max(availablePlayers.values(), new Comparator<Player>() {
       @Override
       public int compare(Player o1, Player o2) {
@@ -102,29 +101,29 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public void postDraftPick(DraftPick draftPick, DraftStatus status) throws SQLException {
+  public void postDraftPick(DraftPick draftPick, DraftStatus status) {
     draftPicks.add(draftPick);
     availablePlayers.remove(draftPick.getPlayerId());
   }
 
   @Override
-  public void backOutLastDraftPick(int pickToRemove) throws SQLException {
+  public void backOutLastDraftPick(int pickToRemove) {
     DraftPick draftPick = draftPicks.remove(draftPicks.size() - 1);
     availablePlayers.put(draftPick.getPlayerId(), allPlayers.get(draftPick.getPlayerId()));
   }
 
   @Override
-  public void populateDraftStatus(DraftStatus status) throws SQLException {
+  public void populateDraftStatus(DraftStatus status) {
     status.getPicks().addAll(draftPicks);
   }
 
   @Override
-  public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws SQLException {
+  public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) {
     // TODO(kprevas): implement
   }
 
   @Override
-  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws SQLException {
+  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) {
     GraphsData graphsData = beanFactory.createGraphsData().as();
     Map<PlayerColumn, Float> myValues = new HashMap<>();
     graphsData.setMyValues(myValues);
@@ -161,7 +160,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   private Player generatePlayer(int playerId, Position position, int i) {
     Player player = beanFactory.createPlayer().as();
-    player.setName(UUID.randomUUID().toString());
+    player.setName(Strings.repeat(Integer.toString(playerId), 10));
     player.setTeam("XXX");
     player.setEligibility(position.getShortName());
     if (i == 5) {

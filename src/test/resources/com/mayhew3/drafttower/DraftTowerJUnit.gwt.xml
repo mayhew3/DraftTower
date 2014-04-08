@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
-  <!-- Inherit our applications main module.                      -->
-  <inherits name='com.mayhew3.drafttower.DraftTower' />
+  <!-- Inherit base module. -->
+  <inherits name='com.mayhew3.drafttower.DraftTowerBase'/>
+
+  <inherits name="com.google.gwt.user.Debug"/>
+
+  <!-- Specify the paths for translatable code -->
+  <source path='client'/>
+  <source path='server'/>
+  <source path='shared'/>
+
+  <!-- Specify the app entry point class. -->
+  <entry-point class='com.mayhew3.drafttower.client.DraftTowerTestEntryPoint'/>
 </module>

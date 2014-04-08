@@ -1,11 +1,12 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
-    xmlns:d="urn:import:com.mayhew3.drafttower.client">
+    xmlns:d="urn:import:com.mayhew3.drafttower.client"
+    xmlns:l="urn:import:com.mayhew3.drafttower.client.login">
 
-  <ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
+<ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
 
   <g:HTMLPanel>
-    <d:LoginWidget ui:field="loginWidget"/>
+    <l:LoginWidget ui:field="loginWidget"/>
     <div ui:field="mainPage">
       <d:ConnectivityIndicator ui:field="connectivityIndicator" addStyleNames="{style.css.connectivityIndicator}"/>
       <div class="{style.css.rightColumn}">

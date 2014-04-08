@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +96,7 @@ public class QueueServlet extends HttpServlet {
             queues.put(team, queueEntry);
           }
         }
-      } catch (SQLException e) {
+      } catch (DataSourceException e) {
         log(e.getMessage(), e);
         resp.setStatus(500);
       }

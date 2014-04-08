@@ -31,4 +31,9 @@ public class BindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface AutoPickWizards {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface DraftTimerListenerList {}
 }

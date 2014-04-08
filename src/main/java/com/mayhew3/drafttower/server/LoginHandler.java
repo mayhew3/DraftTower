@@ -9,12 +9,8 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 /**
  * Handles login requests.
@@ -24,6 +20,7 @@ public class LoginHandler {
   private final TeamDataSource teamDataSource;
   private final DraftStatus draftStatus;
   private final BeanFactory beanFactory;
+  private final TokenGenerator tokenGenerator;
   private final Map<String, TeamDraftOrder> teamTokens;
   private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
   
@@ -32,11 +29,13 @@ public class LoginHandler {
       TeamDataSource teamDataSource,
       DraftStatus draftStatus,
       BeanFactory beanFactory,
+      TokenGenerator tokenGenerator,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables) {
     this.teamDataSource = teamDataSource;
     this.draftStatus = draftStatus;
     this.beanFactory = beanFactory;
+    this.tokenGenerator = tokenGenerator;
     this.teamTokens = teamTokens;
     this.autoPickWizardTables = autoPickWizardTables;
   }  
@@ -44,7 +43,7 @@ public class LoginHandler {
   public AutoBean<LoginResponse> doLogin(
       Map<String, String> cookiesMap,
       String username,
-      String password) throws IOException, ServletException {
+      String password) throws DataSourceException {
     AutoBean<LoginResponse> responseBean = null;
     for (Entry<String, String> cookie : cookiesMap.entrySet()) {
       if (LoginResponse.TEAM_TOKEN_COOKIE.equals(cookie.getKey())) {
@@ -68,7 +67,7 @@ public class LoginHandler {
         if (draftStatus.getConnectedTeams().contains(teamDraftOrder.get())) {
           responseBean = createAlreadyLoggedInResponse();
         } else {
-          String teamToken = UUID.randomUUID().toString();
+          String teamToken = tokenGenerator.get();
           responseBean = createSuccessResponse(teamDraftOrder, teamToken);
           teamTokens.put(teamToken, teamDraftOrder);
         }
@@ -78,22 +77,18 @@ public class LoginHandler {
   }
 
   private AutoBean<LoginResponse> createSuccessResponse(TeamDraftOrder teamDraftOrder, String teamToken)
-      throws ServletException, IOException {
+      throws DataSourceException {
     AutoBean<LoginResponse> responseBean = beanFactory.createLoginResponse();
     LoginResponse response = responseBean.as();
     response.setTeam(teamDraftOrder.get());
     response.setTeamToken(teamToken);
     response.setInitialWizardTable(autoPickWizardTables.get(teamDraftOrder));
-    try {
-      response.setTeams(teamDataSource.getTeams());
-      response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
-    } catch (SQLException e) {
-      throw new ServletException(e);
-    }
+    response.setTeams(teamDataSource.getTeams());
+    response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
     return responseBean;
   }
 
-  private AutoBean<LoginResponse> createAlreadyLoggedInResponse() throws IOException {
+  private AutoBean<LoginResponse> createAlreadyLoggedInResponse() {
     AutoBean<LoginResponse> responseBean = beanFactory.createLoginResponse();
     LoginResponse response = responseBean.as();
     response.setAlreadyLoggedIn(true);

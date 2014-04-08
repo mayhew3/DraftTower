@@ -34,6 +34,10 @@ public class ChangePlayerRankServlet extends HttpServlet {
     String requestStr = CharStreams.toString(req.getReader());
     ChangePlayerRankRequest request =
         AutoBeanCodex.decode(beanFactory, ChangePlayerRankRequest.class, requestStr).as();
-    playerDataSource.changePlayerRank(request);
+    try {
+      playerDataSource.changePlayerRank(request);
+    } catch (DataSourceException e) {
+      throw new ServletException(e);
+    }
   }
 }

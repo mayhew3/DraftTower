@@ -36,7 +36,12 @@ public class LoginServlet extends HttpServlet {
     }
     String username = req.getParameter("username");
     String password = req.getParameter("password");
-    AutoBean<LoginResponse> responseBean = loginHandler.doLogin(cookiesMap, username, password);
+    AutoBean<LoginResponse> responseBean;
+    try {
+      responseBean = loginHandler.doLogin(cookiesMap, username, password);
+    } catch (DataSourceException e) {
+      throw new ServletException(e);
+    }
     if (responseBean != null) {
       resp.setContentType("text/plain");
       resp.getWriter().append(AutoBeanCodex.encode(responseBean).getPayload());

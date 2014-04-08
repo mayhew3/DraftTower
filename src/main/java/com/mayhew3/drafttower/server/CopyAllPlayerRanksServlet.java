@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * Servlet handling copying ordering to custom rankings.
@@ -38,7 +37,7 @@ public class CopyAllPlayerRanksServlet extends HttpServlet {
 
     try {
       playerDataSource.copyTableSpecToCustom(request);
-    } catch (SQLException e) {
+    } catch (DataSourceException e) {
       throw new ServletException(e);
     }
   }

@@ -3,13 +3,11 @@ package com.mayhew3.drafttower.client;
 import com.google.common.base.Function;
 import com.google.gwt.user.client.Cookies;
 import com.google.web.bindery.autobean.shared.AutoBean;
+import com.mayhew3.drafttower.server.DataSourceException;
 import com.mayhew3.drafttower.server.LoginHandler;
-import com.mayhew3.drafttower.shared.LoginResponse;
-import com.mayhew3.drafttower.shared.SocketTerminationReason;
+import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,8 +44,52 @@ public class TestServerRpc implements ServerRpc {
       } else {
         failureCallback.apply(SocketTerminationReason.BAD_TEAM_TOKEN);
       }
-    } catch (IOException | ServletException e) {
+    } catch (DataSourceException e) {
       failureCallback.apply(SocketTerminationReason.UNKNOWN_REASON);
     }
+  }
+
+  @Override
+  public void sendGetPlayerQueueRequest(AutoBean<GetPlayerQueueRequest> requestBean,
+      Function<GetPlayerQueueResponse, Void> callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendEnqueueOrDequeueRequest(String action,
+      AutoBean<EnqueueOrDequeuePlayerRequest> requestBean,
+      Runnable callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendReorderQueueRequest(AutoBean<ReorderPlayerQueueRequest> requestBean,
+      Runnable callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendGraphsRequest(AutoBean<GetGraphsDataRequest> requestBean, Function<GraphsData, Void> callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendPlayerListRequest(AutoBean<UnclaimedPlayerListRequest> requestBean, Function<UnclaimedPlayerListResponse, Void> callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendChangePlayerRankRequest(AutoBean<ChangePlayerRankRequest> requestBean, Runnable callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendCopyRanksRequest(AutoBean<CopyAllPlayerRanksRequest> requestBean, Runnable callback) {
+    // TODO(kprevas): implement
+  }
+
+  @Override
+  public void sendSetWizardTableRequest(AutoBean<SetWizardTableRequest> requestBean, Runnable callback) {
+    // TODO(kprevas): implement
   }
 }

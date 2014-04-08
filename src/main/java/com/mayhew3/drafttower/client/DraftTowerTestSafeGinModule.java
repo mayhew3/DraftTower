@@ -26,9 +26,9 @@ public class DraftTowerTestSafeGinModule extends AbstractGinModule {
   protected void configure() {
     install(new SharedModule());
     bind(BeanFactory.class).in(Singleton.class);
-    bind(new TypeLiteral<AsyncDataProvider<Player>>() {})
-        .to(CachingUnclaimedPlayerDataProvider.class).in(Singleton.class);
     bind(DraftSocketHandler.class).asEagerSingleton();
     bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
+    bind(new TypeLiteral<AsyncDataProvider<Player>>() {})
+        .to(CachingUnclaimedPlayerDataProvider.class).in(Singleton.class);
   }
 }

@@ -1,11 +1,11 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
 import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
@@ -15,7 +15,6 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.QueueEntry;
 
-import javax.servlet.ServletException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +23,11 @@ import java.util.Map;
  */
 public class ServerTestSafeModule extends AbstractGinModule {
 
-  @Provides @Singleton
-  public BeanFactory getBeanFactory() {
-    return AutoBeanFactorySource.create(BeanFactory.class);
-  }
+  @VisibleForTesting
+  public static HashMap<String,TeamDraftOrder> teamTokensForTest;
 
   @Provides @Singleton @Keepers
-  public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataSource playerDataSource) throws ServletException {
+  public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataSource playerDataSource) throws DataSourceException {
     return playerDataSource.getAllKeepers();
   }
 
@@ -51,6 +48,9 @@ public class ServerTestSafeModule extends AbstractGinModule {
 
   @Provides @Singleton @TeamTokens
   public Map<String, TeamDraftOrder> getTeamTokens() {
+    if (teamTokensForTest != null) {
+      return teamTokensForTest;
+    }
     return new HashMap<>();
   }
 

@@ -13,6 +13,10 @@ public class ServletConfig extends GuiceServletContextListener {
 
   @Override
   protected Injector getInjector() {
+    if (System.getProperty("gwtTests") != null) {
+      // Don't inject server modules during tests - they're faked client-side.
+      return Guice.createInjector();
+    }
     return Guice.createInjector(new ServletModule() {
       @Override
       protected void configureServlets() {

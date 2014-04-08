@@ -11,7 +11,8 @@ public class TestServerModule extends AbstractGinModule {
   @Override
   protected void configure() {
     bind(DraftTimer.class).to(TestDraftTimer.class).in(Singleton.class);
-    bind(PlayerDataSource.class).to(TestPlayerDataSource.class);
-    bind(TeamDataSource.class).to(TestTeamDataSource.class);
+    bind(DraftTowerWebSocket.class).to(TestDraftTowerWebSocket.class).in(Singleton.class);
+    bind(PlayerDataSource.class).to(TestPlayerDataSource.class).in(Singleton.class);
+    bind(TeamDataSource.class).to(TestTeamDataSource.class).in(Singleton.class);
   }
 }

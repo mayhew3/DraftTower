@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+  <!-- Inherit the core Web Toolkit stuff. -->
+  <inherits name='com.google.gwt.user.User'/>
+
+  <!-- Other module inherits -->
+  <inherits name="com.google.common.collect.Collect"/>
+  <inherits name="com.google.gwt.http.HTTP"/>
+  <inherits name="com.google.gwt.inject.Inject"/>
+  <inherits name="com.google.gwt.visualization.Visualization"/>
+  <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+  <inherits name="gwtquery.plugins.droppable.Droppable"/>
+
+  <!-- Specify the paths for translatable code -->
+  <source path='client'/>
+  <source path='shared'/>
+
+  <!-- super dev mode -->
+
+  <add-linker name="xsiframe"/>
+
+  <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+
+  <!-- enable source maps -->
+
+  <set-property name="compiler.useSourceMaps" value="true"/>
+</module>

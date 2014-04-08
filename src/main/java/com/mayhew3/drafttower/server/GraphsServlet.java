@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -48,7 +47,7 @@ public class GraphsServlet extends HttpServlet {
         response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
         resp.getWriter().append(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(response)).getPayload());
       }
-    } catch (SQLException e) {
+    } catch (DataSourceException e) {
       throw new ServletException(e);
     }
 

@@ -16,11 +16,8 @@ import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.SEVERE;
@@ -36,9 +33,8 @@ public class DraftControllerImpl implements DraftController {
   private static final long PICK_LENGTH_MS = 75 * 1000;
   private static final long ROBOT_PICK_LENGTH_MS = 7 * 1000;
 
-  private final Lock lock = new ReentrantLock();
-
-  private final DraftTowerWebSocketServlet socketServlet;
+  private final Lock lock;
+  private final DraftTowerWebSocket socketServlet;
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
   private final TeamDataSource teamDataSource;
@@ -55,17 +51,18 @@ public class DraftControllerImpl implements DraftController {
   private long pausedPickTime;
 
   @Inject
-  public DraftControllerImpl(DraftTowerWebSocketServlet socketServlet,
+  public DraftControllerImpl(DraftTowerWebSocket socketServlet,
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
       DraftTimer draftTimer,
       DraftStatus status,
+      Lock lock,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
       @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
-      @NumTeams int numTeams) throws SQLException {
+      @NumTeams int numTeams) throws DataSourceException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
@@ -77,6 +74,7 @@ public class DraftControllerImpl implements DraftController {
     this.autoPickWizardTables = autoPickWizardTables;
     this.numTeams = numTeams;
     this.status = status;
+    this.lock = lock;
 
     status.setConnectedTeams(new HashSet<Integer>());
     status.setRobotTeams(new HashSet<Integer>());
@@ -104,7 +102,7 @@ public class DraftControllerImpl implements DraftController {
   @Override
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     lock.lock();
-    try {
+    try (Lock ignored = lock.lock()) {
       TeamDraftOrder teamDraftOrder = teamTokens.get(cmd.getTeamToken());
       if (teamDraftOrder == null) {
         throw new TerminateSocketException(SocketTerminationReason.BAD_TEAM_TOKEN);
@@ -114,7 +112,7 @@ public class DraftControllerImpl implements DraftController {
           if (!teamDataSource.isCommissionerTeam(teamDraftOrder)) {
             return;
           }
-        } catch (SQLException e) {
+        } catch (DataSourceException e) {
           logger.log(SEVERE, "Couldn't look up team for commissioner-only command.", e);
           return;
         }
@@ -158,8 +156,6 @@ public class DraftControllerImpl implements DraftController {
           break;
       }
       sendStatusUpdates();
-    } finally {
-      lock.unlock();
     }
   }
 
@@ -177,7 +173,7 @@ public class DraftControllerImpl implements DraftController {
                         return draftPick.getTeam() == teamDraftOrder.get();
                       }
                     }))));
-      } catch (SQLException e) {
+      } catch (DataSourceException e) {
         logger.log(SEVERE, "SQL error looking up the best draft pick", e);
         return;
       }
@@ -200,14 +196,14 @@ public class DraftControllerImpl implements DraftController {
     pick.setKeeper(keeper);
     try {
       playerDataSource.populateDraftPick(pick);
-    } catch (SQLException e) {
+    } catch (DataSourceException e) {
       logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
     }
     status.getPicks().add(pick);
 
     try {
       playerDataSource.postDraftPick(pick, status);
-    } catch (SQLException e) {
+    } catch (DataSourceException e) {
       logger.log(SEVERE, "SQL error posting draft pick for player ID " + playerId, e);
     }
 
@@ -325,7 +321,7 @@ public class DraftControllerImpl implements DraftController {
     status.getPicks().remove(pickToRemove - 1);
     try {
       playerDataSource.backOutLastDraftPick(pickToRemove);
-    } catch (SQLException e) {
+    } catch (DataSourceException e) {
       logger.log(SEVERE, "SQL error backing out last draft pick.", e);
     }
   }
@@ -351,15 +347,12 @@ public class DraftControllerImpl implements DraftController {
 
   @Override
   public void timerExpired() {
-    lock.lock();
-    try {
+    try (Lock ignored = lock.lock()) {
       int currentTeam = status.getCurrentTeam();
       if (autoPick()) {
         status.getRobotTeams().add(currentTeam);
       }
       sendStatusUpdates();
-    } finally {
-      lock.unlock();
     }
   }
 

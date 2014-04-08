@@ -12,7 +12,6 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketListener;
-import com.mayhew3.drafttower.server.GinBindingAnnotations.DraftSocketUrl;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
 
@@ -57,14 +56,14 @@ public class DraftSocketHandler implements
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,
-      @DraftSocketUrl String socketUrl,
+      Websocket socket,
       TeamsInfo teamsInfo,
       OpenPositions openPositions,
       EventBus eventBus) {
     this.beanFactory = beanFactory;
     this.teamsInfo = teamsInfo;
     this.openPositions = openPositions;
-    socket = new Websocket(socketUrl);
+    this.socket = socket;
     socket.addListener(this);
 
     this.eventBus = eventBus;

@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +56,7 @@ public class DraftControllerTest {
         });
   }
 
-  private DraftControllerImpl createDraftController() throws SQLException {
+  private DraftControllerImpl createDraftController() throws DataSourceException {
     return new DraftControllerImpl(
         Mockito.mock(DraftTowerWebSocketServlet.class),
         beanFactory,
@@ -65,6 +64,7 @@ public class DraftControllerTest {
         Mockito.mock(TeamDataSource.class),
         Mockito.mock(DraftTimer.class),
         draftStatus,
+        new LockImpl(),
         new HashMap<String, TeamDraftOrder>(),
         keepers,
         queues,
