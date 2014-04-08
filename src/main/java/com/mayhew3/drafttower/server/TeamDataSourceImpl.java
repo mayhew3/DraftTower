@@ -12,7 +12,6 @@ import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Team;
 
-import javax.servlet.ServletException;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.HashMap;
@@ -44,7 +43,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
   /** Returns the team number corresponding to the given login credentials, or null for an invalid login. */
   @Override
-  public TeamDraftOrder getTeamDraftOrder(String username, String password) throws ServletException {
+  public TeamDraftOrder getTeamDraftOrder(String username, String password) throws DataSourceException {
     String sql = "select teams.DraftOrder " +
         "from users " +
         "inner join userrole " +
@@ -65,14 +64,14 @@ public class TeamDataSourceImpl implements TeamDataSource {
         return null;
       }
     } catch (SQLException e) {
-      throw new ServletException("Cannot connect to login server.");
+      throw new DataSourceException("Cannot connect to login server.");
     }  finally {
       close(resultSet);
     }
   }
 
   @Override
-  public boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) throws SQLException {
+  public boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) throws DataSourceException {
     String sql = "select userrole.Role " +
         "from users " +
         "inner join teams " +
@@ -86,13 +85,15 @@ public class TeamDataSourceImpl implements TeamDataSource {
     try {
       resultSet = executeQuery(sql);
       return resultSet.next() && resultSet.getString("Role").equals("admin");
+    } catch (SQLException e) {
+      throw new DataSourceException(e);
     }  finally {
       close(resultSet);
     }
   }
 
   @Override
-  public Map<String, Team> getTeams() throws SQLException {
+  public Map<String, Team> getTeams() throws DataSourceException {
     if (teamNamesCache == null) {
       synchronized (this) {
         if (teamNamesCache == null) {
@@ -110,6 +111,8 @@ public class TeamDataSourceImpl implements TeamDataSource {
               team.setLongName(resultSet.getString("Name"));
               teamNamesBuilder.put(resultSet.getString("DraftOrder"), team);
             }
+          } catch (SQLException e) {
+            throw new DataSourceException(e);
           } finally {
             close(resultSet);
           }
@@ -165,7 +168,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
         }
       }
 
-    } catch (SQLException e) {
+    } catch (DataSourceException | SQLException e) {
       logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBSSPORTS, as backup.");
     } finally {
       close(resultSet);
@@ -175,16 +178,16 @@ public class TeamDataSourceImpl implements TeamDataSource {
   }
 
   @Override
-  public TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws SQLException {
+  public TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws DataSourceException {
     return getTeamIdDraftOrderMap().get(teamID);
   }
 
   @Override
-  public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws SQLException {
+  public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws DataSourceException {
     return getTeamIdDraftOrderMap().inverse().get(draftOrder);
   }
 
-  private BiMap<TeamId, TeamDraftOrder> getTeamIdDraftOrderMap() throws SQLException {
+  private BiMap<TeamId, TeamDraftOrder> getTeamIdDraftOrderMap() throws DataSourceException {
     if (teamIdDraftOrderMap == null) {
       synchronized (this) {
         if (teamIdDraftOrderMap == null) {
@@ -199,7 +202,9 @@ public class TeamDataSourceImpl implements TeamDataSource {
               teamIdDraftOrderMap.put(new TeamId(resultSet.getInt("id")),
                   new TeamDraftOrder(resultSet.getInt("DraftOrder")));
             }
-          }  finally {
+          } catch (SQLException e) {
+            throw new DataSourceException(e);
+          } finally {
             close(resultSet);
           }
 
@@ -220,7 +225,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
     try {
       statement = prepareStatementUpdate(sql, wizardTableName,
           getTeamIdByDraftOrder(teamDraftOrder).get());
-    } catch (SQLException e) {
+    } catch (DataSourceException | SQLException e) {
       logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input, wizardTable is '" + wizardTableName + "'", e);
     } finally {
       close(statement);

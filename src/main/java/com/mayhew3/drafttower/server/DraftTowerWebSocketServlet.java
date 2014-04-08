@@ -20,16 +20,10 @@ import static com.mayhew3.drafttower.shared.DraftCommand.Command.IDENTIFY;
 import static com.mayhew3.drafttower.shared.SocketTerminationReason.TEAM_ALREADY_CONNECTED;
 
 /**
- * Servlet for WebSocket communication with clients.
+ * Live implementation of WebSocket communication with clients.
  */
 @Singleton
-public class DraftTowerWebSocketServlet extends WebSocketServlet {
-
-  public interface DraftCommandListener {
-    void onClientConnected();
-    void onDraftCommand(DraftCommand cmd) throws TerminateSocketException;
-    void onClientDisconnected(String playerToken);
-  }
+public class DraftTowerWebSocketServlet extends WebSocketServlet implements DraftTowerWebSocket {
 
   public class DraftTowerWebSocket implements WebSocket.OnTextMessage {
 
@@ -46,7 +40,6 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
       for (DraftCommandListener listener : listeners) {
         listener.onClientConnected();
       }
-
     }
 
     public void sendMessage(String message) {
@@ -109,10 +102,12 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet {
     return new DraftTowerWebSocket();
   }
 
+  @Override
   public void addListener(DraftCommandListener listener) {
     listeners.add(listener);
   }
 
+  @Override
   public void sendMessage(String message) {
     for (DraftTowerWebSocket socket : openSockets) {
       socket.sendMessage(message);

@@ -10,6 +10,7 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -24,11 +25,11 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.QueueAreaTop;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.server.GinBindingAnnotations.QueueAreaTop;
 import com.mayhew3.drafttower.shared.*;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
@@ -69,6 +70,29 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
     CSS.ensureInjected();
   }
 
+  public interface Templates extends SafeHtmlTemplates {
+    @Template("<span title=\"{0}\">{1}</span>")
+    SafeHtml header(String longName, SafeHtml shortName);
+
+    @Template("<span class=\"{0}\">" +
+        "<span class=\"{1}\">{2}</span>" +
+        "/" +
+        "<span class=\"{3}\">{4}</span>" +
+        "</span>")
+    SafeHtml splitHeader(String className,
+        String batterStatClassName,
+        String batterShortName,
+        String pitcherClassName,
+        String pitcherShortName);
+
+    @Template("<span class=\"{0}\" title=\"{1}\">+</span>")
+    SafeHtml injury(String className, String injury);
+
+    @Template("<span class=\"{0}\">{1}</span>")
+    SafeHtml cell(String style, String value);
+  }
+  private static final Templates TEMPLATES = GWT.create(Templates.class);
+
   private static class ColumnSort {
     private PlayerColumn column;
     private boolean isAscending;
@@ -80,6 +104,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   }
 
   private class PlayerColumnHeader extends Header<SafeHtml> {
+
     private final PlayerColumn column;
     private final PlayerColumn pitcherColumn;
 
@@ -91,13 +116,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
     @Override
     public SafeHtml getValue() {
-      return new SafeHtmlBuilder()
-                    .appendHtmlConstant("<span title=\"")
-                    .appendEscaped(getLongName())
-                    .appendHtmlConstant("\">")
-                    .append(getShortName())
-                    .appendHtmlConstant("</span>")
-                    .toSafeHtml();
+      return TEMPLATES.header(getLongName(), getShortName());
     }
 
     private SafeHtml getShortName() {
@@ -108,21 +127,11 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
               .toSafeHtml();
         }
         if (isPitchersAndBattersFilter(positionFilter)) {
-          return new SafeHtmlBuilder()
-              .appendHtmlConstant("<span class=\"")
-              .appendEscaped(CSS.splitHeader())
-              .appendHtmlConstant("\">")
-              .appendHtmlConstant("<span class=\"")
-              .appendEscaped(CSS.batterStat())
-              .appendHtmlConstant("\">")
-              .appendEscaped(column.getShortName())
-              .appendHtmlConstant("</span>/<span class=\"")
-              .appendEscaped(CSS.pitcherStat())
-              .appendHtmlConstant("\">")
-              .appendEscaped(pitcherColumn.getShortName())
-              .appendHtmlConstant("</span>")
-              .appendHtmlConstant("</span>")
-              .toSafeHtml();
+          return TEMPLATES.splitHeader(CSS.splitHeader(),
+              CSS.batterStat(),
+              column.getShortName(),
+              CSS.pitcherStat(),
+              pitcherColumn.getShortName());
         }
       }
       return new SafeHtmlBuilder()
@@ -341,14 +350,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       @Override
       public SafeHtml getValue(Player player) {
         if (player.getInjury() != null) {
-          return new SafeHtmlBuilder()
-              .appendHtmlConstant("<span ")
-              .appendHtmlConstant("class=\"")
-              .appendEscaped(CSS.injury())
-              .appendHtmlConstant("\" title=\"")
-              .appendEscaped(player.getInjury())
-              .appendHtmlConstant("\">✚</span>")
-              .toSafeHtml();
+          return TEMPLATES.injury(CSS.injury(), player.getInjury());
         }
         return null;
       }
@@ -401,8 +403,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
       public void onDragStart(DragStartEvent dragStartEvent) {
         Player player = dragStartEvent.getDraggableData();
         dragStartEvent.getHelper().setInnerSafeHtml(
-            new SafeHtmlBuilder().appendEscaped(
-                NAME.get(player)).toSafeHtml());
+            new SafeHtmlBuilder().appendEscaped(NAME.get(player))
+                .toSafeHtml());
       }
     });
     updateDropEnabled();
@@ -449,11 +451,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
             } else {
               style = CSS.batterStat();
             }
-            builder.appendHtmlConstant("<span class=\"")
-                .appendEscaped(style)
-                .appendHtmlConstant("\">")
-                .appendEscaped(value.value)
-                .appendHtmlConstant("</span>");
+            builder.append(TEMPLATES.cell(style, value.value));
           } else {
             builder.appendEscaped(value.value);
           }

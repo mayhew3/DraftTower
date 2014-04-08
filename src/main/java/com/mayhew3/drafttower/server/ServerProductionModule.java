@@ -2,6 +2,8 @@ package com.mayhew3.drafttower.server;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
+import com.mayhew3.drafttower.shared.BeanFactory;
 
 import javax.inject.Singleton;
 import javax.naming.Context;
@@ -20,10 +22,18 @@ public class ServerProductionModule extends AbstractModule {
     return (DataSource) envCtx.lookup("jdbc/MySQL");
   }
 
+  @Provides @com.google.inject.Singleton
+  public BeanFactory getBeanFactory() {
+    return AutoBeanFactorySource.create(BeanFactory.class);
+  }
+
   @Override
   protected void configure() {
     bind(DraftTimer.class).to(DraftTimerImpl.class).in(Singleton.class);
+    bind(DraftTowerWebSocket.class).to(DraftTowerWebSocketServlet.class).in(Singleton.class);
+    bind(Lock.class).to(LockImpl.class);
     bind(PlayerDataSource.class).to(PlayerDataSourceImpl.class);
     bind(TeamDataSource.class).to(TeamDataSourceImpl.class);
+    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
   }
 }

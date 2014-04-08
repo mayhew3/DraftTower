@@ -1,14 +1,12 @@
 package com.mayhew3.drafttower.server;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * Wraps an integer representing a team's database ID, to ensure that we don't get it
  * confused with the team's draft order.
  */
-public class TeamId extends AtomicReference<Integer> {
-  public TeamId(Integer initialValue) {
-    super(initialValue);
+public class TeamId extends IntWrapper {
+  public TeamId(int value) {
+    super(value);
   }
 
   @Override

@@ -1,22 +1,15 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
-import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.ChangePlayerRankUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.CopyPlayerRanksUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.SetAutoPickWizardUrl;
-import com.mayhew3.drafttower.client.DraftTowerGinModule.UnclaimedPlayerInfoUrl;
 import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
@@ -171,14 +164,11 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
 
   @Inject
   public CachingUnclaimedPlayerDataProvider(BeanFactory beanFactory,
-      @UnclaimedPlayerInfoUrl String playerInfoUrl,
-      @ChangePlayerRankUrl String changePlayerRankUrl,
-      @CopyPlayerRanksUrl String copyPlayerRanksUrl,
-      @SetAutoPickWizardUrl String setAutoPickWizardUrl,
+      ServerRpc serverRpc,
       TeamsInfo teamsInfo,
       EventBus eventBus,
       OpenPositions openPositions) {
-    super(beanFactory, playerInfoUrl, changePlayerRankUrl, copyPlayerRanksUrl, setAutoPickWizardUrl, teamsInfo, eventBus);
+    super(beanFactory, serverRpc, teamsInfo, eventBus);
     this.openPositions = openPositions;
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
@@ -212,8 +202,6 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     if (requestInFlight) {
       return;
     }
-    RequestBuilder requestBuilder =
-        new RequestBuilder(RequestBuilder.POST, playerInfoUrl);
     AutoBean<UnclaimedPlayerListRequest> requestBean =
         beanFactory.createUnclaimedPlayerListRequest();
     UnclaimedPlayerListRequest request = requestBean.as();
@@ -225,28 +213,24 @@ public class CachingUnclaimedPlayerDataProvider extends UnclaimedPlayerDataProvi
     tableSpec.setAscending(defaultSortAscending);
     request.setTableSpec(tableSpec);
 
-    RequestCallbackWithBackoff.sendRequest(requestBuilder,
-        AutoBeanCodex.encode(requestBean).getPayload(),
-        new RequestCallbackWithBackoff() {
-          @Override
-          public void onResponseReceived(Request request, Response response) {
-            UnclaimedPlayerListResponse playerListResponse =
-                AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListResponse.class,
-                    response.getText()).as();
-            PlayerList playerList = new PlayerList(
-                playerListResponse.getPlayers(),
-                defaultSortCol,
-                defaultPositionFilter,
-                defaultSortAscending);
-            playerList.ensurePlayersRemoved(picks);
-            playersByDataSet.put(dataSet, playerList);
-            Runnable callback = requestCallbackByDataSet.get(dataSet);
-            if (callback != null) {
-              callback.run();
-            }
-            requestCallbackByDataSet.remove(dataSet);
-          }
-        });
+    serverRpc.sendPlayerListRequest(requestBean, new Function<UnclaimedPlayerListResponse, Void>() {
+      @Override
+      public Void apply(UnclaimedPlayerListResponse playerListResponse) {
+        PlayerList playerList = new PlayerList(
+            playerListResponse.getPlayers(),
+            defaultSortCol,
+            defaultPositionFilter,
+            defaultSortAscending);
+        playerList.ensurePlayersRemoved(picks);
+        playersByDataSet.put(dataSet, playerList);
+        Runnable callback = requestCallbackByDataSet.get(dataSet);
+        if (callback != null) {
+          callback.run();
+        }
+        requestCallbackByDataSet.remove(dataSet);
+        return null;
+      }
+    });
   }
 
   @Override

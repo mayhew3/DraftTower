@@ -3,10 +3,9 @@ package com.mayhew3.drafttower.server;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
+import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import com.mayhew3.drafttower.shared.Team;
 
-import javax.servlet.ServletException;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,22 +18,31 @@ public class TestTeamDataSource implements TeamDataSource {
   public static final int COMMISH_TEAM = 1;
 
   @Inject BeanFactory beanFactory;
+  @Inject @NumTeams int numTeams;
 
   @Override
-  public TeamDraftOrder getTeamDraftOrder(String username, String password) throws ServletException {
+  public TeamDraftOrder getTeamDraftOrder(String username, String password) {
     if (password.equals(BAD_PASSWORD)) {
       return null;
     }
-    return new TeamDraftOrder(Integer.parseInt(username));
+    try {
+      int teamNumber = Integer.parseInt(username);
+      if (teamNumber < 0 || teamNumber > numTeams) {
+        return null;
+      }
+      return new TeamDraftOrder(teamNumber);
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   @Override
-  public boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) throws SQLException {
+  public boolean isCommissionerTeam(TeamDraftOrder teamDraftOrder) {
     return teamDraftOrder.get() == COMMISH_TEAM;
   }
 
   @Override
-  public Map<String, Team> getTeams() throws SQLException {
+  public Map<String, Team> getTeams() {
     HashMap<String, Team> teams = new HashMap<>();
     for (int i = 0; i < 10; i++) {
       String teamNumber = Integer.toString(i);
@@ -58,12 +66,12 @@ public class TestTeamDataSource implements TeamDataSource {
   }
 
   @Override
-  public TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws SQLException {
+  public TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) {
     return new TeamDraftOrder(teamID.get());
   }
 
   @Override
-  public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws SQLException {
+  public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) {
     return new TeamId(draftOrder.get());
   }
 }

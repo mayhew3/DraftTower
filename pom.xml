@@ -134,11 +134,6 @@
       <version>3.1.0</version>
     </dependency>
     <dependency>
-        <groupId>com.googlecode.gwt-test-utils</groupId>
-        <artifactId>gwt-test-utils</artifactId>
-        <version>0.45</version>
-      </dependency>
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.9.5</version>
@@ -162,6 +157,15 @@
             </goals>
             <configuration>
               <extraJvmArgs>-Xmx512M -Xss8M</extraJvmArgs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tests</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <extraJvmArgs>-Xmx512M -Xss8M -DgwtTests=true</extraJvmArgs>
             </configuration>
           </execution>
         </executions>
@@ -207,6 +211,9 @@
         <version>2.16</version>
         <configuration>
           <argLine>-Xmx512M -XX:MaxPermSize=128M</argLine>
+          <excludes>
+            <exclude>**/*GwtTest.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
