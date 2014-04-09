@@ -101,7 +101,6 @@ public class DraftControllerImpl implements DraftController {
 
   @Override
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
-    lock.lock();
     try (Lock ignored = lock.lock()) {
       TeamDraftOrder teamDraftOrder = teamTokens.get(cmd.getTeamToken());
       if (teamDraftOrder == null) {

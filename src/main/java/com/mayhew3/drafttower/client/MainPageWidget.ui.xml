@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
     xmlns:d="urn:import:com.mayhew3.drafttower.client"
+    xmlns:a="urn:import:com.mayhew3.drafttower.client.audio"
     xmlns:l="urn:import:com.mayhew3.drafttower.client.login">
 
 <ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
@@ -49,6 +50,6 @@
         </div>
       </div>
     </div>
-    <d:AudioController ui:field="audioController"/>
+    <a:AudioWidget ui:field="audioWidget"/>
   </g:HTMLPanel>
 </ui:UiBinder>

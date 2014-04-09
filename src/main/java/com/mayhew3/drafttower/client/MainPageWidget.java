@@ -14,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
 import com.mayhew3.drafttower.client.login.LoginWidget;
@@ -63,7 +64,7 @@ public class MainPageWidget extends Composite implements
   @UiField(provided = true) FilledPositionsChart filledPositionsChart;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
   @UiField(provided = true) QueueTable queueTable;
-  @UiField(provided = true) AudioController audioController;
+  @UiField(provided = true) AudioWidget audioWidget;
 
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;
@@ -89,7 +90,7 @@ public class MainPageWidget extends Composite implements
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
       BarGraphs barGraphs,
-      AudioController audioController,
+      AudioWidget audioWidget,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
@@ -101,7 +102,7 @@ public class MainPageWidget extends Composite implements
     this.filledPositionsChart = filledPositionsChart;
     this.unclaimedPlayers = unclaimedPlayers;
     this.queueTable = queueTable;
-    this.audioController = audioController;
+    this.audioWidget = audioWidget;
 
     initWidget(uiBinder.createAndBindUi(this));
 
