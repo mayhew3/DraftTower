@@ -16,6 +16,8 @@ public class AudioController extends Composite implements
     DraftStatusChangedEvent.Handler,
     LoginEvent.Handler {
 
+  public enum AudioClip { ONDECK, ONCLOCK, OVER }
+
   private final TeamsInfo teamsInfo;
   private Audio onDeck;
   private Audio onTheClock;
@@ -57,31 +59,45 @@ public class AudioController extends Composite implements
     if (onDeck == null || onTheClock == null) {
       return;
     }
-    try {
-      onDeck.getAudioElement().pause();
-      onDeck.getAudioElement().setCurrentTime(0);
-      onTheClock.getAudioElement().pause();
-      onTheClock.getAudioElement().setCurrentTime(0);
-      itsOver.getAudioElement().pause();
-      itsOver.getAudioElement().setCurrentTime(0);
-    } catch (Exception e) {
-      // Something happens here sometimes - clearing cache fixes it, so idk
-    }
 
     DraftStatus status = event.getStatus();
+    AudioClip toPlay = null;
     if (status.isOver()) {
       if (!itWasOver) {
-        itsOver.play();
+        toPlay = AudioClip.OVER;
       }
       itWasOver = true;
     } else if (status.getCurrentPickDeadline() > 0 && status.getCurrentTeam() != lastTeam) {
       if (teamsInfo.isMyPick(status)) {
-        onTheClock.play();
+        toPlay = AudioClip.ONCLOCK;
       }
       if (teamsInfo.isOnDeck(status)) {
-        onDeck.play();
+        toPlay = AudioClip.ONDECK;
       }
       lastTeam = status.getCurrentTeam();
+    }
+    if (toPlay != null) {
+      try {
+        onDeck.getAudioElement().pause();
+        onDeck.getAudioElement().setCurrentTime(0);
+        onTheClock.getAudioElement().pause();
+        onTheClock.getAudioElement().setCurrentTime(0);
+        itsOver.getAudioElement().pause();
+        itsOver.getAudioElement().setCurrentTime(0);
+      } catch (Exception e) {
+        // Something happens here sometimes - clearing cache fixes it, so idk
+      }
+      switch (toPlay) {
+        case ONDECK:
+          onDeck.play();
+          break;
+        case ONCLOCK:
+          onTheClock.play();
+          break;
+        case OVER:
+          itsOver.play();
+          break;
+      }
     }
   }
 }
