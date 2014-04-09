@@ -13,4 +13,9 @@ public abstract class IntWrapper {
   public Integer get() {
     return value;
   }
+
+  @Override
+  public String toString() {
+    return Integer.toString(value);
+  }
 }
