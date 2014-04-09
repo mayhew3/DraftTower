@@ -12,7 +12,9 @@ import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class LoginPresenter {
 
   private final ServerRpc serverRpc;
