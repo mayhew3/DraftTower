@@ -44,14 +44,22 @@ public class AudioPresenter implements DraftStatusChangedEvent.Handler {
     }
     StringBuilder msg = new StringBuilder();
     if (status.getCurrentPickDeadline() > 0) {
-      if (lastStatus != null
-          && status.getPicks().size() > lastStatus.getPicks().size()) {
-        DraftPick lastPick = status.getPicks().get(status.getPicks().size() - 1);
-        if (!lastPick.isKeeper()) {
-          msg.append(getTeamName(lastPick.getTeam()))
-              .append(" selects ")
-              .append(lastPick.getPlayerName())
-              .append(". ");
+      if (lastStatus != null) {
+        int lastStatusNumPicks = lastStatus.getPicks().size();
+        int numPicks = status.getPicks().size();
+        if (numPicks > lastStatusNumPicks) {
+          int pickIndex = numPicks - 1;
+          DraftPick lastPick = status.getPicks().get(pickIndex);
+          while (lastPick.isKeeper() && pickIndex - 1 >= lastStatusNumPicks) {
+            pickIndex--;
+            lastPick = status.getPicks().get(pickIndex);
+          }
+          if (!lastPick.isKeeper()) {
+            msg.append(getTeamName(lastPick.getTeam()))
+                .append(" selects ")
+                .append(lastPick.getPlayerName())
+                .append(". ");
+          }
         }
       }
       if (lastStatus != null
