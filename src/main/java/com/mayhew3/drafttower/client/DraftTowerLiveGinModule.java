@@ -3,6 +3,8 @@ package com.mayhew3.drafttower.client;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.user.client.Window;
 import com.google.inject.Provides;
+import com.mayhew3.drafttower.client.clock.CurrentTimeProvider;
+import com.mayhew3.drafttower.client.clock.CurrentTimeProvider.CurrentTimeProviderImpl;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketImpl;
 import com.mayhew3.drafttower.server.GinBindingAnnotations.*;
@@ -82,6 +84,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
 
   @Override
   protected void configure() {
+    bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
     bind(ServerRpc.class).to(ServerRpcImpl.class).in(Singleton.class);
     bind(Websocket.class).to(WebsocketImpl.class);
   }

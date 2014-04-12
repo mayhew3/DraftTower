@@ -2,6 +2,7 @@
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
     xmlns:d="urn:import:com.mayhew3.drafttower.client"
     xmlns:a="urn:import:com.mayhew3.drafttower.client.audio"
+    xmlns:c="urn:import:com.mayhew3.drafttower.client.clock"
     xmlns:l="urn:import:com.mayhew3.drafttower.client.login"
     xmlns:w="urn:import:com.mayhew3.drafttower.client.websocket">
 
@@ -13,7 +14,7 @@
       <w:ConnectivityIndicator ui:field="connectivityIndicator"
                                addStyleNames="{style.css.connectivityIndicator}"/>
       <div class="{style.css.rightColumn}">
-        <d:DraftClock ui:field="clock"/>
+        <c:DraftClock ui:field="clock"/>
         <d:PickWidget ui:field="pickWidget"/>
         <div class="{style.css.tableHeader}">
           Draft picks
