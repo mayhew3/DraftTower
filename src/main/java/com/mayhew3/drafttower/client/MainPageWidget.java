@@ -17,6 +17,7 @@ import com.google.inject.Singleton;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
 import com.mayhew3.drafttower.client.login.LoginWidget;
 import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.Player;
@@ -89,7 +90,7 @@ public class MainPageWidget extends Composite implements
       PlayerTablePanel unclaimedPlayers,
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
-      BarGraphs barGraphs,
+      BarGraphsWidget barGraphs,
       AudioWidget audioWidget,
       EventBus eventBus) {
     this.connectivityIndicator = connectivityIndicator;

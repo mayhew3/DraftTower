@@ -1,10 +1,8 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.graphs;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
@@ -17,11 +15,6 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.*;
 import com.google.gwt.visualization.client.visualizations.corechart.CoreChart.Type;
 import com.google.inject.Inject;
-import com.google.web.bindery.autobean.shared.AutoBean;
-import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.GetGraphsDataRequest;
-import com.mayhew3.drafttower.shared.GraphsData;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 
 import java.util.Map;
@@ -31,7 +24,7 @@ import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 /**
  * Widget containing team comparison bar graphs.
  */
-public class BarGraphs extends Composite implements DraftStatusChangedEvent.Handler {
+public class BarGraphsWidget extends Composite implements BarGraphsView {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -40,7 +33,7 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
       String graph();
     }
 
-    @Source("BarGraphs.css")
+    @Source("BarGraphsWidget.css")
     Css css();
   }
 
@@ -64,22 +57,12 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
       .put(S, 120f)
       .build();
 
-  private final ServerRpc serverRpc;
-  private final TeamsInfo teamsInfo;
-  private final BeanFactory beanFactory;
   private final FlowPanel container;
 
   private boolean apiLoaded;
 
   @Inject
-  public BarGraphs(ServerRpc serverRpc,
-      TeamsInfo teamsInfo,
-      BeanFactory beanFactory,
-      EventBus eventBus) {
-    this.serverRpc = serverRpc;
-    this.teamsInfo = teamsInfo;
-    this.beanFactory = beanFactory;
-
+  public BarGraphsWidget(final BarGraphsPresenter presenter) {
     container = new FlowPanel();
     container.setSize("820px", "750px");
     addLabels();
@@ -94,14 +77,12 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
     addAttachHandler(new AttachEvent.Handler() {
       @Override
       public void onAttachOrDetach(AttachEvent event) {
-        if (event.isAttached()) {
-          update();
-        }
+        presenter.setActive(true);
       }
     });
-    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
 
     initWidget(container);
+    presenter.setView(this);
   }
 
   private void addLabels() {
@@ -113,6 +94,30 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
     avg.setStyleName(CSS.avg());
     labels.add(avg);
     container.add(labels);
+  }
+
+  @Override
+  public void clear() {
+    if (apiLoaded) {
+      container.clear();
+      addLabels();
+    }
+  }
+
+  @Override
+  public void updateBar(PlayerColumn statColumn,
+      Float myValue, Float avgValue) {
+    DataTable data = DataTable.create();
+    data.addColumn(ColumnType.STRING);
+    data.addColumn(ColumnType.NUMBER, "Me");
+    data.addColumn(ColumnType.NUMBER, "Avg");
+    data.addRows(1);
+    data.setValue(0, 0, "");
+    data.setValue(0, 1, myValue);
+    data.setValue(0, 2, avgValue);
+    BarChart barChart = new BarChart(data, getOptions(statColumn));
+    barChart.addStyleName(CSS.graph());
+    container.add(barChart);
   }
 
   private Options getOptions(PlayerColumn graphStat) {
@@ -132,43 +137,5 @@ public class BarGraphs extends Composite implements DraftStatusChangedEvent.Hand
     hAxisOptions.setMaxValue(MAX_VALUES.get(graphStat));
     options.setHAxisOptions(hAxisOptions);
     return options;
-  }
-
-  @Override
-  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    if (isAttached()) {
-      update();
-    }
-  }
-
-  private void update() {
-    if (!teamsInfo.isLoggedIn() || !apiLoaded) {
-      return;
-    }
-    AutoBean<GetGraphsDataRequest> requestBean =
-        beanFactory.createGetGraphsDataRequest();
-    GetGraphsDataRequest request = requestBean.as();
-    request.setTeamToken(teamsInfo.getTeamToken());
-    serverRpc.sendGraphsRequest(requestBean, new Function<GraphsData, Void>() {
-      @Override
-      public Void apply(GraphsData graphsData) {
-        container.clear();
-        addLabels();
-        for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-          DataTable data = DataTable.create();
-          data.addColumn(ColumnType.STRING);
-          data.addColumn(ColumnType.NUMBER, "Me");
-          data.addColumn(ColumnType.NUMBER, "Avg");
-          data.addRows(1);
-          data.setValue(0, 0, "");
-          data.setValue(0, 1, graphsData.getMyValues().get(graphStat));
-          data.setValue(0, 2, graphsData.getAvgValues().get(graphStat));
-          BarChart barChart = new BarChart(data, getOptions(graphStat));
-          barChart.addStyleName(CSS.graph());
-          container.add(barChart);
-        }
-        return null;
-      }
-    });
   }
 }
