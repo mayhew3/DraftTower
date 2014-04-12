@@ -39,6 +39,7 @@ public class DraftControllerImpl implements DraftController {
   private final PlayerDataSource playerDataSource;
   private final TeamDataSource teamDataSource;
   private final DraftTimer draftTimer;
+  private final RosterUtil rosterUtil;
 
   private final Map<String, TeamDraftOrder> teamTokens;
   private final ListMultimap<TeamDraftOrder, Integer> keepers;
@@ -58,6 +59,7 @@ public class DraftControllerImpl implements DraftController {
       DraftTimer draftTimer,
       DraftStatus status,
       Lock lock,
+      RosterUtil rosterUtil,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
@@ -68,6 +70,7 @@ public class DraftControllerImpl implements DraftController {
     this.playerDataSource = playerDataSource;
     this.teamDataSource = teamDataSource;
     this.draftTimer = draftTimer;
+    this.rosterUtil = rosterUtil;
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
@@ -164,7 +167,7 @@ public class DraftControllerImpl implements DraftController {
       try {
         playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
             teamDraftOrder,
-            RosterUtil.getOpenPositions(
+            rosterUtil.getOpenPositions(
                 Lists.newArrayList(Iterables.filter(status.getPicks(),
                     new Predicate<DraftPick>() {
                       @Override

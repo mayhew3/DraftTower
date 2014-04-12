@@ -13,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
+import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
 import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;

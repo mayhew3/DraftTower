@@ -65,6 +65,7 @@ public class DraftControllerTest {
         Mockito.mock(DraftTimer.class),
         draftStatus,
         new LockImpl(),
+        new RosterUtil(),
         new HashMap<String, TeamDraftOrder>(),
         keepers,
         queues,

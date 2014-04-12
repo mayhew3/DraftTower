@@ -69,11 +69,14 @@ public class FilledPositionsChart extends Composite implements
   private final int numTeams;
   private final Map<Position, InlineLabel> barLabels = new EnumMap<>(Position.class);
   private final Map<Position, Label> bars = new EnumMap<>(Position.class);
+  private final RosterUtil rosterUtil;
 
   @Inject
   public FilledPositionsChart(@NumTeams int numTeams,
-      EventBus eventBus) {
+      EventBus eventBus,
+      RosterUtil rosterUtil) {
     this.numTeams = numTeams;
+    this.rosterUtil = rosterUtil;
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
@@ -129,7 +132,7 @@ public class FilledPositionsChart extends Composite implements
     }
     for (int i = 1; i <= numTeams; i++) {
       Multimap<Position, DraftPick> roster =
-          RosterUtil.constructRoster(Lists.newArrayList(picksPerTeam.get(i)));
+          rosterUtil.constructRoster(Lists.newArrayList(picksPerTeam.get(i)));
       for (Position position : positions) {
         counts.put(position, counts.get(position) + roster.get(position).size());
       }
