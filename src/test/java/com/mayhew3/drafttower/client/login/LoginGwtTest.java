@@ -17,13 +17,6 @@ import java.util.Map;
  */
 public class LoginGwtTest extends TestBase {
 
-  private static final String LOGIN_WIDGET = "-login";
-  private static final String USERNAME = "-login-username";
-  private static final String PASSWORD = "-login-password";
-  private static final String LOGIN_BUTTON = "-login-login";
-  private static final String INVALID_LOGIN = "-login-invalid";
-  private static final String ALREADY_LOGGED_IN = "-login-already";
-
   private DraftStatus draftStatus;
   private Map<String,TeamDraftOrder> teamTokens;
 
@@ -83,5 +76,11 @@ public class LoginGwtTest extends TestBase {
 
     assertTrue(isVisible(LOGIN_WIDGET));
     assertTrue(isVisible(ALREADY_LOGGED_IN));
+  }
+
+  public void testLogout() {
+    login(1);
+    click(LOGOUT_LINK);
+    assertNull(Cookies.getCookie(LoginResponse.TEAM_TOKEN_COOKIE));
   }
 }

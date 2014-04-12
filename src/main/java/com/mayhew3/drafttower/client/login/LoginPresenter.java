@@ -108,4 +108,8 @@ public class LoginPresenter {
       loginView.invalidLogin();
     }
   }
+
+  public void logout() {
+    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
+  }
 }

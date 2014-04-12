@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
@@ -16,6 +17,13 @@ import java.util.logging.Logger;
 public abstract class TestBase extends GWTTestCase {
 
   private static final Logger logger = Logger.getLogger(TestBase.class.getName());
+  protected static final String LOGIN_WIDGET = "-login";
+  protected static final String USERNAME = "-login-username";
+  protected static final String PASSWORD = "-login-password";
+  protected static final String LOGIN_BUTTON = "-login-login";
+  protected static final String INVALID_LOGIN = "-login-invalid";
+  protected static final String ALREADY_LOGGED_IN = "-login-already";
+  protected static final String LOGOUT_LINK = "-logout";
 
   protected DraftTowerTestGinjector ginjector;
   protected MainPageWidget mainPageWidget;
@@ -28,6 +36,13 @@ public abstract class TestBase extends GWTTestCase {
   @Override
   protected void gwtSetUp() {
     ginjector = GWT.create(DraftTowerTestGinjector.class);
+    reset();
+  }
+
+  protected void reset() {
+    if (mainPageWidget != null) {
+      RootPanel.get().remove(mainPageWidget);
+    }
     mainPageWidget = ginjector.getMainPageWidget();
     RootPanel.get().add(mainPageWidget);
   }
@@ -78,6 +93,12 @@ public abstract class TestBase extends GWTTestCase {
   protected boolean isFocused(String debugId) {
     ensureDebugIdAndGetElement(debugId, true);
     return (UIObject.DEBUG_ID_PREFIX + debugId).equals(getFocusedElementId());
+  }
+
+  protected void login(int team) {
+    type(USERNAME, Integer.toString(team));
+    type(PASSWORD, Integer.toString(team));
+    pressKey(PASSWORD, KeyCodes.KEY_ENTER);
   }
 
   protected native String getFocusedElementId() /*-{

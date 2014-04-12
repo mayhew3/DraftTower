@@ -2,14 +2,16 @@
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
     xmlns:d="urn:import:com.mayhew3.drafttower.client"
     xmlns:a="urn:import:com.mayhew3.drafttower.client.audio"
-    xmlns:l="urn:import:com.mayhew3.drafttower.client.login">
+    xmlns:l="urn:import:com.mayhew3.drafttower.client.login"
+    xmlns:w="urn:import:com.mayhew3.drafttower.client.websocket">
 
 <ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
 
   <g:HTMLPanel>
     <l:LoginWidget ui:field="loginWidget"/>
     <div ui:field="mainPage">
-      <d:ConnectivityIndicator ui:field="connectivityIndicator" addStyleNames="{style.css.connectivityIndicator}"/>
+      <w:ConnectivityIndicator ui:field="connectivityIndicator"
+                               addStyleNames="{style.css.connectivityIndicator}"/>
       <div class="{style.css.rightColumn}">
         <d:DraftClock ui:field="clock"/>
         <d:PickWidget ui:field="pickWidget"/>

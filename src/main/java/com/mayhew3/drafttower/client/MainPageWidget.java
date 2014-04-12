@@ -9,23 +9,21 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
 import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
+import com.mayhew3.drafttower.client.login.LoginPresenter;
 import com.mayhew3.drafttower.client.login.LoginWidget;
-import com.mayhew3.drafttower.shared.LoginResponse;
+import com.mayhew3.drafttower.client.websocket.ConnectivityIndicator;
 import com.mayhew3.drafttower.shared.Player;
 
 /**
  * Widget containing the entire UI.
  */
-@Singleton
 public class MainPageWidget extends Composite implements
     LoginEvent.Handler,
     ShowPlayerPopupEvent.Handler {
@@ -78,6 +76,8 @@ public class MainPageWidget extends Composite implements
   private final PopupPanel playerPopup;
   private final Frame playerPopupFrame;
 
+  private final LoginPresenter loginPresenter;
+
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       LoginWidget loginWidget,
@@ -92,7 +92,8 @@ public class MainPageWidget extends Composite implements
       DepthChartsTable depthChartsTable,
       BarGraphsWidget barGraphs,
       AudioWidget audioWidget,
-      EventBus eventBus) {
+      EventBus eventBus,
+      LoginPresenter loginPresenter) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
@@ -104,6 +105,7 @@ public class MainPageWidget extends Composite implements
     this.unclaimedPlayers = unclaimedPlayers;
     this.queueTable = queueTable;
     this.audioWidget = audioWidget;
+    this.loginPresenter = loginPresenter;
 
     initWidget(uiBinder.createAndBindUi(this));
 
@@ -157,8 +159,10 @@ public class MainPageWidget extends Composite implements
 
   @UiHandler("logout")
   public void handleLogoutClick(ClickEvent e) {
-    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
-    Window.Location.reload();
+    loginPresenter.logout();
+    if (GWT.isProdMode()) {
+      Window.Location.reload();
+    }
   }
 
   public int getQueueAreaTop() {
@@ -181,5 +185,6 @@ public class MainPageWidget extends Composite implements
   protected void onEnsureDebugId(String baseID) {
     super.onEnsureDebugId(baseID);
     loginWidget.ensureDebugId(baseID + "-login");
+    logout.ensureDebugId(baseID + "-logout");
   }
 }

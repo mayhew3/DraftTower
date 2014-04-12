@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.websocket;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
