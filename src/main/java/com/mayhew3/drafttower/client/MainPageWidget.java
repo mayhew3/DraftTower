@@ -21,6 +21,7 @@ import com.mayhew3.drafttower.client.filledpositions.FilledPositionsChart;
 import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
 import com.mayhew3.drafttower.client.login.LoginPresenter;
 import com.mayhew3.drafttower.client.login.LoginWidget;
+import com.mayhew3.drafttower.client.myroster.MyRosterTablePanel;
 import com.mayhew3.drafttower.client.websocket.ConnectivityIndicator;
 import com.mayhew3.drafttower.shared.Player;
 

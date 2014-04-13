@@ -1,76 +1,78 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.myroster;
 
-import com.google.common.base.Joiner;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.MyRosterTable.PickAndPosition;
+import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
+import com.mayhew3.drafttower.client.myroster.MyRosterPresenter.PickAndPosition;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
 /**
- * Table displaying user's roster so far.
+ * Presenter for "my roster" table.
  */
-public class MyRosterTable extends CellTable<PickAndPosition> implements
+public class MyRosterPresenter extends ListDataProvider<PickAndPosition> implements
     DraftStatusChangedEvent.Handler {
 
-  class PickAndPosition {
+  static class PickAndPosition {
     private final DraftPick pick;
     private final Position position;
 
-    private PickAndPosition(DraftPick pick, Position position) {
+    @VisibleForTesting
+    PickAndPosition(DraftPick pick, Position position) {
       this.pick = pick;
       this.position = position;
+    }
+
+    DraftPick getPick() {
+      return pick;
+    }
+
+    Position getPosition() {
+      return position;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      PickAndPosition that = (PickAndPosition) o;
+
+      if (pick != null ? !pick.equals(that.pick) : that.pick != null) return false;
+      if (position != that.position) return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = pick != null ? pick.hashCode() : 0;
+      result = 31 * result + position.hashCode();
+      return result;
     }
   }
 
   private final TeamsInfo teamsInfo;
-
-  private final ListDataProvider<PickAndPosition> rosterProvider;
   private final RosterUtil rosterUtil;
 
   @Inject
-  public MyRosterTable(TeamsInfo teamsInfo,
+  public MyRosterPresenter(TeamsInfo teamsInfo,
       EventBus eventBus,
       RosterUtil rosterUtil) {
     this.teamsInfo = teamsInfo;
     this.rosterUtil = rosterUtil;
-    setPageSize(Integer.MAX_VALUE);
-    addColumn(new TextColumn<PickAndPosition>() {
-      @Override
-      public String getValue(PickAndPosition pickAndPosition) {
-        return pickAndPosition.position.getShortName();
-      }
-    }, "Pos");
-    addColumn(new TextColumn<PickAndPosition>() {
-      @Override
-      public String getValue(PickAndPosition pickAndPosition) {
-        return pickAndPosition.pick == null ? ""
-            : pickAndPosition.pick.getPlayerName();
-      }
-    }, "Player");
-    addColumn(new TextColumn<PickAndPosition>() {
-      @Override
-      public String getValue(PickAndPosition pickAndPosition) {
-        return pickAndPosition.pick == null ? ""
-            : Joiner.on(", ").join(pickAndPosition.pick.getEligibilities());
-      }
-    }, "Elig");
-
-    rosterProvider = new ListDataProvider<>();
-    rosterProvider.addDataDisplay(this);
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
   }
@@ -101,6 +103,6 @@ public class MyRosterTable extends CellTable<PickAndPosition> implements
         rowsCreated++;
       }
     }
-    rosterProvider.setList(picksAndPositions);
+    setList(picksAndPositions);
   }
 }
