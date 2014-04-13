@@ -1,26 +1,21 @@
 package com.mayhew3.drafttower.client.depthcharts;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.gwt.event.shared.EventBus;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.DraftStatusTestUtil;
+import com.mayhew3.drafttower.RosterTestUtils;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
-import com.mayhew3.drafttower.shared.RosterUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Tests for {@link DepthChartsPresenter}.
@@ -30,26 +25,11 @@ public class DepthChartsPresenterTest {
   private BeanFactory beanFactory;
   private DepthChartsPresenter presenter;
 
-  @SuppressWarnings("unchecked")
   @Before
   public void setUp() {
     beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
-    RosterUtil rosterUtil = Mockito.mock(RosterUtil.class);
-    Mockito.when(rosterUtil.constructRoster(Mockito.anyListOf(DraftPick.class)))
-        .then(new Answer<Multimap<Position, DraftPick>>() {
-          @Override
-          public Multimap<Position, DraftPick> answer(InvocationOnMock invocation) {
-            List<DraftPick> picks = (List<DraftPick>) invocation.getArguments()[0];
-            ArrayListMultimap<Position, DraftPick> roster = ArrayListMultimap.create();
-            for (DraftPick pick : picks) {
-              roster.put(Position.fromShortName(pick.getEligibilities().get(0)),
-                  pick);
-            }
-            return roster;
-          }
-        });
     presenter = new DepthChartsPresenter(Mockito.mock(EventBus.class),
-        rosterUtil);
+        RosterTestUtils.createSimpleFakeRosterUtil());
   }
 
   @Test

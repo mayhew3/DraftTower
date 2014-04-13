@@ -17,6 +17,7 @@ import com.mayhew3.drafttower.client.clock.DraftClock;
 import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.client.filledpositions.FilledPositionsChart;
 import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
 import com.mayhew3.drafttower.client.login.LoginPresenter;
 import com.mayhew3.drafttower.client.login.LoginWidget;
@@ -62,7 +63,8 @@ public class MainPageWidget extends Composite implements
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
-  @UiField(provided = true) FilledPositionsChart filledPositionsChart;
+  @UiField(provided = true)
+  FilledPositionsChart filledPositionsChart;
   @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
   @UiField(provided = true) QueueTable queueTable;
   @UiField(provided = true) AudioWidget audioWidget;

@@ -1,9 +1,6 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.filledpositions;
 
-import com.google.common.base.Function;
-import com.google.common.collect.*;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
@@ -11,23 +8,15 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
-import com.mayhew3.drafttower.shared.RosterUtil;
-import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.mayhew3.drafttower.shared.Position.*;
 
 /**
  * Chart showing proportion of teams which have filled each position so far.
  */
-public class FilledPositionsChart extends Composite implements
-    DraftStatusChangedEvent.Handler {
+public class FilledPositionsChart extends Composite implements FilledPositionsView {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -47,9 +36,6 @@ public class FilledPositionsChart extends Composite implements
     CSS.ensureInjected();
   }
 
-  private static final Position[] positions = {
-      C, FB, SB, SS, TB, OF, DH, P
-  };
   private static final String[] colors = {
       "#00FF00",
       "#30FF00",
@@ -66,21 +52,19 @@ public class FilledPositionsChart extends Composite implements
       "#FF0000"
   };
 
-  private final int numTeams;
+  private final FilledPositionsPresenter presenter;
+
   private final Map<Position, InlineLabel> barLabels = new EnumMap<>(Position.class);
   private final Map<Position, Label> bars = new EnumMap<>(Position.class);
-  private final RosterUtil rosterUtil;
 
   @Inject
-  public FilledPositionsChart(@NumTeams int numTeams,
-      EventBus eventBus,
-      RosterUtil rosterUtil) {
-    this.numTeams = numTeams;
-    this.rosterUtil = rosterUtil;
+  public FilledPositionsChart(FilledPositionsPresenter presenter) {
+    this.presenter = presenter;
+
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
-    for (Position position : positions) {
+    for (Position position : FilledPositionsPresenter.positions) {
       FlowPanel positionPanel = new FlowPanel();
       positionPanel.setStyleName(CSS.positionPanel());
 
@@ -88,7 +72,7 @@ public class FilledPositionsChart extends Composite implements
       positionLabel.setStyleName(CSS.positionLabel());
       positionPanel.add(positionLabel);
 
-      InlineLabel barLabel = new InlineLabel("0/" + getDenominator(position));
+      InlineLabel barLabel = new InlineLabel("0/" + presenter.getDenominator(position));
       barLabel.setStyleName(CSS.barLabel());
       positionPanel.add(barLabel);
       barLabels.put(position, barLabel);
@@ -103,43 +87,14 @@ public class FilledPositionsChart extends Composite implements
 
     initWidget(container);
 
-    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
-  }
-
-  private static int getDenominator(Position position) {
-    if (position == OF) {
-      return 30;
-    }
-    if (position == P) {
-      return 70;
-    }
-    return 10;
+    presenter.setView(this);
   }
 
   @Override
-  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    List<DraftPick> picks = event.getStatus().getPicks();
-    ImmutableListMultimap<Integer, DraftPick> picksPerTeam =
-        Multimaps.index(picks, new Function<DraftPick, Integer>() {
-          @Override
-          public Integer apply(DraftPick input) {
-            return input.getTeam();
-          }
-        });
-    Map<Position, Integer> counts = Maps.newEnumMap(Position.class);
-    for (Position position : positions) {
-      counts.put(position, 0);
-    }
-    for (int i = 1; i <= numTeams; i++) {
-      Multimap<Position, DraftPick> roster =
-          rosterUtil.constructRoster(Lists.newArrayList(picksPerTeam.get(i)));
-      for (Position position : positions) {
-        counts.put(position, counts.get(position) + roster.get(position).size());
-      }
-    }
-    for (Position position : positions) {
+  public void setCounts(Map<Position, Integer> counts) {
+    for (Position position : FilledPositionsPresenter.positions) {
       Integer numerator = counts.get(position);
-      int denominator = getDenominator(position);
+      int denominator = presenter.getDenominator(position);
       barLabels.get(position).setText(numerator + "/" + denominator);
       bars.get(position).setWidth(((numerator / (float) denominator) * 100) + "px");
       bars.get(position).getElement().getStyle().setBackgroundColor(colors[numerator * 10 / denominator]);
