@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.pickhistory;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.BackOutPickEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 

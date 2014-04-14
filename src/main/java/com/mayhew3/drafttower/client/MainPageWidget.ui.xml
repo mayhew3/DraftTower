@@ -6,6 +6,7 @@
     xmlns:f="urn:import:com.mayhew3.drafttower.client.filledpositions"
     xmlns:l="urn:import:com.mayhew3.drafttower.client.login"
     xmlns:m="urn:import:com.mayhew3.drafttower.client.myroster"
+    xmlns:p="urn:import:com.mayhew3.drafttower.client.pickhistory"
     xmlns:w="urn:import:com.mayhew3.drafttower.client.websocket">
 
 <ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
@@ -21,7 +22,7 @@
         <div class="{style.css.tableHeader}">
           Draft picks
         </div>
-        <d:PickHistoryTablePanel ui:field="pickHistoryTable"/>
+        <p:PickHistoryTablePanel ui:field="pickHistoryTable"/>
         <div class="{style.css.tableHeader}">
           Your roster
         </div>
