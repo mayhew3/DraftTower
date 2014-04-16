@@ -22,6 +22,7 @@ import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
 import com.mayhew3.drafttower.client.login.LoginPresenter;
 import com.mayhew3.drafttower.client.login.LoginWidget;
 import com.mayhew3.drafttower.client.myroster.MyRosterTablePanel;
+import com.mayhew3.drafttower.client.pickcontrols.PickControlsWidget;
 import com.mayhew3.drafttower.client.pickhistory.PickHistoryTablePanel;
 import com.mayhew3.drafttower.client.websocket.ConnectivityIndicator;
 import com.mayhew3.drafttower.shared.Player;
@@ -61,7 +62,7 @@ public class MainPageWidget extends Composite implements
   @UiField(provided = true) final ConnectivityIndicator connectivityIndicator;
   @UiField(provided = true) final LoginWidget loginWidget;
   @UiField(provided = true) final DraftClock clock;
-  @UiField(provided = true) final PickWidget pickWidget;
+  @UiField(provided = true) final PickControlsWidget pickControlsWidget;
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
@@ -88,7 +89,7 @@ public class MainPageWidget extends Composite implements
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       LoginWidget loginWidget,
       DraftClock clock,
-      PickWidget pickWidget,
+      PickControlsWidget pickControlsWidget,
       PickHistoryTablePanel pickHistoryTable,
       MyRosterTablePanel myRosterTable,
       TeamOrderWidget teamOrder,
@@ -103,7 +104,7 @@ public class MainPageWidget extends Composite implements
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
-    this.pickWidget = pickWidget;
+    this.pickControlsWidget = pickControlsWidget;
     this.pickHistoryTable = pickHistoryTable;
     this.myRosterTable = myRosterTable;
     this.teamOrder = teamOrder;
