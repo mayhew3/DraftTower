@@ -33,7 +33,7 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     CSS.ensureInjected();
   }
 
-  interface MyUiBinder extends UiBinder<Widget, PickControlsView> {}
+  interface MyUiBinder extends UiBinder<Widget, PickControlsWidget> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
   private final PickControlsPresenter presenter;
