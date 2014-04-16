@@ -16,6 +16,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.Handler;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
@@ -326,5 +327,9 @@ public class PlayerTablePanel extends Composite implements
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     setPositionFilter(positionFilter);
+  }
+
+  public void setQueueAreaTopProvider(Provider<Integer> queueAreaTopProvider) {
+    table.setQueueAreaTopProvider(queueAreaTopProvider);
   }
 }

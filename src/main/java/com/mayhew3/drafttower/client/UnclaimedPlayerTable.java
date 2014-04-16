@@ -29,7 +29,6 @@ import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
-import com.mayhew3.drafttower.server.GinBindingAnnotations.QueueAreaTop;
 import com.mayhew3.drafttower.shared.*;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
@@ -321,7 +320,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
   public static final boolean DEFAULT_SORT_ASCENDING = true;
 
-  private final Provider<Integer> queueAreaTopProvider;
+  private Provider<Integer> queueAreaTopProvider;
 
   private EnumSet<Position> positionFilter = EnumSet.allOf(Position.class);
   private final TableSpec tableSpec;
@@ -332,10 +331,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   @Inject
   public UnclaimedPlayerTable(AsyncDataProvider<Player> dataProvider,
       BeanFactory beanFactory,
-      final EventBus eventBus,
-      @QueueAreaTop Provider<Integer> queueAreaTopProvider) {
+      final EventBus eventBus) {
     super(eventBus);
-    this.queueAreaTopProvider = queueAreaTopProvider;
 
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(DEFAULT_DATA_SET);
@@ -470,7 +467,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
 
   void computePageSize() {
     TableRowElement rowElement = getRowElement(0);
-    if (rowElement != null) {
+    if (rowElement != null && queueAreaTopProvider != null) {
       int availableHeight = queueAreaTopProvider.get() - rowElement.getAbsoluteTop();
       int pageSize = availableHeight / rowElement.getOffsetHeight();
       if (pageSize != getPageSize()) {
@@ -597,5 +594,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player> implements
   private boolean isPitchersAndBattersFilter(EnumSet<Position> positionFilter) {
     return positionFilter.isEmpty()
         || (positionFilter.contains(Position.P) && positionFilter.size() > 1);
+  }
+
+  public void setQueueAreaTopProvider(Provider<Integer> queueAreaTopProvider) {
+    this.queueAreaTopProvider = queueAreaTopProvider;
   }
 }

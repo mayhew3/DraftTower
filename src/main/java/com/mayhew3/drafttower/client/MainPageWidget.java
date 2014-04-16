@@ -12,6 +12,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.clock.DraftClock;
 import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
@@ -141,6 +142,13 @@ public class MainPageWidget extends Composite implements
     playerPopupFrame.setSize("810px", "450px");
     playerPopupFrame.getElement().setAttribute("seamless", "true");
     playerPopup.setWidget(playerPopupFrame);
+
+    unclaimedPlayers.setQueueAreaTopProvider(new Provider<Integer>() {
+      @Override
+      public Integer get() {
+        return getQueueAreaTop();
+      }
+    });
 
     eventBus.addHandler(LoginEvent.TYPE, this);
     eventBus.addHandler(ShowPlayerPopupEvent.TYPE, this);
