@@ -4,6 +4,7 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
 import com.mayhew3.drafttower.client.clock.CurrentTimeProvider;
 import com.mayhew3.drafttower.client.clock.CurrentTimeProvider.FakeCurrentTimeProvider;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.server.BindingAnnotations.DraftTimerListenerList;
 import com.mayhew3.drafttower.server.*;

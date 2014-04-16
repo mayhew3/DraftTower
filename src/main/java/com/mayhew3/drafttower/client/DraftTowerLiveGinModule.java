@@ -5,6 +5,8 @@ import com.google.gwt.user.client.Window;
 import com.google.inject.Provides;
 import com.mayhew3.drafttower.client.clock.CurrentTimeProvider;
 import com.mayhew3.drafttower.client.clock.CurrentTimeProvider.CurrentTimeProviderImpl;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpcImpl;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketImpl;
 import com.mayhew3.drafttower.server.GinBindingAnnotations.*;

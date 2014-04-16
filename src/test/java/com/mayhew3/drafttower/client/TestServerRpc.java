@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.client;
 import com.google.common.base.Function;
 import com.google.gwt.user.client.Cookies;
 import com.google.web.bindery.autobean.shared.AutoBean;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.server.DataSourceException;
 import com.mayhew3.drafttower.server.LoginHandler;
 import com.mayhew3.drafttower.shared.*;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test implementation of {@link ServerRpc}.
+ * Test implementation of {@link com.mayhew3.drafttower.client.serverrpc.ServerRpc}.
  */
 public class TestServerRpc implements ServerRpc {
 

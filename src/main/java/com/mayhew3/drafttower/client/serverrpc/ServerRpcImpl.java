@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.serverrpc;
 
 import com.google.common.base.Function;
 import com.google.common.net.HttpHeaders;

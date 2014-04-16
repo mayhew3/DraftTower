@@ -12,6 +12,7 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.events.DequeuePlayerEvent;
 import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
 import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.List;
