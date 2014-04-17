@@ -8,6 +8,7 @@
     xmlns:m="urn:import:com.mayhew3.drafttower.client.myroster"
     xmlns:p="urn:import:com.mayhew3.drafttower.client.pickcontrols"
     xmlns:h="urn:import:com.mayhew3.drafttower.client.pickhistory"
+    xmlns:t="urn:import:com.mayhew3.drafttower.client.teamorder"
     xmlns:w="urn:import:com.mayhew3.drafttower.client.websocket">
 
 <ui:with field="style" type="com.mayhew3.drafttower.client.MainPageWidget.Resources"/>
@@ -30,7 +31,7 @@
         <m:MyRosterTablePanel ui:field="myRosterTable"/>
       </div>
       <div class="{style.css.leftColumn}">
-        <d:TeamOrderWidget ui:field="teamOrder"/>
+        <t:TeamOrderWidget ui:field="teamOrder"/>
         <div class="{style.css.tableHeader}">
           Filled positions
         </div>

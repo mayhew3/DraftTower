@@ -25,6 +25,7 @@ import com.mayhew3.drafttower.client.login.LoginWidget;
 import com.mayhew3.drafttower.client.myroster.MyRosterTablePanel;
 import com.mayhew3.drafttower.client.pickcontrols.PickControlsWidget;
 import com.mayhew3.drafttower.client.pickhistory.PickHistoryTablePanel;
+import com.mayhew3.drafttower.client.teamorder.TeamOrderWidget;
 import com.mayhew3.drafttower.client.websocket.ConnectivityIndicator;
 import com.mayhew3.drafttower.shared.Player;
 

@@ -20,6 +20,8 @@ public class DraftStatusTestUtil {
     draftStatus.setCurrentTeam(picks.isEmpty()
         ? 1
         : picks.get(picks.size() - 1).getTeam() + 1);
+    draftStatus.setConnectedTeams(new HashSet<Integer>());
+    draftStatus.setNextPickKeeperTeams(new HashSet<Integer>());
     draftStatus.setRobotTeams(new HashSet<Integer>());
     return draftStatus;
   }

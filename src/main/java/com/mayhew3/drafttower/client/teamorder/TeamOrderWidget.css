@@ -97,7 +97,7 @@
 }
 
 .robot:after {
-  content: url("cylon_classic.png");
+  content: url("../../../../../../webapp/cylon_classic.png");
   position: absolute;
   top: 0;
   bottom: 0;
