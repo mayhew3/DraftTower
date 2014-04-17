@@ -1,9 +1,9 @@
 package com.mayhew3.drafttower.client.pickcontrols;
 
 import com.google.gwt.event.shared.EventBus;
-import com.mayhew3.drafttower.client.QueueDataProvider;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.client.players.queue.QueueDataProvider;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 

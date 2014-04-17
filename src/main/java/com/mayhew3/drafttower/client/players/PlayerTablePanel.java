@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.players;
 
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
@@ -17,10 +17,12 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
+import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTable;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;

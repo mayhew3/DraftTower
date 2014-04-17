@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -11,6 +11,8 @@ import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
+import com.mayhew3.drafttower.client.OpenPositions;
+import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;

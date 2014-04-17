@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.players;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Cursor;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Base class for tables supporting player drag and drop.
  */
-abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
+public abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
     DraftStatusChangedEvent.Handler {
 
   interface Resources extends ClientBundle {

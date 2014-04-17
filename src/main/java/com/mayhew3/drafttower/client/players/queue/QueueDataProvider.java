@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.players.queue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -9,6 +9,7 @@ import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
+import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DequeuePlayerEvent;
 import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
 import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent;

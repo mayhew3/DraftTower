@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.players.queue;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
@@ -16,6 +16,7 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.client.players.PlayerTable;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.QueueEntry;

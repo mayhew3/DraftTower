@@ -6,6 +6,7 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
+import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerDataProvider;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.SharedModule;

@@ -1,13 +1,14 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
-    xmlns:d="urn:import:com.mayhew3.drafttower.client"
     xmlns:a="urn:import:com.mayhew3.drafttower.client.audio"
     xmlns:c="urn:import:com.mayhew3.drafttower.client.clock"
     xmlns:f="urn:import:com.mayhew3.drafttower.client.filledpositions"
     xmlns:l="urn:import:com.mayhew3.drafttower.client.login"
     xmlns:m="urn:import:com.mayhew3.drafttower.client.myroster"
-    xmlns:p="urn:import:com.mayhew3.drafttower.client.pickcontrols"
+    xmlns:pc="urn:import:com.mayhew3.drafttower.client.pickcontrols"
     xmlns:h="urn:import:com.mayhew3.drafttower.client.pickhistory"
+    xmlns:p="urn:import:com.mayhew3.drafttower.client.players"
+    xmlns:q="urn:import:com.mayhew3.drafttower.client.players.queue"
     xmlns:t="urn:import:com.mayhew3.drafttower.client.teamorder"
     xmlns:w="urn:import:com.mayhew3.drafttower.client.websocket">
 
@@ -20,7 +21,7 @@
                                addStyleNames="{style.css.connectivityIndicator}"/>
       <div class="{style.css.rightColumn}">
         <c:DraftClock ui:field="clock"/>
-        <p:PickControlsWidget ui:field="pickControlsWidget"/>
+        <pc:PickControlsWidget ui:field="pickControlsWidget"/>
         <div class="{style.css.tableHeader}">
           Draft picks
         </div>
@@ -47,13 +48,13 @@
         </g:Label>
       </div>
       <div class="{style.css.centerColumn}">
-        <d:PlayerTablePanel ui:field="unclaimedPlayers"/>
+        <p:PlayerTablePanel ui:field="unclaimedPlayers"/>
         <div class="{style.css.queue}" ui:field="queueArea">
           <div class="{style.css.tableHeader}">
             Your queue
           </div>
           <g:ScrollPanel styleName="{style.css.queueScroller}" height="150px">
-            <d:QueueTable ui:field="queueTable"/>
+            <q:QueueTable ui:field="queueTable"/>
           </g:ScrollPanel>
         </div>
       </div>

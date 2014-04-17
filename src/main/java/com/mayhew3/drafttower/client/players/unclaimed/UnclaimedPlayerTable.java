@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client;
+package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -29,6 +29,7 @@ import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.client.players.PlayerTable;
 import com.mayhew3.drafttower.shared.*;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
