@@ -30,7 +30,7 @@ import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 import java.util.List;
 
 /**
- * Class description...
+ * Base class for tables supporting player drag and drop.
  */
 abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
     DraftStatusChangedEvent.Handler {
