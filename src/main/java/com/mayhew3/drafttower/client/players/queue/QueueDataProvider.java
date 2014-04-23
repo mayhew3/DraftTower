@@ -1,10 +1,10 @@
 package com.mayhew3.drafttower.client.players.queue;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -12,7 +12,10 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DequeuePlayerEvent;
 import com.mayhew3.drafttower.client.events.EnqueuePlayerEvent;
+import com.mayhew3.drafttower.client.events.PlayerSelectedEvent;
 import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent;
+import com.mayhew3.drafttower.client.players.PlayerDataProvider;
+import com.mayhew3.drafttower.client.players.PlayerTableView;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
@@ -22,14 +25,17 @@ import java.util.List;
  * Data provider for players queue.
  */
 @Singleton
-public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
+public class QueueDataProvider extends PlayerDataProvider<QueueEntry> implements
     EnqueuePlayerEvent.Handler,
     DequeuePlayerEvent.Handler,
     ReorderPlayerQueueEvent.Handler {
 
+  private static final int FAKE_ENTRY_ID = -1;
+
   private final BeanFactory beanFactory;
   private final ServerRpc serverRpc;
   private final TeamsInfo teamsInfo;
+  private final EventBus eventBus;
 
   private List<QueueEntry> queue;
 
@@ -39,9 +45,12 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
       ServerRpc serverRpc,
       TeamsInfo teamsInfo,
       EventBus eventBus) {
+    super(eventBus);
+
     this.beanFactory = beanFactory;
     this.serverRpc = serverRpc;
     this.teamsInfo = teamsInfo;
+    this.eventBus = eventBus;
 
     eventBus.addHandler(EnqueuePlayerEvent.TYPE, this);
     eventBus.addHandler(DequeuePlayerEvent.TYPE, this);
@@ -49,7 +58,12 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
   }
 
   @Override
-  protected void onRangeChanged(final HasData<QueueEntry> display) {
+  public void setView(PlayerTableView<QueueEntry> view) {
+    super.setView(view);
+  }
+
+  @Override
+  protected void rangeChanged(final HasData<QueueEntry> display) {
     if (!teamsInfo.isLoggedIn()) {
       return;
     }
@@ -63,7 +77,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
         queue = queueResponse.getQueue();
         if (queue.isEmpty()) {
           QueueEntry fakeEntry = beanFactory.createQueueEntry().as();
-          fakeEntry.setPlayerId(-1);
+          fakeEntry.setPlayerId(FAKE_ENTRY_ID);
           fakeEntry.setPlayerName("Drag players here");
           fakeEntry.setEligibilities(ImmutableList.<String>of());
           queue = ImmutableList.of(fakeEntry);
@@ -102,9 +116,7 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
     serverRpc.sendEnqueueOrDequeueRequest(action, requestBean, new Runnable() {
       @Override
       public void run() {
-        for (HasData<QueueEntry> dataDisplay : getDataDisplays()) {
-          dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-        }
+        getView().refresh();
       }
     });
   }
@@ -123,14 +135,39 @@ public class QueueDataProvider extends AsyncDataProvider<QueueEntry> implements
     serverRpc.sendReorderQueueRequest(requestBean, new Runnable() {
       @Override
       public void run() {
-        for (HasData<QueueEntry> dataDisplay : getDataDisplays()) {
-          dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-        }
+        getView().refresh();
       }
     });
   }
 
   public boolean isPlayerQueued(long playerId) {
     return queue != null && Iterables.any(queue, new QueueEntryPredicate(playerId));
+  }
+
+  @Override
+  protected Predicate<QueueEntry> createPredicate(long playerId) {
+    return new QueueEntryPredicate(playerId);
+  }
+
+  public void select(QueueEntry entry) {
+    if (entry.getPlayerId() != FAKE_ENTRY_ID) {
+      eventBus.fireEvent(new PlayerSelectedEvent(entry.getPlayerId(), entry.getPlayerName()));
+    }
+  }
+
+  public void enqueue(Player player, Integer position) {
+    eventBus.fireEvent(new EnqueuePlayerEvent(
+        player.getPlayerId(),
+        position));
+  }
+
+  public void dequeue(QueueEntry entry) {
+    eventBus.fireEvent(new DequeuePlayerEvent(entry.getPlayerId()));
+  }
+
+  public void reorderQueue(QueueEntry entry, int targetPosition) {
+    eventBus.fireEvent(new ReorderPlayerQueueEvent(
+        entry.getPlayerId(),
+        targetPosition));
   }
 }

@@ -29,6 +29,15 @@ public enum Position {
     this.longName = longName;
   }
 
+  public static boolean isPitcherFilter(EnumSet<Position> positionFilter) {
+    return positionFilter.equals(EnumSet.of(P));
+  }
+
+  public static boolean isPitchersAndBattersFilter(EnumSet<Position> positionFilter) {
+    return positionFilter.isEmpty()
+        || (positionFilter.contains(P) && positionFilter.size() > 1);
+  }
+
   public String getShortName() {
     return shortName;
   }

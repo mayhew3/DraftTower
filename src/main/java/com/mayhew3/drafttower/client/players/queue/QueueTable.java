@@ -1,13 +1,11 @@
 package com.mayhew3.drafttower.client.players.queue;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.IdentityColumn;
@@ -15,29 +13,26 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.client.players.PlayerTable;
-import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.QueueEntry;
-import com.mayhew3.drafttower.shared.QueueEntryPredicate;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
 import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
 import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
-import java.util.List;
-
 /**
  * Table displaying players queue.
  */
 public class QueueTable extends PlayerTable<QueueEntry> {
 
+  private final QueueDataProvider presenter;
+
   @Inject
-  public QueueTable(QueueDataProvider dataProvider,
-      final EventBus eventBus) {
-    super(eventBus);
+  public QueueTable(final QueueDataProvider presenter) {
+    super(presenter);
+    this.presenter = presenter;
 
     addStyleName(BASE_CSS.table());
     setPageSize(Integer.MAX_VALUE);
@@ -86,7 +81,7 @@ public class QueueTable extends PlayerTable<QueueEntry> {
     removeColumn.setFieldUpdater(new FieldUpdater<QueueEntry, String>() {
       @Override
       public void update(int index, QueueEntry entry, String value) {
-        eventBus.fireEvent(new DequeuePlayerEvent(entry.getPlayerId()));
+        presenter.dequeue(entry);
       }
     });
 
@@ -105,17 +100,10 @@ public class QueueTable extends PlayerTable<QueueEntry> {
     getSelectionModel().addSelectionChangeHandler(new Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {
-        QueueEntry player = selectionModel.getSelectedObject();
-        if (player.getPlayerId() >= 0) {
-          eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), player.getPlayerName()));
-        }
+        presenter.select(selectionModel.getSelectedObject());
       }
     });
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
-
-    dataProvider.addDataDisplay(this);
-
-    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
   }
 
   private void initDragging(DragAndDropColumn<QueueEntry, String> column) {
@@ -132,9 +120,7 @@ public class QueueTable extends PlayerTable<QueueEntry> {
             if (isTopDrop(dragAndDropContext, true)) {
               targetPosition--;
             }
-            eventBus.fireEvent(new ReorderPlayerQueueEvent(
-                draggedPlayer.getPlayerId(),
-                targetPosition));
+            presenter.reorderQueue(draggedPlayer, targetPosition);
           }
         } else if (draggableData instanceof Player) {
           Player draggedPlayer = dragAndDropContext.getDraggableData();
@@ -145,24 +131,11 @@ public class QueueTable extends PlayerTable<QueueEntry> {
             if (isTopDrop(dragAndDropContext, true)) {
               targetPosition--;
             }
-            eventBus.fireEvent(new EnqueuePlayerEvent(
-                draggedPlayer.getPlayerId(),
-                droppedPlayer == null ? null : targetPosition));
+            presenter.enqueue(draggedPlayer, droppedPlayer == null ? null : targetPosition);
           }
         }
       }
     };
     initDragging(column, onDrop);
-  }
-
-  @Override
-  protected boolean needsRefresh(List<DraftPick> oldPicks, List<DraftPick> newPicks) {
-    for (int i = oldPicks.size(); i < newPicks.size(); i++) {
-      long pickedPlayerId = newPicks.get(i).getPlayerId();
-      if (Iterables.any(getVisibleItems(), new QueueEntryPredicate(pickedPlayerId))) {
-        return true;
-      }
-    }
-    return false;
   }
 }

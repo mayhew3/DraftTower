@@ -1,18 +1,14 @@
 package com.mayhew3.drafttower.client.players;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
-import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.DraftStatus;
 import gwtquery.plugins.draggable.client.DraggableOptions;
 import gwtquery.plugins.draggable.client.DraggableOptions.CursorAt;
 import gwtquery.plugins.draggable.client.DraggableOptions.RevertOption;
@@ -27,13 +23,11 @@ import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTable;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
-import java.util.List;
-
 /**
  * Base class for tables supporting player drag and drop.
  */
-public abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
-    DraftStatusChangedEvent.Handler {
+public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
+    implements PlayerTableView<T> {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -49,17 +43,11 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
 
   protected static final Resources.Css BASE_CSS = ((Resources) GWT.create(Resources.class)).css();
 
-  protected final EventBus eventBus;
   private HandlerRegistration mouseMoveHandler;
-  private DraftStatus lastStatus;
   private boolean isDragging;
   private Runnable runAfterDrag;
 
-  public PlayerTable(final EventBus eventBus) {
-    this.eventBus = eventBus;
-    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
-
-
+  public PlayerTable(PlayerDataProvider<T> presenter) {
     addDragStartHandler(new DragStartEventHandler() {
       @Override
       public void onDragStart(DragStartEvent dragStartEvent) {
@@ -76,9 +64,11 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
         }
       }
     });
+
+    presenter.setView(this);
   }
 
-  protected void initDragging(DragAndDropColumn<T, ?> column, DroppableFunction onDrop) {
+  public void initDragging(DragAndDropColumn<T, ?> column, DroppableFunction onDrop) {
     DraggableOptions draggableOptions = column.getDraggableOptions();
     Element helper = DOM.createDiv();
     helper.addClassName(BASE_CSS.dragHelper());
@@ -140,45 +130,25 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T> implements
   }
 
   private static Element getTRParent(DragAndDropContext dragAndDropContext) {
-    Element droppable = (Element) dragAndDropContext.getDroppable();
+    Element droppable = dragAndDropContext.getDroppable();
     while (!droppable.getTagName().equalsIgnoreCase("tr")
         && droppable.hasParentElement()) {
-      droppable = (Element) droppable.getParentElement();
+      droppable = droppable.getParentElement();
     }
     return droppable;
   }
 
   @Override
-  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    boolean refresh = false;
-    if (lastStatus == null) {
-      refresh = true;
+  public void refresh() {
+    if (isDragging) {
+      runAfterDrag = new Runnable() {
+        @Override
+        public void run() {
+          setVisibleRangeAndClearData(getVisibleRange(), true);
+        }
+      };
     } else {
-      List<DraftPick> oldPicks = lastStatus.getPicks();
-      List<DraftPick> newPicks = event.getStatus().getPicks();
-      if (newPicks.size() < oldPicks.size()) {
-        // Pick backed out.
-        refresh = true;
-      }
-      if (newPicks.size() > oldPicks.size()) {
-        // Picks have been made.
-        refresh = needsRefresh(oldPicks, newPicks);
-      }
+      setVisibleRangeAndClearData(getVisibleRange(), true);
     }
-    if (refresh) {
-      if (isDragging) {
-        runAfterDrag = new Runnable() {
-          @Override
-          public void run() {
-            setVisibleRangeAndClearData(getVisibleRange(), true);
-          }
-        };
-      } else {
-        setVisibleRangeAndClearData(getVisibleRange(), true);
-      }
-    }
-    lastStatus = event.getStatus();
   }
-
-  protected abstract boolean needsRefresh(List<DraftPick> oldPicks, List<DraftPick> newPicks);
 }

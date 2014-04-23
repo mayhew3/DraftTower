@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -14,56 +13,26 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.client.players.PlayerDataProvider;
+import com.mayhew3.drafttower.client.players.PlayerTableView;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
 import java.util.Map.Entry;
 
+import static com.mayhew3.drafttower.shared.PlayerColumn.NAME;
+
 /**
  * Data provider for player table.
  */
 @Singleton
-public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> implements
+public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> implements
     DraftStatusChangedEvent.Handler,
     LoginEvent.Handler,
     ChangePlayerRankEvent.Handler,
     SetAutoPickWizardEvent.Handler,
     CopyAllPlayerRanksEvent.Handler {
-
-  private static final class SortSpec {
-    private final PlayerColumn column;
-    private final EnumSet<Position> wizardPosition;
-    private final boolean ascending;
-
-    private SortSpec(PlayerColumn column, EnumSet<Position> positions, boolean ascending) {
-      this.column = column;
-      wizardPosition = column == PlayerColumn.WIZARD ? positions : null;
-      this.ascending = ascending;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      SortSpec sortSpec = (SortSpec) o;
-
-      if (ascending != sortSpec.ascending) return false;
-      if (column != sortSpec.column) return false;
-      if (wizardPosition != sortSpec.wizardPosition) return false;
-
-      return true;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = column.hashCode();
-      result = 31 * result + (wizardPosition != null ? wizardPosition.hashCode() : 0);
-      result = 31 * result + (ascending ? 1 : 0);
-      return result;
-    }
-  }
 
   private final class PlayerList {
     private final Map<SortSpec, List<Player>> playersBySortCol = new HashMap<>();
@@ -86,9 +55,9 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       SortSpec sortSpec = new SortSpec(tableSpec.getSortCol(), positionFilter, tableSpec.isAscending());
       if (!playersBySortCol.containsKey(sortSpec)) {
         List<Player> players = playersBySortCol.values().iterator().next();
-        Comparator<Player> comparator = sortSpec.column == PlayerColumn.WIZARD
-            ? PlayerColumn.getWizardComparator(sortSpec.ascending, positionFilter)
-            : sortSpec.column.getComparator(sortSpec.ascending);
+        Comparator<Player> comparator = sortSpec.getColumn() == PlayerColumn.WIZARD
+            ? PlayerColumn.getWizardComparator(sortSpec.isAscending(), positionFilter)
+            : sortSpec.getColumn().getComparator(sortSpec.isAscending());
         playersBySortCol.put(sortSpec,
             Ordering.from(comparator).sortedCopy(players));
       }
@@ -145,7 +114,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       Set<SortSpec> keysToRemove = new HashSet<>();
       for (Entry<SortSpec, List<Player>> entry : playersBySortCol.entrySet()) {
         SortSpec sortSpec = entry.getKey();
-        if (sortSpec.column == PlayerColumn.MYRANK) {
+        if (sortSpec.getColumn() == PlayerColumn.MYRANK) {
           keysToRemove.add(sortSpec);
         }
       }
@@ -160,10 +129,17 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     }
   }
 
+  public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
+  public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
+  public static final boolean DEFAULT_SORT_ASCENDING = true;
+
   private final BeanFactory beanFactory;
   private final ServerRpc serverRpc;
   private final TeamsInfo teamsInfo;
   private final OpenPositions openPositions;
+  private final EventBus eventBus;
+
+  private final TableSpec tableSpec;
 
   private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
   private final Map<PlayerDataSet, Runnable> requestCallbackByDataSet = new HashMap<>();
@@ -175,10 +151,18 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
       TeamsInfo teamsInfo,
       EventBus eventBus,
       OpenPositions openPositions) {
+    super(eventBus);
+
     this.beanFactory = beanFactory;
     this.serverRpc = serverRpc;
     this.teamsInfo = teamsInfo;
     this.openPositions = openPositions;
+    this.eventBus = eventBus;
+
+    tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setPlayerDataSet(DEFAULT_DATA_SET);
+    tableSpec.setSortCol(DEFAULT_SORT_COL);
+    tableSpec.setAscending(DEFAULT_SORT_ASCENDING);
 
     eventBus.addHandler(ChangePlayerRankEvent.TYPE, this);
     eventBus.addHandler(SetAutoPickWizardEvent.TYPE, this);
@@ -188,17 +172,36 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
   }
 
   @Override
+  public void setView(PlayerTableView<Player> view) {
+    assert view instanceof UnclaimedPlayerTableView;
+    super.setView(view);
+  }
+
+  @Override
+  protected UnclaimedPlayerTableView getView() {
+    return (UnclaimedPlayerTableView) super.getView();
+  }
+
+  @Override
   public void onLogin(LoginEvent event) {
-    requestData(UnclaimedPlayerTable.DEFAULT_DATA_SET,
-        UnclaimedPlayerTable.DEFAULT_SORT_COL,
+    requestData(DEFAULT_DATA_SET,
+        DEFAULT_SORT_COL,
         openPositions.get(),
-        UnclaimedPlayerTable.DEFAULT_SORT_ASCENDING,
+        DEFAULT_SORT_ASCENDING,
         new Runnable() {
           @Override
           public void run() {
             // No-op.
           }
         });
+    PlayerDataSet initialWizardTable = event.getLoginResponse().getInitialWizardTable();
+    if (initialWizardTable != null) {
+      tableSpec.setPlayerDataSet(initialWizardTable);
+      tableSpec.setSortCol(PlayerColumn.WIZARD);
+      tableSpec.setAscending(false);
+    }
+
+    getView().initColumnSort(tableSpec);
   }
 
   private void requestData(
@@ -247,7 +250,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
   }
 
   @Override
-  protected void onRangeChanged(final HasData<Player> display) {
+  protected void rangeChanged(final HasData<Player> display) {
     final int rowStart = display.getVisibleRange().getStart();
     int rowCount = display.getVisibleRange().getLength();
     if (display instanceof UnclaimedPlayerTable) {
@@ -257,7 +260,6 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
         positionFilter = Position.REAL_POSITIONS;
       }
       boolean hideInjuries = table.getHideInjuries();
-      TableSpec tableSpec = table.getTableSpec();
       String nameFilter = table.getNameFilter();
       if (!playersByDataSet.containsKey(tableSpec.getPlayerDataSet())) {
         requestData(tableSpec.getPlayerDataSet(),
@@ -267,7 +269,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
             new Runnable() {
               @Override
               public void run() {
-                onRangeChanged(display);
+                rangeChanged(display);
               }
             });
       } else {
@@ -309,9 +311,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     serverRpc.sendChangePlayerRankRequest(requestBean, new Runnable() {
       @Override
       public void run() {
-        for (HasData<Player> dataDisplay : getDataDisplays()) {
-          dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-        }
+        getView().refresh();
       }
     });
   }
@@ -332,9 +332,7 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     serverRpc.sendCopyRanksRequest(requestBean, new Runnable() {
       @Override
       public void run() {
-        for (HasData<Player> dataDisplay : getDataDisplays()) {
-          dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-        }
+        getView().refresh();
       }
     });
   }
@@ -354,10 +352,41 @@ public class UnclaimedPlayerDataProvider extends AsyncDataProvider<Player> imple
     serverRpc.sendSetWizardTableRequest(requestBean, new Runnable() {
       @Override
       public void run() {
-        for (HasData<Player> dataDisplay : getDataDisplays()) {
-          dataDisplay.setVisibleRangeAndClearData(dataDisplay.getVisibleRange(), true);
-        }
+        getView().refresh();
       }
     });
+  }
+
+  @Override
+  protected Predicate<Player> createPredicate(long playerId) {
+    return new PlayerPredicate(playerId);
+  }
+
+  public void showPlayerPopup(Player player) {
+    eventBus.fireEvent(new ShowPlayerPopupEvent(player));
+  }
+
+  public void select(Player player) {
+    eventBus.fireEvent(new PlayerSelectedEvent(player.getPlayerId(), NAME.get(player)));
+  }
+
+  public void changePlayerRank(Player player, int targetRank, int prevRank) {
+    eventBus.fireEvent(new ChangePlayerRankEvent(
+        player.getPlayerId(),
+        targetRank,
+        prevRank));
+  }
+
+  public void setSort(ColumnSort sort) {
+    tableSpec.setSortCol(sort.getColumn());
+    tableSpec.setAscending(sort.isAscending());
+  }
+
+  public void setPlayerDataSet(PlayerDataSet playerDataSet) {
+    tableSpec.setPlayerDataSet(playerDataSet);
+  }
+
+  public TableSpec getTableSpec() {
+    return tableSpec;
   }
 }
