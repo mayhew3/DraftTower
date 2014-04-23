@@ -17,14 +17,16 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PlayerTable;
-import com.mayhew3.drafttower.shared.*;
+import com.mayhew3.drafttower.shared.Player;
+import com.mayhew3.drafttower.shared.PlayerColumn;
+import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.TableSpec;
 import gwtquery.plugins.draggable.client.events.DragStartEvent;
 import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
 import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
@@ -75,9 +77,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
 
   private Provider<Integer> queueAreaTopProvider;
 
-  private EnumSet<Position> positionFilter = EnumSet.allOf(Position.class);
-  private boolean hideInjuries;
-  private String nameFilter;
   private final Map<PlayerColumn, PlayerTableColumn<?>> playerColumns = new EnumMap<>(PlayerColumn.class);
 
   @Inject
@@ -101,12 +100,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     for (int i = 0; i < COLUMNS.length; i++) {
       PlayerColumn column = COLUMNS[i];
       PlayerColumn pitcherColumn = PITCHER_COLUMNS[i];
-      Provider<EnumSet<Position>> positionFilterProvider = new Provider<EnumSet<Position>>() {
-        @Override
-        public EnumSet<Position> get() {
-          return positionFilter;
-        }
-      };
+      Provider<EnumSet<Position>> positionFilterProvider = presenter.getPositionFilterProvider();
 
       PlayerTableColumn<?> playerTableColumn;
       if (pitcherColumn == null) {
@@ -147,7 +141,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     addColumnSortHandler(new AsyncHandler(this) {
       @Override
       public void onColumnSort(ColumnSortEvent event) {
-        ColumnSort sortedColumn = getSortedColumn(isSortedAscending());
+        ColumnSort sortedColumn = getSortedColumn();
         presenter.setSort(sortedColumn);
         super.onColumnSort(event);
         updateDropEnabled();
@@ -196,7 +190,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
       if (prevRank < targetRank && isTopDrop(dragAndDropContext, false)) {
         targetRank--;
       }
-      this.presenter.changePlayerRank(draggedPlayer, targetRank, prevRank);
+      presenter.changePlayerRank(draggedPlayer, targetRank, prevRank);
     }
   }
 
@@ -206,7 +200,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     columnSortList.clear();
     columnSortList.push(new ColumnSortInfo(
         playerColumns.get(tableSpec.getSortCol()), tableSpec.isAscending()));
-    setVisibleRangeAndClearData(getVisibleRange(), true);
+    refresh();
     updateDropEnabled();
   }
 
@@ -221,7 +215,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     }
   }
 
-  public PlayerColumn getSortedColumn() {
+  @Override
+  public PlayerColumn getSortedPlayerColumn() {
     ColumnSortList columnSortList = getColumnSortList();
     if (columnSortList.size() > 0) {
       PlayerTableColumn<?> column = (PlayerTableColumn<?>) columnSortList.get(0).getColumn();
@@ -230,74 +225,42 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     return null;
   }
 
-  public ColumnSort getSortedColumn(boolean isAscending) {
+  public ColumnSort getSortedColumn() {
     ColumnSortList columnSortList = getColumnSortList();
     if (columnSortList.size() > 0) {
-      PlayerTableColumn<?> column = (PlayerTableColumn<?>) columnSortList.get(0).getColumn();
-      return column.getSortedColumn(isAscending);
+      ColumnSortInfo columnSortInfo = columnSortList.get(0);
+      PlayerTableColumn<?> column = (PlayerTableColumn<?>) columnSortInfo.getColumn();
+      return column.getSortedColumn(columnSortInfo.isAscending());
     }
     return null;
   }
 
-  private boolean isSortedAscending() {
-    ColumnSortList columnSortList = getColumnSortList();
-    return columnSortList.size() > 0 && columnSortList.get(0).isAscending();
-  }
-
-  public EnumSet<Position> getPositionFilter() {
-    return positionFilter;
-  }
-
-  public boolean getHideInjuries() {
-    return hideInjuries;
-  }
-
-  public void setPositionFilter(EnumSet<Position> positionFilter) {
-    boolean reSort = Position.isPitcherFilter(this.positionFilter) != Position.isPitcherFilter(positionFilter);
-    this.positionFilter = positionFilter;
+  @Override
+  public void positionFilterUpdated(boolean reSort) {
     for (PlayerTableColumn<?> playerTableColumn : playerColumns.values()) {
       playerTableColumn.updateDefaultSort();
     }
     if (reSort) {
       ColumnSortEvent.fire(this, getColumnSortList());
     }
-    setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
+    refresh();
   }
 
-  public void setPlayerDataSet(PlayerDataSet playerDataSet) {
-    presenter.setPlayerDataSet(playerDataSet);
+  @Override
+  public void playerDataSetUpdated() {
     updateDropEnabled();
-    setVisibleRangeAndClearData(getVisibleRange(), true);
-  }
-
-  public void setNameFilter(String nameFilter) {
-    this.nameFilter = nameFilter;
-    setVisibleRangeAndClearData(new Range(0, getPageSize()), true);
+    refresh();
   }
 
   @SuppressWarnings("unchecked")
   private void updateDropEnabled() {
-    boolean dropEnabled = getSortedColumn() == MYRANK;
+    boolean dropEnabled = getSortedPlayerColumn() == MYRANK;
     for (int i = 0; i < getColumnCount(); i++) {
       Column<Player, ?> column = getColumn(i);
       if (column instanceof DragAndDropColumn) {
         ((DragAndDropColumn<Player, ?>) column).getDroppableOptions().setDisabled(!dropEnabled);
       }
     }
-  }
-
-  public void setHideInjuries(boolean hideInjuries) {
-    this.hideInjuries = hideInjuries;
-    setVisibleRangeAndClearData(getVisibleRange(), true);
-  }
-
-  // TODO(kprevas): remove
-  public TableSpec getTableSpec() {
-    return presenter.getTableSpec();
-  }
-
-  public String getNameFilter() {
-    return nameFilter;
   }
 
   public void setQueueAreaTopProvider(Provider<Integer> queueAreaTopProvider) {

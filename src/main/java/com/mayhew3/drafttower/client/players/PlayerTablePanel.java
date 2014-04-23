@@ -1,14 +1,10 @@
 package com.mayhew3.drafttower.client.players;
 
-import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -17,29 +13,21 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.mayhew3.drafttower.client.OpenPositions;
-import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
-import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.client.events.LoginEvent;
-import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTable;
-import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
-import com.mayhew3.drafttower.shared.TableSpec;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerDataSet.CBSSPORTS;
-import static com.mayhew3.drafttower.shared.Position.*;
 
 /**
  * Widget containing player table, position filter buttons, and paging controls.
  */
-public class PlayerTablePanel extends Composite implements
-    LoginEvent.Handler,
-    DraftStatusChangedEvent.Handler {
+public class PlayerTablePanel extends Composite implements PlayerTablePanelView {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -65,49 +53,17 @@ public class PlayerTablePanel extends Composite implements
     CSS.ensureInjected();
   }
 
-  private static class PositionFilter {
-    private final String name;
-    private final EnumSet<Position> positions;
-
-    private PositionFilter(String name, EnumSet<Position> positions) {
-      this.name = name;
-      this.positions = positions;
-    }
-    
-    private PositionFilter(Position singlePosition) {
-      this.name = singlePosition.getShortName();
-      this.positions = EnumSet.of(singlePosition);
-    }
-  }
-
-  private static final List<PositionFilter> POSITION_FILTERS = Arrays.asList(
-      null,  // Unfilled - populated in constructor. 
-      new PositionFilter("All", EnumSet.allOf(Position.class)),
-      new PositionFilter(C),
-      new PositionFilter(FB),
-      new PositionFilter(SB),
-      new PositionFilter(TB),
-      new PositionFilter(SS),
-      new PositionFilter(OF),
-      new PositionFilter(DH),
-      new PositionFilter(P));
-
   private final Map<PlayerDataSet, ToggleButton> dataSetButtons = new EnumMap<>(PlayerDataSet.class);
   private final Map<PositionFilter, ToggleButton> positionFilterButtons = new HashMap<>();
   private final Map<Position, CheckBox> positionOverrideCheckBoxes = new HashMap<>();
-  private final EnumSet<Position> excludedPositions = EnumSet.noneOf(Position.class);
   private final TextBox nameSearch;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
   private final UnclaimedPlayerTable table;
-  private PlayerDataSet wizardTable;
-  private PositionFilter positionFilter;
 
   @Inject
   public PlayerTablePanel(final UnclaimedPlayerTable table,
-      OpenPositions openPositions,
-      final EventBus eventBus) {
-    POSITION_FILTERS.set(0, new PositionFilter("Unfilled", openPositions.get()));
+      final PlayerTablePanelPresenter presenter) {
     this.table = table;
 
     FlowPanel container = new FlowPanel();
@@ -122,46 +78,34 @@ public class PlayerTablePanel extends Composite implements
     hideInjuries.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
-        table.setHideInjuries(event.getValue());
+        presenter.setHideInjuries(event.getValue());
       }
     });
     rightSideControls.add(hideInjuries);
-
 
     useForAutoPick = new CheckBox("Use this wizard for auto-pick");
     useForAutoPick.setStyleName(CSS.autoPick());
     useForAutoPick.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
-        if (event.getValue()) {
-          wizardTable = table.getTableSpec().getPlayerDataSet();
-        } else {
-          wizardTable = null;
-        }
-        eventBus.fireEvent(new SetAutoPickWizardEvent(wizardTable));
+        presenter.setUseForAutoPick(event.getValue());
       }
     });
     rightSideControls.add(useForAutoPick);
-
 
     copyRanks = new Button("Copy this order to MyRank");
     copyRanks.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        TableSpec tableSpec = table.getTableSpec();
-        if (tableSpec.getSortCol() != PlayerColumn.MYRANK) {
-          eventBus.fireEvent(new CopyAllPlayerRanksEvent(tableSpec));
-        }
+        presenter.copyRanks();
       }
     });
     rightSideControls.add(copyRanks);
 
-    updateCopyRanksEnabled();
     table.addColumnSortHandler(new Handler() {
       @Override
       public void onColumnSort(ColumnSortEvent event) {
-        updateCopyRanksEnabled();
-        updateUserForAutoPickCheckbox();
+        presenter.updateOnSort();
       }
     });
 
@@ -175,9 +119,7 @@ public class PlayerTablePanel extends Composite implements
       ToggleButton button = new ToggleButton(playerDataSet.getDisplayName(), new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-          updateDataSetButtons(playerDataSet);
-          table.setPlayerDataSet(playerDataSet);
-          updateUserForAutoPickCheckbox();
+          presenter.setPlayerDataSet(playerDataSet);
         }
       });
       button.addStyleName(CSS.filterButton());
@@ -198,38 +140,32 @@ public class PlayerTablePanel extends Composite implements
       checkBox.addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-          if (excludedPositions.contains(position)) {
-            excludedPositions.remove(position);
-          } else {
-            excludedPositions.add(position);
-          }
-          setPositionFilter(POSITION_FILTERS.get(0));
+          presenter.toggleExcludedPosition(position);
         }
       });
       positionOverrideCheckBoxes.put(position, checkBox);
     }
-    for (final PositionFilter positionFilter : POSITION_FILTERS) {
+    for (final PositionFilter positionFilter : PlayerTablePanelPresenter.POSITION_FILTERS) {
       FlowPanel buttonContainer = new FlowPanel();
       buttonContainer.setStyleName(CSS.buttonContainer());
-      ToggleButton button = new ToggleButton(positionFilter.name,
+      ToggleButton button = new ToggleButton(positionFilter.getName(),
           new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-              setPositionFilter(positionFilter);
+              presenter.setPositionFilter(positionFilter);
             }
           });
       button.addStyleName(CSS.filterButton());
       positionFilterButtons.put(positionFilter, button);
-      if (positionFilter == POSITION_FILTERS.get(0)) {
+      if (positionFilter == PlayerTablePanelPresenter.POSITION_FILTERS.get(0)) {
         button.setDown(true);
       }
       buttonContainer.add(button);
-      if (positionFilter.positions.size() == 1) {
-        buttonContainer.add(positionOverrideCheckBoxes.get(positionFilter.positions.iterator().next()));
+      if (positionFilter.getPositions().size() == 1) {
+        buttonContainer.add(positionOverrideCheckBoxes.get(positionFilter.getPositions().iterator().next()));
       }
       filterButtons.add(buttonContainer);
     }
-    setPositionFilter(POSITION_FILTERS.get(0));
     buttonPanels.add(filterButtons);
 
     FlowPanel pagerAndSearch = new FlowPanel();
@@ -249,7 +185,7 @@ public class PlayerTablePanel extends Composite implements
     nameSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        table.setNameFilter(event.getValue());
+        presenter.setNameFilter(event.getValue());
         clear.setVisible(!event.getValue().isEmpty());
       }
     });
@@ -258,7 +194,7 @@ public class PlayerTablePanel extends Composite implements
       public void onClick(ClickEvent event) {
         nameSearch.setValue("");
         clear.setVisible(false);
-        table.setNameFilter("");
+        presenter.setNameFilter("");
       }
     });
     search.add(nameSearch);
@@ -270,65 +206,37 @@ public class PlayerTablePanel extends Composite implements
 
     initWidget(container);
 
-    eventBus.addHandler(LoginEvent.TYPE, this);
-    eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
+    presenter.setView(this);
   }
 
-  private void setPositionFilter(PositionFilter positionFilter) {
-    this.positionFilter = positionFilter;
+  @Override
+  public void setPositionFilter(PositionFilter positionFilter, boolean unfilledSelected) {
     for (Entry<PositionFilter, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
       buttonEntry.getValue().setDown(buttonEntry.getKey() == positionFilter);
     }
-    boolean unfilledSelected = positionFilter == POSITION_FILTERS.get(0);
     for (Entry<Position, CheckBox> checkBoxEntry : positionOverrideCheckBoxes.entrySet()) {
       checkBoxEntry.getValue().setVisible(unfilledSelected
-          && (positionFilter.positions.isEmpty()
-              || positionFilter.positions.contains(checkBoxEntry.getKey())));
+          && (positionFilter.getPositions().isEmpty()
+              || positionFilter.getPositions().contains(checkBoxEntry.getKey())));
     }
-    EnumSet<Position> positions = EnumSet.copyOf(positionFilter.positions);
-    if (unfilledSelected) {
-      positions.removeAll(excludedPositions);
-    }
-    table.setPositionFilter(positions);
   }
 
-  private void updateCopyRanksEnabled() {
-    List<PlayerColumn> invalidColumns = Lists.newArrayList(PlayerColumn.WIZARD, PlayerColumn.MYRANK);
-    copyRanks.setEnabled(!invalidColumns.contains(table.getSortedColumn()));
+  @Override
+  public void setCopyRanksEnabled(boolean enabled) {
+    copyRanks.setEnabled(enabled);
   }
 
-  private void updateDataSetButtons(PlayerDataSet playerDataSet) {
+  @Override
+  public void updateDataSetButtons(PlayerDataSet playerDataSet) {
     for (Entry<PlayerDataSet, ToggleButton> buttonEntry : dataSetButtons.entrySet()) {
       buttonEntry.getValue().setDown(buttonEntry.getKey() == playerDataSet);
     }
   }
 
-  private void updateUserForAutoPickCheckbox() {
-    boolean usersAutoPickWizardTable = table.getTableSpec().getPlayerDataSet() == wizardTable;
-    boolean shouldBeEnabled = usersAutoPickWizardTable || table.getSortedColumn().equals(PlayerColumn.WIZARD);
-
+  @Override
+  public void updateUseForAutoPickCheckbox(boolean usersAutoPickWizardTable, boolean shouldBeEnabled) {
     useForAutoPick.setValue(usersAutoPickWizardTable);
     useForAutoPick.setEnabled(shouldBeEnabled);
-  }
-
-  @Override
-  public void onLogin(LoginEvent event) {
-    wizardTable = event.getLoginResponse().getInitialWizardTable();
-    if (wizardTable != null) {
-      updateDataSetButtons(wizardTable);
-      updateUserForAutoPickCheckbox();
-    }
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        updateCopyRanksEnabled();
-      }
-    });
-  }
-
-  @Override
-  public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    setPositionFilter(positionFilter);
   }
 
   public void setQueueAreaTopProvider(Provider<Integer> queueAreaTopProvider) {

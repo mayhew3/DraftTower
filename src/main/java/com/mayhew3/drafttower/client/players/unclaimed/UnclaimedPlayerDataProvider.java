@@ -2,12 +2,11 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.view.client.HasData;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.OpenPositions;
@@ -19,7 +18,6 @@ import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.NAME;
 
@@ -34,101 +32,6 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     SetAutoPickWizardEvent.Handler,
     CopyAllPlayerRanksEvent.Handler {
 
-  private final class PlayerList {
-    private final Map<SortSpec, List<Player>> playersBySortCol = new HashMap<>();
-    private final Set<Long> pickedPlayers = new HashSet<>();
-
-    private PlayerList(List<Player> players,
-        PlayerColumn defaultSortCol,
-        EnumSet<Position> defaultPositionFilter,
-        boolean defaultSortAscending) {
-      playersBySortCol.put(
-          new SortSpec(defaultSortCol, defaultPositionFilter, defaultSortAscending), players);
-    }
-
-    private Iterable<Player> getPlayers(TableSpec tableSpec,
-        int rowStart, int rowCount,
-        final EnumSet<Position> positionFilter,
-        final boolean hideInjuries,
-        final String nameFilter) {
-      // TODO(kprevas): refetch when nameFilter is set to get 0 AB/0 INN players?
-      SortSpec sortSpec = new SortSpec(tableSpec.getSortCol(), positionFilter, tableSpec.isAscending());
-      if (!playersBySortCol.containsKey(sortSpec)) {
-        List<Player> players = playersBySortCol.values().iterator().next();
-        Comparator<Player> comparator = sortSpec.getColumn() == PlayerColumn.WIZARD
-            ? PlayerColumn.getWizardComparator(sortSpec.isAscending(), positionFilter)
-            : sortSpec.getColumn().getComparator(sortSpec.isAscending());
-        playersBySortCol.put(sortSpec,
-            Ordering.from(comparator).sortedCopy(players));
-      }
-      return Iterables.limit(Iterables.skip(Iterables.filter(
-          playersBySortCol.get(sortSpec),
-          new Predicate<Player>() {
-            @Override
-            public boolean apply(Player player) {
-              return (nameFilter == null
-                      || PlayerColumn.NAME.get(player).toLowerCase()
-                          .contains(nameFilter.toLowerCase()))
-                  && (!hideInjuries || player.getInjury() == null)
-                  && (positionFilter == null || Position.apply(player, positionFilter))
-                  && !pickedPlayers.contains(player.getPlayerId());
-            }
-          }), rowStart), rowCount);
-    }
-
-    public int getTotalPlayers() {
-      return playersBySortCol.values().iterator().next().size();
-    }
-
-    public void ensurePlayersRemoved(List<DraftPick> picks) {
-      pickedPlayers.clear();
-      for (DraftPick pick : picks) {
-        pickedPlayers.add(pick.getPlayerId());
-      }
-    }
-
-    public void updatePlayerRank(long playerId, int prevRank, int newRank) {
-      List<Player> players = playersBySortCol.values().iterator().next();
-      int lesserRank = prevRank + 1;
-      int greaterRank = newRank;
-      if (prevRank > newRank) {
-        lesserRank = newRank;
-        greaterRank = prevRank - 1;
-      }
-      // Update all players.
-      for (Player player : players) {
-        if (player.getPlayerId() == playerId) {
-          player.setMyRank(Integer.toString(newRank));
-        } else {
-          int rank = Integer.parseInt(player.getMyRank());
-          if (rank >= lesserRank && rank <= greaterRank) {
-            if (prevRank > newRank) {
-              player.setMyRank(Integer.toString(rank + 1));
-            } else {
-              player.setMyRank(Integer.toString(rank - 1));
-            }
-          }
-        }
-      }
-      // Clear any cached sort orders sorted by rank.
-      Set<SortSpec> keysToRemove = new HashSet<>();
-      for (Entry<SortSpec, List<Player>> entry : playersBySortCol.entrySet()) {
-        SortSpec sortSpec = entry.getKey();
-        if (sortSpec.getColumn() == PlayerColumn.MYRANK) {
-          keysToRemove.add(sortSpec);
-        }
-      }
-      for (SortSpec sortSpec : keysToRemove) {
-        playersBySortCol.remove(sortSpec);
-      }
-      // Ensure we don't hit the server again if the only sort order we had was by rank.
-      if (playersBySortCol.isEmpty()) {
-        playersBySortCol.put(new SortSpec(PlayerColumn.MYRANK, EnumSet.allOf(Position.class), true),
-            Ordering.from(PlayerColumn.MYRANK.getComparator(true)).sortedCopy(players));
-      }
-    }
-  }
-
   public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
   public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
   public static final boolean DEFAULT_SORT_ASCENDING = true;
@@ -140,6 +43,9 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   private final EventBus eventBus;
 
   private final TableSpec tableSpec;
+  private EnumSet<Position> positionFilter = EnumSet.allOf(Position.class);
+  private boolean hideInjuries;
+  private String nameFilter;
 
   private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
   private final Map<PlayerDataSet, Runnable> requestCallbackByDataSet = new HashMap<>();
@@ -255,12 +161,9 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     int rowCount = display.getVisibleRange().getLength();
     if (display instanceof UnclaimedPlayerTable) {
       UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
-      EnumSet<Position> positionFilter = table.getPositionFilter();
       if (positionFilter.isEmpty()) {
         positionFilter = Position.REAL_POSITIONS;
       }
-      boolean hideInjuries = table.getHideInjuries();
-      String nameFilter = table.getNameFilter();
       if (!playersByDataSet.containsKey(tableSpec.getPlayerDataSet())) {
         requestData(tableSpec.getPlayerDataSet(),
             tableSpec.getSortCol(),
@@ -384,9 +287,39 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
 
   public void setPlayerDataSet(PlayerDataSet playerDataSet) {
     tableSpec.setPlayerDataSet(playerDataSet);
+    getView().playerDataSetUpdated();
   }
 
   public TableSpec getTableSpec() {
     return tableSpec;
+  }
+
+  public PlayerColumn getSortedPlayerColumn() {
+    return getView().getSortedPlayerColumn();
+  }
+
+  public void setPositionFilter(EnumSet<Position> positionFilter) {
+    boolean reSort = Position.isPitcherFilter(this.positionFilter) != Position.isPitcherFilter(positionFilter);
+    this.positionFilter = positionFilter;
+    getView().positionFilterUpdated(reSort);
+  }
+
+  public Provider<EnumSet<Position>> getPositionFilterProvider() {
+    return new Provider<EnumSet<Position>>() {
+      @Override
+      public EnumSet<Position> get() {
+        return positionFilter;
+      }
+    };
+  }
+
+  public void setHideInjuries(boolean hideInjuries) {
+    this.hideInjuries = hideInjuries;
+    getView().refresh();
+  }
+
+  public void setNameFilter(String nameFilter) {
+    this.nameFilter = nameFilter;
+    getView().refresh();
   }
 }
