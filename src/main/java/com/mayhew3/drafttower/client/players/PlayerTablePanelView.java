@@ -8,7 +8,7 @@ import com.mayhew3.drafttower.shared.PlayerDataSet;
 public interface PlayerTablePanelView {
   void setPositionFilter(PositionFilter positionFilter, boolean unfilledSelected);
 
-  void setCopyRanksEnabled(boolean enabled);
+  void setCopyRanksEnabled(boolean enabled, boolean defer);
 
   void updateDataSetButtons(PlayerDataSet playerDataSet);
 

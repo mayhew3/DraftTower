@@ -1,6 +1,8 @@
 package com.mayhew3.drafttower.client.players;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -222,8 +224,17 @@ public class PlayerTablePanel extends Composite implements PlayerTablePanelView 
   }
 
   @Override
-  public void setCopyRanksEnabled(boolean enabled) {
-    copyRanks.setEnabled(enabled);
+  public void setCopyRanksEnabled(final boolean enabled, boolean defer) {
+    if (defer) {
+      Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+        @Override
+        public void execute() {
+          copyRanks.setEnabled(enabled);
+        }
+      });
+    } else {
+      copyRanks.setEnabled(enabled);
+    }
   }
 
   @Override

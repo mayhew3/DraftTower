@@ -1,8 +1,7 @@
 package com.mayhew3.drafttower.client.players;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.shared.EventBus;
 import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
@@ -45,7 +44,8 @@ public class PlayerTablePanelPresenter implements
   private final EventBus eventBus;
 
   private PositionFilter positionFilter;
-  private final EnumSet<Position> excludedPositions = EnumSet.noneOf(Position.class);
+  @VisibleForTesting
+  final EnumSet<Position> excludedPositions = EnumSet.noneOf(Position.class);
   private PlayerDataSet wizardTable;
 
   private PlayerTablePanelView view;
@@ -65,7 +65,7 @@ public class PlayerTablePanelPresenter implements
 
   public void setView(PlayerTablePanelView view) {
     this.view = view;
-    updateCopyRanksEnabled();
+    updateCopyRanksEnabled(false);
     setPositionFilter(POSITION_FILTERS.get(0));
   }
 
@@ -76,12 +76,7 @@ public class PlayerTablePanelPresenter implements
       view.updateDataSetButtons(wizardTable);
       updateUseForAutoPick();
     }
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        updateCopyRanksEnabled();
-      }
-    });
+    updateCopyRanksEnabled(true);
   }
 
   @Override
@@ -96,15 +91,15 @@ public class PlayerTablePanelPresenter implements
     view.updateUseForAutoPickCheckbox(usersAutoPickWizardTable, shouldBeEnabled);
   }
 
-  private void updateCopyRanksEnabled() {
+  private void updateCopyRanksEnabled(boolean defer) {
     List<PlayerColumn> invalidColumns = Lists.newArrayList(PlayerColumn.WIZARD, PlayerColumn.MYRANK);
     boolean enabled = !invalidColumns.contains(tablePresenter.getSortedPlayerColumn());
-    view.setCopyRanksEnabled(enabled);
+    view.setCopyRanksEnabled(enabled, defer);
   }
 
   public void updateOnSort() {
     updateUseForAutoPick();
-    updateCopyRanksEnabled();
+    updateCopyRanksEnabled(false);
   }
 
   public void setPositionFilter(PositionFilter positionFilter) {
