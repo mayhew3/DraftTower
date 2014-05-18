@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client.players.queue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -30,14 +31,14 @@ public class QueueDataProvider extends PlayerDataProvider<QueueEntry> implements
     DequeuePlayerEvent.Handler,
     ReorderPlayerQueueEvent.Handler {
 
-  private static final int FAKE_ENTRY_ID = -1;
+  @VisibleForTesting static final int FAKE_ENTRY_ID = -1;
 
   private final BeanFactory beanFactory;
   private final ServerRpc serverRpc;
   private final TeamsInfo teamsInfo;
   private final EventBus eventBus;
 
-  private List<QueueEntry> queue;
+  @VisibleForTesting List<QueueEntry> queue;
 
   @Inject
   public QueueDataProvider(
@@ -74,19 +75,25 @@ public class QueueDataProvider extends PlayerDataProvider<QueueEntry> implements
     serverRpc.sendGetPlayerQueueRequest(requestBean, new Function<GetPlayerQueueResponse, Void>() {
       @Override
       public Void apply(GetPlayerQueueResponse queueResponse) {
-        queue = queueResponse.getQueue();
-        if (queue.isEmpty()) {
-          QueueEntry fakeEntry = beanFactory.createQueueEntry().as();
-          fakeEntry.setPlayerId(FAKE_ENTRY_ID);
-          fakeEntry.setPlayerName("Drag players here");
-          fakeEntry.setEligibilities(ImmutableList.<String>of());
-          queue = ImmutableList.of(fakeEntry);
-        }
-        display.setRowData(0, queue);
-        display.setRowCount(queue.size());
+        handlePlayerQueueResponse(queueResponse, display);
         return null;
       }
     });
+  }
+
+  @VisibleForTesting
+  void handlePlayerQueueResponse(GetPlayerQueueResponse queueResponse,
+      HasData<QueueEntry> display) {
+    queue = queueResponse.getQueue();
+    if (queue.isEmpty()) {
+      QueueEntry fakeEntry = beanFactory.createQueueEntry().as();
+      fakeEntry.setPlayerId(FAKE_ENTRY_ID);
+      fakeEntry.setPlayerName("Drag players here");
+      fakeEntry.setEligibilities(ImmutableList.<String>of());
+      queue = ImmutableList.of(fakeEntry);
+    }
+    display.setRowData(0, queue);
+    display.setRowCount(queue.size());
   }
 
   @Override
