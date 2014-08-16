@@ -54,7 +54,7 @@ public class PlayerList {
   }
 
   public int getTotalPlayers() {
-    return playersBySortCol.values().iterator().next().size();
+    return playersBySortCol.values().iterator().next().size() - pickedPlayers.size();
   }
 
   public void ensurePlayersRemoved(List<DraftPick> picks) {

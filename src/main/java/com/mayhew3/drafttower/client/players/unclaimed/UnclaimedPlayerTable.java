@@ -204,7 +204,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     updateDropEnabled();
   }
 
-  void computePageSize() {
+  @Override
+  public void computePageSize() {
     TableRowElement rowElement = getRowElement(0);
     if (rowElement != null && queueAreaTopProvider != null) {
       int availableHeight = queueAreaTopProvider.get() - rowElement.getAbsoluteTop();

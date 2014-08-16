@@ -1,16 +1,15 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.mayhew3.drafttower.TestPlayerGenerator;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
 import java.util.*;
 
 import static com.mayhew3.drafttower.shared.Position.OF;
-import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
  * {@link PlayerDataSource} for testing.
@@ -18,6 +17,7 @@ import static com.mayhew3.drafttower.shared.Position.P;
 public class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
+  private final TestPlayerGenerator playerGenerator;
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
@@ -27,6 +27,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
   @Inject
   public TestPlayerDataSource(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    this.playerGenerator = new TestPlayerGenerator(beanFactory);
     int playerId = 0;
 
     for (Position position : Position.REAL_POSITIONS) {
@@ -41,7 +42,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
         numPlayers = 15;
       }
       for (int i = 0; i < numPlayers; i++) {
-        Player player = generatePlayer(playerId, position, i);
+        Player player = playerGenerator.generatePlayer(playerId, position, i);
         allPlayers.put(player.getPlayerId(), player);
         playerId++;
       }
@@ -156,60 +157,5 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   public void setKeepers(ListMultimap<TeamDraftOrder, Integer> keepers) {
     this.keepers = keepers;
-  }
-
-  private Player generatePlayer(int playerId, Position position, int i) {
-    Player player = beanFactory.createPlayer().as();
-    player.setName(Strings.repeat(Integer.toString(playerId), 10));
-    player.setTeam("XXX");
-    player.setEligibility(position.getShortName());
-    if (i == 5) {
-      player.setInjury("busted wang");
-    }
-    player.setCBSId(playerId);
-    player.setPlayerId(playerId);
-    if (position == P) {
-      player.setG(Integer.toString(i));
-      player.setINN(Integer.toString(i));
-      player.setK(Integer.toString(i));
-      player.setERA(Float.toString(2 + i / 100f));
-      player.setWHIP(Float.toString(1 + i / 100f));
-      player.setS(Integer.toString(i));
-      player.setWL(Integer.toString(i));
-      player.setWizardP(Float.toString(-3 + i / 20f));
-    } else {
-      player.setAB(Integer.toString(i * 40));
-      player.setHR(Integer.toString(i * 2));
-      player.setRBI(Integer.toString(i * 5));
-      player.setRHR(Integer.toString(i * 5));
-      player.setOBP(Float.toString(.25f + i / 10f));
-      player.setSLG(Float.toString(.4f + i / 5f));
-      player.setSBCS(Integer.toString(i));
-      switch (position) {
-        case C:
-          player.setWizardC(Float.toString(-3 + i / 20f));
-          break;
-        case FB:
-          player.setWizard1B(Float.toString(-3 + i / 20f));
-          break;
-        case SB:
-          player.setWizard2B(Float.toString(-3 + i / 20f));
-          break;
-        case TB:
-          player.setWizard3B(Float.toString(-3 + i / 20f));
-          break;
-        case SS:
-          player.setWizardSS(Float.toString(-3 + i / 20f));
-          break;
-        case OF:
-          player.setWizardOF(Float.toString(-3 + i / 20f));
-          break;
-      }
-      player.setWizardDH(Float.toString(-3 + i / 20f));
-    }
-    player.setDraft(Integer.toString(playerId));
-    player.setRank(Integer.toString(playerId));
-    player.setMyRank(Integer.toString(playerId));
-    return player;
   }
 }

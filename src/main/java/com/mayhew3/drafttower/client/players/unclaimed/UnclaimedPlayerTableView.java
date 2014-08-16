@@ -16,4 +16,6 @@ public interface UnclaimedPlayerTableView extends PlayerTableView<Player> {
   void playerDataSetUpdated();
 
   void positionFilterUpdated(boolean reSort);
+
+  void computePageSize();
 }

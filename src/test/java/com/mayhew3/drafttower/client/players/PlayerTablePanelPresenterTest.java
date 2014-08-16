@@ -20,7 +20,6 @@ import java.util.EnumSet;
  */
 public class PlayerTablePanelPresenterTest {
 
-  private OpenPositions openPositions;
   private EnumSet<Position> unfilledPositions;
   private UnclaimedPlayerDataProvider tablePresenter;
   private EventBus eventBus;
@@ -30,7 +29,7 @@ public class PlayerTablePanelPresenterTest {
 
   @Before
   public void setUp() {
-    openPositions = Mockito.mock(OpenPositions.class);
+    OpenPositions openPositions = Mockito.mock(OpenPositions.class);
     unfilledPositions = EnumSet.of(Position.C, Position.SB, Position.SS, Position.P);
     Mockito.when(openPositions.get()).thenReturn(unfilledPositions);
     tablePresenter = Mockito.mock(UnclaimedPlayerDataProvider.class);

@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client.players.unclaimed;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -47,7 +48,8 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   private boolean hideInjuries;
   private String nameFilter;
 
-  private final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
+  @VisibleForTesting
+  final Map<PlayerDataSet, PlayerList> playersByDataSet = new HashMap<>();
   private final Map<PlayerDataSet, Runnable> requestCallbackByDataSet = new HashMap<>();
   private List<DraftPick> picks = new ArrayList<>();
 
@@ -90,10 +92,8 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
 
   @Override
   public void onLogin(LoginEvent event) {
-    requestData(DEFAULT_DATA_SET,
-        DEFAULT_SORT_COL,
+    requestData(tableSpec,
         openPositions.get(),
-        DEFAULT_SORT_ASCENDING,
         new Runnable() {
           @Override
           public void run() {
@@ -110,17 +110,17 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     getView().initColumnSort(tableSpec);
   }
 
-  private void requestData(
-      final PlayerDataSet dataSet,
-      final PlayerColumn defaultSortCol,
-      final EnumSet<Position> defaultPositionFilter,
-      final boolean defaultSortAscending,
+  @VisibleForTesting
+  void requestData(
+      final TableSpec tableSpec,
+      final EnumSet<Position> positionFilter,
       Runnable callback) {
     if (!teamsInfo.isLoggedIn()) {
       return;
     }
-    boolean requestInFlight = requestCallbackByDataSet.containsKey(dataSet);
-    requestCallbackByDataSet.put(dataSet, callback);
+    boolean requestInFlight =
+        requestCallbackByDataSet.containsKey(tableSpec.getPlayerDataSet());
+    requestCallbackByDataSet.put(tableSpec.getPlayerDataSet(), callback);
     if (requestInFlight) {
       return;
     }
@@ -129,46 +129,49 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     UnclaimedPlayerListRequest request = requestBean.as();
     request.setTeamToken(teamsInfo.getTeamToken());
 
-    TableSpec tableSpec = beanFactory.createTableSpec().as();
-    tableSpec.setPlayerDataSet(dataSet);
-    tableSpec.setSortCol(defaultSortCol);
-    tableSpec.setAscending(defaultSortAscending);
     request.setTableSpec(tableSpec);
 
     serverRpc.sendPlayerListRequest(requestBean, new Function<UnclaimedPlayerListResponse, Void>() {
       @Override
       public Void apply(UnclaimedPlayerListResponse playerListResponse) {
-        PlayerList playerList = new PlayerList(
-            playerListResponse.getPlayers(),
-            defaultSortCol,
-            defaultPositionFilter,
-            defaultSortAscending);
-        playerList.ensurePlayersRemoved(picks);
-        playersByDataSet.put(dataSet, playerList);
-        Runnable callback = requestCallbackByDataSet.get(dataSet);
-        if (callback != null) {
-          callback.run();
-        }
-        requestCallbackByDataSet.remove(dataSet);
+        handlePlayerListResponse(playerListResponse,
+            tableSpec,
+            positionFilter);
         return null;
       }
     });
+  }
+
+  @VisibleForTesting
+  void handlePlayerListResponse(
+      UnclaimedPlayerListResponse playerListResponse,
+      TableSpec tableSpec,
+      EnumSet<Position> defaultPositionFilter) {
+    PlayerList playerList = new PlayerList(
+        playerListResponse.getPlayers(),
+        tableSpec.getSortCol(),
+        defaultPositionFilter,
+        tableSpec.isAscending());
+    playerList.ensurePlayersRemoved(picks);
+    playersByDataSet.put(tableSpec.getPlayerDataSet(), playerList);
+    Runnable callback = requestCallbackByDataSet.remove(tableSpec.getPlayerDataSet());
+    if (callback != null) {
+      callback.run();
+    }
   }
 
   @Override
   protected void rangeChanged(final HasData<Player> display) {
     final int rowStart = display.getVisibleRange().getStart();
     int rowCount = display.getVisibleRange().getLength();
-    if (display instanceof UnclaimedPlayerTable) {
-      UnclaimedPlayerTable table = (UnclaimedPlayerTable) display;
+    if (display instanceof UnclaimedPlayerTableView) {
+      UnclaimedPlayerTableView table = (UnclaimedPlayerTableView) display;
       if (positionFilter.isEmpty()) {
         positionFilter = Position.REAL_POSITIONS;
       }
       if (!playersByDataSet.containsKey(tableSpec.getPlayerDataSet())) {
-        requestData(tableSpec.getPlayerDataSet(),
-            tableSpec.getSortCol(),
+        requestData(tableSpec,
             positionFilter,
-            tableSpec.isAscending(),
             new Runnable() {
               @Override
               public void run() {
@@ -192,6 +195,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     for (PlayerList playerList : playersByDataSet.values()) {
       playerList.ensurePlayersRemoved(picks);
     }
+    super.onDraftStatusChanged(event);
   }
 
   @Override
@@ -321,5 +325,10 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   public void setNameFilter(String nameFilter) {
     this.nameFilter = nameFilter;
     getView().refresh();
+  }
+
+  @VisibleForTesting
+  void resetInFlightRequestsForTesting() {
+    requestCallbackByDataSet.clear();
   }
 }
