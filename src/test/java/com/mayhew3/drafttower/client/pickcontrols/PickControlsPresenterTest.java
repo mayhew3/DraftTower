@@ -215,7 +215,7 @@ public class PickControlsPresenterTest {
     Mockito.reset(view);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setEnqueueEnabled(true);
+    Mockito.verify(view).setEnqueueEnabled(false);
   }
 
   @Test

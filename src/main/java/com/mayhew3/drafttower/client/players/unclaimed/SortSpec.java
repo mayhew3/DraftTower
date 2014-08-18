@@ -23,10 +23,6 @@ public class SortSpec {
     return column;
   }
 
-  public EnumSet<Position> getWizardPosition() {
-    return wizardPosition;
-  }
-
   public boolean isAscending() {
     return ascending;
   }

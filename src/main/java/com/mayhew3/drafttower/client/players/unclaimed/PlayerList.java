@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client.players.unclaimed;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -12,7 +13,7 @@ import java.util.Map.Entry;
  * Encapsulates the list of players for a given data set; handles sorting, filtering, etc.
  */
 public class PlayerList {
-  private final Map<SortSpec, List<Player>> playersBySortCol = new HashMap<>();
+  @VisibleForTesting final Map<SortSpec, List<Player>> playersBySortCol = new HashMap<>();
   private final Set<Long> pickedPlayers = new HashSet<>();
 
   public PlayerList(List<Player> players,
@@ -47,7 +48,7 @@ public class PlayerList {
                 || PlayerColumn.NAME.get(player).toLowerCase()
                 .contains(nameFilter.toLowerCase()))
                 && (!hideInjuries || player.getInjury() == null)
-                && (positionFilter == null || Position.apply(player, positionFilter))
+                && Position.apply(player, positionFilter)
                 && !pickedPlayers.contains(player.getPlayerId());
           }
         }), rowStart), rowCount);
