@@ -5,6 +5,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.mayhew3.drafttower.client.SchedulerWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

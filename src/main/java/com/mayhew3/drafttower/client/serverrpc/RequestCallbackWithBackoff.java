@@ -4,6 +4,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
+import com.mayhew3.drafttower.client.SchedulerWrapper;
 
 /**
  * {@link RequestCallback} with exponential backoff retry.

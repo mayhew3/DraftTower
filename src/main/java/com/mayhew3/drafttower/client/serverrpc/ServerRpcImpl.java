@@ -5,7 +5,8 @@ import com.google.common.net.HttpHeaders;
 import com.google.gwt.http.client.*;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.server.GinBindingAnnotations.*;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.*;
+import com.mayhew3.drafttower.client.SchedulerWrapper;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;

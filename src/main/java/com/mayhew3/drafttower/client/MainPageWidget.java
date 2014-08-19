@@ -17,6 +17,7 @@ import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.clock.DraftClock;
 import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.ReloadWindowEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
 import com.mayhew3.drafttower.client.filledpositions.FilledPositionsChart;
 import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
@@ -36,7 +37,8 @@ import com.mayhew3.drafttower.shared.Player;
  */
 public class MainPageWidget extends Composite implements
     LoginEvent.Handler,
-    ShowPlayerPopupEvent.Handler {
+    ShowPlayerPopupEvent.Handler,
+    ReloadWindowEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -157,6 +159,7 @@ public class MainPageWidget extends Composite implements
 
     eventBus.addHandler(LoginEvent.TYPE, this);
     eventBus.addHandler(ShowPlayerPopupEvent.TYPE, this);
+    eventBus.addHandler(ReloadWindowEvent.TYPE, this);
   }
 
   @Override
@@ -200,6 +203,10 @@ public class MainPageWidget extends Composite implements
     playerPopup.show();
   }
 
+  @Override
+  public void onReload(ReloadWindowEvent event) {
+    Window.Location.reload();
+  }
 
   @Override
   protected void onEnsureDebugId(String baseID) {

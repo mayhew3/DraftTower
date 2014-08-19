@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.server;
+package com.mayhew3.drafttower.client;
 
 import com.google.inject.BindingAnnotation;
 
@@ -51,4 +51,9 @@ public class GinBindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface GraphsUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface CurrentTime {}
 }
