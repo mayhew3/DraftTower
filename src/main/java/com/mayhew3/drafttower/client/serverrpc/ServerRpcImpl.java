@@ -129,14 +129,13 @@ public class ServerRpcImpl implements ServerRpc {
       final Runnable callback) {
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
 
-    RequestCallbackWithBackoff.sendRequest(requestBuilder,
-        AutoBeanCodex.encode(requestBean).getPayload(),
-        new RequestCallbackWithBackoff() {
-          @Override
-          public void onResponseReceived(Request request, Response response) {
-            callback.run();
-          }
-        });
+    new RequestCallbackWithBackoff(new SchedulerWrapper()) {
+      @Override
+      public void onResponseReceived(Request request, Response response) {
+        callback.run();
+      }
+    }.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload());
   }
 
   private <Q, R> void sendRequest(String url,
@@ -145,15 +144,14 @@ public class ServerRpcImpl implements ServerRpc {
       final Function<R, Void> callback) {
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
 
-    RequestCallbackWithBackoff.sendRequest(requestBuilder,
-        AutoBeanCodex.encode(requestBean).getPayload(),
-        new RequestCallbackWithBackoff() {
-          @Override
-          public void onResponseReceived(Request request, Response response) {
-            R decodedResponse = AutoBeanCodex.decode(
-                beanFactory, responseClass, response.getText()).as();
-            callback.apply(decodedResponse);
-          }
-        });
+    new RequestCallbackWithBackoff(new SchedulerWrapper()) {
+      @Override
+      public void onResponseReceived(Request request, Response response) {
+        R decodedResponse = AutoBeanCodex.decode(
+            beanFactory, responseClass, response.getText()).as();
+        callback.apply(decodedResponse);
+      }
+    }.sendRequest(requestBuilder,
+        AutoBeanCodex.encode(requestBean).getPayload());
   }
 }
