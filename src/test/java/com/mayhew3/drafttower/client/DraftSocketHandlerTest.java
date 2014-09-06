@@ -7,7 +7,6 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
-import com.mayhew3.drafttower.DraftStatusTestUtil;
 import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.shared.*;

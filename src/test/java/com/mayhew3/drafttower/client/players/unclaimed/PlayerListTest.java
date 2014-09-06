@@ -2,8 +2,6 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.common.collect.Lists;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
-import com.mayhew3.drafttower.DraftStatusTestUtil;
-import com.mayhew3.drafttower.TestPlayerGenerator;
 import com.mayhew3.drafttower.shared.*;
 import org.junit.Assert;
 import org.junit.Before;

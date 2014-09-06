@@ -6,8 +6,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.view.client.Range;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
-import com.mayhew3.drafttower.DraftStatusTestUtil;
-import com.mayhew3.drafttower.TestPlayerGenerator;
 import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;

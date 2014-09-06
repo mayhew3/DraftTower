@@ -1,10 +1,7 @@
-package com.mayhew3.drafttower;
+package com.mayhew3.drafttower.shared;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.Player;
-import com.mayhew3.drafttower.shared.Position;
 
 import static com.mayhew3.drafttower.shared.Position.P;
 

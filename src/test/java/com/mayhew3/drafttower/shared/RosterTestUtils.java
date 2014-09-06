@@ -1,10 +1,7 @@
-package com.mayhew3.drafttower;
+package com.mayhew3.drafttower.shared;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.Position;
-import com.mayhew3.drafttower.shared.RosterUtil;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

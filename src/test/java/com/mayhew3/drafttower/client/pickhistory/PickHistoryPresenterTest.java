@@ -2,12 +2,12 @@ package com.mayhew3.drafttower.client.pickhistory;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
-import com.mayhew3.drafttower.DraftStatusTestUtil;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.pickhistory.PickHistoryPresenter.PickHistoryInfo;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftPick;
+import com.mayhew3.drafttower.shared.DraftStatusTestUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

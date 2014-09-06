@@ -3,7 +3,6 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.mayhew3.drafttower.TestPlayerGenerator;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;

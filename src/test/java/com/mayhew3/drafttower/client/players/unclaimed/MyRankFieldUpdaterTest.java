@@ -1,10 +1,10 @@
 package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
-import com.mayhew3.drafttower.TestPlayerGenerator;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.TestPlayerGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

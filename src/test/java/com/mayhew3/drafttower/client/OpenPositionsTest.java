@@ -2,11 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.common.collect.Lists;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
-import com.mayhew3.drafttower.DraftStatusTestUtil;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.Position;
-import com.mayhew3.drafttower.shared.RosterUtil;
+import com.mayhew3.drafttower.shared.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

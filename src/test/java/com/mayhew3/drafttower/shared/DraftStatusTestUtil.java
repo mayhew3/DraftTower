@@ -1,10 +1,7 @@
-package com.mayhew3.drafttower;
+package com.mayhew3.drafttower.shared;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.DraftStatus;
 
 import java.util.HashSet;
 import java.util.List;
