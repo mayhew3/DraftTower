@@ -17,6 +17,7 @@ public interface DraftTowerTestGinjector extends Ginjector {
   MainPageWidget getMainPageWidget();
 
   Websocket getWebSocket();
+  TestScheduler getScheduler();
 
   DraftStatus getDraftStatus();
   @TeamTokens Map<String, TeamDraftOrder> getTeamTokens();

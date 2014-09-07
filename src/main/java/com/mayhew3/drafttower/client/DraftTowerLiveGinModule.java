@@ -87,6 +87,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   @Override
   protected void configure() {
     bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
+    bind(SchedulerWrapper.class).to(LiveScheduler.class);
     bind(ServerRpc.class).to(ServerRpcImpl.class).in(Singleton.class);
     bind(Websocket.class).to(WebsocketImpl.class);
   }

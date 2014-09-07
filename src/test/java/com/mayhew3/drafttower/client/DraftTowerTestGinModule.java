@@ -31,6 +31,7 @@ public class DraftTowerTestGinModule extends AbstractGinModule {
 
     bind(CurrentTimeProvider.class).to(FakeCurrentTimeProvider.class);
     bind(Lock.class).to(ClientTestLock.class);
+    bind(SchedulerWrapper.class).to(TestScheduler.class).in(Singleton.class);
     bind(ServerRpc.class).to(TestServerRpc.class).in(Singleton.class);
     bind(TokenGenerator.class).to(ClientTestTokenGenerator.class);
     bind(Websocket.class).to(TestDraftTowerWebSocket.class).in(Singleton.class);

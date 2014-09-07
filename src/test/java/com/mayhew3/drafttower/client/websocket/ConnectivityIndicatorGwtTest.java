@@ -32,4 +32,15 @@ public class ConnectivityIndicatorGwtTest extends TestBase {
 
     assertFalse(hasStyle(CONNECTIVITY_INDICATOR, ConnectivityIndicator.CSS.connected()));
   }
+
+  public void testConnectivityIndicatorGreenAfterDisconnectAndAutoReconnect() {
+    type(USERNAME, "1");
+    type(PASSWORD, "1");
+    click(LOGIN_BUTTON);
+
+    ginjector.getWebSocket().close();
+    ginjector.getScheduler().flush();
+
+    assertTrue(hasStyle(CONNECTIVITY_INDICATOR, ConnectivityIndicator.CSS.connected()));
+  }
 }

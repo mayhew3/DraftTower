@@ -205,7 +205,9 @@ public class MainPageWidget extends Composite implements
 
   @Override
   public void onReload(ReloadWindowEvent event) {
-    Window.Location.reload();
+    if (GWT.isProdMode()) {
+      Window.Location.reload();
+    }
   }
 
   @Override

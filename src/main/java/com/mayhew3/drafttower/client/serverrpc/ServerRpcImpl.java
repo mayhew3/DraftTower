@@ -6,7 +6,7 @@ import com.google.gwt.http.client.*;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.*;
-import com.mayhew3.drafttower.client.SchedulerWrapper;
+import com.mayhew3.drafttower.client.LiveScheduler;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
@@ -130,7 +130,7 @@ public class ServerRpcImpl implements ServerRpc {
       final Runnable callback) {
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
 
-    new RequestCallbackWithBackoff(new SchedulerWrapper()) {
+    new RequestCallbackWithBackoff(new LiveScheduler()) {
       @Override
       public void onResponseReceived(Request request, Response response) {
         callback.run();
@@ -145,7 +145,7 @@ public class ServerRpcImpl implements ServerRpc {
       final Function<R, Void> callback) {
     RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, url);
 
-    new RequestCallbackWithBackoff(new SchedulerWrapper()) {
+    new RequestCallbackWithBackoff(new LiveScheduler()) {
       @Override
       public void onResponseReceived(Request request, Response response) {
         R decodedResponse = AutoBeanCodex.decode(
