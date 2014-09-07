@@ -213,5 +213,6 @@ public class MainPageWidget extends Composite implements
     super.onEnsureDebugId(baseID);
     loginWidget.ensureDebugId(baseID + "-login");
     logout.ensureDebugId(baseID + "-logout");
+    connectivityIndicator.ensureDebugId(baseID + "-conn");
   }
 }

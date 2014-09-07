@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.inject.client.GinModules;
 import com.google.gwt.inject.client.Ginjector;
+import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.server.TeamDraftOrder;
 import com.mayhew3.drafttower.shared.DraftStatus;
@@ -14,6 +15,8 @@ import java.util.Map;
 @GinModules(DraftTowerTestGinModule.class)
 public interface DraftTowerTestGinjector extends Ginjector {
   MainPageWidget getMainPageWidget();
+
+  Websocket getWebSocket();
 
   DraftStatus getDraftStatus();
   @TeamTokens Map<String, TeamDraftOrder> getTeamTokens();

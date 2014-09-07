@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public abstract class TestBase extends GWTTestCase {
 
   private static final Logger logger = Logger.getLogger(TestBase.class.getName());
+
   protected static final String LOGIN_WIDGET = "-login";
   protected static final String USERNAME = "-login-username";
   protected static final String PASSWORD = "-login-password";
@@ -24,6 +25,8 @@ public abstract class TestBase extends GWTTestCase {
   protected static final String INVALID_LOGIN = "-login-invalid";
   protected static final String ALREADY_LOGGED_IN = "-login-already";
   protected static final String LOGOUT_LINK = "-logout";
+
+  protected static final String CONNECTIVITY_INDICATOR = "-conn";
 
   protected DraftTowerTestGinjector ginjector;
   protected MainPageWidget mainPageWidget;
@@ -93,6 +96,11 @@ public abstract class TestBase extends GWTTestCase {
   protected boolean isFocused(String debugId) {
     ensureDebugIdAndGetElement(debugId, true);
     return (UIObject.DEBUG_ID_PREFIX + debugId).equals(getFocusedElementId());
+  }
+
+  protected boolean hasStyle(String debugId, String style) {
+    Element element = ensureDebugIdAndGetElement(debugId, true);
+    return element.hasClassName(style);
   }
 
   protected void login(int team) {

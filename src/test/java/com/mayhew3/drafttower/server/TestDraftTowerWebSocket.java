@@ -7,6 +7,7 @@ import com.mayhew3.drafttower.client.websocket.WebsocketListener;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
+import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -58,6 +59,9 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
     for (DraftCommandListener serverListener : serverListeners) {
       serverListener.onClientDisconnected(teamsInfo.getTeamToken());
     }
+    for (WebsocketListener clientListener : clientListeners) {
+      clientListener.onClose(SocketTerminationReason.UNKNOWN_REASON);
+    }
   }
 
   @Override
@@ -70,6 +74,9 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
     clientOpened = true;
     for (DraftCommandListener serverListener : serverListeners) {
       serverListener.onClientConnected();
+    }
+    for (WebsocketListener clientListener : clientListeners) {
+      clientListener.onOpen();
     }
   }
 

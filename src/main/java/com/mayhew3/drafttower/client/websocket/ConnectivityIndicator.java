@@ -27,7 +27,7 @@ public class ConnectivityIndicator extends Composite implements
     Css css();
   }
 
-  private static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
+  static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
   static {
     CSS.ensureInjected();
   }
