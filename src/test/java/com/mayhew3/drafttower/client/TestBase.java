@@ -8,6 +8,10 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.TestDraftTowerWebSocket;
+import com.mayhew3.drafttower.shared.DraftStatus;
 
 import java.util.logging.Logger;
 
@@ -113,13 +117,19 @@ public abstract class TestBase extends GWTTestCase {
     return $doc.activeElement.id;
   }-*/;
 
-  private Element ensureDebugIdAndGetElement(String debugId, boolean assertElementPresent) {
+  protected Element ensureDebugIdAndGetElement(String debugId, boolean assertElementPresent) {
     mainPageWidget.ensureDebugId("");
     Element element = Document.get().getElementById(UIObject.DEBUG_ID_PREFIX + debugId);
     if (assertElementPresent && element == null) {
-      logger.severe(Document.get().getBody().getInnerHTML());
+      String innerHTML = Document.get().getBody().getInnerHTML();
+      logger.severe(innerHTML);
       throw new AssertionError("Couldn't find element " + debugId);
     }
     return element;
+  }
+
+  protected void simulateDraftStatus(DraftStatus status) {
+    String payload = AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
+    ((TestDraftTowerWebSocket) ginjector.getWebSocket()).sendMessage(payload);
   }
 }

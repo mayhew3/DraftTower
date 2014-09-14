@@ -10,6 +10,8 @@ import java.util.List;
  * Convenience methods for testing draft status.
  */
 public class DraftStatusTestUtil {
+  private static int serialId = 0;
+
   public static DraftStatus createDraftStatus(List<DraftPick> picks, BeanFactory beanFactory) {
     DraftStatus draftStatus = beanFactory.createDraftStatus().as();
     draftStatus.setPicks(Lists.newArrayList(picks));
@@ -20,6 +22,7 @@ public class DraftStatusTestUtil {
     draftStatus.setConnectedTeams(new HashSet<Integer>());
     draftStatus.setNextPickKeeperTeams(new HashSet<Integer>());
     draftStatus.setRobotTeams(new HashSet<Integer>());
+    draftStatus.setSerialId(serialId++);
     return draftStatus;
   }
 

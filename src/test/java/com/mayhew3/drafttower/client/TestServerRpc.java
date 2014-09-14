@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test implementation of {@link com.mayhew3.drafttower.client.serverrpc.ServerRpc}.
+ * Test implementation of {@link ServerRpc}.
  */
 public class TestServerRpc implements ServerRpc {
 
