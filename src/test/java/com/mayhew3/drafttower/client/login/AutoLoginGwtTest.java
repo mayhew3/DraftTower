@@ -17,7 +17,7 @@ public class AutoLoginGwtTest extends TestBase {
     ginjector.getTeamTokens().put("asdf", new TeamDraftOrder(1));
     super.reset();
     assertFalse(isVisible("-login"));
-    assertFalse(ginjector.getDraftStatus().getConnectedTeams().contains(1));
+    assertTrue(ginjector.getDraftStatus().getConnectedTeams().contains(1));
   }
 
   public void testBadLogin() {

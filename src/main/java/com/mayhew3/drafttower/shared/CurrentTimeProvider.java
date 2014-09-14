@@ -1,4 +1,6 @@
-package com.mayhew3.drafttower.client.clock;
+package com.mayhew3.drafttower.shared;
+
+import com.google.inject.Singleton;
 
 /**
  * Interface providing current time.
@@ -13,6 +15,7 @@ public interface CurrentTimeProvider {
     }
   }
 
+  @Singleton
   public static class FakeCurrentTimeProvider implements CurrentTimeProvider {
     private long currentTimeMillis;
 

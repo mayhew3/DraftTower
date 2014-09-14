@@ -8,11 +8,10 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
-import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.mayhew3.drafttower.server.TestDraftTowerWebSocket;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -117,6 +116,16 @@ public abstract class TestBase extends GWTTestCase {
     return $doc.activeElement.id;
   }-*/;
 
+  protected String getInnerText(String debugId) {
+    Element element = ensureDebugIdAndGetElement(debugId, true);
+    return element.getInnerText();
+  }
+
+  protected String getInnerHTML(String debugId) {
+    Element element = ensureDebugIdAndGetElement(debugId, true);
+    return element.getInnerHTML();
+  }
+
   protected Element ensureDebugIdAndGetElement(String debugId, boolean assertElementPresent) {
     mainPageWidget.ensureDebugId("");
     Element element = Document.get().getElementById(UIObject.DEBUG_ID_PREFIX + debugId);
@@ -128,8 +137,27 @@ public abstract class TestBase extends GWTTestCase {
     return element;
   }
 
-  protected void simulateDraftStatus(DraftStatus status) {
-    String payload = AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
-    ((TestDraftTowerWebSocket) ginjector.getWebSocket()).sendMessage(payload);
+  protected void simulateDraftStatus(DraftStatus newStatus) {
+    DraftStatus status = ginjector.getDraftStatus();
+    status.setConnectedTeams(newStatus.getConnectedTeams());
+    status.setCurrentPickDeadline(newStatus.getCurrentPickDeadline());
+    status.setCurrentTeam(newStatus.getCurrentTeam());
+    status.setNextPickKeeperTeams(newStatus.getNextPickKeeperTeams());
+    status.setOver(newStatus.isOver());
+    status.setPaused(newStatus.isPaused());
+    status.setPicks(newStatus.getPicks());
+    status.setRobotTeams(newStatus.getRobotTeams());
+    long oldSerialId = status.getSerialId();
+    status.setSerialId(newStatus.getSerialId());
+
+    // Diff new status with copied status to protect against forgetting to add new fields here.
+    Map<String, Object> diff = AutoBeanUtils.diff(
+        AutoBeanUtils.getAutoBean(status),
+        AutoBeanUtils.getAutoBean(newStatus));
+    assertTrue(diff.keySet().toString(), diff.isEmpty());
+
+    status.setSerialId(oldSerialId + 1);
+
+    ginjector.getDraftController().sendStatusUpdates();
   }
 }

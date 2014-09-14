@@ -2,8 +2,6 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
-import com.mayhew3.drafttower.client.clock.CurrentTimeProvider;
-import com.mayhew3.drafttower.client.clock.CurrentTimeProvider.FakeCurrentTimeProvider;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.server.BindingAnnotations.DraftTimerListenerList;
@@ -29,11 +27,10 @@ public class DraftTowerTestGinModule extends AbstractGinModule {
     install(new TestServerModule());
     install(new DraftTowerTestSafeGinModule());
 
-    bind(CurrentTimeProvider.class).to(FakeCurrentTimeProvider.class);
     bind(Lock.class).to(ClientTestLock.class);
     bind(SchedulerWrapper.class).to(TestScheduler.class).in(Singleton.class);
     bind(ServerRpc.class).to(TestServerRpc.class).in(Singleton.class);
     bind(TokenGenerator.class).to(ClientTestTokenGenerator.class);
-    bind(Websocket.class).to(TestDraftTowerWebSocket.class).in(Singleton.class);
+    bind(Websocket.class).to(TestDraftTowerWebSocket.class);
   }
 }

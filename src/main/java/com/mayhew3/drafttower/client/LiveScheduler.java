@@ -17,4 +17,15 @@ public class LiveScheduler implements SchedulerWrapper {
       }
     }, delayMs);
   }
+
+  @Override
+  public void scheduleRepeating(final Runnable runnable, int periodMs) {
+    Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
+      @Override
+      public boolean execute() {
+        runnable.run();
+        return true;
+      }
+    }, periodMs);
+  }
 }

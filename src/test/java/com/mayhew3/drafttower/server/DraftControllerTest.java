@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.*;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider.FakeCurrentTimeProvider;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +63,7 @@ public class DraftControllerTest {
         beanFactory,
         playerDataSource,
         Mockito.mock(TeamDataSource.class),
+        new FakeCurrentTimeProvider(),
         Mockito.mock(DraftTimer.class),
         draftStatus,
         new LockImpl(),

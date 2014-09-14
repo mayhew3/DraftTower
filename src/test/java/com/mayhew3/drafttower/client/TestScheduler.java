@@ -12,19 +12,31 @@ import java.util.List;
 public class TestScheduler implements SchedulerWrapper {
 
   private final List<Runnable> tasks = new ArrayList<>();
+  private final List<Runnable> repeatingTasks = new ArrayList<>();
 
   @Override
   public void schedule(Runnable runnable, int delayMs) {
     tasks.add(runnable);
   }
 
-  public void advance() {
+  @Override
+  public void scheduleRepeating(Runnable runnable, int periodMs) {
+    repeatingTasks.add(runnable);
+  }
+
+  public void runNextScheduled() {
     tasks.remove(0).run();
   }
 
   public void flush() {
     while (!tasks.isEmpty()) {
-      advance();
+      runNextScheduled();
+    }
+  }
+
+  public void runRepeating() {
+    for (Runnable repeatingTask : repeatingTasks) {
+      repeatingTask.run();
     }
   }
 }

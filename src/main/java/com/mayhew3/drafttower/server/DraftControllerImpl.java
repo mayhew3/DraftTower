@@ -38,6 +38,7 @@ public class DraftControllerImpl implements DraftController {
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
   private final TeamDataSource teamDataSource;
+  private final CurrentTimeProvider currentTimeProvider;
   private final DraftTimer draftTimer;
   private final RosterUtil rosterUtil;
 
@@ -56,6 +57,7 @@ public class DraftControllerImpl implements DraftController {
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
+      CurrentTimeProvider currentTimeProvider,
       DraftTimer draftTimer,
       DraftStatus status,
       Lock lock,
@@ -69,6 +71,7 @@ public class DraftControllerImpl implements DraftController {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.teamDataSource = teamDataSource;
+    this.currentTimeProvider = currentTimeProvider;
     this.draftTimer = draftTimer;
     this.rosterUtil = rosterUtil;
     this.teamTokens = teamTokens;
@@ -236,7 +239,7 @@ public class DraftControllerImpl implements DraftController {
     long pickLengthMs = status.getRobotTeams().contains(status.getCurrentTeam())
         ? ROBOT_PICK_LENGTH_MS
         : PICK_LENGTH_MS;
-    status.setCurrentPickDeadline(System.currentTimeMillis() + pickLengthMs);
+    status.setCurrentPickDeadline(currentTimeProvider.getCurrentTimeMillis() + pickLengthMs);
     status.setPaused(false);
 
     int round = status.getPicks().size() / numTeams;
@@ -290,11 +293,11 @@ public class DraftControllerImpl implements DraftController {
   private void pausePick() {
     draftTimer.cancel();
     status.setPaused(true);
-    pausedPickTime = status.getCurrentPickDeadline() - System.currentTimeMillis();
+    pausedPickTime = status.getCurrentPickDeadline() - currentTimeProvider.getCurrentTimeMillis();
   }
 
   private void resumePick() {
-    status.setCurrentPickDeadline(System.currentTimeMillis() + pausedPickTime);
+    status.setCurrentPickDeadline(currentTimeProvider.getCurrentTimeMillis() + pausedPickTime);
     status.setPaused(false);
     startPickTimer(pausedPickTime);
     pausedPickTime = 0;
@@ -358,7 +361,8 @@ public class DraftControllerImpl implements DraftController {
     }
   }
 
-  private void sendStatusUpdates() {
+  @VisibleForTesting
+  public void sendStatusUpdates() {
     socketServlet.sendMessage(getEncodedStatus());
   }
 

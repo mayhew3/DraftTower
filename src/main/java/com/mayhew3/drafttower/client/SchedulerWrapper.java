@@ -5,4 +5,5 @@ package com.mayhew3.drafttower.client;
  */
 public interface SchedulerWrapper {
   void schedule(Runnable runnable, int delayMs);
+  void scheduleRepeating(Runnable runnable, int periodMs);
 }

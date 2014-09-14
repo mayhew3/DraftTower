@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider;
 import com.mayhew3.drafttower.shared.DraftCommand;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -57,7 +58,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
     public void onMessage(String msg) {
       if (msg.startsWith(ServletEndpoints.CLOCK_SYNC)) {
         try {
-          connection.sendMessage(msg + ServletEndpoints.CLOCK_SYNC_SEP + System.currentTimeMillis());
+          connection.sendMessage(msg + ServletEndpoints.CLOCK_SYNC_SEP + currentTimeProvider.getCurrentTimeMillis());
         } catch (IOException e) {
           // welp
         }
@@ -88,13 +89,16 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
   }
 
   private final BeanFactory beanFactory;
+  private final CurrentTimeProvider currentTimeProvider;
 
   private final List<DraftCommandListener> listeners = new CopyOnWriteArrayList<>();
   private final Set<DraftTowerWebSocket> openSockets = new ConcurrentHashSet<>();
 
   @Inject
-  public DraftTowerWebSocketServlet(BeanFactory beanFactory) {
+  public DraftTowerWebSocketServlet(BeanFactory beanFactory,
+      CurrentTimeProvider currentTimeProvider) {
     this.beanFactory = beanFactory;
+    this.currentTimeProvider = currentTimeProvider;
   }
 
   @Override

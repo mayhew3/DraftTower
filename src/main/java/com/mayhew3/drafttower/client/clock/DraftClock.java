@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client.clock;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -12,6 +11,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.SchedulerWrapper;
 
 /**
  * Widget for displaying the draft clock.
@@ -45,18 +45,18 @@ public class DraftClock extends Composite implements ClockView {
   @UiField Label playPause;
 
   @Inject
-  public DraftClock(final ClockPresenter presenter) {
+  public DraftClock(final ClockPresenter presenter,
+      SchedulerWrapper scheduler) {
     this.presenter = presenter;
 
     initWidget(uiBinder.createAndBindUi(this));
 
     playPause.setVisible(false);
 
-    Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+    scheduler.scheduleRepeating(new Runnable() {
       @Override
-      public boolean execute() {
+      public void run() {
         presenter.update();
-        return true;
       }
     }, ClockPresenter.MILLIS_PER_SECOND / 4);
 
@@ -88,5 +88,12 @@ public class DraftClock extends Composite implements ClockView {
   public void updatePaused(boolean paused, boolean canPlay) {
     clockDisplay.setStyleName(CSS.paused(), paused);
     playPause.setText(canPlay ? "▸" : "❙❙");
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    clockDisplay.ensureDebugId(baseID + "-display");
+    playPause.ensureDebugId(baseID + "-playPause");
   }
 }

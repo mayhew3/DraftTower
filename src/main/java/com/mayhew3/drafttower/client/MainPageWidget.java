@@ -217,5 +217,6 @@ public class MainPageWidget extends Composite implements
     logout.ensureDebugId(baseID + "-logout");
     connectivityIndicator.ensureDebugId(baseID + "-conn");
     audioWidget.ensureDebugId(baseID + "-audio");
+    clock.ensureDebugId(baseID + "-clock");
   }
 }

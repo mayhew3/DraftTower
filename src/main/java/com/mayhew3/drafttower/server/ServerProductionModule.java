@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.BeanFactory;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider.CurrentTimeProviderImpl;
 
 import javax.inject.Singleton;
 import javax.naming.Context;
@@ -29,6 +31,7 @@ public class ServerProductionModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
     bind(DraftTimer.class).to(DraftTimerImpl.class).in(Singleton.class);
     bind(DraftTowerWebSocket.class).to(DraftTowerWebSocketServlet.class).in(Singleton.class);
     bind(Lock.class).to(LockImpl.class);

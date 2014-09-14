@@ -1,6 +1,8 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.gwt.inject.client.AbstractGinModule;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider.FakeCurrentTimeProvider;
 
 import javax.inject.Singleton;
 
@@ -10,8 +12,9 @@ import javax.inject.Singleton;
 public class TestServerModule extends AbstractGinModule {
   @Override
   protected void configure() {
+    bind(CurrentTimeProvider.class).to(FakeCurrentTimeProvider.class);
     bind(DraftTimer.class).to(TestDraftTimer.class).in(Singleton.class);
-    bind(DraftTowerWebSocket.class).to(TestDraftTowerWebSocket.class).in(Singleton.class);
+    bind(DraftTowerWebSocket.class).to(TestDraftTowerWebSocket.class);
     bind(PlayerDataSource.class).to(TestPlayerDataSource.class).in(Singleton.class);
     bind(TeamDataSource.class).to(TestTeamDataSource.class).in(Singleton.class);
   }

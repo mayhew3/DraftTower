@@ -8,6 +8,7 @@ import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.PlayPauseEvent;
 import com.mayhew3.drafttower.client.events.SocketDisconnectEvent;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
 /**
