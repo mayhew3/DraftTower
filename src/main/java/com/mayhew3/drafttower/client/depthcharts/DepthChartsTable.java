@@ -4,11 +4,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.UIObject;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.shared.DraftPick;
@@ -58,5 +60,22 @@ public class DepthChartsTable extends CellTable<Integer>  {
         return builder.toSafeHtml();
       }
     };
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    for (int row = 0; row < getRowCount() + 1; row++) {
+      for (int col = 0; col < getColumnCount(); col++) {
+        TableRowElement rowElement;
+        if (row == 0) {
+          rowElement = getTableHeadElement().getRows().getItem(0);
+        } else {
+          rowElement = getRowElement(row - 1);
+        }
+        UIObject.ensureDebugId(rowElement.getCells().getItem(col),
+            baseID + "-" + row + "-" + col);
+      }
+    }
   }
 }

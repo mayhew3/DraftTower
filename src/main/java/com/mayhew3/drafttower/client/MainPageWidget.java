@@ -87,6 +87,7 @@ public class MainPageWidget extends Composite implements
   @UiField DivElement queueArea;
 
   private final PopupPanel depthChartsPopup;
+  private final DepthChartsTable depthChartsTable;
   private final PopupPanel barGraphsPopup;
   private final PopupPanel playerPopup;
   private final Frame playerPopupFrame;
@@ -120,6 +121,7 @@ public class MainPageWidget extends Composite implements
     this.unclaimedPlayers = unclaimedPlayers;
     this.queueTable = queueTable;
     this.audioWidget = audioWidget;
+    this.depthChartsTable = depthChartsTable;
     this.loginPresenter = loginPresenter;
 
     initWidget(uiBinder.createAndBindUi(this));
@@ -218,5 +220,7 @@ public class MainPageWidget extends Composite implements
     connectivityIndicator.ensureDebugId(baseID + "-conn");
     audioWidget.ensureDebugId(baseID + "-audio");
     clock.ensureDebugId(baseID + "-clock");
+    showDepthCharts.ensureDebugId(baseID + "-showDepthCharts");
+    depthChartsTable.ensureDebugId(baseID + "-depthCharts");
   }
 }
