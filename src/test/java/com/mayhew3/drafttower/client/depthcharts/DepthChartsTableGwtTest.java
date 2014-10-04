@@ -8,7 +8,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * GWT tests for depth charts table widget.
  */
-public class DepthChartsTableTest extends TestBase {
+public class DepthChartsTableGwtTest extends TestBase {
 
   private static final Position[][] POSITIONS = {
       {P, P, P, P},

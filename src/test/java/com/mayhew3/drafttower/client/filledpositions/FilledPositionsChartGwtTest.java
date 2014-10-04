@@ -8,7 +8,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * GWT tests for filled positions chart widget.
  */
-public class FilledPositionsChartTest extends TestBase {
+public class FilledPositionsChartGwtTest extends TestBase {
 
   private static final Position[][] POSITIONS = {
       {P, P, P, P},

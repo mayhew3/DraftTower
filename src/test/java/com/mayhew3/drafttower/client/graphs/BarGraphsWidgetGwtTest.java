@@ -8,7 +8,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * GWT tests for bar graphs.
  */
-public class BarGraphsWidgetTest extends TestBase {
+public class BarGraphsWidgetGwtTest extends TestBase {
 
   private static final Position[][] POSITIONS = {
       {P, FB, TB, OF},
