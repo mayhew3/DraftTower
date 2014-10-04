@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client.websocket;
+package com.mayhew3.drafttower.client.audio;
 
 import com.google.common.collect.Lists;
 import com.google.gwt.dom.client.IFrameElement;
