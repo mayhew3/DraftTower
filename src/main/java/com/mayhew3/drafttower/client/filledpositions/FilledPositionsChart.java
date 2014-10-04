@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client.filledpositions;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -12,6 +13,7 @@ import com.mayhew3.drafttower.shared.Position;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Chart showing proportion of teams which have filled each position so far.
@@ -36,7 +38,8 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
     CSS.ensureInjected();
   }
 
-  private static final String[] colors = {
+  @VisibleForTesting
+  static final String[] colors = {
       "#00FF00",
       "#30FF00",
       "#60FF00",
@@ -98,6 +101,18 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
       barLabels.get(position).setText(numerator + "/" + denominator);
       bars.get(position).setWidth(((numerator / (float) denominator) * 100) + "px");
       bars.get(position).getElement().getStyle().setBackgroundColor(colors[numerator * 10 / denominator]);
+    }
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    for (Entry<Position, Label> bar : bars.entrySet()) {
+      bar.getValue().ensureDebugId(baseID + "-" + bar.getKey().getShortName());
+    }
+    for (Entry<Position, InlineLabel> barLabel : barLabels.entrySet()) {
+      barLabel.getValue().ensureDebugId(
+          baseID + "-" + barLabel.getKey().getShortName() + "label");
     }
   }
 }

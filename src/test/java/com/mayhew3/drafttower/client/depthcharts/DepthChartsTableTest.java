@@ -1,11 +1,6 @@
 package com.mayhew3.drafttower.client.depthcharts;
 
 import com.mayhew3.drafttower.client.TestBase;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.DraftStatusTestUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * GWT tests for depth charts table widget.
@@ -27,18 +22,7 @@ public class DepthChartsTableTest extends TestBase {
 
   public void testDepthChartsTableContents() {
     login(1);
-    List<DraftPick> picks = new ArrayList<>();
-    for (int round = 0; round < POSITIONS[0].length; round++) {
-      for (int team = 1; team <= POSITIONS.length; team++) {
-        String position = POSITIONS[team - 1][round];
-        if (!position.isEmpty()) {
-          picks.add(DraftStatusTestUtil.createDraftPick(
-              team, "Guy " + round + team, false, position, ginjector.getBeanFactory()));
-        }
-      }
-    }
-    simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
-        picks, ginjector.getBeanFactory()));
+    simulateDraftStatus(POSITIONS);
     click("-showDepthCharts");
     assertTrue(isVisible("-depthCharts"));
 

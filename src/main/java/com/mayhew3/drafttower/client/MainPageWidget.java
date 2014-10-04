@@ -222,5 +222,6 @@ public class MainPageWidget extends Composite implements
     clock.ensureDebugId(baseID + "-clock");
     showDepthCharts.ensureDebugId(baseID + "-showDepthCharts");
     depthChartsTable.ensureDebugId(baseID + "-depthCharts");
+    filledPositionsChart.ensureDebugId(baseID + "-filledPositions");
   }
 }

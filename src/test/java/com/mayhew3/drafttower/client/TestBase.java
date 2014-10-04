@@ -9,8 +9,12 @@ import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.DraftStatusTestUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -159,5 +163,20 @@ public abstract class TestBase extends GWTTestCase {
     status.setSerialId(oldSerialId + 1);
 
     ginjector.getDraftController().sendStatusUpdates();
+  }
+
+  protected void simulateDraftStatus(String[][] positions) {
+    List<DraftPick> picks = new ArrayList<>();
+    for (int round = 0; round < positions[0].length; round++) {
+      for (int team = 1; team <= positions.length; team++) {
+        String position = positions[team - 1][round];
+        if (!position.isEmpty()) {
+          picks.add(DraftStatusTestUtil.createDraftPick(
+              team, "Guy " + round + team, false, position, ginjector.getBeanFactory()));
+        }
+      }
+    }
+    simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
+        picks, ginjector.getBeanFactory()));
   }
 }
