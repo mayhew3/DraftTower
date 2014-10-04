@@ -30,5 +30,5 @@ public interface PlayerDataSource {
 
   void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws DataSourceException;
 
-  GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws DataSourceException;
+  GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException;
 }

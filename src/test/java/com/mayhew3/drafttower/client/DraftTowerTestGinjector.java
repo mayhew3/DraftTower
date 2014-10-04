@@ -6,6 +6,7 @@ import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.server.DraftControllerImpl;
 import com.mayhew3.drafttower.server.TeamDraftOrder;
 import com.mayhew3.drafttower.server.TestDraftTowerWebSocket;
+import com.mayhew3.drafttower.server.TestPlayerDataSource;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider.FakeCurrentTimeProvider;
 import com.mayhew3.drafttower.shared.DraftStatus;
@@ -24,6 +25,7 @@ public interface DraftTowerTestGinjector extends Ginjector {
   TestDraftTowerWebSocket getWebSocket();
   TestScheduler getScheduler();
   DraftControllerImpl getDraftController();
+  TestPlayerDataSource getPlayerDataSource();
   FakeCurrentTimeProvider getCurrentTimeProvider();
 
   DraftStatus getDraftStatus();

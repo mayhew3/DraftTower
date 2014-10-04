@@ -4,8 +4,11 @@ import com.google.common.base.Function;
 import com.google.gwt.user.client.Cookies;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
+import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.server.DataSourceException;
 import com.mayhew3.drafttower.server.LoginHandler;
+import com.mayhew3.drafttower.server.PlayerDataSource;
+import com.mayhew3.drafttower.server.TeamDraftOrder;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
@@ -18,10 +21,16 @@ import java.util.Map;
 public class TestServerRpc implements ServerRpc {
 
   private final LoginHandler loginHandler;
+  private final PlayerDataSource playerDataSource;
+  private final Map<String, TeamDraftOrder> teamTokens;
 
   @Inject
-  public TestServerRpc(LoginHandler loginHandler) {
+  public TestServerRpc(LoginHandler loginHandler,
+      PlayerDataSource playerDataSource,
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     this.loginHandler = loginHandler;
+    this.playerDataSource = playerDataSource;
+    this.teamTokens = teamTokens;
   }
 
   @Override
@@ -70,8 +79,14 @@ public class TestServerRpc implements ServerRpc {
   }
 
   @Override
-  public void sendGraphsRequest(AutoBean<GetGraphsDataRequest> requestBean, Function<GraphsData, Void> callback) {
-    // TODO(kprevas): implement
+  public void sendGraphsRequest(AutoBean<GetGraphsDataRequest> requestBean,
+      Function<GraphsData, Void> callback) {
+    try {
+      callback.apply(playerDataSource.getGraphsData(
+          teamTokens.get(requestBean.as().getTeamToken())));
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

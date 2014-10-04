@@ -12,6 +12,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.DraftStatusTestUtil;
+import com.mayhew3.drafttower.shared.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,17 +163,18 @@ public abstract class TestBase extends GWTTestCase {
 
     status.setSerialId(oldSerialId + 1);
 
+    ginjector.getPlayerDataSource().setDraftPicks(status.getPicks());
     ginjector.getDraftController().sendStatusUpdates();
   }
 
-  protected void simulateDraftStatus(String[][] positions) {
+  protected void simulateDraftStatus(Position[][] positions) {
     List<DraftPick> picks = new ArrayList<>();
     for (int round = 0; round < positions[0].length; round++) {
       for (int team = 1; team <= positions.length; team++) {
-        String position = positions[team - 1][round];
-        if (!position.isEmpty()) {
-          picks.add(DraftStatusTestUtil.createDraftPick(
-              team, "Guy " + round + team, false, position, ginjector.getBeanFactory()));
+        Position position = positions[team - 1][round];
+        if (position != null) {
+          picks.add(DraftStatusTestUtil.createAndPostDraftPick(
+              team, "Guy " + round + team, false, position, ginjector.getBeanFactory(), ginjector.getPlayerDataSource()));
         }
       }
     }

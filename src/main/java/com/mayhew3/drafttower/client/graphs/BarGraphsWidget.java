@@ -8,16 +8,13 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.LegendPosition;
-import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.corechart.*;
-import com.google.gwt.visualization.client.visualizations.corechart.CoreChart.Type;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 
@@ -57,22 +54,27 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
       .put(S, 120f)
       .build();
 
+  private final BarGraphsApi api;
+
   private final FlowPanel container;
+  private final Map<PlayerColumn, Widget> barGraphs = new HashMap<>();
 
   private boolean apiLoaded;
 
   @Inject
-  public BarGraphsWidget(final BarGraphsPresenter presenter) {
+  public BarGraphsWidget(final BarGraphsPresenter presenter,
+      final BarGraphsApi api) {
+    this.api = api;
     container = new FlowPanel();
     container.setSize("820px", "750px");
     addLabels();
 
-    VisualizationUtils.loadVisualizationApi(new Runnable() {
+    api.loadVisualizationApi(new Runnable() {
       @Override
       public void run() {
         apiLoaded = true;
       }
-    }, CoreChart.PACKAGE);
+    });
 
     addAttachHandler(new AttachEvent.Handler() {
       @Override
@@ -100,6 +102,7 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
   public void clear() {
     if (apiLoaded) {
       container.clear();
+      barGraphs.clear();
       addLabels();
     }
   }
@@ -107,35 +110,24 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
   @Override
   public void updateBar(PlayerColumn statColumn,
       Float myValue, Float avgValue) {
-    DataTable data = DataTable.create();
-    data.addColumn(ColumnType.STRING);
-    data.addColumn(ColumnType.NUMBER, "Me");
-    data.addColumn(ColumnType.NUMBER, "Avg");
-    data.addRows(1);
-    data.setValue(0, 0, "");
-    data.setValue(0, 1, myValue);
-    data.setValue(0, 2, avgValue);
-    BarChart barChart = new BarChart(data, getOptions(statColumn));
-    barChart.addStyleName(CSS.graph());
-    container.add(barChart);
+    Widget barGraph = api.createBarGraph(
+        statColumn.getLongName(),
+        new String[] {"Me", "Avg"},
+        new float[] {
+            myValue == null ? 0 : myValue,
+            avgValue == null ? 0 : avgValue,
+        },
+        MAX_VALUES.get(statColumn));
+    barGraph.addStyleName(CSS.graph());
+    container.add(barGraph);
+    barGraphs.put(statColumn, barGraph);
   }
 
-  private Options getOptions(PlayerColumn graphStat) {
-    Options options = Options.create();
-    options.setType(Type.BARS);
-    options.setColors("#aa4643", "#4572a7");
-    options.setWidth(400);
-    options.setHeight(100);
-    options.set("enableInteractivity", false);
-    options.setTitle(graphStat.getLongName());
-    TextStyle titleTextStyle = TextStyle.create();
-    titleTextStyle.setFontSize(12);
-    options.setTitleTextStyle(titleTextStyle);
-    options.setLegend(LegendPosition.NONE);
-    AxisOptions hAxisOptions = AxisOptions.create();
-    hAxisOptions.setMinValue(0);
-    hAxisOptions.setMaxValue(MAX_VALUES.get(graphStat));
-    options.setHAxisOptions(hAxisOptions);
-    return options;
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    for (Entry<PlayerColumn, Widget> barGraph : barGraphs.entrySet()) {
+      barGraph.getValue().ensureDebugId(baseID + "-" + barGraph.getKey().getShortName());
+    }
   }
 }

@@ -648,8 +648,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
 
   @Override
-  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws DataSourceException {
-    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
+  public GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException {
+    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(myTeam);
     String sql = "select * from teamscoringwithzeroes";
 
     GraphsData graphsData = beanFactory.createGraphsData().as();

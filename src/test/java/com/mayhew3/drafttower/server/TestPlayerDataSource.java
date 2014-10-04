@@ -3,16 +3,20 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
 import java.util.*;
 
+import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
+import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
  * {@link PlayerDataSource} for testing.
  */
+@Singleton
 public class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
@@ -123,35 +127,77 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) {
+  public GraphsData getGraphsData(TeamDraftOrder myTeam) {
     GraphsData graphsData = beanFactory.createGraphsData().as();
-    Map<PlayerColumn, Float> myValues = new HashMap<>();
-    graphsData.setMyValues(myValues);
-    Map<PlayerColumn, Float> avgValues = new HashMap<>();
-    graphsData.setAvgValues(avgValues);
+    Map<Integer, Map<PlayerColumn, Float>> teamValues = new HashMap<>();
+    Map<Integer, Integer> pitchersPerTeam = new HashMap<>();
+    Map<Integer, Integer> battersPerTeam = new HashMap<>();
+    for (int i = 1; i <= 10; i++) {
+      teamValues.put(i, new HashMap<PlayerColumn, Float>());
+      pitchersPerTeam.put(i, 0);
+      battersPerTeam.put(i, 0);
+    }
 
     for (DraftPick draftPick : draftPicks) {
       Player player = allPlayers.get(draftPick.getPlayerId());
-      boolean myPick = draftPick.getTeam() == teamDraftOrder.get();
+      int team = draftPick.getTeam();
+      Map<PlayerColumn, Float> values = teamValues.get(team);
       for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
         String valueStr = graphStat.get(player);
         if (valueStr != null) {
           float value = Float.parseFloat(valueStr);
-          if (myPick) {
-            if (!myValues.containsKey(graphStat)) {
-              myValues.put(graphStat, 0f);
+          if (values.containsKey(graphStat)) {
+            if (EnumSet.of(OBP, SLG, ERA, WHIP).contains(graphStat)) {
+              int oldDenom = EnumSet.of(OBP, SLG).contains(graphStat)
+                  ? pitchersPerTeam.get(team)
+                  : battersPerTeam.get(team);
+              int newDenom = oldDenom + 1;
+              values.put(graphStat, values.get(graphStat) * oldDenom / newDenom + value / newDenom);
+            } else {
+              values.put(graphStat, values.get(graphStat) + value);
             }
-            myValues.put(graphStat, myValues.get(graphStat) + value);
+          } else {
+            values.put(graphStat, value);
           }
-          if (!avgValues.containsKey(graphStat)) {
-            avgValues.put(graphStat, 0f);
-          }
-          avgValues.put(graphStat, avgValues.get(graphStat) + (value / 10));
         }
+      }
+      if (Position.apply(player, EnumSet.of(P))) {
+        pitchersPerTeam.put(team, pitchersPerTeam.get(team) + 1);
+      } else {
+        battersPerTeam.put(team, battersPerTeam.get(team) + 1);
       }
     }
 
+    graphsData.setMyValues(teamValues.get(myTeam.get()));
+    Map<PlayerColumn, Float> avgValues = new HashMap<>();
+    for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+      for (Integer team : teamValues.keySet()) {
+        Float teamStatValue = teamValues.get(team).get(graphStat);
+        if (teamStatValue != null) {
+          avgValues.put(graphStat,
+              (avgValues.containsKey(graphStat) ? avgValues.get(graphStat) : 0)
+                  + teamStatValue / 10);
+        }
+      }
+    }
+    graphsData.setAvgValues(avgValues);
+
     return graphsData;
+  }
+
+  public long getNextUnclaimedPlayer(Position position) {
+    for (long i = 0; i < allPlayers.size(); i++) {
+      if (availablePlayers.containsKey(i)
+          && Position.apply(availablePlayers.get(i), EnumSet.of(position))) {
+        return i;
+      }
+    }
+    throw new IllegalStateException("Out of players at " + position.getLongName());
+  }
+
+  public void setDraftPicks(List<DraftPick> draftPicks) {
+    this.draftPicks.clear();
+    this.draftPicks.addAll(draftPicks);
   }
 
   public void setKeepers(ListMultimap<TeamDraftOrder, Integer> keepers) {

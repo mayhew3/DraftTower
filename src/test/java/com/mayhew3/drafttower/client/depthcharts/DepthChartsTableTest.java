@@ -1,23 +1,26 @@
 package com.mayhew3.drafttower.client.depthcharts;
 
 import com.mayhew3.drafttower.client.TestBase;
+import com.mayhew3.drafttower.shared.Position;
+
+import static com.mayhew3.drafttower.shared.Position.*;
 
 /**
  * GWT tests for depth charts table widget.
  */
 public class DepthChartsTableTest extends TestBase {
 
-  private static final String[][] POSITIONS = {
-      {"P", "P", "P", "P"},
-      {"P", "1B", "3B", "OF"},
-      {"OF", "OF", "OF", "OF"},
-      {"1B", "1B", "1B", "1B"},
-      {"1B", "2B", "3B", ""},
-      {"1B", "2B", "3B", ""},
-      {"1B", "2B", "3B", ""},
-      {"1B", "2B", "3B", ""},
-      {"1B", "2B", "3B", ""},
-      {"1B", "2B", "3B", ""},
+  private static final Position[][] POSITIONS = {
+      {P, P, P, P},
+      {P, FB, TB, OF},
+      {OF, OF, OF, OF},
+      {FB, FB, FB, FB},
+      {FB, SB, TB, null},
+      {FB, SB, TB, null},
+      {FB, SB, TB, null},
+      {FB, SB, TB, null},
+      {FB, SB, TB, null},
+      {FB, SB, TB, null},
   };
 
   public void testDepthChartsTableContents() {

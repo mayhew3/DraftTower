@@ -89,6 +89,7 @@ public class MainPageWidget extends Composite implements
   private final PopupPanel depthChartsPopup;
   private final DepthChartsTable depthChartsTable;
   private final PopupPanel barGraphsPopup;
+  private final BarGraphsWidget barGraphsWidget;
   private final PopupPanel playerPopup;
   private final Frame playerPopupFrame;
 
@@ -106,7 +107,7 @@ public class MainPageWidget extends Composite implements
       PlayerTablePanel unclaimedPlayers,
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
-      BarGraphsWidget barGraphs,
+      BarGraphsWidget barGraphsWidget,
       AudioWidget audioWidget,
       EventBus eventBus,
       LoginPresenter loginPresenter) {
@@ -122,6 +123,7 @@ public class MainPageWidget extends Composite implements
     this.queueTable = queueTable;
     this.audioWidget = audioWidget;
     this.depthChartsTable = depthChartsTable;
+    this.barGraphsWidget = barGraphsWidget;
     this.loginPresenter = loginPresenter;
 
     initWidget(uiBinder.createAndBindUi(this));
@@ -140,7 +142,7 @@ public class MainPageWidget extends Composite implements
     barGraphsPopup.setAutoHideEnabled(true);
     barGraphsPopup.setGlassEnabled(true);
     barGraphsPopup.setGlassStyleName(CSS.glassPanel());
-    barGraphsPopup.setWidget(barGraphs);
+    barGraphsPopup.setWidget(barGraphsWidget);
 
     playerPopup = new PopupPanel();
     playerPopup.setModal(true);
@@ -222,6 +224,8 @@ public class MainPageWidget extends Composite implements
     clock.ensureDebugId(baseID + "-clock");
     showDepthCharts.ensureDebugId(baseID + "-showDepthCharts");
     depthChartsTable.ensureDebugId(baseID + "-depthCharts");
+    showBarGraphs.ensureDebugId(baseID + "-showBarGraphs");
+    barGraphsWidget.ensureDebugId(baseID + "-barGraphs");
     filledPositionsChart.ensureDebugId(baseID + "-filledPositions");
   }
 }

@@ -27,9 +27,9 @@ public class TestPlayerGenerator {
     player.setCBSId(playerId);
     player.setPlayerId(playerId);
     if (position == P) {
-      player.setG(Integer.toString(i));
-      player.setINN(Integer.toString(i));
-      player.setK(Integer.toString(i));
+      player.setG(Integer.toString(i / 5 + 1));
+      player.setINN(Integer.toString(i + 10));
+      player.setK(Integer.toString(i + 5));
       player.setERA(Float.toString(2 + i / 100f));
       player.setWHIP(Float.toString(1 + i / 100f));
       player.setS(Integer.toString(i));
@@ -37,11 +37,11 @@ public class TestPlayerGenerator {
       player.setWizardP(Float.toString(-3 + i / 20f));
     } else {
       player.setAB(Integer.toString(i * 40));
-      player.setHR(Integer.toString(i * 2));
-      player.setRBI(Integer.toString(i * 5));
-      player.setRHR(Integer.toString(i * 5));
-      player.setOBP(Float.toString(.25f + i / 10f));
-      player.setSLG(Float.toString(.4f + i / 5f));
+      player.setHR(Integer.toString(i));
+      player.setRBI(Integer.toString(i * 3));
+      player.setRHR(Integer.toString(i * 3));
+      player.setOBP(Float.toString(.25f + i / 100f));
+      player.setSLG(Float.toString(.4f + i / 50f));
       player.setSBCS(Integer.toString(i));
       switch (position) {
         case C:

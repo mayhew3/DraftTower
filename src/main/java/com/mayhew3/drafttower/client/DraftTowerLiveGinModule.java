@@ -4,6 +4,8 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.user.client.Window;
 import com.google.inject.Provides;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.*;
+import com.mayhew3.drafttower.client.graphs.BarGraphsApi;
+import com.mayhew3.drafttower.client.graphs.LiveBarGraphsApi;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpcImpl;
 import com.mayhew3.drafttower.client.websocket.Websocket;
@@ -86,6 +88,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
 
   @Override
   protected void configure() {
+    bind(BarGraphsApi.class).to(LiveBarGraphsApi.class);
     bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
     bind(SchedulerWrapper.class).to(LiveScheduler.class);
     bind(ServerRpc.class).to(ServerRpcImpl.class).in(Singleton.class);
