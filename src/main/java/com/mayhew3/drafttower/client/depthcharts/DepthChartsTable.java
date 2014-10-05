@@ -66,13 +66,13 @@ public class DepthChartsTable extends CellTable<Integer>  {
   protected void onEnsureDebugId(String baseID) {
     super.onEnsureDebugId(baseID);
     for (int row = 0; row < getRowCount() + 1; row++) {
+      TableRowElement rowElement;
+      if (row == 0) {
+        rowElement = getTableHeadElement().getRows().getItem(0);
+      } else {
+        rowElement = getRowElement(row - 1);
+      }
       for (int col = 0; col < getColumnCount(); col++) {
-        TableRowElement rowElement;
-        if (row == 0) {
-          rowElement = getTableHeadElement().getRows().getItem(0);
-        } else {
-          rowElement = getRowElement(row - 1);
-        }
         UIObject.ensureDebugId(rowElement.getCells().getItem(col),
             baseID + "-" + row + "-" + col);
       }

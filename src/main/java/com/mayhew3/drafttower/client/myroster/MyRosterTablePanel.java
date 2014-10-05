@@ -27,8 +27,11 @@ public class MyRosterTablePanel extends Composite {
     CSS.ensureInjected();
   }
 
+  private final MyRosterTable table;
+
   @Inject
   public MyRosterTablePanel(MyRosterTable table) {
+    this.table = table;
 
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
@@ -37,5 +40,10 @@ public class MyRosterTablePanel extends Composite {
     container.add(table);
 
     initWidget(container);
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    table.ensureDebugId(baseID);
   }
 }
