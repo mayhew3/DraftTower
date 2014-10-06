@@ -253,4 +253,11 @@ public class PlayerTablePanel extends Composite implements PlayerTablePanelView 
   public void setQueueAreaTopProvider(Provider<Integer> queueAreaTopProvider) {
     table.setQueueAreaTopProvider(queueAreaTopProvider);
   }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    // TODO(kprevas)
+    table.ensureDebugId(baseID + "-table");
+  }
 }

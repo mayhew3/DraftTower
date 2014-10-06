@@ -12,4 +12,8 @@
 
   <!-- Specify the app entry point class. -->
   <entry-point class='com.mayhew3.drafttower.client.DraftTowerTestEntryPoint'/>
+
+  <replace-with class='com.mayhew3.drafttower.client.TestSchedulerImpl'>
+    <when-type-is class='com.google.gwt.core.client.impl.SchedulerImpl'/>
+  </replace-with>
 </module>

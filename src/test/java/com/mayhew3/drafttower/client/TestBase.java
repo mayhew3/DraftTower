@@ -1,6 +1,8 @@
 package com.mayhew3.drafttower.client;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
@@ -47,7 +49,9 @@ public abstract class TestBase extends GWTTestCase {
   @Override
   protected void gwtSetUp() {
     ginjector = GWT.create(DraftTowerTestGinjector.class);
+    ((TestSchedulerImpl) Scheduler.get()).setScheduler(ginjector.getScheduler());
     reset();
+    ginjector.getScheduler().flush();
   }
 
   protected void reset() {
@@ -96,6 +100,12 @@ public abstract class TestBase extends GWTTestCase {
             0, x, y, x, y, false, false, false, false));
   }
 
+  protected void selectTableRow(String tableDebugId, int rowNum) {
+    click(tableDebugId + "-" + rowNum + "-0");
+    // Selection model schedules firing the event, so we need to flush.
+    ginjector.getScheduler().flush();
+  }
+
   protected boolean isVisible(String debugId) {
     Element element = ensureDebugIdAndGetElement(debugId, false);
     return element != null && UIObject.isVisible(element);
@@ -104,6 +114,11 @@ public abstract class TestBase extends GWTTestCase {
   protected boolean isFocused(String debugId) {
     ensureDebugIdAndGetElement(debugId, true);
     return (UIObject.DEBUG_ID_PREFIX + debugId).equals(getFocusedElementId());
+  }
+
+  protected boolean isEnabled(String debugId) {
+    Element element = ensureDebugIdAndGetElement(debugId, true);
+    return !element.hasAttribute("disabled");
   }
 
   protected boolean hasStyle(String debugId, String style) {
@@ -180,5 +195,10 @@ public abstract class TestBase extends GWTTestCase {
     }
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
         picks, ginjector.getBeanFactory()));
+  }
+
+  protected void simulateDraftStart() {
+    simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
+        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory()));
   }
 }

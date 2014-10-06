@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.TtsUrlPrefix;
 import com.mayhew3.drafttower.client.graphs.BarGraphsApi;
 import com.mayhew3.drafttower.client.graphs.TestBarGraphsApi;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
@@ -21,6 +22,11 @@ public class DraftTowerTestGinModule extends AbstractGinModule {
   @Provides @DraftTimerListenerList
   public List<DraftTimer.Listener> getDraftTimerListenerList() {
     return new ArrayList<>();
+  }
+
+  @Provides @TtsUrlPrefix
+  public String getTtsUrlPrefix() {
+    return "#";
   }
 
   @Override

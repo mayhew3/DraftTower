@@ -76,6 +76,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
   private final UnclaimedPlayerDataProvider presenter;
 
   private Provider<Integer> queueAreaTopProvider;
+  private Integer cachedRowHeight;
+  private Integer cachedTop;
 
   private final Map<PlayerColumn, PlayerTableColumn<?>> playerColumns = new EnumMap<>(PlayerColumn.class);
 
@@ -206,13 +208,25 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
 
   @Override
   public void computePageSize() {
-    TableRowElement rowElement = getRowElement(0);
-    if (rowElement != null && queueAreaTopProvider != null) {
-      int availableHeight = queueAreaTopProvider.get() - rowElement.getAbsoluteTop();
-      int pageSize = availableHeight / rowElement.getOffsetHeight();
-      if (pageSize != getPageSize()) {
-        setPageSize(pageSize);
+    if (cachedRowHeight == null) {
+      TableRowElement rowElement = getRowElement(0);
+      if (rowElement != null && queueAreaTopProvider != null) {
+        cachedRowHeight = rowElement.getOffsetHeight();
+        cachedTop = rowElement.getAbsoluteTop();
+      } else {
+        return;
       }
+    }
+    int pageSize;
+    if (cachedRowHeight == 0) {
+      // e.g. tests
+      pageSize = 40;
+    } else {
+      int availableHeight = queueAreaTopProvider.get() - cachedTop;
+      pageSize = availableHeight / cachedRowHeight;
+    }
+    if (pageSize != getPageSize()) {
+      setPageSize(pageSize);
     }
   }
 

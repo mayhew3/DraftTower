@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
@@ -191,7 +190,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             return firstReserve;
           }
         }
-        List<String> eligibility = splitEligibilities(resultSet.getString("Eligibility"));
+        List<String> eligibility = RosterUtil.splitEligibilities(
+            resultSet.getString("Eligibility"));
         if (!eligibility.contains("P") && openPositions.contains(DH)) {
           return resultSet.getLong("PlayerID");
         }
@@ -471,7 +471,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       resultSet.next();
       queueEntry.setPlayerName(resultSet.getString("PlayerString"));
       queueEntry.setEligibilities(
-          splitEligibilities(resultSet.getString("Eligibility")));
+          RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
     } catch (SQLException e) {
       throw new DataSourceException(e);
     } finally {
@@ -492,7 +492,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       draftPick.setPlayerName(
           resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
       draftPick.setEligibilities(
-          splitEligibilities(resultSet.getString("Eligibility")));
+          RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
     } catch (SQLException e) {
       throw new DataSourceException(e);
     } finally {
@@ -550,7 +550,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         pick.setPlayerId(resultSet.getInt("PlayerID"));
         pick.setPlayerName(resultSet.getString("PlayerName"));
         pick.setEligibilities(
-            splitEligibilities(resultSet.getString("Eligibility")));
+            RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
         pick.setTeam(resultSet.getInt("DraftOrder"));
         pick.setKeeper(resultSet.getBoolean("Keeper"));
         status.getPicks().add(pick);
@@ -682,14 +682,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     return graphsData;
   }
-
-  @VisibleForTesting
-  static List<String> splitEligibilities(String eligibility) {
-    return eligibility.isEmpty()
-        ? Lists.newArrayList("DH")
-        : Lists.newArrayList(eligibility.split(","));
-  }
-
 
 
   // DB utility methods

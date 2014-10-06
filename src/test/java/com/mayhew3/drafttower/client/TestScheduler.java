@@ -11,6 +11,8 @@ import java.util.List;
 @Singleton
 public class TestScheduler implements SchedulerWrapper {
 
+  private final List<Runnable> immediateTasks = new ArrayList<>();
+  private final List<Runnable> finallyTasks = new ArrayList<>();
   private final List<Runnable> tasks = new ArrayList<>();
   private final List<Runnable> repeatingTasks = new ArrayList<>();
 
@@ -20,16 +22,34 @@ public class TestScheduler implements SchedulerWrapper {
   }
 
   @Override
+  public void scheduleImmediate(Runnable runnable) {
+    immediateTasks.add(runnable);
+  }
+
+  @Override
+  public void scheduleLast(Runnable runnable) {
+    finallyTasks.add(runnable);
+  }
+
+  @Override
   public void scheduleRepeating(Runnable runnable, int periodMs) {
     repeatingTasks.add(runnable);
   }
 
   public void runNextScheduled() {
-    tasks.remove(0).run();
+    if (!immediateTasks.isEmpty()) {
+      immediateTasks.remove(0).run();
+    } else if (!finallyTasks.isEmpty()) {
+      finallyTasks.remove(0).run();
+    } else {
+      tasks.remove(0).run();
+    }
   }
 
   public void flush() {
-    while (!tasks.isEmpty()) {
+    while (!immediateTasks.isEmpty()
+        || !finallyTasks.isEmpty()
+        || !tasks.isEmpty()) {
       runNextScheduled();
     }
   }

@@ -56,4 +56,9 @@ public class GinBindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface CurrentTime {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface TtsUrlPrefix {}
 }

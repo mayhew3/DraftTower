@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.gwt.dom.client.IFrameElement;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.mayhew3.drafttower.client.TestBase;
-import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatusTestUtil;
 
 /**
@@ -14,9 +13,7 @@ public class AudioGwtTest extends TestBase {
 
   public void testAudioPlaysOnDraftStatusChange() {
     login(2);
-    simulateDraftStatus(
-        DraftStatusTestUtil.createDraftStatus(
-            Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory()));
+    simulateDraftStart();
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
             Lists.newArrayList(
@@ -30,9 +27,7 @@ public class AudioGwtTest extends TestBase {
 
   public void testPreviousAudioCancelled() {
     login(3);
-    simulateDraftStatus(
-        DraftStatusTestUtil.createDraftStatus(
-            Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory()));
+    simulateDraftStart();
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
             Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),

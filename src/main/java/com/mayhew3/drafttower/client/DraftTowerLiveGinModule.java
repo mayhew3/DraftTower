@@ -86,6 +86,11 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
         .buildString();
   }
 
+  @Provides @TtsUrlPrefix
+  public String getTtsUrlPrefix() {
+    return "http://translate.google.com/translate_tts?tl=en&q=";
+  }
+
   @Override
   protected void configure() {
     bind(BarGraphsApi.class).to(LiveBarGraphsApi.class);

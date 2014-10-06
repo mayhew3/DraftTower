@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
 /**
  * Interface wrapping {@link Scheduler} that can be mocked for tests.
@@ -16,6 +17,26 @@ public class LiveScheduler implements SchedulerWrapper {
         return false;
       }
     }, delayMs);
+  }
+
+  @Override
+  public void scheduleImmediate(final Runnable runnable) {
+    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+      @Override
+      public void execute() {
+        runnable.run();
+      }
+    });
+  }
+
+  @Override
+  public void scheduleLast(final Runnable runnable) {
+    Scheduler.get().scheduleFinally(new ScheduledCommand() {
+      @Override
+      public void execute() {
+        runnable.run();
+      }
+    });
   }
 
   @Override

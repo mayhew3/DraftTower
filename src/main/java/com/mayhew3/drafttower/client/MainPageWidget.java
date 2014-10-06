@@ -228,5 +228,8 @@ public class MainPageWidget extends Composite implements
     barGraphsWidget.ensureDebugId(baseID + "-barGraphs");
     filledPositionsChart.ensureDebugId(baseID + "-filledPositions");
     myRosterTable.ensureDebugId(baseID + "-myRoster");
+    pickControlsWidget.ensureDebugId(baseID + "-pickControls");
+    unclaimedPlayers.ensureDebugId(baseID + "-players");
+    queueTable.ensureDebugId(baseID + "-queue");
   }
 }

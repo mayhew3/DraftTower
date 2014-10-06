@@ -1,18 +1,19 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.gwt.user.client.Cookies;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
-import com.mayhew3.drafttower.server.DataSourceException;
-import com.mayhew3.drafttower.server.LoginHandler;
-import com.mayhew3.drafttower.server.PlayerDataSource;
-import com.mayhew3.drafttower.server.TeamDraftOrder;
+import com.mayhew3.drafttower.server.*;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,15 +23,20 @@ public class TestServerRpc implements ServerRpc {
 
   private final LoginHandler loginHandler;
   private final PlayerDataSource playerDataSource;
+  private final BeanFactory beanFactory;
+
   private final Map<String, TeamDraftOrder> teamTokens;
+  private Map<String, List<QueueEntry>> playerQueues = new HashMap<>();
 
   @Inject
   public TestServerRpc(LoginHandler loginHandler,
       PlayerDataSource playerDataSource,
-      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
+      BeanFactory beanFactory) {
     this.loginHandler = loginHandler;
     this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
+    this.beanFactory = beanFactory;
   }
 
   @Override
@@ -62,20 +68,69 @@ public class TestServerRpc implements ServerRpc {
   @Override
   public void sendGetPlayerQueueRequest(AutoBean<GetPlayerQueueRequest> requestBean,
       Function<GetPlayerQueueResponse, Void> callback) {
-    // TODO(kprevas): implement
+    GetPlayerQueueResponse response = beanFactory.createPlayerQueueResponse().as();
+    String teamToken = requestBean.as().getTeamToken();
+    response.setQueue(playerQueues.containsKey(teamToken)
+        ? playerQueues.get(teamToken)
+        : new ArrayList<QueueEntry>());
+    callback.apply(response);
   }
 
   @Override
   public void sendEnqueueOrDequeueRequest(String action,
       AutoBean<EnqueueOrDequeuePlayerRequest> requestBean,
       Runnable callback) {
-    // TODO(kprevas): implement
+    EnqueueOrDequeuePlayerRequest request = requestBean.as();
+    String teamToken = request.getTeamToken();
+    if (!playerQueues.containsKey(teamToken)) {
+      playerQueues.put(teamToken, new ArrayList<QueueEntry>());
+    }
+    List<QueueEntry> queue = playerQueues.get(teamToken);
+    boolean removed = Iterables.removeIf(queue,
+        new QueueEntryPredicate(request.getPlayerId()));
+    if (!removed) {
+      QueueEntry entry = beanFactory.createQueueEntry().as();
+      Player player = ((TestPlayerDataSource) playerDataSource)
+          .getPlayer(request.getPlayerId());
+      entry.setPlayerId(player.getPlayerId());
+      entry.setPlayerName(player.getName());
+      entry.setEligibilities(RosterUtil.splitEligibilities(player.getEligibility()));
+      if (request.getPosition() != null && !queue.isEmpty()) {
+        queue.add(request.getPosition(), entry);
+      } else {
+        queue.add(entry);
+      }
+    }
+    callback.run();
   }
 
   @Override
   public void sendReorderQueueRequest(AutoBean<ReorderPlayerQueueRequest> requestBean,
       Runnable callback) {
-    // TODO(kprevas): implement
+    ReorderPlayerQueueRequest request = requestBean.as();
+    String teamToken = request.getTeamToken();
+    if (!playerQueues.containsKey(teamToken)) {
+      playerQueues.put(teamToken, new ArrayList<QueueEntry>());
+    }
+    List<QueueEntry> queue = playerQueues.get(teamToken);
+    int oldPosition = Iterables.indexOf(queue,
+        new QueueEntryPredicate(request.getPlayerId()));
+    QueueEntry entry = queue.get(oldPosition);
+    if (oldPosition != -1) {
+      int newPosition = request.getNewPosition();
+      List<QueueEntry> newQueue = Lists.newArrayList(Iterables.concat(
+          queue.subList(0, Math.min(oldPosition, newPosition)),
+          newPosition < oldPosition
+              ? Lists.newArrayList(entry)
+              : Lists.<QueueEntry>newArrayList(),
+          queue.subList(Math.min(oldPosition + 1, newPosition), Math.max(oldPosition, newPosition)),
+          oldPosition < newPosition
+              ? Lists.newArrayList(entry)
+              : Lists.<QueueEntry>newArrayList(),
+          queue.subList(Math.max(oldPosition + 1, newPosition), queue.size())));
+      playerQueues.put(teamToken, newQueue);
+    }
+    callback.run();
   }
 
   @Override
@@ -91,7 +146,11 @@ public class TestServerRpc implements ServerRpc {
 
   @Override
   public void sendPlayerListRequest(AutoBean<UnclaimedPlayerListRequest> requestBean, Function<UnclaimedPlayerListResponse, Void> callback) {
-    // TODO(kprevas): implement
+    try {
+      callback.apply(playerDataSource.lookupUnclaimedPlayers(requestBean.as()));
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

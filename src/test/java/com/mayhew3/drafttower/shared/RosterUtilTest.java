@@ -291,4 +291,11 @@ public class RosterUtilTest {
         pick(11, DH)))
         .contains(OF));
   }
+
+  @Test
+  public void testSplitEligibilities() {
+    Assert.assertEquals(Lists.newArrayList("1B"), RosterUtil.splitEligibilities("1B"));
+    Assert.assertEquals(Lists.newArrayList("1B", "2B"), RosterUtil.splitEligibilities("1B,2B"));
+    Assert.assertEquals(Lists.newArrayList("DH"), RosterUtil.splitEligibilities(""));
+  }
 }

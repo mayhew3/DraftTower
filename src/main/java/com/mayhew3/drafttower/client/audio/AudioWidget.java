@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.TtsUrlPrefix;
 
 /**
  * Controls audio clips.
@@ -16,9 +17,13 @@ public class AudioWidget extends Composite implements AudioView {
 
   private final Audio itsOver;
   private final Frame audioFrame;
+  private String ttsUrlPrefix;
 
   @Inject
-  public AudioWidget(AudioPresenter presenter) {
+  public AudioWidget(AudioPresenter presenter,
+      @TtsUrlPrefix String ttsUrlPrefix) {
+    this.ttsUrlPrefix = ttsUrlPrefix;
+
     FlowPanel container = new FlowPanel();
     container.setSize("0", "0");
 
@@ -45,8 +50,7 @@ public class AudioWidget extends Composite implements AudioView {
   @Override
   public void play(String msg) {
     stopCurrentAudio();
-    audioFrame.setUrl("http://translate.google.com/translate_tts?tl=en&q="
-        + UriUtils.encode(msg));
+    audioFrame.setUrl(ttsUrlPrefix + UriUtils.encode(msg));
   }
 
   @Override

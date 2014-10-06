@@ -71,7 +71,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Player player = allPlayers.get(queueEntry.getPlayerId());
     queueEntry.setPlayerName(player.getName());
     queueEntry.setEligibilities(
-        PlayerDataSourceImpl.splitEligibilities(player.getEligibility()));
+        RosterUtil.splitEligibilities(player.getEligibility()));
   }
 
   @Override
@@ -79,7 +79,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Player player = allPlayers.get(draftPick.getPlayerId());
     draftPick.setPlayerName(player.getName());
     draftPick.setEligibilities(
-        PlayerDataSourceImpl.splitEligibilities(player.getEligibility()));
+        RosterUtil.splitEligibilities(player.getEligibility()));
   }
 
   @Override
@@ -202,5 +202,9 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   public void setKeepers(ListMultimap<TeamDraftOrder, Integer> keepers) {
     this.keepers = keepers;
+  }
+
+  public Player getPlayer(long playerId) {
+    return allPlayers.get(playerId);
   }
 }

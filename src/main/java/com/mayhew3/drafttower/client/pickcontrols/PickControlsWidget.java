@@ -104,4 +104,13 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   public void setWakeUpVisible(boolean visible) {
     wakeUp.setVisible(visible);
   }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    pick.ensureDebugId(baseID + "-pick");
+    enqueue.ensureDebugId(baseID + "-enqueue");
+    forcePick.ensureDebugId(baseID + "-force");
+    wakeUp.ensureDebugId(baseID + "-wakeUp");
+  }
 }
