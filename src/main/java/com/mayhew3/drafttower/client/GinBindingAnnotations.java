@@ -61,4 +61,9 @@ public class GinBindingAnnotations {
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public static @interface TtsUrlPrefix {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface PlayerPopupUrlPrefix {}
 }

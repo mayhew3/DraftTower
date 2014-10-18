@@ -13,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.PlayerPopupUrlPrefix;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.clock.DraftClock;
 import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
@@ -94,6 +95,7 @@ public class MainPageWidget extends Composite implements
   private final Frame playerPopupFrame;
 
   private final LoginPresenter loginPresenter;
+  private final String playerPopupUrlPrefix;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
@@ -110,7 +112,8 @@ public class MainPageWidget extends Composite implements
       BarGraphsWidget barGraphsWidget,
       AudioWidget audioWidget,
       EventBus eventBus,
-      LoginPresenter loginPresenter) {
+      LoginPresenter loginPresenter,
+      @PlayerPopupUrlPrefix String playerPopupUrlPrefix) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
@@ -125,6 +128,7 @@ public class MainPageWidget extends Composite implements
     this.depthChartsTable = depthChartsTable;
     this.barGraphsWidget = barGraphsWidget;
     this.loginPresenter = loginPresenter;
+    this.playerPopupUrlPrefix = playerPopupUrlPrefix;
 
     initWidget(uiBinder.createAndBindUi(this));
 
@@ -200,7 +204,7 @@ public class MainPageWidget extends Composite implements
   public void showPlayerPopup(ShowPlayerPopupEvent event) {
     Player player = event.getPlayer();
     long cbsId = player.getCBSId();
-    playerPopupFrame.setUrl("http://uncharted.baseball.cbssports.com/players/playerpage/snippet/"
+    playerPopupFrame.setUrl(playerPopupUrlPrefix
         + cbsId
         + "?loc=snippet&selected_tab=news&selected_subtab=");
     playerPopup.center();
@@ -233,5 +237,6 @@ public class MainPageWidget extends Composite implements
     queueTable.ensureDebugId(baseID + "-queue");
     pickHistoryTable.ensureDebugId(baseID + "-pickHistory");
     teamOrder.ensureDebugId(baseID + "-teamOrder");
+    playerPopupFrame.ensureDebugId(baseID + "-playerPopup");
   }
 }

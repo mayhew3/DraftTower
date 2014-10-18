@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.inject.Provides;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.PlayerPopupUrlPrefix;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.TtsUrlPrefix;
 import com.mayhew3.drafttower.client.graphs.BarGraphsApi;
 import com.mayhew3.drafttower.client.graphs.TestBarGraphsApi;
@@ -26,6 +27,11 @@ public class DraftTowerTestGinModule extends AbstractGinModule {
 
   @Provides @TtsUrlPrefix
   public String getTtsUrlPrefix() {
+    return "#";
+  }
+
+  @Provides @PlayerPopupUrlPrefix
+  public String getPlayerPopupUrlPrefix() {
     return "#";
   }
 

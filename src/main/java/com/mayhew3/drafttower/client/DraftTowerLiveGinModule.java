@@ -91,6 +91,11 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
     return "http://translate.google.com/translate_tts?tl=en&q=";
   }
 
+  @Provides @PlayerPopupUrlPrefix
+  public String getPlayerPopupUrlPrefix() {
+    return "http://uncharted.baseball.cbssports.com/players/playerpage/snippet/";
+  }
+
   @Override
   protected void configure() {
     bind(BarGraphsApi.class).to(LiveBarGraphsApi.class);
