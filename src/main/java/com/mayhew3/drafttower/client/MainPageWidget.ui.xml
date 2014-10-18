@@ -48,7 +48,7 @@
         </g:Label>
       </div>
       <div class="{style.css.centerColumn}">
-        <p:PlayerTablePanel ui:field="unclaimedPlayers"/>
+        <p:UnclaimedPlayerTablePanel ui:field="unclaimedPlayers"/>
         <div class="{style.css.queue}" ui:field="queueArea">
           <div class="{style.css.tableHeader}">
             Your queue

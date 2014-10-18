@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client.players;
+package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -8,7 +8,7 @@ import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
-import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerDataProvider;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
@@ -24,7 +24,7 @@ import static com.mayhew3.drafttower.shared.Position.*;
 /**
  * Presenter for player table controls.
  */
-public class PlayerTablePanelPresenter implements
+public class UnclaimedPlayerTablePanelPresenter implements
     LoginEvent.Handler,
     DraftStatusChangedEvent.Handler {
 
@@ -48,10 +48,10 @@ public class PlayerTablePanelPresenter implements
   final EnumSet<Position> excludedPositions = EnumSet.noneOf(Position.class);
   private PlayerDataSet wizardTable;
 
-  private PlayerTablePanelView view;
+  private UnclaimedPlayerTablePanelView view;
 
   @Inject
-  public PlayerTablePanelPresenter(
+  public UnclaimedPlayerTablePanelPresenter(
       OpenPositions openPositions,
       UnclaimedPlayerDataProvider tablePresenter,
       final EventBus eventBus) {
@@ -63,7 +63,7 @@ public class PlayerTablePanelPresenter implements
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
   }
 
-  public void setView(PlayerTablePanelView view) {
+  public void setView(UnclaimedPlayerTablePanelView view) {
     this.view = view;
     updateCopyRanksEnabled(false);
     setPositionFilter(POSITION_FILTERS.get(0));

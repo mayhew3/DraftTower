@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.client.players;
+package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -15,7 +15,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTable;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 
@@ -29,7 +29,7 @@ import static com.mayhew3.drafttower.shared.PlayerDataSet.CBSSPORTS;
 /**
  * Widget containing player table, position filter buttons, and paging controls.
  */
-public class PlayerTablePanel extends Composite implements PlayerTablePanelView {
+public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPlayerTablePanelView {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -46,7 +46,7 @@ public class PlayerTablePanel extends Composite implements PlayerTablePanelView 
       String clearSearch();
     }
 
-    @Source("PlayerTablePanel.css")
+    @Source("UnclaimedPlayerTablePanel.css")
     Css css();
   }
 
@@ -64,8 +64,8 @@ public class PlayerTablePanel extends Composite implements PlayerTablePanelView 
   private final UnclaimedPlayerTable table;
 
   @Inject
-  public PlayerTablePanel(final UnclaimedPlayerTable table,
-      final PlayerTablePanelPresenter presenter) {
+  public UnclaimedPlayerTablePanel(final UnclaimedPlayerTable table,
+      final UnclaimedPlayerTablePanelPresenter presenter) {
     this.table = table;
 
     FlowPanel container = new FlowPanel();
@@ -147,7 +147,7 @@ public class PlayerTablePanel extends Composite implements PlayerTablePanelView 
       });
       positionOverrideCheckBoxes.put(position, checkBox);
     }
-    for (final PositionFilter positionFilter : PlayerTablePanelPresenter.POSITION_FILTERS) {
+    for (final PositionFilter positionFilter : UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS) {
       FlowPanel buttonContainer = new FlowPanel();
       buttonContainer.setStyleName(CSS.buttonContainer());
       ToggleButton button = new ToggleButton(positionFilter.getName(),
@@ -159,7 +159,7 @@ public class PlayerTablePanel extends Composite implements PlayerTablePanelView 
           });
       button.addStyleName(CSS.filterButton());
       positionFilterButtons.put(positionFilter, button);
-      if (positionFilter == PlayerTablePanelPresenter.POSITION_FILTERS.get(0)) {
+      if (positionFilter == UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(0)) {
         button.setDown(true);
       }
       buttonContainer.add(button);
