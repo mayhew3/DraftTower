@@ -37,6 +37,7 @@ public class PickHistoryTablePanel extends Composite implements
   }
 
   private final Button backOutButton;
+  private final PickHistoryTable table;
   private final TeamsInfo teamsInfo;
 
   @Inject
@@ -48,7 +49,8 @@ public class PickHistoryTablePanel extends Composite implements
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
-    table.addStyleName(CSS.table());
+    this.table = table;
+    this.table.addStyleName(CSS.table());
     ScrollPanel scrollPanel = new ScrollPanel(table);
     scrollPanel.setHeight("200px");
     container.add(scrollPanel);
@@ -70,5 +72,13 @@ public class PickHistoryTablePanel extends Composite implements
   @Override
   public void onLogin(LoginEvent event) {
     backOutButton.setVisible(teamsInfo.isCommissionerTeam());
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    backOutButton.ensureDebugId(baseID + "-backOut");
+    table.ensureDebugId(baseID);
+
   }
 }

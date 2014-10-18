@@ -231,5 +231,6 @@ public class MainPageWidget extends Composite implements
     pickControlsWidget.ensureDebugId(baseID + "-pickControls");
     unclaimedPlayers.ensureDebugId(baseID + "-players");
     queueTable.ensureDebugId(baseID + "-queue");
+    pickHistoryTable.ensureDebugId(baseID + "-pickHistory");
   }
 }
