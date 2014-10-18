@@ -184,4 +184,14 @@ public class TeamOrderPresenterTest {
         DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setStatus("Your pick!");
   }
+
+  @Test
+  public void testStatusClearedDraftOver() {
+    Mockito.when(teamsInfo.isMyPick(Mockito.any(DraftStatus.class)))
+        .thenReturn(true);
+    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
+    draftStatus.setOver(true);
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    Mockito.verify(view).setStatus("");
+  }
 }

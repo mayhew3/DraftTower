@@ -232,5 +232,6 @@ public class MainPageWidget extends Composite implements
     unclaimedPlayers.ensureDebugId(baseID + "-players");
     queueTable.ensureDebugId(baseID + "-queue");
     pickHistoryTable.ensureDebugId(baseID + "-pickHistory");
+    teamOrder.ensureDebugId(baseID + "-teamOrder");
   }
 }

@@ -55,7 +55,9 @@ public class TeamOrderPresenter implements
       view.setKeeper(team,
           status.getNextPickKeeperTeams().contains(team));
     }
-    if (status.getCurrentPickDeadline() > 0) {
+    if (status.isOver()) {
+      view.setStatus("");
+    } else if (status.getCurrentPickDeadline() > 0) {
       if (teamsInfo.isMyPick(status)) {
         view.setStatus("Your pick!");
       } else if (teamsInfo.isOnDeck(status)) {

@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client.teamorder;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -31,7 +32,8 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
     Css css();
   }
 
-  private static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
+  @VisibleForTesting
+  static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
   static {
     CSS.ensureInjected();
   }
@@ -103,5 +105,15 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
   @Override
   public void setStatus(String status) {
     statusMessage.setText(status);
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    roundLabel.ensureDebugId(baseID + "-round");
+    statusMessage.ensureDebugId(baseID + "-status");
+    for (int i = 0; i < teamLabels.length; i++) {
+      teamLabels[i].ensureDebugId(baseID + "-" + i);
+    }
   }
 }
