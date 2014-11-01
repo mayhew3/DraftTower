@@ -1,13 +1,11 @@
-package com.mayhew3.drafttower.client.players;
+package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.event.shared.EventBus;
 import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
-import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerDataProvider;
-import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTablePanelPresenter;
-import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTablePanelView;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,7 +16,7 @@ import org.mockito.Mockito;
 import java.util.EnumSet;
 
 /**
- * Test for {@link com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTablePanelPresenter}.
+ * Test for {@link UnclaimedPlayerTablePanelPresenter}.
  */
 public class UnclaimedPlayerTablePanelPresenterTest {
 

@@ -70,11 +70,12 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
     presenter.setView(this);
   }
 
-  public void initDragging(DragAndDropColumn<T, ?> column, DroppableFunction onDrop) {
+  protected void initDragging(DragAndDropColumn<T, ?> column, DroppableFunction onDrop) {
     DraggableOptions draggableOptions = column.getDraggableOptions();
     Element helper = DOM.createDiv();
     helper.addClassName(BASE_CSS.dragHelper());
     draggableOptions.setHelper(helper);
+    draggableOptions.setAppendTo("body");
     draggableOptions.setCursor(Cursor.ROW_RESIZE);
     draggableOptions.setCursorAt(new CursorAt(0, 0, null, null));
     draggableOptions.setRevert(RevertOption.ON_INVALID_DROP);
@@ -164,9 +165,16 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
       } else {
         rowElement = getRowElement(row - 1);
       }
+      UIObject.ensureDebugId(rowElement, baseID + "-" + row);
       for (int col = 0; col < getColumnCount(); col++) {
-        UIObject.ensureDebugId(rowElement.getCells().getItem(col),
-            baseID + "-" + row + "-" + col);
+        Element cellElement = rowElement.getCells().getItem(col).getFirstChildElement();
+        UIObject.ensureDebugId(cellElement, baseID + "-" + row + "-" + col);
+        if (cellElement.getChildCount() > 0) {
+          Element cellChild = cellElement.getFirstChildElement();
+          if (cellChild != null && cellChild.getTagName().equalsIgnoreCase("button")) {
+            UIObject.ensureDebugId(cellChild, baseID + "-" + row + "-" + col + "-button");
+          }
+        }
       }
     }
   }

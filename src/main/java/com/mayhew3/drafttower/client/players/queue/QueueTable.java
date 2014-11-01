@@ -116,8 +116,8 @@ public class QueueTable extends PlayerTable<QueueEntry> {
           QueueEntry droppedPlayer = dragAndDropContext.getDroppableData();
           if (droppedPlayer == null
               || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
-            int targetPosition = getVisibleItems().indexOf(droppedPlayer);
-            if (isTopDrop(dragAndDropContext, true)) {
+            int targetPosition = getVisibleItems().indexOf(droppedPlayer) + 1;
+            if (isTopDrop(dragAndDropContext, false)) {
               targetPosition--;
             }
             presenter.reorderQueue(draggedPlayer, targetPosition);
@@ -128,7 +128,7 @@ public class QueueTable extends PlayerTable<QueueEntry> {
           if (droppedPlayer == null
               || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
             int targetPosition = getVisibleItems().indexOf(droppedPlayer) + 1;
-            if (isTopDrop(dragAndDropContext, true)) {
+            if (isTopDrop(dragAndDropContext, false)) {
               targetPosition--;
             }
             presenter.enqueue(draggedPlayer, droppedPlayer == null ? null : targetPosition);

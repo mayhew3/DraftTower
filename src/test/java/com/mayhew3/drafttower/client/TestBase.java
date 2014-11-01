@@ -6,6 +6,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -91,10 +92,10 @@ public abstract class TestBase extends GWTTestCase {
           0, x, y, x, y, false, false, false, false, 0, null));
     element.dispatchEvent(
       Document.get().createMouseDownEvent(
-          0, x, y, x, y, false, false, false, false, 0));
+          0, x, y, x, y, false, false, false, false, NativeEvent.BUTTON_LEFT));
     element.dispatchEvent(
       Document.get().createMouseUpEvent(
-          0, x, y, x, y, false, false, false, false, 0));
+          0, x, y, x, y, false, false, false, false, NativeEvent.BUTTON_LEFT));
     element.dispatchEvent(
         Document.get().createClickEvent(
             0, x, y, x, y, false, false, false, false));
@@ -103,6 +104,60 @@ public abstract class TestBase extends GWTTestCase {
   protected void selectTableRow(String tableDebugId, int rowNum) {
     click(tableDebugId + "-" + rowNum + "-0");
     // Selection model schedules firing the event, so we need to flush.
+    ginjector.getScheduler().flush();
+  }
+
+  protected void dragToTop(String sourceDebugId, String targetDebugId) {
+    drag(sourceDebugId, targetDebugId, 0.25);
+  }
+
+  protected void dragToBottom(String sourceDebugId, String targetDebugId) {
+    drag(sourceDebugId, targetDebugId, 0.75);
+  }
+
+  private void drag(String sourceDebugId, String targetDebugId,
+      double targetYProportion) {
+    startDrag(sourceDebugId);
+    finishDrag(sourceDebugId, targetDebugId, targetYProportion);
+  }
+
+  protected void startDrag(String sourceDebugId) {
+    Element source = ensureDebugIdAndGetElement(sourceDebugId, true);
+    int sourceX = source.getAbsoluteLeft() + source.getOffsetWidth() / 2;
+    int sourceY = source.getAbsoluteTop() + source.getOffsetHeight() / 2;
+
+    source.dispatchEvent(
+      Document.get().createMouseOverEvent(
+          0, sourceX, sourceY, sourceX, sourceY, false, false, false, false, 0, null));
+    source.dispatchEvent(
+        Document.get().createMouseDownEvent(
+            0, sourceX, sourceY, sourceX, sourceY, false, false, false, false, NativeEvent.BUTTON_LEFT));
+  }
+
+  protected void finishDragToTop(String sourceDebugId, String targetDebugId) {
+    finishDrag(sourceDebugId, targetDebugId, 0.25);
+  }
+
+  protected void finishDragToBottom(String sourceDebugId, String targetDebugId) {
+    finishDrag(sourceDebugId, targetDebugId, 0.75);
+  }
+
+  private void finishDrag(String sourceDebugId, String targetDebugId, double targetYProportion) {
+    Element source = ensureDebugIdAndGetElement(sourceDebugId, true);
+    int sourceX = source.getAbsoluteLeft() + source.getOffsetWidth() / 2;
+    int sourceY = source.getAbsoluteTop() + source.getOffsetHeight() / 2;
+    Element target = ensureDebugIdAndGetElement(targetDebugId, true);
+    int targetX = target.getAbsoluteLeft() + target.getOffsetWidth() / 2;
+    int targetY = target.getAbsoluteTop() + (int) (target.getOffsetHeight() * targetYProportion);
+    source.dispatchEvent(
+        Document.get().createMouseMoveEvent(
+            0, sourceX + 1, sourceY + 1, sourceX + 1, sourceY + 1, false, false, false, false, 0));
+    target.dispatchEvent(
+        Document.get().createMouseMoveEvent(
+            0, targetX, targetY, targetX, targetY, false, false, false, false, 0));
+    target.dispatchEvent(
+        Document.get().createMouseUpEvent(
+            0, targetX, targetY, targetX, targetY, false, false, false, false, NativeEvent.BUTTON_LEFT));
     ginjector.getScheduler().flush();
   }
 

@@ -117,18 +117,20 @@ public class TestServerRpc implements ServerRpc {
         new QueueEntryPredicate(request.getPlayerId()));
     QueueEntry entry = queue.get(oldPosition);
     if (oldPosition != -1) {
-      int newPosition = request.getNewPosition();
-      List<QueueEntry> newQueue = Lists.newArrayList(Iterables.concat(
-          queue.subList(0, Math.min(oldPosition, newPosition)),
-          newPosition < oldPosition
-              ? Lists.newArrayList(entry)
-              : Lists.<QueueEntry>newArrayList(),
-          queue.subList(Math.min(oldPosition + 1, newPosition), Math.max(oldPosition, newPosition)),
-          oldPosition < newPosition
-              ? Lists.newArrayList(entry)
-              : Lists.<QueueEntry>newArrayList(),
-          queue.subList(Math.max(oldPosition + 1, newPosition), queue.size())));
-      playerQueues.put(teamToken, newQueue);
+      int newPosition = Math.min(request.getNewPosition(), queue.size());
+      if (oldPosition != newPosition) {
+        List<QueueEntry> newQueue = Lists.newArrayList(Iterables.concat(
+            queue.subList(0, Math.min(oldPosition, newPosition)),
+            newPosition < oldPosition
+                ? Lists.newArrayList(entry)
+                : Lists.<QueueEntry>newArrayList(),
+            queue.subList(Math.min(oldPosition + 1, newPosition), Math.max(oldPosition, newPosition)),
+            oldPosition < newPosition
+                ? Lists.newArrayList(entry)
+                : Lists.<QueueEntry>newArrayList(),
+            queue.subList(Math.max(oldPosition + 1, newPosition), queue.size())));
+        playerQueues.put(teamToken, newQueue);
+      }
     }
     callback.run();
   }

@@ -7,7 +7,7 @@
     xmlns:m="urn:import:com.mayhew3.drafttower.client.myroster"
     xmlns:pc="urn:import:com.mayhew3.drafttower.client.pickcontrols"
     xmlns:h="urn:import:com.mayhew3.drafttower.client.pickhistory"
-    xmlns:p="urn:import:com.mayhew3.drafttower.client.players"
+    xmlns:p="urn:import:com.mayhew3.drafttower.client.players.unclaimed"
     xmlns:q="urn:import:com.mayhew3.drafttower.client.players.queue"
     xmlns:t="urn:import:com.mayhew3.drafttower.client.teamorder"
     xmlns:w="urn:import:com.mayhew3.drafttower.client.websocket">

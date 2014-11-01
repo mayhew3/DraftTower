@@ -7,25 +7,25 @@ import java.util.EnumSet;
 /**
  * Option in the position filters bar.
  */
-class PositionFilter {
+public class PositionFilter {
   private final String name;
   private final EnumSet<Position> positions;
 
-  PositionFilter(String name, EnumSet<Position> positions) {
+  public PositionFilter(String name, EnumSet<Position> positions) {
     this.name = name;
     this.positions = positions;
   }
 
-  PositionFilter(Position singlePosition) {
+  public PositionFilter(Position singlePosition) {
     this.name = singlePosition.getShortName();
     this.positions = EnumSet.of(singlePosition);
   }
 
-  String getName() {
+  public String getName() {
     return name;
   }
 
-  EnumSet<Position> getPositions() {
+  public EnumSet<Position> getPositions() {
     return positions;
   }
 }

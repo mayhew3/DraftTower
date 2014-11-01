@@ -8,6 +8,7 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/googlecode/gwtquery/plugins/droppable-plugin/1.0.8/droppable-plugin-1.0.8-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/googlecode/gwtquery/plugins/droppable-plugin/1.0.8/droppable-plugin-1.0.8.jar!/" />
     </SOURCES>
   </library>
 </component>
