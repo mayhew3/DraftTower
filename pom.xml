@@ -21,13 +21,6 @@
     <jetty-server.version>8.1.8.v20121106</jetty-server.version>
   </properties>
 
-  <repositories>
-    <repository>
-      <id>gwtquery</id>
-      <url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>com.google.gwt</groupId>
@@ -104,24 +97,6 @@
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.5.4</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.gwtquery</groupId>
-      <artifactId>gwtquery</artifactId>
-      <version>1.4.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.gwtquery.plugins</groupId>
-      <artifactId>draggable-plugin</artifactId>
-      <version>1.0.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.gwtquery.plugins</groupId>
-      <artifactId>droppable-plugin</artifactId>
-      <version>1.0.8</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>

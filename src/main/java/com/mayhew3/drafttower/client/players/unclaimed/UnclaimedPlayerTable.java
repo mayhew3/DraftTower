@@ -5,10 +5,12 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.TableRowElement;
+import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.AbstractHeaderOrFooterBuilder;
 import com.google.gwt.user.cellview.client.Column;
@@ -22,16 +24,9 @@ import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.players.PlayerDragController;
 import com.mayhew3.drafttower.client.players.PlayerTable;
-import com.mayhew3.drafttower.shared.Player;
-import com.mayhew3.drafttower.shared.PlayerColumn;
-import com.mayhew3.drafttower.shared.Position;
-import com.mayhew3.drafttower.shared.TableSpec;
-import gwtquery.plugins.draggable.client.events.DragStartEvent;
-import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
-import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
-import gwtquery.plugins.droppable.client.events.DragAndDropContext;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
+import com.mayhew3.drafttower.shared.*;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -82,8 +77,9 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
   private final Map<PlayerColumn, PlayerTableColumn<?>> playerColumns = new EnumMap<>(PlayerColumn.class);
 
   @Inject
-  public UnclaimedPlayerTable(final UnclaimedPlayerDataProvider presenter) {
-    super(presenter);
+  public UnclaimedPlayerTable(final UnclaimedPlayerDataProvider presenter,
+      PlayerDragController playerDragController) {
+    super(presenter, playerDragController);
     this.presenter = presenter;
 
     addStyleName(BASE_CSS.table());
@@ -91,13 +87,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     ((AbstractHeaderOrFooterBuilder<?>) getHeaderBuilder()).setSortIconStartOfLine(false);
 
     addColumn(new InjuryColumn());
-
-    DroppableFunction onDrop = new DroppableFunction() {
-      @Override
-      public void f(DragAndDropContext dragAndDropContext) {
-        handleDrop(dragAndDropContext);
-      }
-    };
 
     for (int i = 0; i < COLUMNS.length; i++) {
       PlayerColumn column = COLUMNS[i];
@@ -119,7 +108,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
             presenter,
             positionFilterProvider);
       }
-      initDragging(playerTableColumn, onDrop);
       addColumn(playerTableColumn,
           new PlayerColumnHeader(column, pitcherColumn, positionFilterProvider));
       if (playerTableColumn.getHorizontalAlignment() == ALIGN_RIGHT) {
@@ -146,20 +134,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
         ColumnSort sortedColumn = getSortedColumn();
         presenter.setSort(sortedColumn);
         super.onColumnSort(event);
-        updateDropEnabled();
       }
     });
-
-    addDragStartHandler(new DragStartEventHandler() {
-      @Override
-      public void onDragStart(DragStartEvent dragStartEvent) {
-        Player player = dragStartEvent.getDraggableData();
-        dragStartEvent.getHelper().setInnerSafeHtml(
-            new SafeHtmlBuilder().appendEscaped(NAME.get(player))
-                .toSafeHtml());
-      }
-    });
-    updateDropEnabled();
 
     final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<>();
     setSelectionModel(selectionModel);
@@ -180,19 +156,24 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     });
   }
 
-  private void handleDrop(DragAndDropContext dragAndDropContext) {
-    Player draggedPlayer = dragAndDropContext.getDraggableData();
-    Player droppedPlayer = dragAndDropContext.getDroppableData();
-    if (draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
-      int prevRank = Integer.parseInt(MYRANK.get(draggedPlayer));
-      int targetRank = Integer.parseInt(MYRANK.get(droppedPlayer));
-      if (prevRank > targetRank && !isTopDrop(dragAndDropContext, false)) {
-        targetRank++;
+  @Override
+  public void onDrop(DraggableItem item, MouseUpEvent event) {
+    if (item instanceof Player) {
+      Player draggedPlayer = (Player) item;
+      int relativeY = event.getRelativeY(getElement());
+      int rowIndex = getRowIndex(relativeY);
+      Player droppedPlayer = getVisibleItem(rowIndex);
+      if (draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
+        int prevRank = Integer.parseInt(MYRANK.get(draggedPlayer));
+        int targetRank = Integer.parseInt(MYRANK.get(droppedPlayer));
+        if (prevRank > targetRank && !isTopDrop(relativeY)) {
+          targetRank++;
+        }
+        if (prevRank < targetRank && isTopDrop(relativeY)) {
+          targetRank--;
+        }
+        presenter.changePlayerRank(draggedPlayer, targetRank, prevRank);
       }
-      if (prevRank < targetRank && isTopDrop(dragAndDropContext, false)) {
-        targetRank--;
-      }
-      presenter.changePlayerRank(draggedPlayer, targetRank, prevRank);
     }
   }
 
@@ -203,7 +184,6 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     columnSortList.push(new ColumnSortInfo(
         playerColumns.get(tableSpec.getSortCol()), tableSpec.isAscending()));
     refresh();
-    updateDropEnabled();
   }
 
   @Override
@@ -263,19 +243,17 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
 
   @Override
   public void playerDataSetUpdated() {
-    updateDropEnabled();
     refresh();
   }
 
-  @SuppressWarnings("unchecked")
-  private void updateDropEnabled() {
-    boolean dropEnabled = getSortedPlayerColumn() == MYRANK;
-    for (int i = 0; i < getColumnCount(); i++) {
-      Column<Player, ?> column = getColumn(i);
-      if (column instanceof DragAndDropColumn) {
-        ((DragAndDropColumn<Player, ?>) column).getDroppableOptions().setDisabled(!dropEnabled);
-      }
-    }
+  @Override
+  protected SafeHtml getDragHelperContents(Player draggedItem) {
+    return new SafeHtmlBuilder().appendEscaped(NAME.get(draggedItem)).toSafeHtml();
+  }
+
+  @Override
+  public boolean isDropEnabled() {
+    return getSortedPlayerColumn() == MYRANK;
   }
 
   public void setQueueAreaTopProvider(Provider<Integer> queueAreaTopProvider) {

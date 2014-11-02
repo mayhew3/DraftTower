@@ -2,33 +2,20 @@ package com.mayhew3.drafttower.client.players;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.TableCellElement;
 import com.google.gwt.dom.client.TableRowElement;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.DOM;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.UIObject;
-import gwtquery.plugins.draggable.client.DraggableOptions;
-import gwtquery.plugins.draggable.client.DraggableOptions.CursorAt;
-import gwtquery.plugins.draggable.client.DraggableOptions.RevertOption;
-import gwtquery.plugins.draggable.client.events.DragStartEvent;
-import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
-import gwtquery.plugins.draggable.client.events.DragStopEvent;
-import gwtquery.plugins.draggable.client.events.DragStopEvent.DragStopEventHandler;
-import gwtquery.plugins.droppable.client.DroppableOptions;
-import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
-import gwtquery.plugins.droppable.client.DroppableOptions.DroppableTolerance;
-import gwtquery.plugins.droppable.client.events.DragAndDropContext;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropCellTable;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
+import com.mayhew3.drafttower.shared.DraggableItem;
 
 /**
  * Base class for tables supporting player drag and drop.
  */
-public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
+public abstract class PlayerTable<T extends DraggableItem> extends CellTable<T>
     implements PlayerTableView<T> {
 
   interface Resources extends ClientBundle {
@@ -37,6 +24,9 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
       String dragHelper();
       String dropHoverTop();
       String dropHoverBottom();
+
+      int dragHelperXOffset();
+      int dragHelperYOffset();
     }
 
     @Source("PlayerTable.css")
@@ -45,100 +35,99 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
 
   protected static final Resources.Css BASE_CSS = ((Resources) GWT.create(Resources.class)).css();
 
-  private HandlerRegistration mouseMoveHandler;
   private boolean isDragging;
+  private int dragStartIndex;
+  private Integer dragHoverIndex;
   private Runnable runAfterDrag;
 
-  public PlayerTable(PlayerDataProvider<T> presenter) {
-    addDragStartHandler(new DragStartEventHandler() {
+  public PlayerTable(PlayerDataProvider<T> presenter,
+      final PlayerDragController playerDragController) {
+    playerDragController.addDropTarget(this);
+    addDomHandler(new MouseDownHandler() {
       @Override
-      public void onDragStart(DragStartEvent dragStartEvent) {
-        isDragging = true;
-      }
-    });
-    addDragStopHandler(new DragStopEventHandler() {
-      @Override
-      public void onDragStop(DragStopEvent dragStopEvent) {
-        isDragging = false;
-        if (runAfterDrag != null) {
-          runAfterDrag.run();
-          runAfterDrag = null;
+      public void onMouseDown(MouseDownEvent event) {
+        if (canStartDrag()) {
+          isDragging = true;
+          dragStartIndex = getRowIndex(event.getRelativeY(getElement()));
+          event.preventDefault();
         }
       }
-    });
+    }, MouseDownEvent.getType());
+    addDomHandler(new MouseMoveHandler() {
+      @Override
+      public void onMouseMove(MouseMoveEvent event) {
+        if (isDragging) {
+          T draggedItem = getVisibleItem(dragStartIndex);
+          playerDragController.startDragging(
+              draggedItem, getDragHelperContents(draggedItem),
+              event.getClientX(), event.getClientY());
+        }
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, MouseMoveEvent.getType());
+    addDomHandler(new MouseUpHandler() {
+      @Override
+      public void onMouseUp(MouseUpEvent event) {
+        isDragging = false;
+      }
+    }, MouseUpEvent.getType());
 
     presenter.setView(this);
   }
 
-  protected void initDragging(DragAndDropColumn<T, ?> column, DroppableFunction onDrop) {
-    DraggableOptions draggableOptions = column.getDraggableOptions();
-    Element helper = DOM.createDiv();
-    helper.addClassName(BASE_CSS.dragHelper());
-    draggableOptions.setHelper(helper);
-    draggableOptions.setAppendTo("body");
-    draggableOptions.setCursor(Cursor.ROW_RESIZE);
-    draggableOptions.setCursorAt(new CursorAt(0, 0, null, null));
-    draggableOptions.setRevert(RevertOption.ON_INVALID_DROP);
+  protected abstract SafeHtml getDragHelperContents(T draggedItem);
 
-    DroppableOptions droppableOptions = column.getDroppableOptions();
-    droppableOptions.setTolerance(DroppableTolerance.POINTER);
-    droppableOptions.setOnOver(new DroppableFunction() {
-      @Override
-      public void f(final DragAndDropContext dragAndDropContext) {
-        clearMouseMoveHandler();
-        mouseMoveHandler = addDomHandler(new MouseMoveHandler() {
-          @Override
-          public void onMouseMove(MouseMoveEvent event) {
-            removeHoverClasses(dragAndDropContext);
-            String hoverClass = isTopDrop(dragAndDropContext, event.getClientY())
-                ? BASE_CSS.dropHoverTop()
-                : BASE_CSS.dropHoverBottom();
-            getTRParent(dragAndDropContext).addClassName(hoverClass);
-          }
-        }, MouseMoveEvent.getType());
-      }
-    });
-    DroppableFunction removeHover = new DroppableFunction() {
-      @Override
-      public void f(DragAndDropContext dragAndDropContext) {
-        clearMouseMoveHandler();
-        removeHoverClasses(dragAndDropContext);
-      }
-    };
-    droppableOptions.setOnOut(removeHover);
-    droppableOptions.setOnDeactivate(removeHover);
-    droppableOptions.setOnDrop(onDrop);
+  public boolean isDropEnabled() {
+    return true;
   }
 
-  private void clearMouseMoveHandler() {
-    if (mouseMoveHandler != null) {
-      mouseMoveHandler.removeHandler();
-      mouseMoveHandler = null;
+  protected boolean canStartDrag() {
+    return true;
+  }
+
+  public void onHover(MouseMoveEvent event) {
+    onHoverOut();
+    int relativeY = event.getRelativeY(getElement());
+    int rowIndex = getRowIndex(relativeY);
+    String hoverClass = isTopDrop(relativeY)
+        ? BASE_CSS.dropHoverTop()
+        : BASE_CSS.dropHoverBottom();
+    getRowElement(rowIndex).addClassName(hoverClass);
+    dragHoverIndex = rowIndex;
+  }
+
+  public void onHoverOut() {
+    if (dragHoverIndex != null) {
+      getRowElement(dragHoverIndex).removeClassName(BASE_CSS.dropHoverBottom());
+      getRowElement(dragHoverIndex).removeClassName(BASE_CSS.dropHoverTop());
+      dragHoverIndex = null;
     }
   }
 
-  protected boolean isTopDrop(DragAndDropContext dragAndDropContext, boolean adjustByTop) {
-    return isTopDrop(dragAndDropContext, dragAndDropContext.getHelperPosition().top
-        + (adjustByTop ? getAbsoluteTop() : 0));
+  public abstract void onDrop(DraggableItem item, MouseUpEvent event);
+
+  protected boolean isTopDrop(int relativeY) {
+    int rowIndex = getRowIndex(relativeY);
+    TableRowElement rowElement = getRowElement(rowIndex);
+    return relativeY < rowElement.getOffsetTop() + rowElement.getOffsetHeight() / 2;
   }
 
-  private static boolean isTopDrop(DragAndDropContext dragAndDropContext, int cursorTop) {
-    com.google.gwt.dom.client.Element droppableWidget = dragAndDropContext.getDroppable();
-    return cursorTop < droppableWidget.getAbsoluteTop() + droppableWidget.getOffsetHeight() / 2;
+  protected int getRowIndex(int relativeY) {
+    int index = (relativeY - getHeaderHeight()) / getRowElement(0).getOffsetHeight();
+    index = Math.max(index, 0);
+    index = Math.min(index, getVisibleItemCount() - 1);
+    return index;
   }
 
-  private void removeHoverClasses(DragAndDropContext dragAndDropContext) {
-    getTRParent(dragAndDropContext).removeClassName(BASE_CSS.dropHoverBottom());
-    getTRParent(dragAndDropContext).removeClassName(BASE_CSS.dropHoverTop());
-  }
-
-  private static Element getTRParent(DragAndDropContext dragAndDropContext) {
-    Element droppable = dragAndDropContext.getDroppable();
-    while (!droppable.getTagName().equalsIgnoreCase("tr")
-        && droppable.hasParentElement()) {
-      droppable = droppable.getParentElement();
+  public void dragFinished() {
+    if (isDragging) {
+      isDragging = false;
+      if (runAfterDrag != null) {
+        runAfterDrag.run();
+        runAfterDrag = null;
+      }
     }
-    return droppable;
   }
 
   @Override
@@ -167,8 +156,9 @@ public abstract class PlayerTable<T> extends DragAndDropCellTable<T>
       }
       UIObject.ensureDebugId(rowElement, baseID + "-" + row);
       for (int col = 0; col < getColumnCount(); col++) {
-        Element cellElement = rowElement.getCells().getItem(col).getFirstChildElement();
-        UIObject.ensureDebugId(cellElement, baseID + "-" + row + "-" + col);
+        TableCellElement cell = rowElement.getCells().getItem(col);
+        UIObject.ensureDebugId(cell, baseID + "-" + row + "-" + col);
+        Element cellElement = cell.getFirstChildElement();
         if (cellElement.getChildCount() > 0) {
           Element cellChild = cellElement.getFirstChildElement();
           if (cellChild != null && cellChild.getTagName().equalsIgnoreCase("button")) {

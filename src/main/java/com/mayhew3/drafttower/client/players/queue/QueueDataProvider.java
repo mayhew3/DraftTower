@@ -31,7 +31,7 @@ public class QueueDataProvider extends PlayerDataProvider<QueueEntry> implements
     DequeuePlayerEvent.Handler,
     ReorderPlayerQueueEvent.Handler {
 
-  @VisibleForTesting static final int FAKE_ENTRY_ID = -1;
+  static final int FAKE_ENTRY_ID = -1;
 
   private final BeanFactory beanFactory;
   private final ServerRpc serverRpc;

@@ -3,10 +3,7 @@ package com.mayhew3.drafttower.client;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.InputElement;
-import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -60,6 +57,7 @@ public abstract class TestBase extends GWTTestCase {
       RootPanel.get().remove(mainPageWidget);
     }
     mainPageWidget = ginjector.getMainPageWidget();
+    mainPageWidget.queueArea.getStyle().setPosition(Style.Position.STATIC);
     RootPanel.get().add(mainPageWidget);
   }
 
@@ -146,18 +144,20 @@ public abstract class TestBase extends GWTTestCase {
     Element source = ensureDebugIdAndGetElement(sourceDebugId, true);
     int sourceX = source.getAbsoluteLeft() + source.getOffsetWidth() / 2;
     int sourceY = source.getAbsoluteTop() + source.getOffsetHeight() / 2;
-    Element target = ensureDebugIdAndGetElement(targetDebugId, true);
-    int targetX = target.getAbsoluteLeft() + target.getOffsetWidth() / 2;
-    int targetY = target.getAbsoluteTop() + (int) (target.getOffsetHeight() * targetYProportion);
     source.dispatchEvent(
         Document.get().createMouseMoveEvent(
             0, sourceX + 1, sourceY + 1, sourceX + 1, sourceY + 1, false, false, false, false, 0));
+
+    Element target = ensureDebugIdAndGetElement(targetDebugId, true);
+    int targetX = target.getAbsoluteLeft() + target.getOffsetWidth() / 2;
+    int targetY = target.getAbsoluteTop() + (int) (target.getOffsetHeight() * targetYProportion);
     target.dispatchEvent(
         Document.get().createMouseMoveEvent(
             0, targetX, targetY, targetX, targetY, false, false, false, false, 0));
     target.dispatchEvent(
         Document.get().createMouseUpEvent(
             0, targetX, targetY, targetX, targetY, false, false, false, false, NativeEvent.BUTTON_LEFT));
+
     ginjector.getScheduler().flush();
   }
 

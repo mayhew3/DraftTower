@@ -6,6 +6,8 @@ import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.IdentityColumn;
@@ -13,14 +15,11 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.players.PlayerDragController;
 import com.mayhew3.drafttower.client.players.PlayerTable;
+import com.mayhew3.drafttower.shared.DraggableItem;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.QueueEntry;
-import gwtquery.plugins.draggable.client.events.DragStartEvent;
-import gwtquery.plugins.draggable.client.events.DragStartEvent.DragStartEventHandler;
-import gwtquery.plugins.droppable.client.DroppableOptions.DroppableFunction;
-import gwtquery.plugins.droppable.client.events.DragAndDropContext;
-import gwtquery.plugins.droppable.client.gwt.DragAndDropColumn;
 
 /**
  * Table displaying players queue.
@@ -30,8 +29,9 @@ public class QueueTable extends PlayerTable<QueueEntry> {
   private final QueueDataProvider presenter;
 
   @Inject
-  public QueueTable(final QueueDataProvider presenter) {
-    super(presenter);
+  public QueueTable(final QueueDataProvider presenter,
+      PlayerDragController playerDragController) {
+    super(presenter, playerDragController);
     this.presenter = presenter;
 
     addStyleName(BASE_CSS.table());
@@ -44,24 +44,22 @@ public class QueueTable extends PlayerTable<QueueEntry> {
       }
     }));
 
-    DragAndDropColumn<QueueEntry, String> nameColumn =
-        new DragAndDropColumn<QueueEntry, String>(new TextCell()) {
+    Column<QueueEntry, String> nameColumn =
+        new Column<QueueEntry, String>(new TextCell()) {
           @Override
           public String getValue(QueueEntry entry) {
             return entry.getPlayerName();
           }
         };
-    initDragging(nameColumn);
     addColumn(nameColumn, "Player");
 
-    DragAndDropColumn<QueueEntry, String> eligibilityColumn =
-        new DragAndDropColumn<QueueEntry, String>(new TextCell()) {
+    Column<QueueEntry, String> eligibilityColumn =
+        new Column<QueueEntry, String>(new TextCell()) {
           @Override
           public String getValue(QueueEntry entry) {
             return Joiner.on(", ").join(entry.getEligibilities());
           }
         };
-    initDragging(eligibilityColumn);
     addColumn(eligibilityColumn, "Eligibility");
 
     Column<QueueEntry, String> removeColumn = new Column<QueueEntry, String>(new ButtonCell()) {
@@ -85,16 +83,6 @@ public class QueueTable extends PlayerTable<QueueEntry> {
       }
     });
 
-    addDragStartHandler(new DragStartEventHandler() {
-      @Override
-      public void onDragStart(DragStartEvent dragStartEvent) {
-        QueueEntry entry = dragStartEvent.getDraggableData();
-        dragStartEvent.getHelper().setInnerSafeHtml(
-            new SafeHtmlBuilder().appendEscaped(
-                entry.getPlayerName()).toSafeHtml());
-      }
-    });
-
     final SingleSelectionModel<QueueEntry> selectionModel = new SingleSelectionModel<>();
     setSelectionModel(selectionModel);
     getSelectionModel().addSelectionChangeHandler(new Handler() {
@@ -106,36 +94,37 @@ public class QueueTable extends PlayerTable<QueueEntry> {
     setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
   }
 
-  private void initDragging(DragAndDropColumn<QueueEntry, String> column) {
-    DroppableFunction onDrop = new DroppableFunction() {
-      @Override
-      public void f(DragAndDropContext dragAndDropContext) {
-        Object draggableData = dragAndDropContext.getDraggableData();
-        if (draggableData instanceof QueueEntry && ((QueueEntry) draggableData).getPlayerId() >= 0) {
-          QueueEntry draggedPlayer = dragAndDropContext.getDraggableData();
-          QueueEntry droppedPlayer = dragAndDropContext.getDroppableData();
-          if (droppedPlayer == null
-              || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
-            int targetPosition = getVisibleItems().indexOf(droppedPlayer) + 1;
-            if (isTopDrop(dragAndDropContext, false)) {
-              targetPosition--;
-            }
-            presenter.reorderQueue(draggedPlayer, targetPosition);
-          }
-        } else if (draggableData instanceof Player) {
-          Player draggedPlayer = dragAndDropContext.getDraggableData();
-          QueueEntry droppedPlayer = dragAndDropContext.getDroppableData();
-          if (droppedPlayer == null
-              || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
-            int targetPosition = getVisibleItems().indexOf(droppedPlayer) + 1;
-            if (isTopDrop(dragAndDropContext, false)) {
-              targetPosition--;
-            }
-            presenter.enqueue(draggedPlayer, droppedPlayer == null ? null : targetPosition);
-          }
-        }
+  @Override
+  protected SafeHtml getDragHelperContents(QueueEntry draggedItem) {
+    return new SafeHtmlBuilder().appendEscaped(draggedItem.getPlayerName()).toSafeHtml();
+  }
+
+  @Override
+  protected boolean canStartDrag() {
+    return getVisibleItem(0).getPlayerId() != QueueDataProvider.FAKE_ENTRY_ID;
+  }
+
+  @Override
+  public void onDrop(DraggableItem item, MouseUpEvent event) {
+    int relativeY = event.getRelativeY(getElement());
+    int rowIndex = getRowIndex(relativeY);
+    QueueEntry droppedPlayer = getVisibleItem(rowIndex);
+    int targetPosition = rowIndex + 1;
+    if (isTopDrop(relativeY)) {
+      targetPosition--;
+    }
+    if (item instanceof QueueEntry && ((QueueEntry) item).getPlayerId() >= 0) {
+      QueueEntry draggedPlayer = (QueueEntry) item;
+      if (droppedPlayer == null
+          || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
+        presenter.reorderQueue(draggedPlayer, targetPosition);
       }
-    };
-    initDragging(column, onDrop);
+    } else if (item instanceof Player) {
+      Player draggedPlayer = (Player) item;
+      if (droppedPlayer == null
+          || draggedPlayer.getPlayerId() != droppedPlayer.getPlayerId()) {
+        presenter.enqueue(draggedPlayer, droppedPlayer == null ? null : targetPosition);
+      }
+    }
   }
 }

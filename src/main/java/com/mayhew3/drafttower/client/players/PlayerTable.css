@@ -1,3 +1,6 @@
+@def dragHelperXOffset 20;
+@def dragHelperYOffset 5;
+
 .table {
   font-size: 90%;
   width: 100%;
@@ -26,12 +29,14 @@
 }
 
 .dragHelper {
+  position: absolute;
   background: white;
   padding: 5px !important;
   color: black !important;
   border: 1px solid #CCC;
   pointer-events: none;
   z-index: 2;
+  cursor: ns-resize;
 }
 
 .dropHoverTop td {
