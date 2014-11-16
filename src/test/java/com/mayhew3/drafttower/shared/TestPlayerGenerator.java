@@ -19,7 +19,7 @@ public class TestPlayerGenerator {
   public Player generatePlayer(int playerId, Position position, int i) {
     Player player = beanFactory.createPlayer().as();
     player.setName(Strings.repeat(Integer.toString(playerId), 10));
-    player.setTeam("XXX");
+    player.setTeam("XXX" + (playerId % 30));
     player.setEligibility(position.getShortName());
     if (i == 5) {
       player.setInjury("busted wang");
@@ -36,38 +36,19 @@ public class TestPlayerGenerator {
       player.setWL(Integer.toString(i));
       player.setWizardP(Float.toString(-3 + i / 20f));
     } else {
-      player.setAB(Integer.toString(i * 40));
+      player.setAB(Integer.toString(i * 20));
       player.setHR(Integer.toString(i));
       player.setRBI(Integer.toString(i * 3));
       player.setRHR(Integer.toString(i * 3));
       player.setOBP(Float.toString(.25f + i / 100f));
       player.setSLG(Float.toString(.4f + i / 50f));
       player.setSBCS(Integer.toString(i));
-      switch (position) {
-        case C:
-          player.setWizardC(Float.toString(-3 + i / 20f));
-          break;
-        case FB:
-          player.setWizard1B(Float.toString(-3 + i / 20f));
-          break;
-        case SB:
-          player.setWizard2B(Float.toString(-3 + i / 20f));
-          break;
-        case TB:
-          player.setWizard3B(Float.toString(-3 + i / 20f));
-          break;
-        case SS:
-          player.setWizardSS(Float.toString(-3 + i / 20f));
-          break;
-        case OF:
-          player.setWizardOF(Float.toString(-3 + i / 20f));
-          break;
-      }
+      PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
       player.setWizardDH(Float.toString(-3 + i / 20f));
     }
-    player.setDraft(Integer.toString(playerId));
-    player.setRank(Integer.toString(playerId));
-    player.setMyRank(Integer.toString(playerId));
+    player.setDraft(Integer.toString(playerId + 1));
+    player.setRank(Integer.toString(playerId + 1));
+    player.setMyRank(Integer.toString(playerId + 1));
     return player;
   }
 }

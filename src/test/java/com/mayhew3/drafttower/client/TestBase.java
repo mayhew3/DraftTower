@@ -256,4 +256,14 @@ public abstract class TestBase extends GWTTestCase {
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
         Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory()));
   }
+
+  protected void assertContains(String expected, String actual) {
+    assertTrue("Expected \"" + actual + "\" to contain \"" + expected + "\"",
+        actual.contains(expected));
+  }
+
+  protected void assertDoesNotContain(String expected, String actual) {
+    assertFalse("Expected \"" + actual + "\" not to contain \"" + expected + "\"",
+        actual.contains(expected));
+  }
 }

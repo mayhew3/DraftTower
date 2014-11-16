@@ -23,6 +23,7 @@ public class TestServerRpc implements ServerRpc {
 
   private final LoginHandler loginHandler;
   private final PlayerDataSource playerDataSource;
+  private final TeamDataSource teamDataSource;
   private final BeanFactory beanFactory;
 
   private final Map<String, TeamDraftOrder> teamTokens;
@@ -31,10 +32,12 @@ public class TestServerRpc implements ServerRpc {
   @Inject
   public TestServerRpc(LoginHandler loginHandler,
       PlayerDataSource playerDataSource,
+      TeamDataSource teamDataSource,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       BeanFactory beanFactory) {
     this.loginHandler = loginHandler;
     this.playerDataSource = playerDataSource;
+    this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.beanFactory = beanFactory;
   }
@@ -157,16 +160,29 @@ public class TestServerRpc implements ServerRpc {
 
   @Override
   public void sendChangePlayerRankRequest(AutoBean<ChangePlayerRankRequest> requestBean, Runnable callback) {
-    // TODO(kprevas): implement
+    try {
+      playerDataSource.changePlayerRank(requestBean.as());
+      callback.run();
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public void sendCopyRanksRequest(AutoBean<CopyAllPlayerRanksRequest> requestBean, Runnable callback) {
-    // TODO(kprevas): implement
+    try {
+      playerDataSource.copyTableSpecToCustom(requestBean.as());
+      callback.run();
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public void sendSetWizardTableRequest(AutoBean<SetWizardTableRequest> requestBean, Runnable callback) {
-    // TODO(kprevas): implement
+    SetWizardTableRequest request = requestBean.as();
+    teamDataSource.updateAutoPickWizard(
+        teamTokens.get(request.getTeamToken()), request.getPlayerDataSet());
+    callback.run();
   }
 }

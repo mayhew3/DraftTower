@@ -2,7 +2,7 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
 
@@ -56,8 +56,11 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
+    TableSpec tableSpec = request.getTableSpec();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
-    response.setPlayers(Lists.newArrayList(availablePlayers.values()));
+    response.setPlayers(
+        Ordering.from(tableSpec.getSortCol().getComparator(tableSpec.isAscending()))
+            .sortedCopy(availablePlayers.values()));
     return response;
   }
 
@@ -101,7 +104,30 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public void changePlayerRank(ChangePlayerRankRequest request) {
-    // TODO(kprevas): implement
+    long playerId = request.getPlayerId();
+    int prevRank = request.getPrevRank();
+    int newRank = request.getNewRank();
+    int lesserRank = prevRank + 1;
+    int greaterRank = newRank;
+    if (prevRank > newRank) {
+      lesserRank = newRank;
+      greaterRank = prevRank - 1;
+    }
+    // Update all players.
+    for (Player player : allPlayers.values()) {
+      if (player.getPlayerId() == playerId) {
+        player.setMyRank(Integer.toString(newRank));
+      } else {
+        int rank = Integer.parseInt(player.getMyRank());
+        if (rank >= lesserRank && rank <= greaterRank) {
+          if (prevRank > newRank) {
+            player.setMyRank(Integer.toString(rank + 1));
+          } else {
+            player.setMyRank(Integer.toString(rank - 1));
+          }
+        }
+      }
+    }
   }
 
   @Override

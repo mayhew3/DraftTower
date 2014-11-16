@@ -62,10 +62,10 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
   }
 
   private static final PlayerColumn COLUMNS[] = {
-      NAME, MLB, ELIG, G, AB, HR, RBI, OBP, SLG, RHR, SBCS, RANK, WIZARD, DRAFT, MYRANK
+      NAME, MLB, ELIG, AB, HR, RBI, OBP, SLG, RHR, SBCS, RANK, WIZARD, DRAFT, MYRANK
   };
   private static final PlayerColumn PITCHER_COLUMNS[] = {
-      null, null, null, null, null, INN, K, ERA, WHIP, WL, S, null, null, null, null, null
+      null, null, null, G, INN, K, ERA, WHIP, WL, S, null, null, null, null, null
   };
 
   private final UnclaimedPlayerDataProvider presenter;
