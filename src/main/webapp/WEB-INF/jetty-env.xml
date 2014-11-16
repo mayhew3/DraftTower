@@ -12,7 +12,7 @@
         <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
         <Set name="url">jdbc:mysql://localhost:3306/uncharted</Set>
         <Set name="username">root</Set>
-        <Set name="password"></Set>
+        <Set name="password">m3mysql</Set>
       </New>
     </Arg>
   </New>
