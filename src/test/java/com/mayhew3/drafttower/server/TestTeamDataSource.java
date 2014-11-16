@@ -19,6 +19,7 @@ public class TestTeamDataSource implements TeamDataSource {
 
   @Inject BeanFactory beanFactory;
   @Inject @NumTeams int numTeams;
+  private HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
 
   @Override
   public TeamDraftOrder getTeamDraftOrder(String username, String password) {
@@ -56,13 +57,12 @@ public class TestTeamDataSource implements TeamDataSource {
 
   @Override
   public HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards() {
-    // TODO(kprevas): implement
-    return new HashMap<>();
+    return autoPickWizards;
   }
 
   @Override
   public void updateAutoPickWizard(TeamDraftOrder teamDraftOrder, PlayerDataSet wizardTable) {
-    // TODO(kprevas): implement
+    autoPickWizards.put(teamDraftOrder, wizardTable);
   }
 
   @Override

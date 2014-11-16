@@ -149,7 +149,12 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) {
-    // TODO(kprevas): implement
+    Comparator<Player> comparator =
+        request.getTableSpec().getSortCol().getComparator(request.getTableSpec().isAscending());
+    List<Player> sortedPlayers = Ordering.from(comparator).sortedCopy(allPlayers.values());
+    for (int i = 0; i < sortedPlayers.size(); i++) {
+      sortedPlayers.get(i).setMyRank(Integer.toString(i + 1));
+    }
   }
 
   @Override
