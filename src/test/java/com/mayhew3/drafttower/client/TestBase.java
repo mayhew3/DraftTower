@@ -69,6 +69,7 @@ public abstract class TestBase extends GWTTestCase {
   protected void type(String debugId, String text) {
     Element element = ensureDebugIdAndGetElement(debugId, true);
     InputElement.as(element).setValue(text);
+    element.dispatchEvent(Document.get().createChangeEvent());
   }
 
   protected void pressKey(String debugId, int keyCode) {
@@ -125,8 +126,8 @@ public abstract class TestBase extends GWTTestCase {
     int sourceY = source.getAbsoluteTop() + source.getOffsetHeight() / 2;
 
     source.dispatchEvent(
-      Document.get().createMouseOverEvent(
-          0, sourceX, sourceY, sourceX, sourceY, false, false, false, false, 0, null));
+        Document.get().createMouseOverEvent(
+            0, sourceX, sourceY, sourceX, sourceY, false, false, false, false, 0, null));
     source.dispatchEvent(
         Document.get().createMouseDownEvent(
             0, sourceX, sourceY, sourceX, sourceY, false, false, false, false, NativeEvent.BUTTON_LEFT));
@@ -174,6 +175,11 @@ public abstract class TestBase extends GWTTestCase {
   protected boolean isEnabled(String debugId) {
     Element element = ensureDebugIdAndGetElement(debugId, true);
     return !element.hasAttribute("disabled");
+  }
+
+  protected boolean isChecked(String debugId) {
+    Element element = ensureDebugIdAndGetElement(debugId, true);
+    return InputElement.as(element).isChecked();
   }
 
   protected boolean hasStyle(String debugId, String style) {

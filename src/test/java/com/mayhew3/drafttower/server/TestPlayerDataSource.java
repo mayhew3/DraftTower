@@ -58,8 +58,12 @@ public class TestPlayerDataSource implements PlayerDataSource {
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
     TableSpec tableSpec = request.getTableSpec();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    Comparator<Player> comparator = sortCol == WIZARD
+        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+        : sortCol.getComparator(tableSpec.isAscending());
     response.setPlayers(
-        Ordering.from(tableSpec.getSortCol().getComparator(tableSpec.isAscending()))
+        Ordering.from(comparator)
             .sortedCopy(availablePlayers.values()));
     return response;
   }
@@ -149,8 +153,11 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) {
-    Comparator<Player> comparator =
-        request.getTableSpec().getSortCol().getComparator(request.getTableSpec().isAscending());
+    TableSpec tableSpec = request.getTableSpec();
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    Comparator<Player> comparator = sortCol == WIZARD
+        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+        : sortCol.getComparator(tableSpec.isAscending());
     List<Player> sortedPlayers = Ordering.from(comparator).sortedCopy(allPlayers.values());
     for (int i = 0; i < sortedPlayers.size(); i++) {
       sortedPlayers.get(i).setMyRank(Integer.toString(i + 1));

@@ -74,8 +74,8 @@ public class UnclaimedPlayerTablePanelPresenter implements
     wizardTable = event.getLoginResponse().getInitialWizardTable();
     if (wizardTable != null) {
       view.updateDataSetButtons(wizardTable);
-      updateUseForAutoPick();
     }
+    updateUseForAutoPick();
     updateCopyRanksEnabled(true);
   }
 

@@ -3,6 +3,8 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -12,6 +14,7 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.Handler;
 import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.cellview.client.SimplePager.ImageButtonsConstants;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -59,8 +62,11 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
   private final Map<PositionFilter, ToggleButton> positionFilterButtons = new HashMap<>();
   private final Map<Position, CheckBox> positionOverrideCheckBoxes = new HashMap<>();
   private final TextBox nameSearch;
+  private final InlineLabel clearSearch;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
+  private final CheckBox hideInjuries;
+  private final SimplePager pager;
   private final UnclaimedPlayerTable table;
 
   @Inject
@@ -75,7 +81,7 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     rightSideControls.addStyleName(CSS.rightSideControls());
     container.add(rightSideControls);
 
-    CheckBox hideInjuries = new CheckBox("Hide injured players");
+    hideInjuries = new CheckBox("Hide injured players");
     hideInjuries.setStyleName(CSS.hideInjuries());
     hideInjuries.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
@@ -171,7 +177,7 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     buttonPanels.add(filterButtons);
 
     FlowPanel pagerAndSearch = new FlowPanel();
-    SimplePager pager = new SimplePager();
+    pager = new SimplePager();
     pager.addStyleName(CSS.headerElement());
     pager.setDisplay(table);
     pagerAndSearch.add(pager);
@@ -181,26 +187,26 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     search.addStyleName(CSS.search());
     search.add(new InlineLabel("Search: "));
     nameSearch = new TextBox();
-    final InlineLabel clear = new InlineLabel(" X ");
-    clear.setStyleName(CSS.clearSearch());
-    clear.setVisible(false);
+    clearSearch = new InlineLabel(" X ");
+    clearSearch.setStyleName(CSS.clearSearch());
+    clearSearch.setVisible(false);
     nameSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
         presenter.setNameFilter(event.getValue());
-        clear.setVisible(!event.getValue().isEmpty());
+        clearSearch.setVisible(!event.getValue().isEmpty());
       }
     });
-    clear.addClickHandler(new ClickHandler() {
+    clearSearch.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
         nameSearch.setValue("");
-        clear.setVisible(false);
+        clearSearch.setVisible(false);
         presenter.setNameFilter("");
       }
     });
     search.add(nameSearch);
-    search.add(clear);
+    search.add(clearSearch);
     pagerAndSearch.add(search);
     container.add(pagerAndSearch);
 
@@ -257,7 +263,47 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
   @Override
   protected void onEnsureDebugId(String baseID) {
     super.onEnsureDebugId(baseID);
-    // TODO(kprevas)
+    for (Entry<PlayerDataSet, ToggleButton> dataSetButton : dataSetButtons.entrySet()) {
+      dataSetButton.getValue().ensureDebugId(baseID + "-" + dataSetButton.getKey().getDisplayName());
+    }
+    for (Entry<PositionFilter, ToggleButton> positionFilterButton : positionFilterButtons.entrySet()) {
+      positionFilterButton.getValue().ensureDebugId(baseID + "-" + positionFilterButton.getKey().getName());
+    }
+    for (Entry<Position, CheckBox> positionOverrideCheckbox : positionOverrideCheckBoxes.entrySet()) {
+      CheckBox checkBox = positionOverrideCheckbox.getValue();
+      String debugId = baseID + "-override-" + positionOverrideCheckbox.getKey().getShortName();
+      checkBox.ensureDebugId(debugId);
+      String checkboxDebugId = debugId + "-checkbox";
+      UIObject.ensureDebugId(checkBox.getElement().getElementsByTagName("input").getItem(0), checkboxDebugId);
+    }
+    nameSearch.ensureDebugId(baseID + "-search");
+    clearSearch.ensureDebugId(baseID + "-clear");
+    copyRanks.ensureDebugId(baseID + "-copyRanks");
+    UIObject.ensureDebugId(useForAutoPick.getElement().getElementsByTagName("input").getItem(0), baseID + "-autopick");
+    UIObject.ensureDebugId(hideInjuries.getElement().getElementsByTagName("input").getItem(0), baseID + "-hideInjuries");
+
+    ImageButtonsConstants imageButtonsConstants = GWT.create(ImageButtonsConstants.class);
+    NodeList<Element> pagerButtons = pager.getElement().getElementsByTagName("img");
+    for (int i = 0; i < pagerButtons.getLength(); i++) {
+      Element button = pagerButtons.getItem(i);
+      String buttonLabel = button.getAttribute("aria-label");
+      if (buttonLabel.equals(imageButtonsConstants.firstPage())) {
+        UIObject.ensureDebugId(button, baseID, "firstPage");
+      }
+      if (buttonLabel.equals(imageButtonsConstants.prevPage())) {
+        UIObject.ensureDebugId(button, baseID, "prevPage");
+      }
+      if (buttonLabel.equals(imageButtonsConstants.nextPage())) {
+        UIObject.ensureDebugId(button, baseID, "nextPage");
+      }
+      if (buttonLabel.equals(imageButtonsConstants.fastForward())) {
+        UIObject.ensureDebugId(button, baseID, "fastForward");
+      }
+      if (buttonLabel.equals(imageButtonsConstants.lastPage())) {
+        UIObject.ensureDebugId(button, baseID, "lastPage");
+      }
+    }
+
     table.ensureDebugId(baseID + "-table");
   }
 }
