@@ -173,38 +173,38 @@ public class PlayerListTest {
 
   @Test
   public void testUpdatePlayerRankIncrease() {
-    playerList.updatePlayerRank(5, 5, 2);
-    Assert.assertEquals("0", players.get(0).getMyRank());
-    Assert.assertEquals("1", players.get(1).getMyRank());
-    Assert.assertEquals("3", players.get(2).getMyRank());
-    Assert.assertEquals("4", players.get(3).getMyRank());
-    Assert.assertEquals("5", players.get(4).getMyRank());
-    Assert.assertEquals("2", players.get(5).getMyRank());
-    Assert.assertEquals("6", players.get(6).getMyRank());
+    playerList.updatePlayerRank(5, 6, 3);
+    Assert.assertEquals("1", players.get(0).getMyRank());
+    Assert.assertEquals("2", players.get(1).getMyRank());
+    Assert.assertEquals("4", players.get(2).getMyRank());
+    Assert.assertEquals("5", players.get(3).getMyRank());
+    Assert.assertEquals("6", players.get(4).getMyRank());
+    Assert.assertEquals("3", players.get(5).getMyRank());
+    Assert.assertEquals("7", players.get(6).getMyRank());
   }
 
   @Test
   public void testUpdatePlayerRankDecrease() {
-    playerList.updatePlayerRank(2, 2, 5);
-    Assert.assertEquals("0", players.get(0).getMyRank());
-    Assert.assertEquals("1", players.get(1).getMyRank());
-    Assert.assertEquals("5", players.get(2).getMyRank());
-    Assert.assertEquals("2", players.get(3).getMyRank());
-    Assert.assertEquals("3", players.get(4).getMyRank());
-    Assert.assertEquals("4", players.get(5).getMyRank());
-    Assert.assertEquals("6", players.get(6).getMyRank());
+    playerList.updatePlayerRank(2, 3, 6);
+    Assert.assertEquals("1", players.get(0).getMyRank());
+    Assert.assertEquals("2", players.get(1).getMyRank());
+    Assert.assertEquals("6", players.get(2).getMyRank());
+    Assert.assertEquals("3", players.get(3).getMyRank());
+    Assert.assertEquals("4", players.get(4).getMyRank());
+    Assert.assertEquals("5", players.get(5).getMyRank());
+    Assert.assertEquals("7", players.get(6).getMyRank());
   }
 
   @Test
   public void testUpdatePlayerRankNoOp() {
-    playerList.updatePlayerRank(4, 4, 4);
-    Assert.assertEquals("0", players.get(0).getMyRank());
-    Assert.assertEquals("1", players.get(1).getMyRank());
-    Assert.assertEquals("2", players.get(2).getMyRank());
-    Assert.assertEquals("3", players.get(3).getMyRank());
-    Assert.assertEquals("4", players.get(4).getMyRank());
-    Assert.assertEquals("5", players.get(5).getMyRank());
-    Assert.assertEquals("6", players.get(6).getMyRank());
+    playerList.updatePlayerRank(4, 5, 5);
+    Assert.assertEquals("1", players.get(0).getMyRank());
+    Assert.assertEquals("2", players.get(1).getMyRank());
+    Assert.assertEquals("3", players.get(2).getMyRank());
+    Assert.assertEquals("4", players.get(3).getMyRank());
+    Assert.assertEquals("5", players.get(4).getMyRank());
+    Assert.assertEquals("6", players.get(5).getMyRank());
+    Assert.assertEquals("7", players.get(6).getMyRank());
   }
 
   @Test

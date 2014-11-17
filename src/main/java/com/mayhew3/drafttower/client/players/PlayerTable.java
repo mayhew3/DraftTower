@@ -114,7 +114,9 @@ public abstract class PlayerTable<T extends DraggableItem> extends CellTable<T>
   }
 
   protected int getRowIndex(int relativeY) {
-    int index = (relativeY - getHeaderHeight()) / getRowElement(0).getOffsetHeight();
+    int rowHeight = getRowElement(0).getOffsetHeight();
+    int index = rowHeight == 0 ? 0
+        : (relativeY - getHeaderHeight()) / rowHeight;
     index = Math.max(index, 0);
     index = Math.min(index, getVisibleItemCount() - 1);
     return index;
@@ -158,11 +160,13 @@ public abstract class PlayerTable<T extends DraggableItem> extends CellTable<T>
       for (int col = 0; col < getColumnCount(); col++) {
         TableCellElement cell = rowElement.getCells().getItem(col);
         UIObject.ensureDebugId(cell, baseID + "-" + row + "-" + col);
-        Element cellElement = cell.getFirstChildElement();
-        if (cellElement.getChildCount() > 0) {
-          Element cellChild = cellElement.getFirstChildElement();
-          if (cellChild != null && cellChild.getTagName().equalsIgnoreCase("button")) {
-            UIObject.ensureDebugId(cellChild, baseID + "-" + row + "-" + col + "-button");
+        if (cell != null) {
+          Element cellElement = cell.getFirstChildElement();
+          if (cellElement.getChildCount() > 0) {
+            Element cellChild = cellElement.getFirstChildElement();
+            if (cellChild != null && cellChild.getTagName().equalsIgnoreCase("button")) {
+              UIObject.ensureDebugId(cellChild, baseID + "-" + row + "-" + col + "-button");
+            }
           }
         }
       }

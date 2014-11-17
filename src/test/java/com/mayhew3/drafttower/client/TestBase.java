@@ -4,15 +4,12 @@ import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.*;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.DraftStatusTestUtil;
-import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +43,7 @@ public abstract class TestBase extends GWTTestCase {
 
   @Override
   protected void gwtSetUp() {
+    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
     ginjector = GWT.create(DraftTowerTestGinjector.class);
     ((TestSchedulerImpl) Scheduler.get()).setScheduler(ginjector.getScheduler());
     reset();
@@ -188,9 +186,10 @@ public abstract class TestBase extends GWTTestCase {
   }
 
   protected void login(int team) {
+    assertTrue(isVisible("-login"));
     type(USERNAME, Integer.toString(team));
     type(PASSWORD, Integer.toString(team));
-    pressKey(PASSWORD, KeyCodes.KEY_ENTER);
+    click(LOGIN_BUTTON);
   }
 
   protected native String getFocusedElementId() /*-{

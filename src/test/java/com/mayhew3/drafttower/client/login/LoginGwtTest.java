@@ -1,7 +1,5 @@
 package com.mayhew3.drafttower.client.login;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
 import com.mayhew3.drafttower.client.TestBase;
@@ -29,14 +27,8 @@ public class LoginGwtTest extends TestBase {
   }
 
   public void testUsernameFocused() {
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        assertTrue(isFocused(USERNAME));
-        finishTest();
-      }
-    });
-    delayTestFinish(500);
+    ginjector.getScheduler().flush();
+    assertTrue(isFocused(USERNAME));
   }
 
   public void testSuccessfulLoginButton() {

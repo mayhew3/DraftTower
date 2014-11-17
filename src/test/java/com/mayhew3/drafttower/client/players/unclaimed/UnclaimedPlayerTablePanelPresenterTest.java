@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
@@ -29,6 +30,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
 
   @Before
   public void setUp() {
+    BeanFactory beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
     OpenPositions openPositions = Mockito.mock(OpenPositions.class);
     unfilledPositions = EnumSet.of(Position.C, Position.SB, Position.SS, Position.P);
     Mockito.when(openPositions.get()).thenReturn(unfilledPositions);
@@ -45,6 +47,10 @@ public class UnclaimedPlayerTablePanelPresenterTest {
 
     Mockito.reset(view, tablePresenter, eventBus);
     Mockito.when(tablePresenter.getSortedPlayerColumn()).thenReturn(PlayerColumn.WIZARD);
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setSortCol(PlayerColumn.AB);
+    tableSpec.setPlayerDataSet(PlayerDataSet.AVERAGES);
+    Mockito.when(tablePresenter.getTableSpec()).thenReturn(tableSpec);
   }
 
   @Test
@@ -62,6 +68,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(null);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).setCopyRanksEnabled(false, true);
+    Mockito.verify(view).updateUseForAutoPickCheckbox(false, true);
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -72,6 +79,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(null);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).setCopyRanksEnabled(true, true);
+    Mockito.verify(view).updateUseForAutoPickCheckbox(false, false);
     Mockito.verifyNoMoreInteractions(view);
   }
 

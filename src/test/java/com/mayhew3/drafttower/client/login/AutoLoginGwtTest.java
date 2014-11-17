@@ -1,7 +1,5 @@
 package com.mayhew3.drafttower.client.login;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.Cookies;
 import com.mayhew3.drafttower.client.TestBase;
 import com.mayhew3.drafttower.server.TeamDraftOrder;
@@ -25,14 +23,8 @@ public class AutoLoginGwtTest extends TestBase {
     super.reset();
     assertTrue(isVisible("-login"));
     assertFalse(ginjector.getDraftStatus().getConnectedTeams().contains(1));
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        assertTrue(isFocused("-login-username"));
-        finishTest();
-      }
-    });
-    delayTestFinish(500);
+    ginjector.getScheduler().flush();
+    assertTrue(isFocused("-login-username"));
   }
 
   public void testDuplicateLogin() {
@@ -41,13 +33,7 @@ public class AutoLoginGwtTest extends TestBase {
     ginjector.getDraftStatus().getConnectedTeams().add(1);
     super.reset();
     assertTrue(isVisible("-login"));
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        assertTrue(isFocused("-login-username"));
-        finishTest();
-      }
-    });
-    delayTestFinish(500);
+    ginjector.getScheduler().flush();
+    assertTrue(isFocused("-login-username"));
   }
 }

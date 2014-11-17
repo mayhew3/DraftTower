@@ -27,9 +27,23 @@
       <pattern testClass="^.*GwtTest.*$" />
     </patterns>
     <RunnerSettings RunnerId="Cover" />
+    <RunnerSettings RunnerId="Debug">
+      <option name="DEBUG_PORT" value="" />
+      <option name="TRANSPORT" value="0" />
+      <option name="LOCAL" value="true" />
+    </RunnerSettings>
+    <RunnerSettings RunnerId="Debug with VisualVM">
+      <option name="DEBUG_PORT" value="" />
+      <option name="TRANSPORT" value="0" />
+      <option name="LOCAL" value="true" />
+    </RunnerSettings>
     <RunnerSettings RunnerId="Run" />
+    <RunnerSettings RunnerId="Run with VisualVM" />
     <ConfigurationWrapper RunnerId="Cover" />
+    <ConfigurationWrapper RunnerId="Debug" />
+    <ConfigurationWrapper RunnerId="Debug with VisualVM" />
     <ConfigurationWrapper RunnerId="Run" />
+    <ConfigurationWrapper RunnerId="Run with VisualVM" />
     <method />
   </configuration>
 </component>

@@ -28,15 +28,15 @@ public class MyRankFieldUpdaterTest {
 
   @Test
   public void testUpdate() throws Exception {
-    Player player = playerGenerator.generatePlayer(1, Position.C, 1);
-    updater.update(1, player, "30");
+    Player player = playerGenerator.generatePlayer(0, Position.C, 0);
+    updater.update(0, player, "30");
     Mockito.verify(presenter).changePlayerRank(player, 30, 1);
   }
 
   @Test
   public void testUpdateNoOp() throws Exception {
-    Player player = playerGenerator.generatePlayer(1, Position.C, 1);
-    updater.update(1, player, "1");
+    Player player = playerGenerator.generatePlayer(0, Position.C, 0);
+    updater.update(0, player, "1");
     Mockito.verifyZeroInteractions(presenter);
   }
 
