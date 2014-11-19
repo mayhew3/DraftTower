@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.shared;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 
+import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
@@ -27,25 +28,24 @@ public class TestPlayerGenerator {
     player.setCBSId(playerId);
     player.setPlayerId(playerId);
     if (position == P) {
-      player.setG(Integer.toString(i / 5 + 1));
-      player.setINN(Integer.toString(i + 10));
-      player.setK(Integer.toString(i + 5));
-      player.setERA(Float.toString(2 + i / 100f));
-      player.setWHIP(Float.toString(1 + i / 100f));
-      player.setS(Integer.toString(i));
-      player.setWL(Integer.toString(i));
-      player.setWizardP(Float.toString(-3 + i / 20f));
+      G.set(player, Integer.toString(i / 5 + 1));
+      INN.set(player, Integer.toString(i + 10));
+      K.set(player, Integer.toString(i + 5));
+      ERA.set(player, Float.toString(2 + i / 100f));
+      WHIP.set(player, Float.toString(1 + i / 100f));
+      S.set(player, Integer.toString(i));
+      WL.set(player, Integer.toString(i));
     } else {
-      player.setAB(Integer.toString(i * 20));
-      player.setHR(Integer.toString(i));
-      player.setRBI(Integer.toString(i * 3));
-      player.setRHR(Integer.toString(i * 3));
-      player.setOBP(Float.toString(.25f + i / 100f));
-      player.setSLG(Float.toString(.4f + i / 50f));
-      player.setSBCS(Integer.toString(i));
-      PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
+      AB.set(player, Integer.toString(i * 20));
+      HR.set(player, Integer.toString(i));
+      RBI.set(player, Integer.toString(i * 3));
+      RHR.set(player, Integer.toString(i * 3));
+      OBP.set(player, Float.toString(.25f + i / 100f));
+      SLG.set(player, Float.toString(.4f + i / 50f));
+      SBCS.set(player, Integer.toString(i));
       player.setWizardDH(Float.toString(-3 + i / 20f));
     }
+    PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
     player.setDraft(Integer.toString(playerId + 1));
     player.setRank(Integer.toString(playerId + 1));
     player.setMyRank(Integer.toString(playerId + 1));
