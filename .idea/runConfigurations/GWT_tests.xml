@@ -14,7 +14,7 @@
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="pattern" />
-    <option name="VM_PARAMETERS" value="-Xmx512M -XX:MaxPermSize=128M -DgwtTests=true" />
+    <option name="VM_PARAMETERS" value="-Xmx2G -XX:MaxPermSize=128M -DgwtTests=true" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ENV_VARIABLES" />
