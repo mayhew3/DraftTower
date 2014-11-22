@@ -188,6 +188,7 @@
           <argLine>-Xmx512M -XX:MaxPermSize=128M</argLine>
           <excludes>
             <exclude>**/*GwtTest.java</exclude>
+            <exclude>**/EndToEndTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
