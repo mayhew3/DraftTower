@@ -2,6 +2,9 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.dom.client.IFrameElement;
 import com.mayhew3.drafttower.client.TestBase;
+import com.mayhew3.drafttower.shared.Position;
+
+import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
  * GWT test for main table widget.
@@ -247,5 +250,32 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     click("-players-table-0-15");
     assertEquals("265", getInnerText("-players-table-1-15"));
     assertEquals("264", getInnerText("-players-table-2-15"));
+  }
+
+  public void testPositionFiltersUpdateColumnNames() {
+    login(1);
+    ginjector.getScheduler().flush();
+    assertEquals("AB/G", getInnerText("-players-table-0-5"));
+
+    click("-players-P");
+    ginjector.getScheduler().flush();
+    assertEquals("G", getInnerText("-players-table-0-5"));
+
+    click("-players-SS");
+    ginjector.getScheduler().flush();
+    assertEquals("AB", getInnerText("-players-table-0-5"));
+
+    simulateDraftStatus(new Position[][]{
+        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P, P, P, P},
+    });
+    click("-players-Unfilled");
+    ginjector.getScheduler().flush();
+    assertEquals("AB", getInnerText("-players-table-0-5"));
   }
 }

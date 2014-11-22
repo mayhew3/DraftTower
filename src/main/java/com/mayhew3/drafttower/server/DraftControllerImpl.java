@@ -136,6 +136,8 @@ public class DraftControllerImpl implements DraftController {
         case DO_PICK:
           if (!status.isOver() && teamDraftOrder.get() == status.getCurrentTeam()) {
             doPick(teamDraftOrder, cmd.getPlayerId(), false, false);
+          } else {
+            return;
           }
           break;
         case PAUSE:
@@ -154,6 +156,8 @@ public class DraftControllerImpl implements DraftController {
             } else {
               doPick(new TeamDraftOrder(status.getCurrentTeam()), cmd.getPlayerId(), true, false);
             }
+          } else {
+            return;
           }
           break;
         case WAKE_UP:

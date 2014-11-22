@@ -24,10 +24,6 @@ public abstract class PlayerTableColumn<C> extends Column<Player, C> {
     }
   }
 
-  public PlayerColumn getColumn() {
-    return column;
-  }
-
   public abstract PlayerColumn getSortedColumn();
 
   public abstract ColumnSort getSortedColumn(boolean isAscending);

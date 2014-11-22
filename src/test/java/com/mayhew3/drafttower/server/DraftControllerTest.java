@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider.FakeCurrentTimeProvider;
+import com.mayhew3.drafttower.shared.DraftCommand.Command;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,8 @@ public class DraftControllerTest {
   private PlayerDataSource playerDataSource;
   private BeanFactory beanFactory;
   private List<DraftPick> picks;
+  private FakeCurrentTimeProvider currentTimeProvider;
+  private DraftTowerWebSocketServlet socketServlet;
 
   @Before
   public void setUp() throws Exception {
@@ -55,69 +58,77 @@ public class DraftControllerTest {
             return (long) picks.size();
           }
         });
+    currentTimeProvider = new FakeCurrentTimeProvider();
+    currentTimeProvider.setCurrentTimeMillis(1000);
+    socketServlet = Mockito.mock(DraftTowerWebSocketServlet.class);
   }
 
   private DraftControllerImpl createDraftController() throws DataSourceException {
-    return new DraftControllerImpl(
-        Mockito.mock(DraftTowerWebSocketServlet.class),
+    HashMap<String, TeamDraftOrder> teamTokens = new HashMap<>();
+    teamTokens.put("1", new TeamDraftOrder(1));
+    teamTokens.put("2", new TeamDraftOrder(2));
+    TeamDataSource teamDataSource = Mockito.mock(TeamDataSource.class);
+    Mockito.when(teamDataSource.isCommissionerTeam(Mockito.eq(new TeamDraftOrder(1))))
+        .thenReturn(true);
+    Mockito.when(teamDataSource.isCommissionerTeam(Mockito.eq(new TeamDraftOrder(2))))
+        .thenReturn(false);
+    DraftControllerImpl draftController = new DraftControllerImpl(
+        socketServlet,
         beanFactory,
         playerDataSource,
-        Mockito.mock(TeamDataSource.class),
-        new FakeCurrentTimeProvider(),
+        teamDataSource,
+        currentTimeProvider,
         Mockito.mock(DraftTimer.class),
         draftStatus,
         new LockImpl(),
         new RosterUtil(),
-        new HashMap<String, TeamDraftOrder>(),
+        teamTokens,
         keepers,
         queues,
         new HashMap<TeamDraftOrder, PlayerDataSet>(),
         10);
+    Mockito.reset(socketServlet);
+    return draftController;
   }
 
   @Test
   public void testFirstTeamCurrentWhenConstructingAfterFullRound() throws Exception{
-    reset();
     picks = createPicksList(10);
-    DraftControllerImpl draftController = createDraftController();
+    createDraftController();
     Assert.assertEquals(1, draftStatus.getCurrentTeam());
   }
 
   @Test
   public void testNextPickKeeperTeamsWhenConstructingFirstRoundStart() throws Exception{
-    reset();
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
-    DraftControllerImpl draftController = createDraftController();
+    createDraftController();
     Assert.assertEquals(Sets.newHashSet(4, 6), draftStatus.getNextPickKeeperTeams());
   }
 
   @Test
   public void testNextPickKeeperTeamsWhenConstructingFirstRoundMiddle() throws Exception{
-    reset();
     picks = createPicksList(4);
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
-    DraftControllerImpl draftController = createDraftController();
+    createDraftController();
     Assert.assertEquals(Sets.newHashSet(6), draftStatus.getNextPickKeeperTeams());
   }
 
   @Test
   public void testNextPickKeeperTeamsWhenConstructingSecondRound() throws Exception{
-    reset();
     picks = createPicksList(10);
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
-    DraftControllerImpl draftController = createDraftController();
+    createDraftController();
     Assert.assertEquals(Sets.newHashSet(6), draftStatus.getNextPickKeeperTeams());
   }
 
   @Test
   public void testNextPickKeeperTeamsWhenConstructingThirdRound() throws Exception{
-    reset();
     picks = createPicksList(20);
     keepers.put(new TeamDraftOrder(2), 1);
     keepers.put(new TeamDraftOrder(4), 3);
@@ -125,25 +136,23 @@ public class DraftControllerTest {
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
     keepers.put(new TeamDraftOrder(6), 25);
-    DraftControllerImpl draftController = createDraftController();
+    createDraftController();
     Assert.assertEquals(Sets.newHashSet(6), draftStatus.getNextPickKeeperTeams());
   }
 
   @Test
   public void testNextPickKeeperTeamsWhenConstructingFourthRound() throws Exception{
-    reset();
     picks = createPicksList(30);
     keepers.put(new TeamDraftOrder(4), 3);
     keepers.put(new TeamDraftOrder(6), 5);
     keepers.put(new TeamDraftOrder(6), 15);
     keepers.put(new TeamDraftOrder(6), 25);
-    DraftControllerImpl draftController = createDraftController();
+    createDraftController();
     Assert.assertEquals(Sets.<Integer>newHashSet(), draftStatus.getNextPickKeeperTeams());
   }
 
   @Test
   public void testBackOutLastPick() throws Exception {
-    reset();
     picks = createPicksList(4);
     DraftControllerImpl draftController = createDraftController();
     draftController.backOutLastPick();
@@ -153,7 +162,6 @@ public class DraftControllerTest {
 
   @Test
   public void testBackOutLastPickByFirstTeam() throws Exception {
-    reset();
     picks = createPicksList(10);
     DraftControllerImpl draftController = createDraftController();
     draftController.backOutLastPick();
@@ -163,7 +171,6 @@ public class DraftControllerTest {
 
   @Test
   public void testBackOutLastPickStaysPaused() throws Exception {
-    reset();
     draftStatus.setPaused(true);
     picks = createPicksList(4);
     DraftControllerImpl draftController = createDraftController();
@@ -173,7 +180,6 @@ public class DraftControllerTest {
 
   @Test
   public void testBackOutLastPickSkipsKeepers() throws Exception {
-    reset();
     picks = createPicksList(4);
     keepers.put(new TeamDraftOrder(4), 0);
     DraftControllerImpl draftController = createDraftController();
@@ -183,8 +189,15 @@ public class DraftControllerTest {
   }
 
   @Test
+  public void testBackOutLastPickNoPicks() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftController.backOutLastPick();
+    Assert.assertEquals(1, draftStatus.getCurrentTeam());
+    Assert.assertEquals(0, draftStatus.getPicks().size());
+  }
+
+  @Test
   public void testAutoPickNoQueueSetsRobotMode() throws Exception {
-    reset();
     DraftControllerImpl draftController = createDraftController();
     draftController.timerExpired();
     Assert.assertTrue(draftStatus.getRobotTeams().contains(1));
@@ -192,7 +205,6 @@ public class DraftControllerTest {
 
   @Test
   public void testAutoPickFromQueueDoesNotSetRobotMode() throws Exception {
-    reset();
     QueueEntry queueEntry = beanFactory.createQueueEntry().as();
     queueEntry.setPlayerId(0);
     queues.put(new TeamDraftOrder(1), queueEntry);
@@ -203,7 +215,6 @@ public class DraftControllerTest {
 
   @Test
   public void testPickAdvancesFromLastTeamToFirstTeam() throws Exception {
-    reset();
     picks = createPicksList(9);
     DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(10), 9, false, false);
@@ -212,7 +223,6 @@ public class DraftControllerTest {
 
   @Test
   public void testInvalidPickDoesNotAdvanceTeam() throws Exception {
-    reset();
     picks = createPicksList(9);
     DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(10), 8, false, false);
@@ -221,7 +231,6 @@ public class DraftControllerTest {
 
   @Test
   public void testPickPicksFollowingKeeper() throws Exception {
-    reset();
     picks = createPicksList(2);
     keepers.put(new TeamDraftOrder(4), 3);
     DraftControllerImpl draftController = createDraftController();
@@ -232,7 +241,6 @@ public class DraftControllerTest {
 
   @Test
   public void testPickIgnoresKeeperLaterRounds() throws Exception {
-    reset();
     picks = createPicksList(12);
     keepers.put(new TeamDraftOrder(4), 3);
     DraftControllerImpl draftController = createDraftController();
@@ -242,7 +250,6 @@ public class DraftControllerTest {
 
   @Test
   public void testPickRemovesPlayerFromQueues() throws Exception {
-    reset();
     TeamDraftOrder team3 = new TeamDraftOrder(3);
     TeamDraftOrder team6 = new TeamDraftOrder(6);
     queues.put(team3, createQueueEntry(0));
@@ -257,11 +264,265 @@ public class DraftControllerTest {
 
   @Test
   public void testItsOver() throws Exception {
-    reset();
     picks = createPicksList(219);
     DraftControllerImpl draftController = createDraftController();
     draftController.doPick(new TeamDraftOrder(10), 219, false, false);
     Assert.assertTrue(draftStatus.isOver());
+  }
+
+  @Test
+  public void testOnDraftCommandBadTeamToken() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("bad");
+    try {
+      draftController.onDraftCommand(draftCommand);
+    } catch (TerminateSocketException e) {
+      // expected
+      Mockito.verifyZeroInteractions(socketServlet);
+      return;
+    }
+    Assert.fail("No exception thrown");
+  }
+
+  @Test
+  public void testOnDraftCommandNonCommish() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("2");
+    draftCommand.setCommandType(Command.START_DRAFT);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(0, draftStatus.getCurrentPickDeadline());
+    Mockito.verifyZeroInteractions(socketServlet);
+  }
+
+  @Test
+  public void testOnDraftCommandIdentifyAlreadyConnectedTeam() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftStatus.getConnectedTeams().add(1);
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.IDENTIFY);
+    try {
+      draftController.onDraftCommand(draftCommand);
+    } catch (TerminateSocketException e) {
+      // expected
+      Mockito.verifyZeroInteractions(socketServlet);
+      return;
+    }
+    Assert.fail("No exception thrown");
+  }
+
+  @Test
+  public void testOnDraftCommandIdentifyAddsToConnectedTeams() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.IDENTIFY);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertTrue(draftStatus.getConnectedTeams().contains(1));
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandIdentifyRemovesFromRobotTeams() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftStatus.getRobotTeams().add(1);
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.IDENTIFY);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertFalse(draftStatus.getRobotTeams().contains(1));
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandStartDraft() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.START_DRAFT);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(76000, draftStatus.getCurrentPickDeadline());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandRobotTime() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftStatus.getRobotTeams().add(1);
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.START_DRAFT);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(8000, draftStatus.getCurrentPickDeadline());
+  }
+
+  @Test
+  public void testOnDraftCommandDoPick() throws Exception {
+    picks = createPicksList(1);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("2");
+    draftCommand.setCommandType(Command.DO_PICK);
+    draftCommand.setPlayerId(100l);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(2, draftStatus.getPicks().size());
+    Assert.assertEquals(100l, draftStatus.getPicks().get(1).getPlayerId());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandPauseResume() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftStatus.setCurrentPickDeadline(76000);
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.PAUSE);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertTrue(draftStatus.isPaused());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+
+    currentTimeProvider.setCurrentTimeMillis(5000);
+
+    draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.RESUME);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertFalse(draftStatus.isPaused());
+    Assert.assertEquals(80000, draftStatus.getCurrentPickDeadline());
+    Mockito.verify(socketServlet, Mockito.times(2))
+        .sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandBackOut() throws Exception {
+    picks = createPicksList(1);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.BACK_OUT);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(0, draftStatus.getPicks().size());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandForcePickAuto() throws Exception {
+    picks = createPicksList(12);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.FORCE_PICK);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(13, draftStatus.getPicks().size());
+    Assert.assertEquals(12l, draftStatus.getPicks().get(12).getPlayerId());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandForcePickQueue() throws Exception {
+    picks = createPicksList(1);
+    QueueEntry queueEntry = beanFactory.createQueueEntry().as();
+    queueEntry.setPlayerId(100l);
+    queues.put(new TeamDraftOrder(2), queueEntry);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.FORCE_PICK);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(2, draftStatus.getPicks().size());
+    Assert.assertEquals(100l, draftStatus.getPicks().get(1).getPlayerId());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandForcePickManual() throws Exception {
+    picks = createPicksList(1);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.FORCE_PICK);
+    draftCommand.setPlayerId(100l);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(2, draftStatus.getPicks().size());
+    Assert.assertEquals(100l, draftStatus.getPicks().get(1).getPlayerId());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandWakeUp() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftStatus.getRobotTeams().add(2);
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("2");
+    draftCommand.setCommandType(Command.WAKE_UP);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertFalse(draftStatus.getRobotTeams().contains(2));
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnDraftCommandDoPickAlreadyOver() throws Exception {
+    picks = createPicksList(1);
+    draftStatus.setOver(true);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("2");
+    draftCommand.setCommandType(Command.DO_PICK);
+    draftCommand.setPlayerId(100l);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(1, draftStatus.getPicks().size());
+    Mockito.verifyZeroInteractions(socketServlet);
+  }
+
+  @Test
+  public void testOnDraftCommandDoPickWrongTeam() throws Exception {
+    picks = createPicksList(1);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.DO_PICK);
+    draftCommand.setPlayerId(100l);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(1, draftStatus.getPicks().size());
+    Mockito.verifyZeroInteractions(socketServlet);
+  }
+
+  @Test
+  public void testOnDraftCommandForcePickAlreadyOver() throws Exception {
+    picks = createPicksList(1);
+    draftStatus.setOver(true);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.FORCE_PICK);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(1, draftStatus.getPicks().size());
+    Mockito.verifyZeroInteractions(socketServlet);
+  }
+
+  @Test
+  public void testOnClientConnectedSendsStatus() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftController.onClientConnected();
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnClientDisconnected() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftStatus.getConnectedTeams().add(2);
+    draftController.onClientDisconnected("2");
+    Assert.assertFalse(draftStatus.getConnectedTeams().contains(2));
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
+  public void testOnClientDisconnectedIdempotence() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    draftController.onClientDisconnected("3");
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
   }
 
   private List<DraftPick> createPicksList(int numPicks) {
@@ -280,11 +541,5 @@ public class DraftControllerTest {
     QueueEntry queueEntry = beanFactory.createQueueEntry().as();
     queueEntry.setPlayerId(playerId);
     return queueEntry;
-  }
-
-  private void reset() {
-    keepers.clear();
-    queues.clear();
-    picks.clear();
   }
 }

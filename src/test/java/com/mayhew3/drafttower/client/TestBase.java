@@ -129,6 +129,9 @@ public abstract class TestBase extends GWTTestCase {
     source.dispatchEvent(
         Document.get().createMouseDownEvent(
             0, sourceX, sourceY, sourceX, sourceY, false, false, false, false, NativeEvent.BUTTON_LEFT));
+    source.dispatchEvent(
+        Document.get().createMouseMoveEvent(
+            0, sourceX + 1, sourceY + 1, sourceX + 1, sourceY + 1, false, false, false, false, 0));
   }
 
   protected void finishDragToTop(String sourceDebugId, String targetDebugId) {
@@ -140,13 +143,6 @@ public abstract class TestBase extends GWTTestCase {
   }
 
   private void finishDrag(String sourceDebugId, String targetDebugId, double targetYProportion) {
-    Element source = ensureDebugIdAndGetElement(sourceDebugId, true);
-    int sourceX = source.getAbsoluteLeft() + source.getOffsetWidth() / 2;
-    int sourceY = source.getAbsoluteTop() + source.getOffsetHeight() / 2;
-    source.dispatchEvent(
-        Document.get().createMouseMoveEvent(
-            0, sourceX + 1, sourceY + 1, sourceX + 1, sourceY + 1, false, false, false, false, 0));
-
     Element target = ensureDebugIdAndGetElement(targetDebugId, true);
     int targetX = target.getAbsoluteLeft() + target.getOffsetWidth() / 2;
     int targetY = target.getAbsoluteTop() + (int) (target.getOffsetHeight() * targetYProportion);
