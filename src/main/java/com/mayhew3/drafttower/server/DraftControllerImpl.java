@@ -371,7 +371,9 @@ public class DraftControllerImpl implements DraftController {
   }
 
   private String getEncodedStatus() {
-    status.setSerialId(status.getSerialId() + 1);
-    return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
+    synchronized (status) {
+      status.setSerialId(status.getSerialId() + 1);
+      return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
+    }
   }
 }

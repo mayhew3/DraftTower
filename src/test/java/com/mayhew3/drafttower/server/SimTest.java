@@ -48,6 +48,19 @@ public class SimTest {
     run();
   }
 
+  @Test
+  public void duplicateTeams() {
+    for (int i = 1; i <= 10; i++) {
+      PickNextPlayerClient client = clientProvider.get();
+      client.setUsername(Integer.toString(i));
+      clients.add(client);
+      client = clientProvider.get();
+      client.setUsername(Integer.toString(i));
+      clients.add(client);
+    }
+    run();
+  }
+
   protected void run() {
     final long startTime = System.currentTimeMillis();
     List<Thread> threads = new ArrayList<>();
@@ -86,9 +99,11 @@ public class SimTest {
       }
     }
 
+    Assert.assertTrue("Test timed out.", draftStatus.isOver());
+
     if (!clientExceptions.isEmpty()) {
-      Assert.fail("Clients had exceptions. First exception was: "
-          + clientExceptions.get(0));
+      clientExceptions.get(0).printStackTrace();
+      Assert.fail("Clients had exceptions.");
     }
     for (SimulatedClient client : clients) {
       client.verify();

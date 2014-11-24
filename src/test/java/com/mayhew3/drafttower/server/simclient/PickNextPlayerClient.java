@@ -25,7 +25,7 @@ public class PickNextPlayerClient extends SimulatedClient {
 
   @Override
   public void performAction() {
-    if (teamToken == null) {
+    if (connection == null) {
       try {
         login(false);
       } catch (ServletException | IOException e) {
@@ -41,8 +41,8 @@ public class PickNextPlayerClient extends SimulatedClient {
   @Override
   public void verify() {
     if (!exceptions.isEmpty()) {
-      Assert.fail("Client " + username + " failed to log in. First exception was: "
-          + exceptions.get(0));
+      exceptions.get(0).printStackTrace();
+      Assert.fail("Client " + username + " failed to log in.");
     }
   }
 }

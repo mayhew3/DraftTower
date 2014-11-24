@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 
 /**
  * Simulates client behavior in tests.
@@ -39,6 +38,8 @@ public abstract class SimulatedClient implements WebsocketListener {
   private final Cookie[] cookies;
   protected String username;
   protected String teamToken;
+
+  protected Connection connection;
 
   public SimulatedClient() {
     cookies = new Cookie[1];
@@ -65,22 +66,35 @@ public abstract class SimulatedClient implements WebsocketListener {
         .thenReturn(badPassword ? TestTeamDataSource.BAD_PASSWORD : username);
 
     HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
-    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    PrintWriter writer = Mockito.mock(PrintWriter.class);
+    Mockito.when(resp.getWriter()).thenReturn(writer);
+    Mockito.doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable {
+        LoginResponse response = AutoBeanCodex.decode(beanFactory, LoginResponse.class,
+            (String) invocation.getArguments()[0]).as();
+        teamToken = response.getTeamToken();
+        return null;
+      }
+    }).when(writer).append(Mockito.<CharSequence>any());
     Mockito.doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
         Cookie cookie = (Cookie) invocation.getArguments()[0];
-        teamToken = cookie.getValue();
         cookies[0] = cookie;
         return null;
       }
     }).when(resp).addCookie(Mockito.<Cookie>any());
 
     loginServlet.doPost(req, resp);
+    if (teamToken == null) {
+      // Login failed.
+      return;
+    }
 
     webSocket = (DraftTowerWebSocketServlet.DraftTowerWebSocket)
         webSocketServlet.doWebSocketConnect(null, null);
-    Connection connection = Mockito.mock(Connection.class);
+    connection = Mockito.mock(Connection.class);
     Mockito.doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -97,6 +111,7 @@ public abstract class SimulatedClient implements WebsocketListener {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
         webSocket.onClose((Integer) invocation.getArguments()[0], (String) invocation.getArguments()[1]);
+        connection = null;
         return null;
       }
     }).when(connection).close(Mockito.anyInt(), Mockito.anyString());
