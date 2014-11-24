@@ -69,6 +69,7 @@ public class QueueHandler {
         if (queue.isEmpty()) {
           queue.add(queueEntry);
         } else {
+          position = Math.min(position, queue.size());
           queue.add(position, queueEntry);
         }
       }
@@ -90,6 +91,7 @@ public class QueueHandler {
       long playerId,
       int newPosition) {
     List<QueueEntry> queue = queues.get(team);
+    newPosition = Math.min(newPosition, queue.size());
     synchronized (queues) {
       int oldPosition = Iterables.indexOf(queue, new QueueEntryPredicate(playerId));
       if (oldPosition != -1) {

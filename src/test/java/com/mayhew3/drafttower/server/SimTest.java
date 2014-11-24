@@ -4,6 +4,7 @@ import com.google.common.testing.TearDownAccepter;
 import com.google.guiceberry.junit4.GuiceBerryRule;
 import com.mayhew3.drafttower.server.simclient.BadLoginClient;
 import com.mayhew3.drafttower.server.simclient.FlakyClient;
+import com.mayhew3.drafttower.server.simclient.FuzzClient;
 import com.mayhew3.drafttower.server.simclient.PickNextPlayerClient;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import org.junit.After;
@@ -31,6 +32,7 @@ public class SimTest {
 
   @Inject private Provider<PickNextPlayerClient> pickNextPlayerClientProvider;
   @Inject private Provider<BadLoginClient> badLoginClientProvider;
+  @Inject private Provider<FuzzClient> fuzzClientProvider;
 
   @Inject private DraftTowerWebSocketServlet webSocketServlet;
   @Inject private ChangePlayerRankServlet changePlayerRankServlet;
@@ -100,6 +102,16 @@ public class SimTest {
     BadLoginClient client = badLoginClientProvider.get();
     client.setUsername("10");
     clients.add(client);
+    run();
+  }
+
+  @Test
+  public void fuzzTest() {
+    for (int i = 1; i <= 10; i++) {
+      FuzzClient client = fuzzClientProvider.get();
+      client.setUsername(Integer.toString(i));
+      clients.add(client);
+    }
     run();
   }
 

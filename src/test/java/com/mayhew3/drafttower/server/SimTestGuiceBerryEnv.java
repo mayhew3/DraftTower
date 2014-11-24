@@ -72,7 +72,7 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
     install(new GinModuleAdapter(new ServerTestSafeModule()));
     install(new GinModuleAdapter(new TestServerModule()));
     bind(DraftTowerWebSocket.class).to(DraftTowerWebSocketServlet.class).in(Singleton.class);
-    bind(Lock.class).to(LockImpl.class);
+    bind(Lock.class).to(LockImpl.class).in(Singleton.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
   }
 }

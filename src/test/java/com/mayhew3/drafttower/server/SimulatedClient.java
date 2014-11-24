@@ -6,6 +6,7 @@ import com.mayhew3.drafttower.client.websocket.WebsocketListener;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
 import org.eclipse.jetty.websocket.WebSocket.Connection;
+import org.junit.Assert;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -15,8 +16,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simulates client behavior in tests.
@@ -40,10 +42,12 @@ public abstract class SimulatedClient implements WebsocketListener {
   protected String teamToken;
 
   protected Connection connection;
+  protected List<Exception> exceptions;
 
   public SimulatedClient() {
     cookies = new Cookie[1];
     cookies[0] = new Cookie("a", "a");
+    exceptions = new ArrayList<>();
   }
 
   @Override
@@ -56,6 +60,40 @@ public abstract class SimulatedClient implements WebsocketListener {
 
   @Override
   public void onOpen() {
+  }
+
+  protected void changePlayerRank(long playerId, int prevRank, int newRank) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<ChangePlayerRankRequest> request = beanFactory.createChangePlayerRankRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setPlayerId(playerId);
+    request.as().setPrevRank(prevRank);
+    request.as().setNewRank(newRank);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    changePlayerRankServlet.doPost(req, resp);
+  }
+
+  protected void copyAllPlayerRanks(TableSpec tableSpec) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<CopyAllPlayerRanksRequest> request = beanFactory.createCopyAllPlayerRanksRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setTableSpec(tableSpec);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    copyAllPlayerRanksServlet.doPost(req, resp);
+  }
+
+  protected void getGraphsData() throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<GetGraphsDataRequest> request = beanFactory.createGetGraphsDataRequest();
+    request.as().setTeamToken(teamToken);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    graphsServlet.doPost(req, resp);
   }
 
   protected void login(boolean badPassword) throws ServletException, IOException {
@@ -120,6 +158,77 @@ public abstract class SimulatedClient implements WebsocketListener {
     sendDraftCommand(Command.IDENTIFY, null);
   }
 
+  protected void getPlayerQueue() throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<GetPlayerQueueRequest> request = beanFactory.createPlayerQueueRequest();
+    request.as().setTeamToken(teamToken);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_GET);
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    queueServlet.doPost(req, resp);
+  }
+
+  protected void enqueue(long playerId, Integer position) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<EnqueueOrDequeuePlayerRequest> request = beanFactory.createEnqueueOrDequeuePlayerRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setPlayerId(playerId);
+    request.as().setPosition(position);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_ADD);
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    queueServlet.doPost(req, resp);
+  }
+
+  protected void dequeue(long playerId) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<EnqueueOrDequeuePlayerRequest> request = beanFactory.createEnqueueOrDequeuePlayerRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setPlayerId(playerId);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_REMOVE);
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    queueServlet.doPost(req, resp);
+  }
+
+  protected void reorderQueue(long playerId, int newPosition) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<ReorderPlayerQueueRequest> request = beanFactory.createReorderPlayerQueueRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setPlayerId(playerId);
+    request.as().setNewPosition(newPosition);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_REORDER);
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    queueServlet.doPost(req, resp);
+  }
+
+  protected void setAutoPickWizard(PlayerDataSet playerDataSet) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<SetWizardTableRequest> request = beanFactory.createSetAutoPickWizardRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setPlayerDataSet(playerDataSet);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    setAutoPickWizardServlet.doPost(req, resp);
+  }
+
+  protected void getUnclaimedPlayers(TableSpec tableSpec) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<UnclaimedPlayerListRequest> request = beanFactory.createUnclaimedPlayerListRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setTableSpec(tableSpec);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    unclaimedPlayerLookupServlet.doPost(req, resp);
+  }
+
   protected void sendDraftCommand(Command type, Long playerId) {
     AutoBean<DraftCommand> draftCommand = beanFactory.createDraftCommand();
     DraftCommand command = draftCommand.as();
@@ -147,5 +256,10 @@ public abstract class SimulatedClient implements WebsocketListener {
 
   public abstract void performAction();
 
-  public abstract void verify();
+  public void verify() {
+    if (!exceptions.isEmpty()) {
+      exceptions.get(0).printStackTrace();
+      Assert.fail("Client " + username + " threw an exception.");
+    }
+  }
 }

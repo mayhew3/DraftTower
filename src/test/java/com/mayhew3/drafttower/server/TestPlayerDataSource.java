@@ -8,6 +8,7 @@ import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
@@ -24,7 +25,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
-  private final List<DraftPick> draftPicks = new ArrayList<>();
+  private final List<DraftPick> draftPicks = new CopyOnWriteArrayList<>();
   private ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
   @Inject
@@ -62,9 +63,11 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Comparator<Player> comparator = sortCol == WIZARD
         ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
         : sortCol.getComparator(tableSpec.isAscending());
-    response.setPlayers(
-        Ordering.from(comparator)
-            .sortedCopy(availablePlayers.values()));
+    synchronized (availablePlayers) {
+      response.setPlayers(
+          Ordering.from(comparator)
+              .sortedCopy(availablePlayers.values()));
+    }
     return response;
   }
 
@@ -91,43 +94,47 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, final Set<Position> openPositions) {
-    return Collections.max(availablePlayers.values(), new Comparator<Player>() {
-      @Override
-      public int compare(Player o1, Player o2) {
-        return maxWizard(o1, openPositions) - maxWizard(o2, openPositions);
-      }
+    synchronized (availablePlayers) {
+      return Collections.max(availablePlayers.values(), new Comparator<Player>() {
+        @Override
+        public int compare(Player o1, Player o2) {
+          return maxWizard(o1, openPositions) - maxWizard(o2, openPositions);
+        }
 
-      private int maxWizard(Player player, final Set<Position> openPositions) {
-        String wizardStr = PlayerColumn.getWizard(player, EnumSet.copyOf(openPositions));
-        return wizardStr == null
-            ? Integer.MIN_VALUE
-            : (int) (Float.parseFloat(wizardStr) * 1000);
-      }
-    }).getPlayerId();
+        private int maxWizard(Player player, final Set<Position> openPositions) {
+          String wizardStr = PlayerColumn.getWizard(player, EnumSet.copyOf(openPositions));
+          return wizardStr == null
+              ? Integer.MIN_VALUE
+              : (int) (Float.parseFloat(wizardStr) * 1000);
+        }
+      }).getPlayerId();
+    }
   }
 
   @Override
   public void changePlayerRank(ChangePlayerRankRequest request) {
-    long playerId = request.getPlayerId();
-    int prevRank = request.getPrevRank();
-    int newRank = request.getNewRank();
-    int lesserRank = prevRank + 1;
-    int greaterRank = newRank;
-    if (prevRank > newRank) {
-      lesserRank = newRank;
-      greaterRank = prevRank - 1;
-    }
-    // Update all players.
-    for (Player player : allPlayers.values()) {
-      if (player.getPlayerId() == playerId) {
-        player.setMyRank(Integer.toString(newRank));
-      } else {
-        int rank = Integer.parseInt(player.getMyRank());
-        if (rank >= lesserRank && rank <= greaterRank) {
-          if (prevRank > newRank) {
-            player.setMyRank(Integer.toString(rank + 1));
-          } else {
-            player.setMyRank(Integer.toString(rank - 1));
+    synchronized (availablePlayers) {
+      long playerId = request.getPlayerId();
+      int prevRank = request.getPrevRank();
+      int newRank = request.getNewRank();
+      int lesserRank = prevRank + 1;
+      int greaterRank = newRank;
+      if (prevRank > newRank) {
+        lesserRank = newRank;
+        greaterRank = prevRank - 1;
+      }
+      // Update all players.
+      for (Player player : allPlayers.values()) {
+        if (player.getPlayerId() == playerId) {
+          player.setMyRank(Integer.toString(newRank));
+        } else {
+          int rank = Integer.parseInt(player.getMyRank());
+          if (rank >= lesserRank && rank <= greaterRank) {
+            if (prevRank > newRank) {
+              player.setMyRank(Integer.toString(rank + 1));
+            } else {
+              player.setMyRank(Integer.toString(rank - 1));
+            }
           }
         }
       }
@@ -137,13 +144,17 @@ public class TestPlayerDataSource implements PlayerDataSource {
   @Override
   public void postDraftPick(DraftPick draftPick, DraftStatus status) {
     draftPicks.add(draftPick);
-    availablePlayers.remove(draftPick.getPlayerId());
+    synchronized (availablePlayers) {
+      availablePlayers.remove(draftPick.getPlayerId());
+    }
   }
 
   @Override
   public void backOutLastDraftPick(int pickToRemove) {
     DraftPick draftPick = draftPicks.remove(draftPicks.size() - 1);
-    availablePlayers.put(draftPick.getPlayerId(), allPlayers.get(draftPick.getPlayerId()));
+    synchronized (availablePlayers) {
+      availablePlayers.put(draftPick.getPlayerId(), allPlayers.get(draftPick.getPlayerId()));
+    }
   }
 
   @Override
@@ -158,9 +169,11 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Comparator<Player> comparator = sortCol == WIZARD
         ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
         : sortCol.getComparator(tableSpec.isAscending());
-    List<Player> sortedPlayers = Ordering.from(comparator).sortedCopy(allPlayers.values());
-    for (int i = 0; i < sortedPlayers.size(); i++) {
-      sortedPlayers.get(i).setMyRank(Integer.toString(i + 1));
+    synchronized (availablePlayers) {
+      List<Player> sortedPlayers = Ordering.from(comparator).sortedCopy(allPlayers.values());
+      for (int i = 0; i < sortedPlayers.size(); i++) {
+        sortedPlayers.get(i).setMyRank(Integer.toString(i + 1));
+      }
     }
   }
 
@@ -224,10 +237,12 @@ public class TestPlayerDataSource implements PlayerDataSource {
   }
 
   public long getNextUnclaimedPlayer(Position position) {
-    for (long i = 0; i < allPlayers.size(); i++) {
-      if (availablePlayers.containsKey(i)
-          && Position.apply(availablePlayers.get(i), EnumSet.of(position))) {
-        return i;
+    synchronized (availablePlayers) {
+      for (long i = 0; i < allPlayers.size(); i++) {
+        if (availablePlayers.containsKey(i)
+            && Position.apply(availablePlayers.get(i), EnumSet.of(position))) {
+          return i;
+        }
       }
     }
     throw new IllegalStateException("Out of players at " + position.getLongName());
