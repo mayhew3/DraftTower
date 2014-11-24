@@ -24,7 +24,7 @@
     </option>
     <envs />
     <patterns>
-      <pattern testClass="^(?!.*(EndToEndTest|GwtTest)$).*$" />
+      <pattern testClass="^(?!.*(EndToEndTest|GwtTest|SimTest)$).*$" />
     </patterns>
     <RunnerSettings RunnerId="Cover" />
     <RunnerSettings RunnerId="Debug">

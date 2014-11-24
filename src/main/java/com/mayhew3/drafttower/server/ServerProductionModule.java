@@ -24,7 +24,7 @@ public class ServerProductionModule extends AbstractModule {
     return (DataSource) envCtx.lookup("jdbc/MySQL");
   }
 
-  @Provides @com.google.inject.Singleton
+  @Provides @Singleton
   public BeanFactory getBeanFactory() {
     return AutoBeanFactorySource.create(BeanFactory.class);
   }

@@ -42,6 +42,7 @@ public class DraftTowerTestGinModule extends AbstractGinModule {
     install(new DraftTowerTestSafeGinModule());
 
     bind(BarGraphsApi.class).to(TestBarGraphsApi.class);
+    bind(DraftTowerWebSocket.class).to(TestDraftTowerWebSocket.class);
     bind(Lock.class).to(ClientTestLock.class);
     bind(SchedulerWrapper.class).to(TestScheduler.class).in(Singleton.class);
     bind(ServerRpc.class).to(TestServerRpc.class).in(Singleton.class);

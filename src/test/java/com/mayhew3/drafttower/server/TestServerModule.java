@@ -14,7 +14,6 @@ public class TestServerModule extends AbstractGinModule {
   protected void configure() {
     bind(CurrentTimeProvider.class).to(FakeCurrentTimeProvider.class);
     bind(DraftTimer.class).to(TestDraftTimer.class).in(Singleton.class);
-    bind(DraftTowerWebSocket.class).to(TestDraftTowerWebSocket.class);
     bind(PlayerDataSource.class).to(TestPlayerDataSource.class).in(Singleton.class);
     bind(TeamDataSource.class).to(TestTeamDataSource.class).in(Singleton.class);
   }

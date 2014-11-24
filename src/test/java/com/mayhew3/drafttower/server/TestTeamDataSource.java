@@ -28,7 +28,7 @@ public class TestTeamDataSource implements TeamDataSource {
     }
     try {
       int teamNumber = Integer.parseInt(username);
-      if (teamNumber < 1 || teamNumber >= numTeams) {
+      if (teamNumber < 1 || teamNumber > numTeams) {
         return null;
       }
       return new TeamDraftOrder(teamNumber);
