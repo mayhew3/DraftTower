@@ -31,7 +31,7 @@ public class FlakyClient extends SimulatedClient {
   @Override
   public void performAction() {
     if (random.nextFloat() < 0.1 && connection != null) {
-      connection.close(-1, "");
+      disconnect();
     } else {
       delegate.performAction();
     }

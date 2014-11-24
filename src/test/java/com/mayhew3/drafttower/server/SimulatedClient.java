@@ -131,6 +131,12 @@ public abstract class SimulatedClient implements WebsocketListener {
     webSocket.onMessage(AutoBeanCodex.encode(draftCommand).getPayload());
   }
 
+  public void disconnect() {
+    if (connection != null) {
+      connection.close(-1, "");
+    }
+  }
+
   public String getUsername() {
     return username;
   }

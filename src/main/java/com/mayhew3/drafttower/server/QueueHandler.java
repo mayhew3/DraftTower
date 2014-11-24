@@ -21,16 +21,19 @@ public class QueueHandler {
   private final PlayerDataSource playerDataSource;
   private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
   private final DraftStatus status;
+  private final Lock lock;
 
   @Inject
   public QueueHandler(BeanFactory beanFactory,
-        PlayerDataSource playerDataSource,
-        @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
-        DraftStatus status) {
+      PlayerDataSource playerDataSource,
+      @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
+      DraftStatus status,
+      Lock lock) {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.queues = queues;
     this.status = status;
+    this.lock = lock;
   }
 
   public List<QueueEntry> getQueue(TeamDraftOrder team) {
@@ -43,17 +46,19 @@ public class QueueHandler {
   public void enqueue(TeamDraftOrder team,
       final long playerId,
       Integer position) throws DataSourceException {
-    if (Iterables.any(status.getPicks(), new Predicate<DraftPick>() {
-          @Override
-          public boolean apply(DraftPick pick) {
-            return pick.getPlayerId() == playerId;
-          }
-        })) {
-      List<QueueEntry> queue = queues.get(team);
-      synchronized (queues) {
-        Iterables.removeIf(queue, new QueueEntryPredicate(playerId));
+    try (Lock ignored = lock.lock()) {
+      if (Iterables.any(status.getPicks(), new Predicate<DraftPick>() {
+            @Override
+            public boolean apply(DraftPick pick) {
+              return pick.getPlayerId() == playerId;
+            }
+          })) {
+        List<QueueEntry> queue = queues.get(team);
+        synchronized (queues) {
+          Iterables.removeIf(queue, new QueueEntryPredicate(playerId));
+        }
+        return;
       }
-      return;
     }
     QueueEntry queueEntry = beanFactory.createQueueEntry().as();
     queueEntry.setPlayerId(playerId);
@@ -68,7 +73,9 @@ public class QueueHandler {
         }
       }
     } else {
-      queues.put(team, queueEntry);
+      synchronized (queues) {
+        queues.put(team, queueEntry);
+      }
     }
   }
 

@@ -1,12 +1,10 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.collect.ListMultimap;
 import com.google.common.io.CharStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
@@ -25,24 +23,15 @@ public class QueueServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
   private final QueueHandler queueHandler;
-  private final PlayerDataSource playerDataSource;
   private final Map<String, TeamDraftOrder> teamTokens;
-  private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
-  private final DraftStatus status;
 
   @Inject
   public QueueServlet(BeanFactory beanFactory,
       QueueHandler queueHandler,
-      PlayerDataSource playerDataSource,
-      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
-      @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
-      DraftStatus status) {
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     this.beanFactory = beanFactory;
     this.queueHandler = queueHandler;
-    this.playerDataSource = playerDataSource;
     this.teamTokens = teamTokens;
-    this.queues = queues;
-    this.status = status;
   }
 
   @Override

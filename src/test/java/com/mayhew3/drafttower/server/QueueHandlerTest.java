@@ -33,7 +33,8 @@ public class QueueHandlerTest {
     handler = new QueueHandler(beanFactory,
         Mockito.mock(PlayerDataSource.class),
         queues,
-        draftStatus);
+        draftStatus,
+        new LockImpl());
   }
 
   @Test
