@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.guiceberry.junit4.GuiceBerryRule;
+import com.mayhew3.drafttower.server.simclient.FlakyClient;
 import com.mayhew3.drafttower.server.simclient.PickNextPlayerClient;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import org.junit.Assert;
@@ -57,6 +58,16 @@ public class SimTest {
       client = clientProvider.get();
       client.setUsername(Integer.toString(i));
       clients.add(client);
+    }
+    run();
+  }
+
+  @Test
+  public void flakyConnections() {
+    for (int i = 1; i <= 10; i++) {
+      PickNextPlayerClient client = clientProvider.get();
+      client.setUsername(Integer.toString(i));
+      clients.add(new FlakyClient(client));
     }
     run();
   }
