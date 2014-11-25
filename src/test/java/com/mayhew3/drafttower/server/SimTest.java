@@ -6,6 +6,7 @@ import com.mayhew3.drafttower.server.simclient.BadLoginClient;
 import com.mayhew3.drafttower.server.simclient.FlakyClient;
 import com.mayhew3.drafttower.server.simclient.FuzzClient;
 import com.mayhew3.drafttower.server.simclient.PickNextPlayerClient;
+import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import org.junit.After;
 import org.junit.Assert;
@@ -14,9 +15,7 @@ import org.junit.Test;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Test harness for running draft with simulated clients.
@@ -42,8 +41,11 @@ public class SimTest {
   @Inject private QueueServlet queueServlet;
   @Inject private SetAutoPickWizardServlet setAutoPickWizardServlet;
   @Inject private UnclaimedPlayerLookupServlet unclaimedPlayerLookupServlet;
+
   @Inject private DraftStatus draftStatus;
   @Inject private DraftTimer draftTimer;
+  @Inject private PlayerDataSource playerDataSource;
+  @Inject private Lock lock;
 
   @Inject private TearDownAccepter tearDownAccepter;
 
@@ -198,7 +200,7 @@ public class SimTest {
   }
 
   private void verify() {
-    // TODO: server-side state verification.
+    verifyDraftStatus();
     if (!clientExceptions.isEmpty()) {
       clientExceptions.get(0).printStackTrace();
       Assert.fail("Clients had exceptions.");
@@ -208,4 +210,26 @@ public class SimTest {
     }
   }
 
+  private void verifyDraftStatus() {
+    try (Lock ignored = lock.lock()) {
+      Set<Long> selectedPlayerIds = new HashSet<>();
+      List<DraftPick> picks = draftStatus.getPicks();
+      for (int i = 0; i < picks.size(); i++) {
+        DraftPick draftPick = picks.get(i);
+        Assert.assertFalse("Duplicate player selected: " + draftPick.getPlayerId(),
+            selectedPlayerIds.contains(draftPick.getPlayerId()));
+        selectedPlayerIds.add(draftPick.getPlayerId());
+        Assert.assertEquals("Wrong team on pick " + i,
+            draftPick.getTeam(),
+            i % 10 + 1);
+      }
+      Assert.assertEquals("Wrong number of unavailable players",
+          draftStatus.getPicks().size(),
+          ((TestPlayerDataSource) playerDataSource).getAllPlayers().size()
+              - ((TestPlayerDataSource) playerDataSource).getAvailablePlayers().size());
+      Assert.assertEquals("Wrong current team",
+          draftStatus.getCurrentTeam(),
+          draftStatus.getPicks().size() % 10 + 1);
+    }
+  }
 }

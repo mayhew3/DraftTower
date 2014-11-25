@@ -31,7 +31,8 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
   @Provides
   public TestWrapper getTestWrapper(
       final TearDownAccepter tearDownAccepter,
-      final DraftStatus draftStatus) {
+      final DraftStatus draftStatus,
+      final PlayerDataSource playerDataSource) {
     return new TestWrapper() {
       @Override
       public void toRunBeforeTest() {
@@ -47,6 +48,7 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
             draftStatus.getPicks().clear();
             draftStatus.getRobotTeams().clear();
             draftStatus.setSerialId(0);
+            ((TestPlayerDataSource) playerDataSource).reset();
           }
         });
       }

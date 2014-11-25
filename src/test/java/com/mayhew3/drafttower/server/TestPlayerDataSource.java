@@ -260,4 +260,18 @@ public class TestPlayerDataSource implements PlayerDataSource {
   public Player getPlayer(long playerId) {
     return allPlayers.get(playerId);
   }
+
+  public Collection<Player> getAllPlayers() {
+    return allPlayers.values();
+  }
+
+  public Collection<Player> getAvailablePlayers() {
+    return availablePlayers.values();
+  }
+
+  public void reset() {
+    availablePlayers.clear();
+    availablePlayers.putAll(allPlayers);
+    draftPicks.clear();
+  }
 }
