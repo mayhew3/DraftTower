@@ -3,9 +3,15 @@ package com.mayhew3.drafttower.client;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.user.client.Window;
 import com.google.inject.Provides;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.*;
+import com.mayhew3.drafttower.client.graphs.BarGraphsApi;
+import com.mayhew3.drafttower.client.graphs.LiveBarGraphsApi;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpcImpl;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketImpl;
-import com.mayhew3.drafttower.server.GinBindingAnnotations.*;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider;
+import com.mayhew3.drafttower.shared.CurrentTimeProvider.CurrentTimeProviderImpl;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
 
 import javax.inject.Singleton;
@@ -80,8 +86,21 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
         .buildString();
   }
 
+  @Provides @TtsUrlPrefix
+  public String getTtsUrlPrefix() {
+    return "http://translate.google.com/translate_tts?tl=en&q=";
+  }
+
+  @Provides @PlayerPopupUrlPrefix
+  public String getPlayerPopupUrlPrefix() {
+    return "http://uncharted.baseball.cbssports.com/players/playerpage/snippet/";
+  }
+
   @Override
   protected void configure() {
+    bind(BarGraphsApi.class).to(LiveBarGraphsApi.class);
+    bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
+    bind(SchedulerWrapper.class).to(LiveScheduler.class);
     bind(ServerRpc.class).to(ServerRpcImpl.class).in(Singleton.class);
     bind(Websocket.class).to(WebsocketImpl.class);
   }

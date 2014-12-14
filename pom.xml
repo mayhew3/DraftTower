@@ -14,19 +14,12 @@
 
   <properties>
     <!-- Convenience property to set the GWT version -->
-    <gwtVersion>2.6.0</gwtVersion>
+    <gwtVersion>2.6.1</gwtVersion>
     <!-- GWT needs at least java 1.5 -->
     <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty-server.version>8.1.8.v20121106</jetty-server.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>gwtquery</id>
-      <url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
-    </repository>
-  </repositories>
 
   <dependencies>
     <dependency>
@@ -104,24 +97,6 @@
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.5.4</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.gwtquery</groupId>
-      <artifactId>gwtquery</artifactId>
-      <version>1.4.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.gwtquery.plugins</groupId>
-      <artifactId>draggable-plugin</artifactId>
-      <version>1.0.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.gwtquery.plugins</groupId>
-      <artifactId>droppable-plugin</artifactId>
-      <version>1.0.8</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>
@@ -213,6 +188,7 @@
           <argLine>-Xmx512M -XX:MaxPermSize=128M</argLine>
           <excludes>
             <exclude>**/*GwtTest.java</exclude>
+            <exclude>**/EndToEndTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>

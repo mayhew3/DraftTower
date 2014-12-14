@@ -9,7 +9,6 @@
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.visualization.Visualization"/>
   <inherits name="com.google.web.bindery.autobean.AutoBean"/>
-  <inherits name="gwtquery.plugins.droppable.Droppable"/>
 
   <!-- Specify the paths for translatable code -->
   <source path='client'/>

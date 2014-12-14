@@ -34,7 +34,7 @@ public class RosterUtilTest {
   }
 
   private void assertRoster(List<Entry<Position, Long>> expectedIds, List<DraftPick> picks) {
-    Multimap<Position, DraftPick> roster = RosterUtil.constructRoster(picks);
+    Multimap<Position, DraftPick> roster = new RosterUtil().constructRoster(picks);
     Assert.assertEquals(roster.toString(), expectedIds.size(), roster.size());
     for (Entry<Position, Long> expectedId : expectedIds) {
       Assert.assertTrue(roster.toString(),
@@ -153,13 +153,13 @@ public class RosterUtilTest {
   @Test
   public void testAllPositionsOpen() throws Exception {
     Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH, P),
-        RosterUtil.getOpenPositions(ImmutableList.<DraftPick>of()));
+        new RosterUtil().getOpenPositions(ImmutableList.<DraftPick>of()));
   }
 
   @Test
   public void testNoPositionsOpen() throws Exception {
     Assert.assertEquals(EnumSet.noneOf(Position.class),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, FB),
             pick(3, SB),
@@ -181,7 +181,7 @@ public class RosterUtilTest {
   @Test
   public void testNoPositionsOpenMultiPositionPlayers() throws Exception {
     Assert.assertEquals(EnumSet.noneOf(Position.class),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, C, FB),
             pick(2, FB),
             pick(3, SB),
@@ -203,7 +203,7 @@ public class RosterUtilTest {
   @Test
   public void testGetOpenPositionsOneOpenOneReserve() throws Exception {
     Assert.assertEquals(EnumSet.of(SB),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, FB),
             pick(3, TB),
@@ -225,7 +225,7 @@ public class RosterUtilTest {
   @Test
   public void testGetOpenPositionsSingleEligibility() throws Exception {
     Assert.assertEquals(EnumSet.of(FB, SB, SS, OF, DH, P),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, TB))));
   }
@@ -233,15 +233,15 @@ public class RosterUtilTest {
   @Test
   public void testGetOpenPositionsMultiEligibility() throws Exception {
     Assert.assertEquals(EnumSet.of(FB, SB, TB, SS, OF, DH, P),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, C),
             pick(2, SB, SS))));
     Assert.assertEquals(EnumSet.of(C, FB, TB, OF, DH, P),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, SB),
             pick(2, SB, SS))));
     Assert.assertEquals(EnumSet.of(C, FB, TB, OF, DH, P),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, SB, SS),
             pick(2, SB))));
   }
@@ -249,7 +249,7 @@ public class RosterUtilTest {
   @Test
   public void testGetOpenPositionsMultiSlotPosition() throws Exception {
     Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH, P),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, P),
             pick(2, P),
             pick(3, P),
@@ -257,7 +257,7 @@ public class RosterUtilTest {
             pick(5, P),
             pick(6, P))));
     Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH),
-        RosterUtil.getOpenPositions(Lists.newArrayList(
+        new RosterUtil().getOpenPositions(Lists.newArrayList(
             pick(1, P),
             pick(2, P),
             pick(3, P),
@@ -269,7 +269,7 @@ public class RosterUtilTest {
 
   @Test
   public void testGetOpenPositionsDHNotOpen() throws Exception {
-    Assert.assertFalse(RosterUtil.getOpenPositions(Lists.newArrayList(
+    Assert.assertFalse(new RosterUtil().getOpenPositions(Lists.newArrayList(
         pick(1, FB),
         pick(2, FB)))
         .contains(DH));
@@ -277,7 +277,7 @@ public class RosterUtilTest {
 
   @Test
   public void testGetOpenPositionsOFBug() throws Exception {
-    Assert.assertFalse(RosterUtil.getOpenPositions(Lists.newArrayList(
+    Assert.assertFalse(new RosterUtil().getOpenPositions(Lists.newArrayList(
         pick(1, P),
         pick(2, OF),
         pick(3, FB),
@@ -290,5 +290,12 @@ public class RosterUtilTest {
         pick(10, P),
         pick(11, DH)))
         .contains(OF));
+  }
+
+  @Test
+  public void testSplitEligibilities() {
+    Assert.assertEquals(Lists.newArrayList("1B"), RosterUtil.splitEligibilities("1B"));
+    Assert.assertEquals(Lists.newArrayList("1B", "2B"), RosterUtil.splitEligibilities("1B,2B"));
+    Assert.assertEquals(Lists.newArrayList("DH"), RosterUtil.splitEligibilities(""));
   }
 }

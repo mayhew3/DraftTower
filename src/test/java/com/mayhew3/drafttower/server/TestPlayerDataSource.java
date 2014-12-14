@@ -1,32 +1,37 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
 import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
  * {@link PlayerDataSource} for testing.
  */
+@Singleton
 public class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
+  private final TestPlayerGenerator playerGenerator;
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
-  private final List<DraftPick> draftPicks = new ArrayList<>();
+  private final List<DraftPick> draftPicks = new CopyOnWriteArrayList<>();
   private ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
   @Inject
   public TestPlayerDataSource(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    this.playerGenerator = new TestPlayerGenerator(beanFactory);
     int playerId = 0;
 
     for (Position position : Position.REAL_POSITIONS) {
@@ -41,7 +46,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
         numPlayers = 15;
       }
       for (int i = 0; i < numPlayers; i++) {
-        Player player = generatePlayer(playerId, position, i);
+        Player player = playerGenerator.generatePlayer(playerId, position, i);
         allPlayers.put(player.getPlayerId(), player);
         playerId++;
       }
@@ -52,8 +57,17 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
+    TableSpec tableSpec = request.getTableSpec();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
-    response.setPlayers(Lists.newArrayList(availablePlayers.values()));
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    Comparator<Player> comparator = sortCol == WIZARD
+        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+        : sortCol.getComparator(tableSpec.isAscending());
+    synchronized (availablePlayers) {
+      response.setPlayers(
+          Ordering.from(comparator)
+              .sortedCopy(availablePlayers.values()));
+    }
     return response;
   }
 
@@ -67,7 +81,7 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Player player = allPlayers.get(queueEntry.getPlayerId());
     queueEntry.setPlayerName(player.getName());
     queueEntry.setEligibilities(
-        PlayerDataSourceImpl.splitEligibilities(player.getEligibility()));
+        RosterUtil.splitEligibilities(player.getEligibility()));
   }
 
   @Override
@@ -75,41 +89,72 @@ public class TestPlayerDataSource implements PlayerDataSource {
     Player player = allPlayers.get(draftPick.getPlayerId());
     draftPick.setPlayerName(player.getName());
     draftPick.setEligibilities(
-        PlayerDataSourceImpl.splitEligibilities(player.getEligibility()));
+        RosterUtil.splitEligibilities(player.getEligibility()));
   }
 
   @Override
   public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, final Set<Position> openPositions) {
-    return Collections.max(availablePlayers.values(), new Comparator<Player>() {
-      @Override
-      public int compare(Player o1, Player o2) {
-        return maxWizard(o1, openPositions) - maxWizard(o2, openPositions);
-      }
+    synchronized (availablePlayers) {
+      return Collections.max(availablePlayers.values(), new Comparator<Player>() {
+        @Override
+        public int compare(Player o1, Player o2) {
+          return maxWizard(o1, openPositions) - maxWizard(o2, openPositions);
+        }
 
-      private int maxWizard(Player player, final Set<Position> openPositions) {
-        String wizardStr = PlayerColumn.getWizard(player, EnumSet.copyOf(openPositions));
-        return wizardStr == null
-            ? Integer.MIN_VALUE
-            : (int) (Float.parseFloat(wizardStr) * 1000);
-      }
-    }).getPlayerId();
+        private int maxWizard(Player player, final Set<Position> openPositions) {
+          String wizardStr = PlayerColumn.getWizard(player, EnumSet.copyOf(openPositions));
+          return wizardStr == null
+              ? Integer.MIN_VALUE
+              : (int) (Float.parseFloat(wizardStr) * 1000);
+        }
+      }).getPlayerId();
+    }
   }
 
   @Override
   public void changePlayerRank(ChangePlayerRankRequest request) {
-    // TODO(kprevas): implement
+    synchronized (availablePlayers) {
+      long playerId = request.getPlayerId();
+      int prevRank = request.getPrevRank();
+      int newRank = request.getNewRank();
+      int lesserRank = prevRank + 1;
+      int greaterRank = newRank;
+      if (prevRank > newRank) {
+        lesserRank = newRank;
+        greaterRank = prevRank - 1;
+      }
+      // Update all players.
+      for (Player player : allPlayers.values()) {
+        if (player.getPlayerId() == playerId) {
+          player.setMyRank(Integer.toString(newRank));
+        } else {
+          int rank = Integer.parseInt(player.getMyRank());
+          if (rank >= lesserRank && rank <= greaterRank) {
+            if (prevRank > newRank) {
+              player.setMyRank(Integer.toString(rank + 1));
+            } else {
+              player.setMyRank(Integer.toString(rank - 1));
+            }
+          }
+        }
+      }
+    }
   }
 
   @Override
   public void postDraftPick(DraftPick draftPick, DraftStatus status) {
     draftPicks.add(draftPick);
-    availablePlayers.remove(draftPick.getPlayerId());
+    synchronized (availablePlayers) {
+      availablePlayers.remove(draftPick.getPlayerId());
+    }
   }
 
   @Override
   public void backOutLastDraftPick(int pickToRemove) {
     DraftPick draftPick = draftPicks.remove(draftPicks.size() - 1);
-    availablePlayers.put(draftPick.getPlayerId(), allPlayers.get(draftPick.getPlayerId()));
+    synchronized (availablePlayers) {
+      availablePlayers.put(draftPick.getPlayerId(), allPlayers.get(draftPick.getPlayerId()));
+    }
   }
 
   @Override
@@ -119,97 +164,114 @@ public class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) {
-    // TODO(kprevas): implement
+    TableSpec tableSpec = request.getTableSpec();
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    Comparator<Player> comparator = sortCol == WIZARD
+        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+        : sortCol.getComparator(tableSpec.isAscending());
+    synchronized (availablePlayers) {
+      List<Player> sortedPlayers = Ordering.from(comparator).sortedCopy(allPlayers.values());
+      for (int i = 0; i < sortedPlayers.size(); i++) {
+        sortedPlayers.get(i).setMyRank(Integer.toString(i + 1));
+      }
+    }
   }
 
   @Override
-  public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) {
+  public GraphsData getGraphsData(TeamDraftOrder myTeam) {
     GraphsData graphsData = beanFactory.createGraphsData().as();
-    Map<PlayerColumn, Float> myValues = new HashMap<>();
-    graphsData.setMyValues(myValues);
-    Map<PlayerColumn, Float> avgValues = new HashMap<>();
-    graphsData.setAvgValues(avgValues);
+    Map<Integer, Map<PlayerColumn, Float>> teamValues = new HashMap<>();
+    Map<Integer, Integer> pitchersPerTeam = new HashMap<>();
+    Map<Integer, Integer> battersPerTeam = new HashMap<>();
+    for (int i = 1; i <= 10; i++) {
+      teamValues.put(i, new HashMap<PlayerColumn, Float>());
+      pitchersPerTeam.put(i, 0);
+      battersPerTeam.put(i, 0);
+    }
 
     for (DraftPick draftPick : draftPicks) {
       Player player = allPlayers.get(draftPick.getPlayerId());
-      boolean myPick = draftPick.getTeam() == teamDraftOrder.get();
+      int team = draftPick.getTeam();
+      Map<PlayerColumn, Float> values = teamValues.get(team);
       for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
         String valueStr = graphStat.get(player);
         if (valueStr != null) {
           float value = Float.parseFloat(valueStr);
-          if (myPick) {
-            if (!myValues.containsKey(graphStat)) {
-              myValues.put(graphStat, 0f);
+          if (values.containsKey(graphStat)) {
+            if (EnumSet.of(OBP, SLG, ERA, WHIP).contains(graphStat)) {
+              int oldDenom = EnumSet.of(OBP, SLG).contains(graphStat)
+                  ? pitchersPerTeam.get(team)
+                  : battersPerTeam.get(team);
+              int newDenom = oldDenom + 1;
+              values.put(graphStat, values.get(graphStat) * oldDenom / newDenom + value / newDenom);
+            } else {
+              values.put(graphStat, values.get(graphStat) + value);
             }
-            myValues.put(graphStat, myValues.get(graphStat) + value);
+          } else {
+            values.put(graphStat, value);
           }
-          if (!avgValues.containsKey(graphStat)) {
-            avgValues.put(graphStat, 0f);
-          }
-          avgValues.put(graphStat, avgValues.get(graphStat) + (value / 10));
         }
+      }
+      if (Position.apply(player, EnumSet.of(P))) {
+        pitchersPerTeam.put(team, pitchersPerTeam.get(team) + 1);
+      } else {
+        battersPerTeam.put(team, battersPerTeam.get(team) + 1);
       }
     }
 
+    graphsData.setMyValues(teamValues.get(myTeam.get()));
+    Map<PlayerColumn, Float> avgValues = new HashMap<>();
+    for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+      for (Integer team : teamValues.keySet()) {
+        Float teamStatValue = teamValues.get(team).get(graphStat);
+        if (teamStatValue != null) {
+          avgValues.put(graphStat,
+              (avgValues.containsKey(graphStat) ? avgValues.get(graphStat) : 0)
+                  + teamStatValue / 10);
+        }
+      }
+    }
+    graphsData.setAvgValues(avgValues);
+
     return graphsData;
+  }
+
+  public long getNextUnclaimedPlayer(Position position) {
+    synchronized (availablePlayers) {
+      for (long i = 0; i < allPlayers.size(); i++) {
+        if (availablePlayers.containsKey(i)
+            && Position.apply(availablePlayers.get(i), EnumSet.of(position))) {
+          return i;
+        }
+      }
+    }
+    throw new IllegalStateException("Out of players at " + position.getLongName());
+  }
+
+  public void setDraftPicks(List<DraftPick> draftPicks) {
+    this.draftPicks.clear();
+    this.draftPicks.addAll(draftPicks);
   }
 
   public void setKeepers(ListMultimap<TeamDraftOrder, Integer> keepers) {
     this.keepers = keepers;
   }
 
-  private Player generatePlayer(int playerId, Position position, int i) {
-    Player player = beanFactory.createPlayer().as();
-    player.setName(Strings.repeat(Integer.toString(playerId), 10));
-    player.setTeam("XXX");
-    player.setEligibility(position.getShortName());
-    if (i == 5) {
-      player.setInjury("busted wang");
-    }
-    player.setCBSId(playerId);
-    player.setPlayerId(playerId);
-    if (position == P) {
-      player.setG(Integer.toString(i));
-      player.setINN(Integer.toString(i));
-      player.setK(Integer.toString(i));
-      player.setERA(Float.toString(2 + i / 100f));
-      player.setWHIP(Float.toString(1 + i / 100f));
-      player.setS(Integer.toString(i));
-      player.setWL(Integer.toString(i));
-      player.setWizardP(Float.toString(-3 + i / 20f));
-    } else {
-      player.setAB(Integer.toString(i * 40));
-      player.setHR(Integer.toString(i * 2));
-      player.setRBI(Integer.toString(i * 5));
-      player.setRHR(Integer.toString(i * 5));
-      player.setOBP(Float.toString(.25f + i / 10f));
-      player.setSLG(Float.toString(.4f + i / 5f));
-      player.setSBCS(Integer.toString(i));
-      switch (position) {
-        case C:
-          player.setWizardC(Float.toString(-3 + i / 20f));
-          break;
-        case FB:
-          player.setWizard1B(Float.toString(-3 + i / 20f));
-          break;
-        case SB:
-          player.setWizard2B(Float.toString(-3 + i / 20f));
-          break;
-        case TB:
-          player.setWizard3B(Float.toString(-3 + i / 20f));
-          break;
-        case SS:
-          player.setWizardSS(Float.toString(-3 + i / 20f));
-          break;
-        case OF:
-          player.setWizardOF(Float.toString(-3 + i / 20f));
-          break;
-      }
-      player.setWizardDH(Float.toString(-3 + i / 20f));
-    }
-    player.setDraft(Integer.toString(playerId));
-    player.setRank(Integer.toString(playerId));
-    player.setMyRank(Integer.toString(playerId));
-    return player;
+  public Player getPlayer(long playerId) {
+    return allPlayers.get(playerId);
+  }
+
+  public Collection<Player> getAllPlayers() {
+    return allPlayers.values();
+  }
+
+  public Collection<Player> getAvailablePlayers() {
+    return availablePlayers.values();
+  }
+
+  public void reset() {
+    availablePlayers.clear();
+    availablePlayers.putAll(allPlayers);
+    draftPicks.clear();
   }
 }

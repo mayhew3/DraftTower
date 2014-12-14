@@ -5,9 +5,9 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Cookies;
-import com.mayhew3.drafttower.client.ServerRpc;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
@@ -107,5 +107,9 @@ public class LoginPresenter {
     } else {
       loginView.invalidLogin();
     }
+  }
+
+  public void logout() {
+    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
   }
 }

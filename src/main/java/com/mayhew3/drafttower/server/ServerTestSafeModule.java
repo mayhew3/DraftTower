@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.gwt.inject.client.AbstractGinModule;
@@ -22,9 +21,6 @@ import java.util.Map;
  * Dependency bindings which can be used as-is in tests.
  */
 public class ServerTestSafeModule extends AbstractGinModule {
-
-  @VisibleForTesting
-  public static HashMap<String,TeamDraftOrder> teamTokensForTest;
 
   @Provides @Singleton @Keepers
   public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataSource playerDataSource) throws DataSourceException {
@@ -48,9 +44,6 @@ public class ServerTestSafeModule extends AbstractGinModule {
 
   @Provides @Singleton @TeamTokens
   public Map<String, TeamDraftOrder> getTeamTokens() {
-    if (teamTokensForTest != null) {
-      return teamTokensForTest;
-    }
     return new HashMap<>();
   }
 

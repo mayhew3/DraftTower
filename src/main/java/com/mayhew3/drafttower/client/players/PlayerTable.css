@@ -1,0 +1,48 @@
+@def dragHelperXOffset 20;
+@def dragHelperYOffset 5;
+
+.table {
+  font-size: 90%;
+  width: 100%;
+  cursor: default;
+}
+
+.table td,
+.table th,
+.table td > div {
+  padding: 0;
+}
+
+.table td > div {
+  min-height: 1em;
+}
+
+.table td {
+  border-right: none !important;
+  border-left: none !important;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+}
+
+.table input {
+  width: 50px;
+}
+
+.dragHelper {
+  position: absolute;
+  background: white;
+  padding: 5px !important;
+  color: black !important;
+  border: 1px solid #CCC;
+  pointer-events: none;
+  z-index: 2;
+  cursor: ns-resize;
+}
+
+.dropHoverTop td {
+  border-top-color: black;
+}
+
+.dropHoverBottom td {
+  border-bottom-color: black;
+}

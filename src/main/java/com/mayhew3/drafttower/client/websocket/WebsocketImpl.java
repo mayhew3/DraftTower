@@ -1,6 +1,6 @@
 package com.mayhew3.drafttower.client.websocket;
 
-import com.mayhew3.drafttower.server.GinBindingAnnotations.DraftSocketUrl;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.DraftSocketUrl;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 import javax.inject.Inject;

@@ -3,7 +3,7 @@ package com.mayhew3.drafttower.shared;
 /**
  * Data object for a player.
  */
-public interface Player {
+public interface Player extends DraggableItem {
 
   // Marker constant for best draft pick.
   public static final long BEST_DRAFT_PICK = -1;

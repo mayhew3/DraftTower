@@ -1,0 +1,122 @@
+.container {
+  margin-bottom: 5px;
+}
+
+.round {
+  margin-bottom: 10px;
+}
+
+.teamLogo {
+  vertical-align: middle;
+  position: relative;
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+  padding: 3px;
+  border: 1px solid black;
+  margin-bottom: 5px;
+
+  -webkit-transition: color ease 1s, border-color ease 1s, opacity ease 1s;
+  transition: color ease 1s, border-color ease 1s, opacity ease 1s;
+}
+
+.me {
+  border-color: green;
+  color: green;
+}
+
+.currentPick {
+  border-color: red;
+  color: red;
+}
+
+@keyframes myPick {
+  from {
+    color: green;
+    border-color: green;
+  }
+  to {
+    color: red;
+    border-color: red;
+  }
+}
+
+@-webkit-keyframes myPick {
+  from {
+    color: green;
+    border-color: green;
+  }
+  to {
+    color: red;
+    border-color: red;
+  }
+}
+
+@keyframes myPickBgd {
+  from {
+    background-color: green;
+  }
+  to {
+    background-color: red;
+  }
+}
+
+@-webkit-keyframes myPickBgd {
+  from {
+    background-color: green;
+  }
+  to {
+    background-color: red;
+  }
+}
+
+.me.currentPick {
+  -webkit-animation: myPick 1s infinite alternate;
+  animation: myPick 1s infinite alternate;
+}
+
+.currentPick:after {
+  content: "\25BC";
+  color: white;
+  background: red;
+  position: absolute;
+  font-size: 17px;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  line-height: 25px;
+}
+
+.me.currentPick:after {
+  -webkit-animation: myPickBgd 1s infinite alternate;
+  animation: myPickBgd 1s infinite alternate;
+}
+
+.disconnected {
+  opacity: 0.4;
+}
+
+.robot:after {
+  content: url("../../../../../../webapp/cylon_classic.png");
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.keeper:after {
+  content: "K";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  font-size: 17px;
+  padding: 0 3px;
+  color: white;
+  background: #caca16;
+  line-height: 26px;
+}
+
+.statusMessage {
+  padding-top: 10px;
+}

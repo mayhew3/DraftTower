@@ -20,16 +20,19 @@ public class OpenPositions {
 
   private final TeamsInfo teamsInfo;
 
+  private final RosterUtil rosterUtil;
   private EnumSet<Position> openPositions = EnumSet.allOf(Position.class);
 
   @Inject
-  public OpenPositions(TeamsInfo teamsInfo) {
+  public OpenPositions(TeamsInfo teamsInfo,
+      RosterUtil rosterUtil) {
     this.teamsInfo = teamsInfo;
+    this.rosterUtil = rosterUtil;
   }
 
   public void onDraftStatusChanged(DraftStatus status) {
     openPositions.clear();
-    openPositions.addAll(RosterUtil.getOpenPositions(
+    openPositions.addAll(rosterUtil.getOpenPositions(
         Lists.newArrayList(Iterables.filter(status.getPicks(),
             new Predicate<DraftPick>() {
               @Override

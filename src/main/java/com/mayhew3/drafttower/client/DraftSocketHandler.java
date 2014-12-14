@@ -1,14 +1,13 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.gwt.core.client.Duration;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.CurrentTime;
 import com.mayhew3.drafttower.client.events.*;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketListener;
@@ -41,6 +40,8 @@ public class DraftSocketHandler implements
 
   private final BeanFactory beanFactory;
   private final Websocket socket;
+  private final SchedulerWrapper scheduler;
+  private final Provider<Double> currentTimeProvider;
   private final TeamsInfo teamsInfo;
   private final OpenPositions openPositions;
   private final EventBus eventBus;
@@ -52,18 +53,22 @@ public class DraftSocketHandler implements
   private int serverClockDiff;
 
   private int backoff = INITIAL_BACKOFF_MS;
-  private final List<String> queuedMsgs = new ArrayList<>();
+  @VisibleForTesting final List<String> queuedMsgs = new ArrayList<>();
 
   @Inject
   public DraftSocketHandler(BeanFactory beanFactory,
       Websocket socket,
       TeamsInfo teamsInfo,
       OpenPositions openPositions,
-      EventBus eventBus) {
+      EventBus eventBus,
+      SchedulerWrapper scheduler,
+      @CurrentTime Provider<Double> currentTimeProvider) {
     this.beanFactory = beanFactory;
     this.teamsInfo = teamsInfo;
     this.openPositions = openPositions;
     this.socket = socket;
+    this.scheduler = scheduler;
+    this.currentTimeProvider = currentTimeProvider;
     socket.addListener(this);
 
     this.eventBus = eventBus;
@@ -81,15 +86,17 @@ public class DraftSocketHandler implements
     eventBus.fireEvent(new SocketConnectEvent());
     sendDraftCommand(IDENTIFY);
     for (int i = 0; i < CLOCK_SYNC_CYCLES; i++) {
-      Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
+      scheduler.schedule(new Runnable() {
         @Override
-        public boolean execute() {
-          socket.send(ServletEndpoints.CLOCK_SYNC + Duration.currentTimeMillis());
-          return false;
+        public void run() {
+          socket.send(ServletEndpoints.CLOCK_SYNC + currentTimeProvider.get());
         }
-      }, 2000 * i);
+      }, i * 2000);
     }
     for (String queuedMsg : queuedMsgs) {
+      if (socket.getState() != 1) {
+        throw new RuntimeException("Socket died while sending queued messages on open");
+      }
       sendMessage(queuedMsg);
     }
     queuedMsgs.clear();
@@ -114,16 +121,16 @@ public class DraftSocketHandler implements
     eventBus.fireEvent(new SocketDisconnectEvent());
     if (reason == SocketTerminationReason.BAD_TEAM_TOKEN
         || reason == SocketTerminationReason.TEAM_ALREADY_CONNECTED) {
-      Window.Location.reload();
+      eventBus.fireEvent(new ReloadWindowEvent());
     } else {
-      Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {
-        @Override
-        public boolean execute() {
-          socket.open();
-          return false;
-        }
-      }, backoff);
+      int scheduleDelay = backoff;
       backoff = Math.max(backoff * 2, MAX_BACKOFF_MS);
+      scheduler.schedule(new Runnable() {
+        @Override
+        public void run() {
+          socket.open();
+        }
+      }, scheduleDelay);
     }
   }
 
@@ -146,7 +153,7 @@ public class DraftSocketHandler implements
     return commandBean;
   }
 
-  public void sendMessage(String msg) {
+  @VisibleForTesting void sendMessage(String msg) {
     if (socket.getState() == 1) {
       socket.send(msg);
     } else {
@@ -199,7 +206,7 @@ public class DraftSocketHandler implements
 
   private void processClockSync(String msg) {
     String[] response = msg.substring(ServletEndpoints.CLOCK_SYNC.length()).split(ServletEndpoints.CLOCK_SYNC_SEP);
-    double currentTime = Duration.currentTimeMillis();
+    double currentTime = currentTimeProvider.get();
     double latency = currentTime - Double.parseDouble(response[0]);
     double serverTime = Long.parseLong(response[1]) + (latency / 2);
     serverClockDiffs.add((int) (serverTime - currentTime));

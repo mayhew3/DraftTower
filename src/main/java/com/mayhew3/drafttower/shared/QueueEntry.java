@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Represents an entry in the player queue.
  */
-public interface QueueEntry {
+public interface QueueEntry extends DraggableItem {
   long getPlayerId();
   void setPlayerId(long playerId);
 

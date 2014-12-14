@@ -19,6 +19,7 @@ public class TestTeamDataSource implements TeamDataSource {
 
   @Inject BeanFactory beanFactory;
   @Inject @NumTeams int numTeams;
+  private HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
 
   @Override
   public TeamDraftOrder getTeamDraftOrder(String username, String password) {
@@ -27,7 +28,7 @@ public class TestTeamDataSource implements TeamDataSource {
     }
     try {
       int teamNumber = Integer.parseInt(username);
-      if (teamNumber < 0 || teamNumber > numTeams) {
+      if (teamNumber < 1 || teamNumber > numTeams) {
         return null;
       }
       return new TeamDraftOrder(teamNumber);
@@ -44,7 +45,7 @@ public class TestTeamDataSource implements TeamDataSource {
   @Override
   public Map<String, Team> getTeams() {
     HashMap<String, Team> teams = new HashMap<>();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 1; i <= 10; i++) {
       String teamNumber = Integer.toString(i);
       Team team = beanFactory.createTeam().as();
       team.setShortName(teamNumber);
@@ -56,13 +57,12 @@ public class TestTeamDataSource implements TeamDataSource {
 
   @Override
   public HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards() {
-    // TODO(kprevas): implement
-    return new HashMap<>();
+    return autoPickWizards;
   }
 
   @Override
   public void updateAutoPickWizard(TeamDraftOrder teamDraftOrder, PlayerDataSet wizardTable) {
-    // TODO(kprevas): implement
+    autoPickWizards.put(teamDraftOrder, wizardTable);
   }
 
   @Override

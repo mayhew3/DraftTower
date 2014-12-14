@@ -32,7 +32,13 @@ public class RosterUtil {
       C, FB, SB, TB, SS, OF, OF, OF, DH,
       P, P, P, P, P, P, P);
 
-  public static Multimap<Position, DraftPick> constructRoster(List<DraftPick> picks) {
+  public static List<String> splitEligibilities(String eligibility) {
+    return eligibility.isEmpty()
+        ? Lists.newArrayList("DH")
+        : Lists.newArrayList(eligibility.split(","));
+  }
+
+  public Multimap<Position, DraftPick> constructRoster(List<DraftPick> picks) {
     final Multimap<Position, DraftPick> roster = doConstructRoster(picks, Lists.newArrayList(POSITIONS),
         ArrayListMultimap.<Position, DraftPick>create());
     Iterable<DraftPick> reserves = Iterables.filter(picks, new Predicate<DraftPick>() {
@@ -83,7 +89,7 @@ public class RosterUtil {
     }
   }
 
-  public static Set<Position> getOpenPositions(List<DraftPick> picks) {
+  public Set<Position> getOpenPositions(List<DraftPick> picks) {
     Multimap<Position, DraftPick> optimalRoster = constructRoster(picks);
     optimalRoster.removeAll(RS);
     if (optimalRoster.size() == POSITIONS.size()) {

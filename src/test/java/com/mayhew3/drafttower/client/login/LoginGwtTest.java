@@ -1,7 +1,5 @@
 package com.mayhew3.drafttower.client.login;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
 import com.mayhew3.drafttower.client.TestBase;
@@ -17,13 +15,6 @@ import java.util.Map;
  */
 public class LoginGwtTest extends TestBase {
 
-  private static final String LOGIN_WIDGET = "-login";
-  private static final String USERNAME = "-login-username";
-  private static final String PASSWORD = "-login-password";
-  private static final String LOGIN_BUTTON = "-login-login";
-  private static final String INVALID_LOGIN = "-login-invalid";
-  private static final String ALREADY_LOGGED_IN = "-login-already";
-
   private DraftStatus draftStatus;
   private Map<String,TeamDraftOrder> teamTokens;
 
@@ -36,14 +27,8 @@ public class LoginGwtTest extends TestBase {
   }
 
   public void testUsernameFocused() {
-    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-      @Override
-      public void execute() {
-        assertTrue(isFocused(USERNAME));
-        finishTest();
-      }
-    });
-    delayTestFinish(500);
+    ginjector.getScheduler().flush();
+    assertTrue(isFocused(USERNAME));
   }
 
   public void testSuccessfulLoginButton() {
@@ -83,5 +68,11 @@ public class LoginGwtTest extends TestBase {
 
     assertTrue(isVisible(LOGIN_WIDGET));
     assertTrue(isVisible(ALREADY_LOGGED_IN));
+  }
+
+  public void testLogout() {
+    login(1);
+    click(LOGOUT_LINK);
+    assertNull(Cookies.getCookie(LoginResponse.TEAM_TOKEN_COOKIE));
   }
 }

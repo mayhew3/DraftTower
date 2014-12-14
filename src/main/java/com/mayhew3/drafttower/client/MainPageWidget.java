@@ -9,25 +9,37 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.PlayerPopupUrlPrefix;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
+import com.mayhew3.drafttower.client.clock.DraftClock;
+import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+import com.mayhew3.drafttower.client.events.ReloadWindowEvent;
 import com.mayhew3.drafttower.client.events.ShowPlayerPopupEvent;
+import com.mayhew3.drafttower.client.filledpositions.FilledPositionsChart;
+import com.mayhew3.drafttower.client.graphs.BarGraphsWidget;
+import com.mayhew3.drafttower.client.login.LoginPresenter;
 import com.mayhew3.drafttower.client.login.LoginWidget;
-import com.mayhew3.drafttower.shared.LoginResponse;
+import com.mayhew3.drafttower.client.myroster.MyRosterTablePanel;
+import com.mayhew3.drafttower.client.pickcontrols.PickControlsWidget;
+import com.mayhew3.drafttower.client.pickhistory.PickHistoryTablePanel;
+import com.mayhew3.drafttower.client.players.queue.QueueTable;
+import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTablePanel;
+import com.mayhew3.drafttower.client.teamorder.TeamOrderWidget;
+import com.mayhew3.drafttower.client.websocket.ConnectivityIndicator;
 import com.mayhew3.drafttower.shared.Player;
 
 /**
  * Widget containing the entire UI.
  */
-@Singleton
 public class MainPageWidget extends Composite implements
     LoginEvent.Handler,
-    ShowPlayerPopupEvent.Handler {
+    ShowPlayerPopupEvent.Handler,
+    ReloadWindowEvent.Handler {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
@@ -57,13 +69,16 @@ public class MainPageWidget extends Composite implements
   @UiField(provided = true) final ConnectivityIndicator connectivityIndicator;
   @UiField(provided = true) final LoginWidget loginWidget;
   @UiField(provided = true) final DraftClock clock;
-  @UiField(provided = true) final PickWidget pickWidget;
+  @UiField(provided = true) final PickControlsWidget pickControlsWidget;
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
-  @UiField(provided = true) FilledPositionsChart filledPositionsChart;
-  @UiField(provided = true) PlayerTablePanel unclaimedPlayers;
-  @UiField(provided = true) QueueTable queueTable;
+  @UiField(provided = true)
+  FilledPositionsChart filledPositionsChart;
+  @UiField(provided = true)
+  UnclaimedPlayerTablePanel unclaimedPlayers;
+  @UiField(provided = true)
+  QueueTable queueTable;
   @UiField(provided = true) AudioWidget audioWidget;
 
   @UiField DivElement mainPage;
@@ -73,29 +88,36 @@ public class MainPageWidget extends Composite implements
   @UiField DivElement queueArea;
 
   private final PopupPanel depthChartsPopup;
+  private final DepthChartsTable depthChartsTable;
   private final PopupPanel barGraphsPopup;
+  private final BarGraphsWidget barGraphsWidget;
   private final PopupPanel playerPopup;
   private final Frame playerPopupFrame;
+
+  private final LoginPresenter loginPresenter;
+  private final String playerPopupUrlPrefix;
 
   @Inject
   public MainPageWidget(ConnectivityIndicator connectivityIndicator,
       LoginWidget loginWidget,
       DraftClock clock,
-      PickWidget pickWidget,
+      PickControlsWidget pickControlsWidget,
       PickHistoryTablePanel pickHistoryTable,
       MyRosterTablePanel myRosterTable,
       TeamOrderWidget teamOrder,
       FilledPositionsChart filledPositionsChart,
-      PlayerTablePanel unclaimedPlayers,
+      UnclaimedPlayerTablePanel unclaimedPlayers,
       QueueTable queueTable,
       DepthChartsTable depthChartsTable,
-      BarGraphs barGraphs,
+      BarGraphsWidget barGraphsWidget,
       AudioWidget audioWidget,
-      EventBus eventBus) {
+      EventBus eventBus,
+      LoginPresenter loginPresenter,
+      @PlayerPopupUrlPrefix String playerPopupUrlPrefix) {
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
-    this.pickWidget = pickWidget;
+    this.pickControlsWidget = pickControlsWidget;
     this.pickHistoryTable = pickHistoryTable;
     this.myRosterTable = myRosterTable;
     this.teamOrder = teamOrder;
@@ -103,6 +125,10 @@ public class MainPageWidget extends Composite implements
     this.unclaimedPlayers = unclaimedPlayers;
     this.queueTable = queueTable;
     this.audioWidget = audioWidget;
+    this.depthChartsTable = depthChartsTable;
+    this.barGraphsWidget = barGraphsWidget;
+    this.loginPresenter = loginPresenter;
+    this.playerPopupUrlPrefix = playerPopupUrlPrefix;
 
     initWidget(uiBinder.createAndBindUi(this));
 
@@ -120,7 +146,7 @@ public class MainPageWidget extends Composite implements
     barGraphsPopup.setAutoHideEnabled(true);
     barGraphsPopup.setGlassEnabled(true);
     barGraphsPopup.setGlassStyleName(CSS.glassPanel());
-    barGraphsPopup.setWidget(barGraphs);
+    barGraphsPopup.setWidget(barGraphsWidget);
 
     playerPopup = new PopupPanel();
     playerPopup.setModal(true);
@@ -132,8 +158,16 @@ public class MainPageWidget extends Composite implements
     playerPopupFrame.getElement().setAttribute("seamless", "true");
     playerPopup.setWidget(playerPopupFrame);
 
+    unclaimedPlayers.setQueueAreaTopProvider(new Provider<Integer>() {
+      @Override
+      public Integer get() {
+        return getQueueAreaTop();
+      }
+    });
+
     eventBus.addHandler(LoginEvent.TYPE, this);
     eventBus.addHandler(ShowPlayerPopupEvent.TYPE, this);
+    eventBus.addHandler(ReloadWindowEvent.TYPE, this);
   }
 
   @Override
@@ -156,8 +190,10 @@ public class MainPageWidget extends Composite implements
 
   @UiHandler("logout")
   public void handleLogoutClick(ClickEvent e) {
-    Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
-    Window.Location.reload();
+    loginPresenter.logout();
+    if (GWT.isProdMode()) {
+      Window.Location.reload();
+    }
   }
 
   public int getQueueAreaTop() {
@@ -168,17 +204,39 @@ public class MainPageWidget extends Composite implements
   public void showPlayerPopup(ShowPlayerPopupEvent event) {
     Player player = event.getPlayer();
     long cbsId = player.getCBSId();
-    playerPopupFrame.setUrl("http://uncharted.baseball.cbssports.com/players/playerpage/snippet/"
+    playerPopupFrame.setUrl(playerPopupUrlPrefix
         + cbsId
         + "?loc=snippet&selected_tab=news&selected_subtab=");
     playerPopup.center();
     playerPopup.show();
   }
 
+  @Override
+  public void onReload(ReloadWindowEvent event) {
+    if (GWT.isProdMode()) {
+      Window.Location.reload();
+    }
+  }
 
   @Override
   protected void onEnsureDebugId(String baseID) {
     super.onEnsureDebugId(baseID);
     loginWidget.ensureDebugId(baseID + "-login");
+    logout.ensureDebugId(baseID + "-logout");
+    connectivityIndicator.ensureDebugId(baseID + "-conn");
+    audioWidget.ensureDebugId(baseID + "-audio");
+    clock.ensureDebugId(baseID + "-clock");
+    showDepthCharts.ensureDebugId(baseID + "-showDepthCharts");
+    depthChartsTable.ensureDebugId(baseID + "-depthCharts");
+    showBarGraphs.ensureDebugId(baseID + "-showBarGraphs");
+    barGraphsWidget.ensureDebugId(baseID + "-barGraphs");
+    filledPositionsChart.ensureDebugId(baseID + "-filledPositions");
+    myRosterTable.ensureDebugId(baseID + "-myRoster");
+    pickControlsWidget.ensureDebugId(baseID + "-pickControls");
+    unclaimedPlayers.ensureDebugId(baseID + "-players");
+    queueTable.ensureDebugId(baseID + "-queue");
+    pickHistoryTable.ensureDebugId(baseID + "-pickHistory");
+    teamOrder.ensureDebugId(baseID + "-teamOrder");
+    playerPopupFrame.ensureDebugId(baseID + "-playerPopup");
   }
 }

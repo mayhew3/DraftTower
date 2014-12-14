@@ -15,12 +15,9 @@ import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.LoginResponse;
 
-import javax.inject.Singleton;
-
 /**
  * Login form.
  */
-@Singleton
 public class LoginWidget extends Composite implements LoginView {
 
   interface Resources extends ClientBundle {

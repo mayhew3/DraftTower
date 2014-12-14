@@ -38,7 +38,9 @@ public class DraftControllerImpl implements DraftController {
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
   private final TeamDataSource teamDataSource;
+  private final CurrentTimeProvider currentTimeProvider;
   private final DraftTimer draftTimer;
+  private final RosterUtil rosterUtil;
 
   private final Map<String, TeamDraftOrder> teamTokens;
   private final ListMultimap<TeamDraftOrder, Integer> keepers;
@@ -55,9 +57,11 @@ public class DraftControllerImpl implements DraftController {
       BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
       TeamDataSource teamDataSource,
+      CurrentTimeProvider currentTimeProvider,
       DraftTimer draftTimer,
       DraftStatus status,
       Lock lock,
+      RosterUtil rosterUtil,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
@@ -67,7 +71,9 @@ public class DraftControllerImpl implements DraftController {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
     this.teamDataSource = teamDataSource;
+    this.currentTimeProvider = currentTimeProvider;
     this.draftTimer = draftTimer;
+    this.rosterUtil = rosterUtil;
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
@@ -130,6 +136,8 @@ public class DraftControllerImpl implements DraftController {
         case DO_PICK:
           if (!status.isOver() && teamDraftOrder.get() == status.getCurrentTeam()) {
             doPick(teamDraftOrder, cmd.getPlayerId(), false, false);
+          } else {
+            return;
           }
           break;
         case PAUSE:
@@ -148,6 +156,8 @@ public class DraftControllerImpl implements DraftController {
             } else {
               doPick(new TeamDraftOrder(status.getCurrentTeam()), cmd.getPlayerId(), true, false);
             }
+          } else {
+            return;
           }
           break;
         case WAKE_UP:
@@ -160,183 +170,207 @@ public class DraftControllerImpl implements DraftController {
 
   @VisibleForTesting
   void doPick(final TeamDraftOrder teamDraftOrder, long playerId, boolean auto, boolean keeper) {
-    if (playerId == Player.BEST_DRAFT_PICK) {
-      try {
-        playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
-            teamDraftOrder,
-            RosterUtil.getOpenPositions(
-                Lists.newArrayList(Iterables.filter(status.getPicks(),
-                    new Predicate<DraftPick>() {
-                      @Override
-                      public boolean apply(DraftPick draftPick) {
-                        return draftPick.getTeam() == teamDraftOrder.get();
-                      }
-                    }))));
-      } catch (DataSourceException e) {
-        logger.log(SEVERE, "SQL error looking up the best draft pick", e);
-        return;
-      }
-    }
-
-    for (DraftPick pick : status.getPicks()) {
-      if (pick.getPlayerId() == playerId) {
-        logger.log(SEVERE, "Player " + playerId + " was already picked");
-        return;
-      }
-    }
-
-    logger.info("Team " + teamDraftOrder
-        + (auto ? " auto-picked" : " picked")
-        + " player " + playerId);
-
-    DraftPick pick = beanFactory.createDraftPick().as();
-    pick.setTeam(teamDraftOrder.get());
-    pick.setPlayerId(playerId);
-    pick.setKeeper(keeper);
-    try {
-      playerDataSource.populateDraftPick(pick);
-    } catch (DataSourceException e) {
-      logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
-    }
-    status.getPicks().add(pick);
-
-    try {
-      playerDataSource.postDraftPick(pick, status);
-    } catch (DataSourceException e) {
-      logger.log(SEVERE, "SQL error posting draft pick for player ID " + playerId, e);
-    }
-
-    Collection<Entry<TeamDraftOrder, QueueEntry>> queueEntries = queues.entries();
-    synchronized (queues) {
-      for (Iterator<Entry<TeamDraftOrder, QueueEntry>> iterator = queueEntries.iterator(); iterator.hasNext();) {
-        Entry<TeamDraftOrder, QueueEntry> entry = iterator.next();
-        if (entry.getValue().getPlayerId() == playerId) {
-          iterator.remove();
+    try (Lock ignored = lock.lock()) {
+      if (playerId == Player.BEST_DRAFT_PICK) {
+        try {
+          playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
+              teamDraftOrder,
+              rosterUtil.getOpenPositions(
+                  Lists.newArrayList(Iterables.filter(status.getPicks(),
+                      new Predicate<DraftPick>() {
+                        @Override
+                        public boolean apply(DraftPick draftPick) {
+                          return draftPick.getTeam() == teamDraftOrder.get();
+                        }
+                      }))));
+        } catch (DataSourceException e) {
+          logger.log(SEVERE, "SQL error looking up the best draft pick", e);
+          return;
         }
       }
-    }
 
-    advanceTeam();
-    newPick();
+      for (DraftPick pick : status.getPicks()) {
+        if (pick.getPlayerId() == playerId) {
+          logger.log(SEVERE, "Player " + playerId + " was already picked");
+          return;
+        }
+      }
+
+      logger.info("Team " + teamDraftOrder
+          + (auto ? " auto-picked" : " picked")
+          + " player " + playerId);
+
+      DraftPick pick = beanFactory.createDraftPick().as();
+      pick.setTeam(teamDraftOrder.get());
+      pick.setPlayerId(playerId);
+      pick.setKeeper(keeper);
+      try {
+        playerDataSource.populateDraftPick(pick);
+      } catch (DataSourceException e) {
+        logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
+      }
+      status.getPicks().add(pick);
+
+      try {
+        playerDataSource.postDraftPick(pick, status);
+      } catch (DataSourceException e) {
+        logger.log(SEVERE, "SQL error posting draft pick for player ID " + playerId, e);
+      }
+
+      Collection<Entry<TeamDraftOrder, QueueEntry>> queueEntries = queues.entries();
+      synchronized (queues) {
+        for (Iterator<Entry<TeamDraftOrder, QueueEntry>> iterator = queueEntries.iterator(); iterator.hasNext();) {
+          Entry<TeamDraftOrder, QueueEntry> entry = iterator.next();
+          if (entry.getValue().getPlayerId() == playerId) {
+            iterator.remove();
+          }
+        }
+      }
+
+      advanceTeam();
+      newPick();
+    }
   }
 
   @Override
   public void onClientDisconnected(String teamToken) {
-    if (teamTokens.containsKey(teamToken)) {
-      status.getConnectedTeams().remove(teamTokens.get(teamToken).get());
+    try (Lock ignored = lock.lock()) {
+      if (teamTokens.containsKey(teamToken)) {
+        status.getConnectedTeams().remove(teamTokens.get(teamToken).get());
+      }
+      socketServlet.sendMessage(getEncodedStatus());
     }
-    socketServlet.sendMessage(getEncodedStatus());
   }
 
   private void newPick() {
-    draftTimer.cancel();
-    long pickLengthMs = status.getRobotTeams().contains(status.getCurrentTeam())
-        ? ROBOT_PICK_LENGTH_MS
-        : PICK_LENGTH_MS;
-    status.setCurrentPickDeadline(System.currentTimeMillis() + pickLengthMs);
-    status.setPaused(false);
+    try (Lock ignored = lock.lock()) {
+      draftTimer.cancel();
+      long pickLengthMs = status.getRobotTeams().contains(status.getCurrentTeam())
+          ? ROBOT_PICK_LENGTH_MS
+          : PICK_LENGTH_MS;
+      status.setCurrentPickDeadline(currentTimeProvider.getCurrentTimeMillis() + pickLengthMs);
+      status.setPaused(false);
 
-    int round = status.getPicks().size() / numTeams;
+      int round = status.getPicks().size() / numTeams;
 
-    status.setOver(round >= 22);
-    status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
+      status.setOver(round >= 22);
+      status.setNextPickKeeperTeams(getNextPickKeeperTeams(round));
 
-    if (isCurrentPickKeeper()) {
-      TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
-      List<Integer> currentTeamKeepers = keepers.get(currentTeam);
-      doPick(currentTeam, currentTeamKeepers.get(round), true, true);
-    } else if (!status.isOver()) {
-      startPickTimer(pickLengthMs);
+      if (isCurrentPickKeeper()) {
+        TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
+        List<Integer> currentTeamKeepers = keepers.get(currentTeam);
+        doPick(currentTeam, currentTeamKeepers.get(round), true, true);
+      } else if (!status.isOver()) {
+        startPickTimer(pickLengthMs);
+      }
     }
   }
 
   private boolean isCurrentPickKeeper() {
-    List<Integer> currentTeamKeepers = keepers.get(new TeamDraftOrder(status.getCurrentTeam()));
-    int round = status.getPicks().size() / numTeams;
-    return round < currentTeamKeepers.size();
+    try (Lock ignored = lock.lock()) {
+      List<Integer> currentTeamKeepers = keepers.get(new TeamDraftOrder(status.getCurrentTeam()));
+      int round = status.getPicks().size() / numTeams;
+      return round < currentTeamKeepers.size();
+    }
   }
 
   private Set<Integer> getNextPickKeeperTeams(int round) {
-    Set<Integer> nextPickKeeperTeams = new HashSet<>();
-    if (round < 3) {
-      for (int i = 1; i <= numTeams; i++) {
-        if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(new TeamDraftOrder(i)).size()) {
-          nextPickKeeperTeams.add(i);
+    try (Lock ignored = lock.lock()) {
+      Set<Integer> nextPickKeeperTeams = new HashSet<>();
+      if (round < 3) {
+        for (int i = 1; i <= numTeams; i++) {
+          if (round + (i < status.getCurrentTeam() ? 1 : 0) < keepers.get(new TeamDraftOrder(i)).size()) {
+            nextPickKeeperTeams.add(i);
+          }
         }
       }
+      return nextPickKeeperTeams;
     }
-    return nextPickKeeperTeams;
   }
 
   private void advanceTeam() {
-    int currentTeam = status.getCurrentTeam() + 1;
-    if (currentTeam > numTeams) {
-      currentTeam -= numTeams;
+    try (Lock ignored = lock.lock()) {
+      int currentTeam = status.getCurrentTeam() + 1;
+      if (currentTeam > numTeams) {
+        currentTeam -= numTeams;
+      }
+      status.setCurrentTeam(currentTeam);
     }
-    status.setCurrentTeam(currentTeam);
   }
 
   private void goBackOneTeam() {
-    int currentTeam = status.getCurrentTeam() - 1;
-    if (currentTeam < 1) {
-      currentTeam += numTeams;
+    try (Lock ignored = lock.lock()) {
+      int currentTeam = status.getCurrentTeam() - 1;
+      if (currentTeam < 1) {
+        currentTeam += numTeams;
+      }
+      status.setCurrentTeam(currentTeam);
     }
-    status.setCurrentTeam(currentTeam);
   }
 
   private void pausePick() {
-    draftTimer.cancel();
-    status.setPaused(true);
-    pausedPickTime = status.getCurrentPickDeadline() - System.currentTimeMillis();
+    try (Lock ignored = lock.lock()) {
+      draftTimer.cancel();
+      status.setPaused(true);
+      pausedPickTime = status.getCurrentPickDeadline() - currentTimeProvider.getCurrentTimeMillis();
+    }
   }
 
   private void resumePick() {
-    status.setCurrentPickDeadline(System.currentTimeMillis() + pausedPickTime);
-    status.setPaused(false);
-    startPickTimer(pausedPickTime);
-    pausedPickTime = 0;
+    try (Lock ignored = lock.lock()) {
+      status.setCurrentPickDeadline(currentTimeProvider.getCurrentTimeMillis() + pausedPickTime);
+      status.setPaused(false);
+      startPickTimer(pausedPickTime);
+      pausedPickTime = 0;
+    }
   }
 
   @VisibleForTesting
   void backOutLastPick() {
-    if (status.getPicks().isEmpty()) {
-      logger.warning("Attempt to back out pick when there are no picks!");
-    } else {
-      boolean wasPaused = status.isPaused();
-      do {
-        int pickToRemove = status.getPicks().size();
-        logger.info("Backed out pick " + pickToRemove);
-        removePick(pickToRemove);
-        goBackOneTeam();
-      } while (isCurrentPickKeeper());
-      newPick();
-      if (wasPaused) {
-        pausePick();
+    try (Lock ignored = lock.lock()) {
+      if (status.getPicks().isEmpty()) {
+        logger.warning("Attempt to back out pick when there are no picks!");
+      } else {
+        boolean wasPaused = status.isPaused();
+        do {
+          int pickToRemove = status.getPicks().size();
+          logger.info("Backed out pick " + pickToRemove);
+          removePick(pickToRemove);
+          goBackOneTeam();
+        } while (isCurrentPickKeeper());
+        newPick();
+        if (wasPaused) {
+          pausePick();
+        }
       }
     }
   }
 
   private void removePick(int pickToRemove) {
-    status.getPicks().remove(pickToRemove - 1);
-    try {
-      playerDataSource.backOutLastDraftPick(pickToRemove);
-    } catch (DataSourceException e) {
-      logger.log(SEVERE, "SQL error backing out last draft pick.", e);
+    try (Lock ignored = lock.lock()) {
+      status.getPicks().remove(pickToRemove - 1);
+      try {
+        playerDataSource.backOutLastDraftPick(pickToRemove);
+      } catch (DataSourceException e) {
+        logger.log(SEVERE, "SQL error backing out last draft pick.", e);
+      }
     }
   }
 
   /** Returns true if the team should go into robot mode. */
   private boolean autoPick() {
-    TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
-    List<QueueEntry> queue = queues.get(currentTeam);
-    synchronized (queues) {
-      if (!queue.isEmpty()) {
-        doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
-        return false;
+    try (Lock ignored = lock.lock()) {
+      TeamDraftOrder currentTeam = new TeamDraftOrder(status.getCurrentTeam());
+      List<QueueEntry> queue = queues.get(currentTeam);
+      synchronized (queues) {
+        if (!queue.isEmpty()) {
+          doPick(currentTeam, queue.remove(0).getPlayerId(), true, false);
+          return false;
+        }
       }
-    }
 
-    doPick(currentTeam, Player.BEST_DRAFT_PICK, true, false);
+      doPick(currentTeam, Player.BEST_DRAFT_PICK, true, false);
+    }
     return true;
   }
 
@@ -355,12 +389,15 @@ public class DraftControllerImpl implements DraftController {
     }
   }
 
-  private void sendStatusUpdates() {
+  @VisibleForTesting
+  public void sendStatusUpdates() {
     socketServlet.sendMessage(getEncodedStatus());
   }
 
   private String getEncodedStatus() {
-    status.setSerialId(status.getSerialId() + 1);
-    return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
+    try (Lock ignored = lock.lock()) {
+      status.setSerialId(status.getSerialId() + 1);
+      return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
+    }
   }
 }

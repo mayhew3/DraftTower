@@ -1,11 +1,14 @@
 package com.mayhew3.drafttower.client.audio;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.GinBindingAnnotations.TtsUrlPrefix;
 
 /**
  * Controls audio clips.
@@ -14,13 +17,18 @@ public class AudioWidget extends Composite implements AudioView {
 
   private final Audio itsOver;
   private final Frame audioFrame;
+  private String ttsUrlPrefix;
 
   @Inject
-  public AudioWidget(AudioPresenter presenter) {
+  public AudioWidget(AudioPresenter presenter,
+      @TtsUrlPrefix String ttsUrlPrefix) {
+    this.ttsUrlPrefix = ttsUrlPrefix;
+
     FlowPanel container = new FlowPanel();
     container.setSize("0", "0");
 
-    this.itsOver = createAudio("over.mp3");
+    itsOver = createAudio("over.mp3");
+    container.add(itsOver);
 
     audioFrame = new Frame();
     audioFrame.setSize("0", "0");
@@ -32,24 +40,27 @@ public class AudioWidget extends Composite implements AudioView {
   }
 
   private Audio createAudio(String src) {
-    Audio onDeck = Audio.createIfSupported();
-    onDeck.setPreload("auto");
-    onDeck.setControls(false);
-    onDeck.setSrc(src);
-    return onDeck;
+    Audio audio = Audio.createIfSupported();
+    audio.setPreload("auto");
+    audio.setControls(false);
+    audio.setSrc(src);
+    return audio;
   }
 
   @Override
   public void play(String msg) {
     stopCurrentAudio();
-    audioFrame.setUrl("http://translate.google.com/translate_tts?tl=en&q="
-        + UriUtils.encode(msg));
+    audioFrame.setUrl(ttsUrlPrefix + UriUtils.encode(msg));
   }
 
   @Override
   public void playItsOver() {
     stopCurrentAudio();
-    itsOver.play();
+    if (GWT.isProdMode()
+        && itsOver.getError() == null
+        && itsOver.getReadyState() == AudioElement.HAVE_ENOUGH_DATA) {
+      itsOver.play();
+    }
   }
 
   private void stopCurrentAudio() {
@@ -60,5 +71,12 @@ public class AudioWidget extends Composite implements AudioView {
     } catch (Exception e) {
       // Something happens here sometimes - clearing cache fixes it, so idk
     }
+  }
+
+  @Override
+  protected void onEnsureDebugId(String baseID) {
+    super.onEnsureDebugId(baseID);
+    audioFrame.ensureDebugId(baseID + "-frame");
+    itsOver.ensureDebugId(baseID + "-itsover");
   }
 }
