@@ -8,8 +8,7 @@
           <element id="module-output" name="DraftTower" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="Maven: com.google.gwt:gwt-servlet:2.6.1" />
-          <element id="library" level="project" name="Maven: org.json:json:20090211" />
+          <element id="library" level="project" name="Maven: com.google.gwt:gwt-servlet:2.7.0" />
           <element id="library" level="project" name="Maven: org.eclipse.jetty:jetty-websocket:8.1.8.v20121106" />
           <element id="library" level="project" name="Maven: org.eclipse.jetty:jetty-util:8.1.8.v20121106" />
           <element id="library" level="project" name="Maven: org.eclipse.jetty:jetty-io:8.1.8.v20121106" />
@@ -22,6 +21,7 @@
           <element id="library" level="project" name="Maven: aopalliance:aopalliance:1.0" />
           <element id="library" level="project" name="Maven: com.google.inject.extensions:guice-assistedinject:3.0" />
           <element id="library" level="project" name="Maven: com.google.inject.extensions:guice-servlet:3.0" />
+          <element id="library" level="project" name="Maven: org.json:json:20090211" />
           <element id="library" level="project" name="Maven: mysql:mysql-connector-java:5.1.22" />
           <element id="library" level="project" name="Maven: commons-dbcp:commons-dbcp:20030825.184428" />
           <element id="library" level="project" name="Maven: commons-pool:commons-pool:1.5.4" />

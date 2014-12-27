@@ -13,14 +13,4 @@
   <!-- Specify the paths for translatable code -->
   <source path='client'/>
   <source path='shared'/>
-
-  <!-- super dev mode -->
-
-  <add-linker name="xsiframe"/>
-
-  <set-configuration-property name="devModeRedirectEnabled" value="true"/>
-
-  <!-- enable source maps -->
-
-  <set-property name="compiler.useSourceMaps" value="true"/>
 </module>

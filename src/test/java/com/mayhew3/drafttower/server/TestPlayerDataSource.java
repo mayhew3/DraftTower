@@ -3,12 +3,9 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
 
-import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
@@ -17,22 +14,22 @@ import static com.mayhew3.drafttower.shared.Position.P;
 /**
  * {@link PlayerDataSource} for testing.
  */
-@Singleton
-public class TestPlayerDataSource implements PlayerDataSource {
+public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
   private final TestPlayerGenerator playerGenerator;
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
-  private final List<DraftPick> draftPicks = new CopyOnWriteArrayList<>();
+  private final List<DraftPick> draftPicks;
   private ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
-  @Inject
   public TestPlayerDataSource(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
     this.playerGenerator = new TestPlayerGenerator(beanFactory);
     int playerId = 0;
+
+    draftPicks = createDraftPicksList();
 
     for (Position position : Position.REAL_POSITIONS) {
       int numPlayers;
@@ -54,6 +51,8 @@ public class TestPlayerDataSource implements PlayerDataSource {
     // TODO(kprevas): generate multi-position players
     availablePlayers = new HashMap<>(allPlayers);
   }
+
+  protected abstract List<DraftPick> createDraftPicksList();
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
