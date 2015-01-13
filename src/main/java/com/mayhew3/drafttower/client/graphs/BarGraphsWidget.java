@@ -10,7 +10,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.shared.PlayerColumn;
+import com.mayhew3.drafttower.shared.Scoring;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,9 +54,11 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
       .put(WHIP, 1.4f)
       .put(WL, 50f)
       .put(S, 120f)
+      .put(WIZARD, 2000f)  // TODO better max
       .build();
 
   private final BarGraphsApi api;
+  private final TeamsInfo teamsInfo;
 
   private final FlowPanel container;
   private final Map<PlayerColumn, Widget> barGraphs = new HashMap<>();
@@ -63,11 +67,15 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
 
   @Inject
   public BarGraphsWidget(final BarGraphsPresenter presenter,
-      final BarGraphsApi api) {
+      final BarGraphsApi api,
+      TeamsInfo teamsInfo) {
     this.api = api;
+    this.teamsInfo = teamsInfo;
     container = new FlowPanel();
     container.setSize("820px", "750px");
-    addLabels();
+    if (Scoring.CATEGORIES) {
+      addLabels();
+    }
 
     api.loadVisualizationApi(new Runnable() {
       @Override
@@ -103,24 +111,34 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
     if (apiLoaded) {
       container.clear();
       barGraphs.clear();
-      addLabels();
+      if (Scoring.CATEGORIES) {
+        addLabels();
+      }
     }
   }
 
   @Override
-  public void updateBar(PlayerColumn statColumn,
-      Float myValue, Float avgValue) {
+  public void updateBar(PlayerColumn statColumn, Float... values) {
     Widget barGraph = api.createBarGraph(
         statColumn.getLongName(),
-        new String[] {"Me", "Avg"},
-        new float[] {
-            myValue == null ? 0 : myValue,
-            avgValue == null ? 0 : avgValue,
-        },
+        getLabels(),
+        values,
         MAX_VALUES.get(statColumn));
     barGraph.addStyleName(CSS.graph());
     container.add(barGraph);
     barGraphs.put(statColumn, barGraph);
+  }
+
+  private String[] getLabels() {
+    if (Scoring.CATEGORIES) {
+      return new String[]{"Me", "Avg"};
+    } else {
+      String[] labels = new String[10];
+      for (int i = 1; i <= 10; i++) {
+        labels[i - 1] = teamsInfo.getShortTeamName(i);
+      }
+      return labels;
+    }
   }
 
   @Override

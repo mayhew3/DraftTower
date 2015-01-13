@@ -6,6 +6,7 @@ import com.google.common.collect.Ordering;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
@@ -193,7 +194,8 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
       int team = draftPick.getTeam();
       Map<PlayerColumn, Float> values = teamValues.get(team);
       for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-        String valueStr = graphStat.get(player);
+        String valueStr = graphStat == WIZARD ? getWizard(player, EnumSet.allOf(Position.class))
+            : graphStat.get(player);
         if (valueStr != null) {
           float value = Float.parseFloat(valueStr);
           if (values.containsKey(graphStat)) {
@@ -218,19 +220,28 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
       }
     }
 
-    graphsData.setMyValues(teamValues.get(myTeam.get()));
-    Map<PlayerColumn, Float> avgValues = new HashMap<>();
-    for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-      for (Integer team : teamValues.keySet()) {
-        Float teamStatValue = teamValues.get(team).get(graphStat);
-        if (teamStatValue != null) {
-          avgValues.put(graphStat,
-              (avgValues.containsKey(graphStat) ? avgValues.get(graphStat) : 0)
-                  + teamStatValue / 10);
+    if (Scoring.CATEGORIES) {
+      graphsData.setMyValues(teamValues.get(myTeam.get()));
+      Map<PlayerColumn, Float> avgValues = new HashMap<>();
+      for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+        for (Integer team : teamValues.keySet()) {
+          Float teamStatValue = teamValues.get(team).get(graphStat);
+          if (teamStatValue != null) {
+            avgValues.put(graphStat,
+                (avgValues.containsKey(graphStat) ? avgValues.get(graphStat) : 0)
+                    + teamStatValue / 10);
+          }
         }
       }
+      graphsData.setAvgValues(avgValues);
+    } else {
+      Map<String, Float> teamWizardValues = new HashMap<>();
+      for (Entry<Integer, Map<PlayerColumn, Float>> valueEntry : teamValues.entrySet()) {
+        teamWizardValues.put(Integer.toString(valueEntry.getKey()),
+            valueEntry.getValue().get(WIZARD));
+      }
+      graphsData.setTeamValues(teamWizardValues);
     }
-    graphsData.setAvgValues(avgValues);
 
     return graphsData;
   }

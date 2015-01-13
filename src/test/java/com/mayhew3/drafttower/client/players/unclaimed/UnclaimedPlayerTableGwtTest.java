@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.gwt.dom.client.IFrameElement;
 import com.mayhew3.drafttower.client.TestBase;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.Scoring;
 
 import static com.mayhew3.drafttower.shared.Position.P;
 
@@ -224,11 +225,21 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-13");
-    assertEquals("3.9499998", getInnerText("-players-table-1-13"));
-    assertEquals("3.9", getInnerText("-players-table-2-13"));
+    if (Scoring.CATEGORIES) {
+      assertEquals("3.9499998", getInnerText("-players-table-1-13"));
+      assertEquals("3.9", getInnerText("-players-table-2-13"));
+    } else {
+      assertEquals("2780.0", getInnerText("-players-table-1-13"));
+      assertEquals("2760.0", getInnerText("-players-table-2-13"));
+    }
     click("-players-table-0-13");
-    assertEquals("-3.0", getInnerText("-players-table-1-13"));
-    assertEquals("-3.0", getInnerText("-players-table-2-13"));
+    if (Scoring.CATEGORIES) {
+      assertEquals("-3.0", getInnerText("-players-table-1-13"));
+      assertEquals("-3.0", getInnerText("-players-table-2-13"));
+    } else {
+      assertEquals("0.0", getInnerText("-players-table-1-13"));
+      assertEquals("0.0", getInnerText("-players-table-2-13"));
+    }
   }
 
   public void testSortByDraft() {
