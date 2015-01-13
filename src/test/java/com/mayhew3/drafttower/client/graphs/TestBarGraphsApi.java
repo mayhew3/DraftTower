@@ -13,11 +13,11 @@ public class TestBarGraphsApi implements BarGraphsApi {
   }
 
   @Override
-  public Widget createBarGraph(String title, String[] labels, float[] values, float maxValue) {
+  public Widget createBarGraph(String title, String[] labels, Float[] values, float maxValue) {
     StringBuilder contents = new StringBuilder();
     for (int i = 0; i < labels.length; i++) {
       String label = labels[i];
-      float value = values[i];
+      Float value = values[i];
       contents.append(label)
           .append("=")
           .append(value)

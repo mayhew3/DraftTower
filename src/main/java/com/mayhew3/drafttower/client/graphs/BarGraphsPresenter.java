@@ -68,9 +68,17 @@ public class BarGraphsPresenter implements DraftStatusChangedEvent.Handler {
       public Void apply(GraphsData graphsData) {
         view.clear();
         for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-          Float myValue = graphsData.getMyValues().get(graphStat);
-          Float avgValue = graphsData.getAvgValues().get(graphStat);
-          view.updateBar(graphStat, myValue, avgValue);
+          if (graphStat == PlayerColumn.WIZARD) {
+            Float[] values = new Float[10];
+            for (int i = 0; i < 10; i++) {
+              values[i] = graphsData.getTeamValues().get(Integer.toString(i + 1));
+            }
+            view.updateBar(PlayerColumn.WIZARD, values);
+          } else {
+            Float myValue = graphsData.getMyValues().get(graphStat);
+            Float avgValue = graphsData.getAvgValues().get(graphStat);
+            view.updateBar(graphStat, myValue, avgValue);
+          }
         }
         return null;
       }

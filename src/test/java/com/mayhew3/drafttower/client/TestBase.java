@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.TestPlayerDataSource;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.ArrayList;
@@ -234,7 +235,7 @@ public abstract class TestBase extends GWTTestCase {
 
     status.setSerialId(oldSerialId + 1);
 
-    ginjector.getPlayerDataSource().setDraftPicks(status.getPicks());
+    ((TestPlayerDataSource) ginjector.getPlayerDataSource()).setDraftPicks(status.getPicks());
     ginjector.getDraftController().sendStatusUpdates();
   }
 
@@ -245,7 +246,8 @@ public abstract class TestBase extends GWTTestCase {
         Position position = positions[team - 1][round];
         if (position != null) {
           picks.add(DraftStatusTestUtil.createAndPostDraftPick(
-              team, "Guy " + round + team, false, position, ginjector.getBeanFactory(), ginjector.getPlayerDataSource()));
+              team, "Guy " + round + team, false, position, ginjector.getBeanFactory(),
+              (TestPlayerDataSource) ginjector.getPlayerDataSource()));
         }
       }
     }

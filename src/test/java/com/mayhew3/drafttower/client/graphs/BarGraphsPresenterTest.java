@@ -8,10 +8,7 @@ import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.GetGraphsDataRequest;
-import com.mayhew3.drafttower.shared.GraphsData;
-import com.mayhew3.drafttower.shared.PlayerColumn;
+import com.mayhew3.drafttower.shared.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -54,16 +51,31 @@ public class BarGraphsPresenterTest {
 
   private GraphsData createGraphsData() {
     GraphsData graphsData = beanFactory.createGraphsData().as();
-    graphsData.setMyValues(new ImmutableMap.Builder<PlayerColumn, Float>()
-        .put(PlayerColumn.HR, 1.0f)
-        .put(PlayerColumn.RBI, 2.0f)
-        .put(PlayerColumn.RHR, 3.0f)
-        .build());
-    graphsData.setAvgValues(new ImmutableMap.Builder<PlayerColumn, Float>()
-        .put(PlayerColumn.HR, 4.0f)
-        .put(PlayerColumn.RBI, 5.0f)
-        .put(PlayerColumn.RHR, 6.0f)
-        .build());
+    if (Scoring.CATEGORIES) {
+      graphsData.setMyValues(new ImmutableMap.Builder<PlayerColumn, Float>()
+          .put(PlayerColumn.HR, 1.0f)
+          .put(PlayerColumn.RBI, 2.0f)
+          .put(PlayerColumn.RHR, 3.0f)
+          .build());
+      graphsData.setAvgValues(new ImmutableMap.Builder<PlayerColumn, Float>()
+          .put(PlayerColumn.HR, 4.0f)
+          .put(PlayerColumn.RBI, 5.0f)
+          .put(PlayerColumn.RHR, 6.0f)
+          .build());
+    } else {
+      graphsData.setTeamValues(new ImmutableMap.Builder<String, Float>()
+          .put("1", 100f)
+          .put("2", 200f)
+          .put("3", 300f)
+          .put("4", 400f)
+          .put("5", 500f)
+          .put("6", 600f)
+          .put("7", 700f)
+          .put("8", 800f)
+          .put("9", 900f)
+          .put("10", 1000f)
+          .build());
+    }
     return graphsData;
   }
 
@@ -84,9 +96,14 @@ public class BarGraphsPresenterTest {
   public void testUpdateOnSetActive() {
     presenter.setActive(true);
     Mockito.verify(view).clear();
-    Mockito.verify(view).updateBar(PlayerColumn.HR, 1.0f, 4.0f);
-    Mockito.verify(view).updateBar(PlayerColumn.RBI, 2.0f, 5.0f);
-    Mockito.verify(view).updateBar(PlayerColumn.RHR, 3.0f, 6.0f);
+    if (Scoring.CATEGORIES) {
+      Mockito.verify(view).updateBar(PlayerColumn.HR, 1.0f, 4.0f);
+      Mockito.verify(view).updateBar(PlayerColumn.RBI, 2.0f, 5.0f);
+      Mockito.verify(view).updateBar(PlayerColumn.RHR, 3.0f, 6.0f);
+    } else {
+      Mockito.verify(view).updateBar(PlayerColumn.WIZARD,
+          100f, 200f, 300f, 400f, 500f, 600f, 700f, 800f, 900f, 1000f);
+    }
   }
 
   @Test
@@ -101,8 +118,13 @@ public class BarGraphsPresenterTest {
     Mockito.reset(view);
     presenter.onDraftStatusChanged(Mockito.mock(DraftStatusChangedEvent.class));
     Mockito.verify(view).clear();
-    Mockito.verify(view).updateBar(PlayerColumn.HR, 1.0f, 4.0f);
-    Mockito.verify(view).updateBar(PlayerColumn.RBI, 2.0f, 5.0f);
-    Mockito.verify(view).updateBar(PlayerColumn.RHR, 3.0f, 6.0f);
+    if (Scoring.CATEGORIES) {
+      Mockito.verify(view).updateBar(PlayerColumn.HR, 1.0f, 4.0f);
+      Mockito.verify(view).updateBar(PlayerColumn.RBI, 2.0f, 5.0f);
+      Mockito.verify(view).updateBar(PlayerColumn.RHR, 3.0f, 6.0f);
+    } else {
+      Mockito.verify(view).updateBar(PlayerColumn.WIZARD,
+          100f, 200f, 300f, 400f, 500f, 600f, 700f, 800f, 900f, 1000f);
+    }
   }
 }

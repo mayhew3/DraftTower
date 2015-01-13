@@ -650,28 +650,42 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Override
   public GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException {
     TeamId teamId = teamDataSource.getTeamIdByDraftOrder(myTeam);
-    String sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
+    String sql;
+    if (Scoring.CATEGORIES) {
+      sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
+    } else {
+      sql = "select TeamID, sum(p_all.Wizard) as wizard from ";
+      sql = getFromJoins(teamId, sql, null, false, false);
+      sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
+    }
 
     GraphsData graphsData = beanFactory.createGraphsData().as();
     Map<PlayerColumn, Float> myValues = new HashMap<>();
     graphsData.setMyValues(myValues);
     Map<PlayerColumn, Float> avgValues = new HashMap<>();
     graphsData.setAvgValues(avgValues);
+    Map<String, Float> teamWizardValues = new HashMap<>();
+    graphsData.setTeamValues(teamWizardValues);
 
     ResultSet resultSet = null;
     try {
       resultSet = executeQuery(sql);
       while (resultSet.next()) {
         int resultTeam = resultSet.getInt("TeamID");
-        for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-          float value = resultSet.getFloat(graphStat.getColumnName());
-          if (resultTeam == teamId.get()) {
-            myValues.put(graphStat, value);
+        if (Scoring.CATEGORIES) {
+          for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+            float value = resultSet.getFloat(graphStat.getColumnName());
+            if (resultTeam == teamId.get()) {
+              myValues.put(graphStat, value);
+            }
+            if (!avgValues.containsKey(graphStat)) {
+              avgValues.put(graphStat, 0f);
+            }
+            avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
           }
-          if (!avgValues.containsKey(graphStat)) {
-            avgValues.put(graphStat, 0f);
-          }
-          avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
+        } else {
+          teamWizardValues.put(Integer.toString(resultTeam),
+              resultSet.getFloat(PlayerColumn.WIZARD.getColumnName()));
         }
       }
     } catch (SQLException e) {

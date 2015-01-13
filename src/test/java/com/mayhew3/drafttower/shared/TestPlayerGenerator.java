@@ -43,9 +43,17 @@ public class TestPlayerGenerator {
       OBP.set(player, Float.toString(.25f + i / 100f));
       SLG.set(player, Float.toString(.4f + i / 50f));
       SBCS.set(player, Integer.toString(i));
-      player.setWizardDH(Float.toString(-3 + i / 20f));
+      if (Scoring.CATEGORIES) {
+        player.setWizardDH(Float.toString(-3 + i / 20f));
+      } else {
+        player.setWizardDH(Float.toString(20f * i));
+      }
     }
-    PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
+    if (Scoring.CATEGORIES) {
+      PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
+    } else {
+      PlayerColumn.setWizard(player, Float.toString(20f * i), position);
+    }
     player.setDraft(Integer.toString(playerId + 1));
     player.setRank(Integer.toString(playerId + 1));
     player.setMyRank(Integer.toString(playerId + 1));

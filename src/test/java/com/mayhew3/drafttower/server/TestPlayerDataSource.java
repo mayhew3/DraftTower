@@ -3,12 +3,10 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
 
-import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
@@ -17,22 +15,22 @@ import static com.mayhew3.drafttower.shared.Position.P;
 /**
  * {@link PlayerDataSource} for testing.
  */
-@Singleton
-public class TestPlayerDataSource implements PlayerDataSource {
+public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
   private final TestPlayerGenerator playerGenerator;
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
-  private final List<DraftPick> draftPicks = new CopyOnWriteArrayList<>();
+  private final List<DraftPick> draftPicks;
   private ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
-  @Inject
   public TestPlayerDataSource(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
     this.playerGenerator = new TestPlayerGenerator(beanFactory);
     int playerId = 0;
+
+    draftPicks = createDraftPicksList();
 
     for (Position position : Position.REAL_POSITIONS) {
       int numPlayers;
@@ -54,6 +52,8 @@ public class TestPlayerDataSource implements PlayerDataSource {
     // TODO(kprevas): generate multi-position players
     availablePlayers = new HashMap<>(allPlayers);
   }
+
+  protected abstract List<DraftPick> createDraftPicksList();
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
@@ -194,7 +194,8 @@ public class TestPlayerDataSource implements PlayerDataSource {
       int team = draftPick.getTeam();
       Map<PlayerColumn, Float> values = teamValues.get(team);
       for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-        String valueStr = graphStat.get(player);
+        String valueStr = graphStat == WIZARD ? getWizard(player, EnumSet.allOf(Position.class))
+            : graphStat.get(player);
         if (valueStr != null) {
           float value = Float.parseFloat(valueStr);
           if (values.containsKey(graphStat)) {
@@ -219,19 +220,28 @@ public class TestPlayerDataSource implements PlayerDataSource {
       }
     }
 
-    graphsData.setMyValues(teamValues.get(myTeam.get()));
-    Map<PlayerColumn, Float> avgValues = new HashMap<>();
-    for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-      for (Integer team : teamValues.keySet()) {
-        Float teamStatValue = teamValues.get(team).get(graphStat);
-        if (teamStatValue != null) {
-          avgValues.put(graphStat,
-              (avgValues.containsKey(graphStat) ? avgValues.get(graphStat) : 0)
-                  + teamStatValue / 10);
+    if (Scoring.CATEGORIES) {
+      graphsData.setMyValues(teamValues.get(myTeam.get()));
+      Map<PlayerColumn, Float> avgValues = new HashMap<>();
+      for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+        for (Integer team : teamValues.keySet()) {
+          Float teamStatValue = teamValues.get(team).get(graphStat);
+          if (teamStatValue != null) {
+            avgValues.put(graphStat,
+                (avgValues.containsKey(graphStat) ? avgValues.get(graphStat) : 0)
+                    + teamStatValue / 10);
+          }
         }
       }
+      graphsData.setAvgValues(avgValues);
+    } else {
+      Map<String, Float> teamWizardValues = new HashMap<>();
+      for (Entry<Integer, Map<PlayerColumn, Float>> valueEntry : teamValues.entrySet()) {
+        teamWizardValues.put(Integer.toString(valueEntry.getKey()),
+            valueEntry.getValue().get(WIZARD));
+      }
+      graphsData.setTeamValues(teamWizardValues);
     }
-    graphsData.setAvgValues(avgValues);
 
     return graphsData;
   }
