@@ -58,6 +58,7 @@ public class AudioPresenterTest {
         Mockito.mock(EventBus.class));
     view = Mockito.mock(AudioView.class);
     audioPresenter.setAudioView(view);
+    audioPresenter.setSpeechControlView(Mockito.mock(SpeechControlView.class));
     picks = Lists.newArrayList(
         DraftStatusTestUtil.createDraftPick(3, "previous pick", false, beanFactory),
         DraftStatusTestUtil.createDraftPick(4, "last pick", false, beanFactory));
@@ -99,6 +100,51 @@ public class AudioPresenterTest {
   }
 
   @Test
+  public void testDraftStatusChangeNewPickVolumeOff() {
+    audioPresenter.toggleLevel();
+    audioPresenter.toggleLevel();
+    Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
+    picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testDraftStatusChangeNewPickVolumeLow() {
+    audioPresenter.toggleLevel();
+    Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
+    picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testDraftStatusChangeNewPickOnDeckVolumeOff() {
+    audioPresenter.toggleLevel();
+    audioPresenter.toggleLevel();
+    onDeck = true;
+    Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
+    picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testDraftStatusChangeNewPickOnDeckVolumeLow() {
+    audioPresenter.toggleLevel();
+    onDeck = true;
+    Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
+    picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+    Mockito.verify(view).play("my team. you're on deck");
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
   public void testDraftStatusChangeNewPickOnDeck() {
     onDeck = true;
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
@@ -106,6 +152,30 @@ public class AudioPresenterTest {
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. my team. you're on deck");
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testDraftStatusChangeNewPickOnClockVolumeOff() {
+    audioPresenter.toggleLevel();
+    audioPresenter.toggleLevel();
+    onClock = true;
+    Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
+    picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testDraftStatusChangeNewPickOnClockVolumeLow() {
+    audioPresenter.toggleLevel();
+    onClock = true;
+    Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
+    picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+    Mockito.verify(view).play("my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
 

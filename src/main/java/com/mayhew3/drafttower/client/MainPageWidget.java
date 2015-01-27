@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.PlayerPopupUrlPrefix;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
+import com.mayhew3.drafttower.client.audio.SpeechControlWidget;
 import com.mayhew3.drafttower.client.clock.DraftClock;
 import com.mayhew3.drafttower.client.depthcharts.DepthChartsTable;
 import com.mayhew3.drafttower.client.events.LoginEvent;
@@ -43,6 +44,7 @@ public class MainPageWidget extends Composite implements
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
+      String speechControl();
       String connectivityIndicator();
       String leftColumn();
       String centerColumn();
@@ -66,6 +68,7 @@ public class MainPageWidget extends Composite implements
   interface MyUiBinder extends UiBinder<Widget, MainPageWidget> {}
   private static final MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
+  @UiField(provided = true) final SpeechControlWidget speechControl;
   @UiField(provided = true) final ConnectivityIndicator connectivityIndicator;
   @UiField(provided = true) final LoginWidget loginWidget;
   @UiField(provided = true) final DraftClock clock;
@@ -73,12 +76,9 @@ public class MainPageWidget extends Composite implements
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
-  @UiField(provided = true)
-  FilledPositionsChart filledPositionsChart;
-  @UiField(provided = true)
-  UnclaimedPlayerTablePanel unclaimedPlayers;
-  @UiField(provided = true)
-  QueueTable queueTable;
+  @UiField(provided = true) FilledPositionsChart filledPositionsChart;
+  @UiField(provided = true) UnclaimedPlayerTablePanel unclaimedPlayers;
+  @UiField(provided = true) QueueTable queueTable;
   @UiField(provided = true) AudioWidget audioWidget;
 
   @UiField DivElement mainPage;
@@ -98,7 +98,8 @@ public class MainPageWidget extends Composite implements
   private final String playerPopupUrlPrefix;
 
   @Inject
-  public MainPageWidget(ConnectivityIndicator connectivityIndicator,
+  public MainPageWidget(SpeechControlWidget speechControl,
+      ConnectivityIndicator connectivityIndicator,
       LoginWidget loginWidget,
       DraftClock clock,
       PickControlsWidget pickControlsWidget,
@@ -114,6 +115,7 @@ public class MainPageWidget extends Composite implements
       EventBus eventBus,
       LoginPresenter loginPresenter,
       @PlayerPopupUrlPrefix String playerPopupUrlPrefix) {
+    this.speechControl = speechControl;
     this.connectivityIndicator = connectivityIndicator;
     this.loginWidget = loginWidget;
     this.clock = clock;
@@ -223,6 +225,7 @@ public class MainPageWidget extends Composite implements
     super.onEnsureDebugId(baseID);
     loginWidget.ensureDebugId(baseID + "-login");
     logout.ensureDebugId(baseID + "-logout");
+    speechControl.ensureDebugId(baseID + "-speech");
     connectivityIndicator.ensureDebugId(baseID + "-conn");
     audioWidget.ensureDebugId(baseID + "-audio");
     clock.ensureDebugId(baseID + "-clock");

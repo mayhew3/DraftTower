@@ -17,6 +17,8 @@
   <g:HTMLPanel>
     <l:LoginWidget ui:field="loginWidget"/>
     <div ui:field="mainPage">
+      <a:SpeechControlWidget ui:field="speechControl"
+                               addStyleNames="{style.css.speechControl}"/>
       <w:ConnectivityIndicator ui:field="connectivityIndicator"
                                addStyleNames="{style.css.connectivityIndicator}"/>
       <div class="{style.css.rightColumn}">

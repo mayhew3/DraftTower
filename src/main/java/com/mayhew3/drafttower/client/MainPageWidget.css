@@ -1,7 +1,13 @@
-.connectivityIndicator {
+.speechControl {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.connectivityIndicator {
+  position: absolute;
+  top: 10px;
+  right: 39px;
 }
 
 .leftColumn {
