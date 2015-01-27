@@ -37,8 +37,13 @@ public class LiveBarGraphsApi implements BarGraphsApi {
       Float value = values[i];
       data.setValue(0, i + 1, value == null ? 0 : value);
     }
-    BarChart barChart = new BarChart(data, getOptions(title, maxValue));
-    return barChart;
+    if (Scoring.CATEGORIES) {
+      BarChart barChart = new BarChart(data, getOptions(title, maxValue));
+      return barChart;
+    } else {
+      ColumnChart columnChart = new ColumnChart(data, getOptions(title, maxValue));
+      return columnChart;
+    }
   }
 
   private Options getOptions(String title, float maxValue) {
@@ -50,7 +55,7 @@ public class LiveBarGraphsApi implements BarGraphsApi {
       options.setHeight(100);
     } else {
       options.setWidth(800);
-      options.setHeight(500);
+      options.setHeight(350);
     }
     options.set("enableInteractivity", false);
     options.setTitle(title);

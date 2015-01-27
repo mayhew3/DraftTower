@@ -15,11 +15,19 @@ import javax.inject.Singleton;
 @Singleton
 public class AudioPresenter implements DraftStatusChangedEvent.Handler {
 
+  enum Level {
+    OFF,
+    LOW,
+    HIGH
+  }
+
   private final TeamsInfo teamsInfo;
 
   private AudioView audioView;
+  private SpeechControlView speechControlView;
   private DraftStatus lastStatus;
   private boolean itWasOver;
+  private Level level = Level.HIGH;
 
   @Inject
   public AudioPresenter(TeamsInfo teamsInfo,
@@ -30,6 +38,10 @@ public class AudioPresenter implements DraftStatusChangedEvent.Handler {
 
   public void setAudioView(AudioView audioView) {
     this.audioView = audioView;
+  }
+
+  public void setSpeechControlView(SpeechControlView speechControlView) {
+    this.speechControlView = speechControlView;
   }
 
   @Override
@@ -44,33 +56,37 @@ public class AudioPresenter implements DraftStatusChangedEvent.Handler {
     }
     StringBuilder msg = new StringBuilder();
     if (status.getCurrentPickDeadline() > 0) {
-      if (lastStatus != null) {
-        int lastStatusNumPicks = lastStatus.getPicks().size();
-        int numPicks = status.getPicks().size();
-        if (numPicks > lastStatusNumPicks) {
-          int pickIndex = numPicks - 1;
-          DraftPick lastPick = status.getPicks().get(pickIndex);
-          while (lastPick.isKeeper() && pickIndex - 1 >= lastStatusNumPicks) {
-            pickIndex--;
-            lastPick = status.getPicks().get(pickIndex);
-          }
-          if (!lastPick.isKeeper()) {
-            msg.append(getTeamName(lastPick.getTeam()))
-                .append(" selects ")
-                .append(lastPick.getPlayerName())
-                .append(". ");
+      if (level == Level.HIGH) {
+        if (lastStatus != null) {
+          int lastStatusNumPicks = lastStatus.getPicks().size();
+          int numPicks = status.getPicks().size();
+          if (numPicks > lastStatusNumPicks) {
+            int pickIndex = numPicks - 1;
+            DraftPick lastPick = status.getPicks().get(pickIndex);
+            while (lastPick.isKeeper() && pickIndex - 1 >= lastStatusNumPicks) {
+              pickIndex--;
+              lastPick = status.getPicks().get(pickIndex);
+            }
+            if (!lastPick.isKeeper()) {
+              msg.append(getTeamName(lastPick.getTeam()))
+                  .append(" selects ")
+                  .append(lastPick.getPlayerName())
+                  .append(". ");
+            }
           }
         }
       }
-      if (lastStatus != null
-          && status.getCurrentTeam() != lastStatus.getCurrentTeam()) {
-        if (teamsInfo.isMyPick(status)) {
-          msg.append(getTeamName(teamsInfo.getTeam()))
-              .append(". you're on the clock");
-        }
-        if (teamsInfo.isOnDeck(status)) {
-          msg.append(getTeamName(teamsInfo.getTeam()))
-              .append(". you're on deck");
+      if (level != Level.OFF) {
+        if (lastStatus != null
+            && status.getCurrentTeam() != lastStatus.getCurrentTeam()) {
+          if (teamsInfo.isMyPick(status)) {
+            msg.append(getTeamName(teamsInfo.getTeam()))
+                .append(". you're on the clock");
+          }
+          if (teamsInfo.isOnDeck(status)) {
+            msg.append(getTeamName(teamsInfo.getTeam()))
+                .append(". you're on deck");
+          }
         }
       }
     }
@@ -80,10 +96,26 @@ public class AudioPresenter implements DraftStatusChangedEvent.Handler {
     lastStatus = status;
   }
 
+  public void toggleLevel() {
+    switch (level) {
+      case LOW:
+        level = Level.OFF;
+        break;
+      case HIGH:
+        level = Level.LOW;
+        break;
+      case OFF:
+        level = Level.HIGH;
+        break;
+    }
+    speechControlView.setLevel(level);
+  }
+
   private String getTeamName(int team) {
     String teamName = teamsInfo.getShortTeamName(team);
     teamName = teamName.replace("Lakshmi", "Lahkshmee");
     teamName = teamName.replace("Alcides", "Ahlseedess");
+    teamName = teamName.replace("Kevin", "Kehvin");
     return teamName;
   }
 }

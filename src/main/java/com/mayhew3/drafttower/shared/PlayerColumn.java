@@ -24,6 +24,7 @@ public enum PlayerColumn {
   WL("W-", "Wins - Losses", "WL", true, false),
   K("K", "Strikeouts (Pitcher)", "K", true, false),
   S("S", "Saves", "S", true, false),
+  PTS("PTS", "Points", "PTS", true, true),
   RANK("Rank", "Rank", "Rank", true, true),
   DRAFT("Draft", "Average Position in CBS Drafts", "Draft", true, true),
   WIZARD("Wizard", "Wizard", "Wizard", true, false),
@@ -130,6 +131,8 @@ public enum PlayerColumn {
         return player.getK();
       case S:
         return player.getS();
+      case PTS:
+        return player.getPoints();
       case RANK:
         return player.getRank();
       case DRAFT:
@@ -193,6 +196,9 @@ public enum PlayerColumn {
         break;
       case S:
         player.setS(value);
+        break;
+      case PTS:
+        player.setPoints(value);
         break;
       case RANK:
         player.setRank(value);

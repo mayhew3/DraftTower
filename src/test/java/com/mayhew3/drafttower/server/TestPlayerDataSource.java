@@ -6,7 +6,6 @@ import com.google.common.collect.Ordering;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.OF;
@@ -181,6 +180,8 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   public GraphsData getGraphsData(TeamDraftOrder myTeam) {
     GraphsData graphsData = beanFactory.createGraphsData().as();
     Map<Integer, Map<PlayerColumn, Float>> teamValues = new HashMap<>();
+    Map<Integer, Float> teamPitchingPoints = new HashMap<>();
+    Map<Integer, Float> teamBattingPoints = new HashMap<>();
     Map<Integer, Integer> pitchersPerTeam = new HashMap<>();
     Map<Integer, Integer> battersPerTeam = new HashMap<>();
     for (int i = 1; i <= 10; i++) {
@@ -193,24 +194,38 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
       Player player = allPlayers.get(draftPick.getPlayerId());
       int team = draftPick.getTeam();
       Map<PlayerColumn, Float> values = teamValues.get(team);
-      for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-        String valueStr = graphStat == WIZARD ? getWizard(player, EnumSet.allOf(Position.class))
-            : graphStat.get(player);
-        if (valueStr != null) {
-          float value = Float.parseFloat(valueStr);
-          if (values.containsKey(graphStat)) {
-            if (EnumSet.of(OBP, SLG, ERA, WHIP).contains(graphStat)) {
-              int oldDenom = EnumSet.of(OBP, SLG).contains(graphStat)
-                  ? pitchersPerTeam.get(team)
-                  : battersPerTeam.get(team);
-              int newDenom = oldDenom + 1;
-              values.put(graphStat, values.get(graphStat) * oldDenom / newDenom + value / newDenom);
+      if (Scoring.CATEGORIES) {
+        for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+          String valueStr = graphStat.get(player);
+          if (valueStr != null) {
+            float value = Float.parseFloat(valueStr);
+            if (values.containsKey(graphStat)) {
+              if (EnumSet.of(OBP, SLG, ERA, WHIP).contains(graphStat)) {
+                int oldDenom = EnumSet.of(OBP, SLG).contains(graphStat)
+                    ? pitchersPerTeam.get(team)
+                    : battersPerTeam.get(team);
+                int newDenom = oldDenom + 1;
+                values.put(graphStat, values.get(graphStat) * oldDenom / newDenom + value / newDenom);
+              } else {
+                values.put(graphStat, values.get(graphStat) + value);
+              }
             } else {
-              values.put(graphStat, values.get(graphStat) + value);
+              values.put(graphStat, value);
             }
-          } else {
-            values.put(graphStat, value);
           }
+        }
+      } else {
+        float pts = Float.parseFloat(PTS.get(player));
+        if (Position.apply(player, EnumSet.of(P))) {
+          teamPitchingPoints.put(team,
+              teamPitchingPoints.containsKey(team)
+                  ? teamPitchingPoints.get(team) + pts
+                  : pts);
+        } else {
+          teamBattingPoints.put(team,
+              teamBattingPoints.containsKey(team)
+                  ? teamBattingPoints.get(team) + pts
+                  : pts);
         }
       }
       if (Position.apply(player, EnumSet.of(P))) {
@@ -235,12 +250,14 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
       }
       graphsData.setAvgValues(avgValues);
     } else {
-      Map<String, Float> teamWizardValues = new HashMap<>();
-      for (Entry<Integer, Map<PlayerColumn, Float>> valueEntry : teamValues.entrySet()) {
-        teamWizardValues.put(Integer.toString(valueEntry.getKey()),
-            valueEntry.getValue().get(WIZARD));
+      Map<String, Float> teamPitchingValues = new HashMap<>();
+      Map<String, Float> teamBattingValues = new HashMap<>();
+      for (int i = 1; i <= 10; i++) {
+        teamPitchingValues.put(Integer.toString(i), teamPitchingPoints.get(i));
+        teamBattingValues.put(Integer.toString(i), teamBattingPoints.get(i));
       }
-      graphsData.setTeamValues(teamWizardValues);
+      graphsData.setTeamPitchingValues(teamPitchingValues);
+      graphsData.setTeamBattingValues(teamBattingValues);
     }
 
     return graphsData;

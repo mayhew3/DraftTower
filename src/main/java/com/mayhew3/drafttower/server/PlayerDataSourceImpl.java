@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
@@ -53,7 +54,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws DataSourceException {
-    Stopwatch stopwatch = new Stopwatch().start();
+    Stopwatch stopwatch = Stopwatch.createStarted();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
     List<Player> players;
@@ -85,12 +86,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                 }
               }
             } else {
-              String columnString = resultSet.getString(playerColumn.getColumnName());
-              if (columnString != null) {
-                if (columnString.startsWith("0.")) {
-                  columnString = columnString.substring(1);
+              if (playerColumn == PlayerColumn.PTS) {
+                // TODO m3: retrieve PTS in query correctly
+                playerColumn.set(player, "100");
+              } else {
+                String columnString = resultSet.getString(playerColumn.getColumnName());
+                if (columnString != null) {
+                  if (columnString.startsWith("0.")) {
+                    columnString = columnString.substring(1);
+                  }
+                  playerColumn.set(player, columnString);
                 }
-                playerColumn.set(player, columnString);
               }
             }
           }
@@ -113,7 +119,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     response.setPlayers(players);
 
     stopwatch.stop();
-    logger.info("Player table request took " + stopwatch.elapsedMillis() + "ms");
+    logger.info("Player table request took " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
     return response;
   }
 
@@ -654,7 +660,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     if (Scoring.CATEGORIES) {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
     } else {
-      sql = "select TeamID, sum(p_all.Wizard) as wizard from ";
+      // TODO m3: correct points query
+      sql = "select TeamID, sum(p_all.Wizard) as pitching, sum(p_all.Wizard) as batting from ";
       sql = getFromJoins(teamId, sql, null, false, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
     }
@@ -664,8 +671,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     graphsData.setMyValues(myValues);
     Map<PlayerColumn, Float> avgValues = new HashMap<>();
     graphsData.setAvgValues(avgValues);
-    Map<String, Float> teamWizardValues = new HashMap<>();
-    graphsData.setTeamValues(teamWizardValues);
+    Map<String, Float> teamPitchingValues = new HashMap<>();
+    graphsData.setTeamPitchingValues(teamPitchingValues);
+    Map<String, Float> teamBattingValues = new HashMap<>();
+    graphsData.setTeamBattingValues(teamBattingValues);
 
     ResultSet resultSet = null;
     try {
@@ -684,8 +693,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
           }
         } else {
-          teamWizardValues.put(Integer.toString(resultTeam),
-              resultSet.getFloat(PlayerColumn.WIZARD.getColumnName()));
+          teamPitchingValues.put(Integer.toString(resultTeam),
+              resultSet.getFloat("pitching"));
+          teamBattingValues.put(Integer.toString(resultTeam),
+              resultSet.getFloat("batting"));
         }
       }
     } catch (SQLException e) {

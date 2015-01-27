@@ -1,0 +1,18 @@
+.control {
+  width: 19px;
+  height: 15px;
+  background-size: cover;
+  background-image: url('speech.png');
+}
+
+.off {
+  background-position: left top;
+}
+
+.low {
+  background-position: left 30px;
+}
+
+.high {
+  background-position: left 60px;
+}

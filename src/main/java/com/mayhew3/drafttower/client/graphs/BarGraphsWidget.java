@@ -54,14 +54,16 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
       .put(WHIP, 1.4f)
       .put(WL, 50f)
       .put(S, 120f)
-      .put(WIZARD, 2000f)  // TODO better max
       .build();
+  public static final float MAX_POINTS = 2000f;  // TODO better max
 
   private final BarGraphsApi api;
   private final TeamsInfo teamsInfo;
 
   private final FlowPanel container;
   private final Map<PlayerColumn, Widget> barGraphs = new HashMap<>();
+  private Widget pitchingBarGraph;
+  private Widget battingBarGraph;
 
   private boolean apiLoaded;
 
@@ -129,6 +131,30 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
     barGraphs.put(statColumn, barGraph);
   }
 
+  @Override
+  public void updatePitchingPointsBar(Float... values) {
+    Widget barGraph = api.createBarGraph(
+        "Pitching",
+        getLabels(),
+        values,
+        MAX_POINTS);
+    barGraph.addStyleName(CSS.graph());
+    container.add(barGraph);
+    pitchingBarGraph = barGraph;
+  }
+
+  @Override
+  public void updateBattingPointsBar(Float... values) {
+    Widget barGraph = api.createBarGraph(
+        "Batting",
+        getLabels(),
+        values,
+        MAX_POINTS);
+    barGraph.addStyleName(CSS.graph());
+    container.add(barGraph);
+    battingBarGraph = barGraph;
+  }
+
   private String[] getLabels() {
     if (Scoring.CATEGORIES) {
       return new String[]{"Me", "Avg"};
@@ -146,6 +172,12 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
     super.onEnsureDebugId(baseID);
     for (Entry<PlayerColumn, Widget> barGraph : barGraphs.entrySet()) {
       barGraph.getValue().ensureDebugId(baseID + "-" + barGraph.getKey().getShortName());
+    }
+    if (pitchingBarGraph != null) {
+      pitchingBarGraph.ensureDebugId(baseID + "-pitching");
+    }
+    if (battingBarGraph != null) {
+      battingBarGraph.ensureDebugId(baseID + "-batting");
     }
   }
 }
