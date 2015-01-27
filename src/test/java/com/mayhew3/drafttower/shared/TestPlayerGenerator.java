@@ -49,10 +49,9 @@ public class TestPlayerGenerator {
         player.setWizardDH(Float.toString(20f * i));
       }
     }
-    if (Scoring.CATEGORIES) {
-      PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
-    } else {
-      PlayerColumn.setWizard(player, Float.toString(20f * i), position);
+    PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
+    if (Scoring.POINTS) {
+      PTS.set(player, Float.toString(20f * i));
     }
     player.setDraft(Integer.toString(playerId + 1));
     player.setRank(Integer.toString(playerId + 1));

@@ -68,6 +68,9 @@ public interface Player extends DraggableItem {
   String getS();
   void setS(String value);
 
+  String getPoints();
+  void setPoints(String value);
+
   String getRank();
   void setRank(String value);
 

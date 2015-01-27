@@ -55,8 +55,10 @@ public class BarGraphsWidgetGwtTest extends TestBase {
       assertEquals("Me=0.0,Avg=0.1,",
           getInnerText("-barGraphs-S"));
     } else {
-      assertEquals("1=200.0,2=280.0,3=160.0,4=600.0,5=60.0,6=120.0,7=180.0,8=240.0,9=300.0,10=360.0,",
-          getInnerText("-barGraphs-Wizard"));
+      assertEquals("1=0.0,2=20.0,3=null,4=null,5=null,6=null,7=null,8=null,9=null,10=null,",
+          getInnerText("-barGraphs-pitching"));
+      assertEquals("1=200.0,2=260.0,3=160.0,4=600.0,5=60.0,6=120.0,7=180.0,8=240.0,9=300.0,10=360.0,",
+          getInnerText("-barGraphs-batting"));
     }
   }
 }

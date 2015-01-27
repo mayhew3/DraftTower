@@ -63,7 +63,7 @@ public class BarGraphsPresenterTest {
           .put(PlayerColumn.RHR, 6.0f)
           .build());
     } else {
-      graphsData.setTeamValues(new ImmutableMap.Builder<String, Float>()
+      graphsData.setTeamPitchingValues(new ImmutableMap.Builder<String, Float>()
           .put("1", 100f)
           .put("2", 200f)
           .put("3", 300f)
@@ -74,6 +74,18 @@ public class BarGraphsPresenterTest {
           .put("8", 800f)
           .put("9", 900f)
           .put("10", 1000f)
+          .build());
+      graphsData.setTeamBattingValues(new ImmutableMap.Builder<String, Float>()
+          .put("1", 150f)
+          .put("2", 250f)
+          .put("3", 350f)
+          .put("4", 450f)
+          .put("5", 550f)
+          .put("6", 650f)
+          .put("7", 750f)
+          .put("8", 850f)
+          .put("9", 950f)
+          .put("10", 1050f)
           .build());
     }
     return graphsData;
@@ -101,8 +113,10 @@ public class BarGraphsPresenterTest {
       Mockito.verify(view).updateBar(PlayerColumn.RBI, 2.0f, 5.0f);
       Mockito.verify(view).updateBar(PlayerColumn.RHR, 3.0f, 6.0f);
     } else {
-      Mockito.verify(view).updateBar(PlayerColumn.WIZARD,
+      Mockito.verify(view).updatePitchingPointsBar(
           100f, 200f, 300f, 400f, 500f, 600f, 700f, 800f, 900f, 1000f);
+      Mockito.verify(view).updateBattingPointsBar(
+          150f, 250f, 350f, 450f, 550f, 650f, 750f, 850f, 950f, 1050f);
     }
   }
 
@@ -123,8 +137,10 @@ public class BarGraphsPresenterTest {
       Mockito.verify(view).updateBar(PlayerColumn.RBI, 2.0f, 5.0f);
       Mockito.verify(view).updateBar(PlayerColumn.RHR, 3.0f, 6.0f);
     } else {
-      Mockito.verify(view).updateBar(PlayerColumn.WIZARD,
+      Mockito.verify(view).updatePitchingPointsBar(
           100f, 200f, 300f, 400f, 500f, 600f, 700f, 800f, 900f, 1000f);
+      Mockito.verify(view).updateBattingPointsBar(
+          150f, 250f, 350f, 450f, 550f, 650f, 750f, 850f, 950f, 1050f);
     }
   }
 }

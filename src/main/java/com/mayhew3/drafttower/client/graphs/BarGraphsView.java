@@ -9,4 +9,6 @@ public interface BarGraphsView {
   void clear();
 
   void updateBar(PlayerColumn statColumn, Float... values);
+  void updatePitchingPointsBar(Float... values);
+  void updateBattingPointsBar(Float... values);
 }

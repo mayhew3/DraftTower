@@ -232,6 +232,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
         "  ROUND(INN, 0) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
+        // TODO m3: correct points query
+        "  INN * 3 AS PTS," +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
@@ -251,6 +253,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
         " G, AB, \n" +
         "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
+        // TODO m3: correct points query
+        "  AB * 3 AS PTS," +
         "  NULL AS INN,\n" +
         "  NULL AS ERA,\n" +
         "  NULL AS WHIP,\n" +
@@ -654,7 +658,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     if (Scoring.CATEGORIES) {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
     } else {
-      sql = "select TeamID, sum(p_all.Wizard) as wizard from ";
+      // TODO m3: correct points query
+      sql = "select TeamID, sum(p_all.Wizard) as pitching, sum(p_all.Wizard) as batting from ";
       sql = getFromJoins(teamId, sql, null, false, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
     }
@@ -664,8 +669,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     graphsData.setMyValues(myValues);
     Map<PlayerColumn, Float> avgValues = new HashMap<>();
     graphsData.setAvgValues(avgValues);
-    Map<String, Float> teamWizardValues = new HashMap<>();
-    graphsData.setTeamValues(teamWizardValues);
+    Map<String, Float> teamPitchingValues = new HashMap<>();
+    graphsData.setTeamPitchingValues(teamPitchingValues);
+    Map<String, Float> teamBattingValues = new HashMap<>();
+    graphsData.setTeamBattingValues(teamBattingValues);
 
     ResultSet resultSet = null;
     try {
@@ -684,8 +691,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
           }
         } else {
-          teamWizardValues.put(Integer.toString(resultTeam),
-              resultSet.getFloat(PlayerColumn.WIZARD.getColumnName()));
+          teamPitchingValues.put(Integer.toString(resultTeam),
+              resultSet.getFloat("pitching"));
+          teamBattingValues.put(Integer.toString(resultTeam),
+              resultSet.getFloat("batting"));
         }
       }
     } catch (SQLException e) {

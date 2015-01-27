@@ -6,10 +6,7 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.GetGraphsDataRequest;
-import com.mayhew3.drafttower.shared.GraphsData;
-import com.mayhew3.drafttower.shared.PlayerColumn;
+import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
 
@@ -67,18 +64,22 @@ public class BarGraphsPresenter implements DraftStatusChangedEvent.Handler {
       @Override
       public Void apply(GraphsData graphsData) {
         view.clear();
-        for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-          if (graphStat == PlayerColumn.WIZARD) {
-            Float[] values = new Float[10];
-            for (int i = 0; i < 10; i++) {
-              values[i] = graphsData.getTeamValues().get(Integer.toString(i + 1));
-            }
-            view.updateBar(PlayerColumn.WIZARD, values);
-          } else {
+        if (Scoring.CATEGORIES) {
+          for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
             Float myValue = graphsData.getMyValues().get(graphStat);
             Float avgValue = graphsData.getAvgValues().get(graphStat);
             view.updateBar(graphStat, myValue, avgValue);
           }
+        } else {
+          Float[] values = new Float[10];
+          for (int i = 0; i < 10; i++) {
+            values[i] = graphsData.getTeamPitchingValues().get(Integer.toString(i + 1));
+          }
+          view.updatePitchingPointsBar(values);
+          for (int i = 0; i < 10; i++) {
+            values[i] = graphsData.getTeamBattingValues().get(Integer.toString(i + 1));
+          }
+          view.updateBattingPointsBar(values);
         }
         return null;
       }
