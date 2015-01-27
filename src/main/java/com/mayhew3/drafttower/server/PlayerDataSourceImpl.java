@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.*;
@@ -53,7 +54,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws DataSourceException {
-    Stopwatch stopwatch = new Stopwatch().start();
+    Stopwatch stopwatch = Stopwatch.createStarted();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
     List<Player> players;
@@ -85,12 +86,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                 }
               }
             } else {
-              String columnString = resultSet.getString(playerColumn.getColumnName());
-              if (columnString != null) {
-                if (columnString.startsWith("0.")) {
-                  columnString = columnString.substring(1);
+              if (playerColumn == PlayerColumn.PTS) {
+                // TODO m3: retrieve PTS in query correctly
+                playerColumn.set(player, "100");
+              } else {
+                String columnString = resultSet.getString(playerColumn.getColumnName());
+                if (columnString != null) {
+                  if (columnString.startsWith("0.")) {
+                    columnString = columnString.substring(1);
+                  }
+                  playerColumn.set(player, columnString);
                 }
-                playerColumn.set(player, columnString);
               }
             }
           }
@@ -113,7 +119,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     response.setPlayers(players);
 
     stopwatch.stop();
-    logger.info("Player table request took " + stopwatch.elapsedMillis() + "ms");
+    logger.info("Player table request took " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
     return response;
   }
 
@@ -232,8 +238,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
         "  ROUND(INN, 0) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
-        // TODO m3: correct points query
-        "  INN * 3 AS PTS," +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
@@ -253,8 +257,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
         " G, AB, \n" +
         "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
-        // TODO m3: correct points query
-        "  AB * 3 AS PTS," +
         "  NULL AS INN,\n" +
         "  NULL AS ERA,\n" +
         "  NULL AS WHIP,\n" +
