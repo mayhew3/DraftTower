@@ -1,12 +1,11 @@
 .indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background: red;
-  -webkit-transition: background ease 500ms;
-  transition: background ease 500ms;
+  background-image: url('disconnected.png');
+  background-size: contain;
+  width: 8px;
+  height: 15px;
+  margin-right: 20px;
 }
 
 .connected {
-  background: green;
+  display: none;
 }
