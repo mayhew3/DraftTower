@@ -115,6 +115,7 @@ public class AudioPresenter implements DraftStatusChangedEvent.Handler {
     String teamName = teamsInfo.getShortTeamName(team);
     teamName = teamName.replace("Lakshmi", "Lahkshmee");
     teamName = teamName.replace("Alcides", "Ahlseedess");
+    teamName = teamName.replace("Kevin", "Kehvin");
     return teamName;
   }
 }
