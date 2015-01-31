@@ -195,6 +195,7 @@
           <excludes>
             <exclude>**/*GwtTest.java</exclude>
             <exclude>**/EndToEndTest.java</exclude>
+            <exclude>**/*SimTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
