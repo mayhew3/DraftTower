@@ -43,11 +43,7 @@ public class TestPlayerGenerator {
       OBP.set(player, Float.toString(.25f + i / 100f));
       SLG.set(player, Float.toString(.4f + i / 50f));
       SBCS.set(player, Integer.toString(i));
-      if (Scoring.CATEGORIES) {
-        player.setWizardDH(Float.toString(-3 + i / 20f));
-      } else {
-        player.setWizardDH(Float.toString(20f * i));
-      }
+      player.setWizardDH(Float.toString(-3 + i / 20f));
     }
     PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
     if (Scoring.POINTS) {
