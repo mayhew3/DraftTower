@@ -68,6 +68,36 @@ public interface Player extends DraggableItem {
   String getS();
   void setS(String value);
 
+  String getH();
+  void setH(String value);
+
+  String get2B();
+  void set2B(String value);
+
+  String get3B();
+  void set3B(String value);
+
+  String getSB();
+  void setSB(String value);
+
+  String getCS();
+  void setCS(String value);
+
+  String getBB();
+  void setBB(String value);
+
+  String getHA();
+  void setHA(String value);
+
+  String getBBI();
+  void setBBI(String value);
+
+  String getER();
+  void setER(String value);
+
+  String getHRA();
+  void setHRA(String value);
+
   String getPoints();
   void setPoints(String value);
 

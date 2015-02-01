@@ -61,11 +61,19 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     BASE_CSS.ensureInjected();
   }
 
-  private static final PlayerColumn COLUMNS[] = {
-      NAME, MLB, ELIG, AB, HR, RBI, OBP, SLG, RHR, SBCS, PTS, RANK, WIZARD, DRAFT, MYRANK
+  @SuppressWarnings("ConstantConditions")
+  private static final PlayerColumn COLUMNS[] = Scoring.CATEGORIES ?
+  new PlayerColumn[] {
+      NAME, MLB, ELIG, AB, HR, RBI, OBP, SLG, RHR, SBCS, RANK, WIZARD, DRAFT, MYRANK
+  } : new PlayerColumn[] {
+      NAME, MLB, ELIG, AB, H, X2B, X3B, HR, RBI, RHR, BB, SB, CS, PTS, RANK, WIZARD, DRAFT, MYRANK
   };
-  private static final PlayerColumn PITCHER_COLUMNS[] = {
+  @SuppressWarnings("ConstantConditions")
+  private static final PlayerColumn PITCHER_COLUMNS[] = Scoring.CATEGORIES ?
+  new PlayerColumn[] {
       null, null, null, G, INN, K, ERA, WHIP, WL, S, null, null, null, null, null, null
+  } : new PlayerColumn[] {
+      null, null, null, INN, HA, K, ER, HRA, WL, S, BBI, null, null, null, null, null, null, null
   };
 
   private final UnclaimedPlayerDataProvider presenter;

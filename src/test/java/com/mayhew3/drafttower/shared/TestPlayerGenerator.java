@@ -28,21 +28,37 @@ public class TestPlayerGenerator {
     player.setCBSId(playerId);
     player.setPlayerId(playerId);
     if (position == P) {
-      G.set(player, Integer.toString(i / 5 + 1));
       INN.set(player, Integer.toString(i + 10));
       K.set(player, Integer.toString(i + 5));
-      ERA.set(player, Float.toString(2 + i / 100f));
-      WHIP.set(player, Float.toString(1 + i / 100f));
       S.set(player, Integer.toString(i));
       WL.set(player, Integer.toString(i));
+      if (Scoring.CATEGORIES) {
+        G.set(player, Integer.toString(i / 5 + 1));
+        ERA.set(player, Float.toString(2 + i / 100f));
+        WHIP.set(player, Float.toString(1 + i / 100f));
+      } else {
+        HA.set(player, Integer.toString(i + 5));
+        ER.set(player, Integer.toString(i / 3));
+        HRA.set(player, Integer.toString(i / 6));
+        BBI.set(player, Integer.toString(i / 2));
+      }
     } else {
       AB.set(player, Integer.toString(i * 20));
       HR.set(player, Integer.toString(i));
       RBI.set(player, Integer.toString(i * 3));
       RHR.set(player, Integer.toString(i * 3));
-      OBP.set(player, Float.toString(.25f + i / 100f));
-      SLG.set(player, Float.toString(.4f + i / 50f));
-      SBCS.set(player, Integer.toString(i));
+      if (Scoring.CATEGORIES) {
+        OBP.set(player, Float.toString(.25f + i / 100f));
+        SLG.set(player, Float.toString(.4f + i / 50f));
+        SBCS.set(player, Integer.toString(i));
+      } else {
+        H.set(player, Integer.toString(i * 5));
+        X2B.set(player, Integer.toString(i));
+        X3B.set(player, Integer.toString(i / 5));
+        SB.set(player, Integer.toString(i));
+        CS.set(player, Integer.toString(i / 5));
+        BB.set(player, Integer.toString(i * 2));
+      }
       player.setWizardDH(Float.toString(-3 + i / 20f));
     }
     PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);

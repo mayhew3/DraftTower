@@ -73,9 +73,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           player.setPlayerId(resultSet.getInt("PlayerID"));
           player.setCBSId(resultSet.getInt("CBS_ID"));
 
-          List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.values());
+          List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.valuesForScoring());
           playerColumns.remove(PlayerColumn.NAME);
           PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+          playerColumns.remove(PlayerColumn.PTS);
 
           for (PlayerColumn playerColumn : playerColumns) {
             if (playerColumn == PlayerColumn.WIZARD) {
@@ -86,18 +87,41 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                 }
               }
             } else {
-              if (playerColumn == PlayerColumn.PTS) {
-                // TODO m3: retrieve PTS in query correctly
-                playerColumn.set(player, "100");
-              } else {
-                String columnString = resultSet.getString(playerColumn.getColumnName());
-                if (columnString != null) {
-                  if (columnString.startsWith("0.")) {
-                    columnString = columnString.substring(1);
-                  }
-                  playerColumn.set(player, columnString);
+              String columnString = resultSet.getString(playerColumn.getColumnName());
+              if (columnString != null) {
+                if (columnString.startsWith("0.")) {
+                  columnString = columnString.substring(1);
                 }
+                playerColumn.set(player, columnString);
               }
+            }
+          }
+          if (Scoring.POINTS) {
+            // TODO m3: read points values from DB?
+            if (player.getEligibility().contains("P")) {
+              player.setPoints(Float.toString(
+                  Float.parseFloat(player.getINN()) * 2.3f +
+                      Float.parseFloat(player.getHA()) * -0.5f +
+                      Float.parseFloat(player.getBBI()) * -1.5f +
+                      Float.parseFloat(player.getK()) * 2f +
+                      Float.parseFloat(player.getER()) * -1.5f +
+                      Float.parseFloat(player.getHRA()) * -2f +
+                      Float.parseFloat(player.getWL()) * 10f +
+                      Float.parseFloat(player.getS()) * 10f
+              ));
+            } else {
+              player.setPoints(Float.toString(
+                  Float.parseFloat(player.getAB()) * -2f +
+                      Float.parseFloat(player.getH()) * 6f +
+                      Float.parseFloat(player.get2B()) * 3f +
+                      Float.parseFloat(player.get3B()) * 5f +
+                      Float.parseFloat(player.getHR()) * 5f +
+                      Float.parseFloat(player.getRHR()) * 3f +
+                      Float.parseFloat(player.getRBI()) * 3f +
+                      Float.parseFloat(player.getSB()) * 2f +
+                      Float.parseFloat(player.getCS()) * -4f +
+                      Float.parseFloat(player.getBB()) * 3f
+              ));
             }
           }
 
@@ -219,6 +243,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player utility methods
 
+  @SuppressWarnings("ConstantConditions")
   private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterClaimed, boolean allWizardPositions) {
     String wizardFilterClause = "";
     String playerFilterClause = "";
@@ -231,13 +256,27 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
         " APP as G, NULL AS AB, \n" +
+        (Scoring.CATEGORIES ? (
         "  NULL AS OBP,\n" +
         "  NULL AS SLG,\n" +
         "  NULL AS RHR,\n" +
         "  NULL AS RBI,\n" +
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
-        "  ROUND(INN, 0) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, Rank, Draft, DataSource, \n" +
+        "  ROUND(INN, 0) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, "
+        ) : (
+        "  NULL AS H,\n" +
+        "  NULL AS 2B,\n" +
+        "  NULL AS 3B,\n" +
+        "  NULL AS HR,\n" +
+        "  NULL AS RHR,\n" +
+        "  NULL AS RBI,\n" +
+        "  NULL AS SB,\n" +
+        "  NULL AS CS,\n" +
+        "  NULL AS BB,\n" +
+        "  ROUND(INN, 0) AS INN, HA, BBI, K, ER, HRA, WL, S, "
+        )) +
+        "Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
         "   from wizardRatings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
@@ -256,13 +295,25 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
         " G, AB, \n" +
+        (Scoring.CATEGORIES ? (
         "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
         "  NULL AS INN,\n" +
         "  NULL AS ERA,\n" +
         "  NULL AS WHIP,\n" +
         "  NULL AS WL,\n" +
         "  NULL AS K,\n" +
-        "  NULL AS S,\n" +
+        "  NULL AS S,\n"
+        ) : (
+            "  H, 2B, 3B, HR, RHR, RBI, SB, CS, BB,\n" +
+            "  NULL AS INN, " +
+            "  NULL AS HA, " +
+            "  NULL AS BBI," +
+            "  NULL AS K," +
+            "  NULL AS ER," +
+            "  NULL AS HRA," +
+            "  NULL AS WL," +
+            "  NULL AS S, "
+        )) +
         "  Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max(Rating), 0), 3) \n" +
         "   from wizardRatings\n" +
@@ -660,7 +711,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     if (Scoring.CATEGORIES) {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
     } else {
-      // TODO m3: correct points query
       sql = "select TeamID, sum(p_all.Wizard) as pitching, sum(p_all.Wizard) as batting from ";
       sql = getFromJoins(teamId, sql, null, false, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
