@@ -58,11 +58,16 @@ public class PlayerListTest {
     Assert.assertEquals(players.get(15), result.next());
   }
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testGetPlayersSortedDescendingByOtherColumn() {
-    players.get(3).setSBCS("50");
+    if (Scoring.CATEGORIES) {
+      players.get(3).setSBCS("50");
+    } else {
+      players.get(3).setSB("50");
+    }
     Iterator<Player> result = playerList.getPlayers(
-        createTableSpec(PlayerColumn.SBCS, false),
+        createTableSpec(Scoring.CATEGORIES ? PlayerColumn.SBCS : PlayerColumn.SB, false),
         0, 20, EnumSet.allOf(Position.class), false, null).iterator();
     Assert.assertEquals(players.get(3), result.next());
     Assert.assertEquals(players.get(9), result.next());
