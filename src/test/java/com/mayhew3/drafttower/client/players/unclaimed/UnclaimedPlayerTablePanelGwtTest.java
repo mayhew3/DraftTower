@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.gwt.dom.client.InputElement;
 import com.mayhew3.drafttower.client.TestBase;
 import com.mayhew3.drafttower.shared.Position;
+import com.mayhew3.drafttower.shared.Scoring;
 
 import static com.mayhew3.drafttower.shared.Position.P;
 
@@ -110,25 +111,26 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     assertFalse(isVisible("-players-clear"));
   }
 
+  @SuppressWarnings("ConstantConditions")
   public void testCopyRanksCheckbox() {
     login(1);
     ginjector.getScheduler().flush();
-    click("-players-table-0-13");
+    click(Scoring.CATEGORIES ? "-players-table-0-13" : "-players-table-0-17");
     assertFalse(isEnabled("-players-copyRanks"));
-    click("-players-table-0-15");
+    click(Scoring.CATEGORIES ? "-players-table-0-15" : "-players-table-0-19");
     assertFalse(isEnabled("-players-copyRanks"));
 
     click("-players-table-0-1");
     click("-players-copyRanks");
     for (int i = 1; i < 40; i++) {
-      assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + "-15"));
+      assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + (Scoring.CATEGORIES ? "-15" : "-19")));
     }
   }
 
   public void testAutoPickWizardCheckbox() {
     login(1);
     assertFalse(isEnabled("-players-autopick"));
-    click("-players-table-0-13");
+    click("-players-table-0-" + (Scoring.CATEGORIES ? "13" : "17"));
     assertTrue(isEnabled("-players-autopick"));
 
     click("-players-GURU");

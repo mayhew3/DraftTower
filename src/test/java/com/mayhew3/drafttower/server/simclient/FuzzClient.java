@@ -92,7 +92,7 @@ public class FuzzClient extends SimulatedClient {
             }
             break;
           case 32:
-            if ("1".equals(username)) {
+            if ("1".equals(username) && random.nextBoolean()) {
               sendDraftCommand(Command.BACK_OUT, null);
             } else {
               getUnclaimedPlayers(randomTableSpec());
@@ -129,7 +129,7 @@ public class FuzzClient extends SimulatedClient {
   }
 
   private PlayerColumn randomColumn() {
-    return PlayerColumn.values()[random.nextInt(PlayerColumn.values().length)];
+    return PlayerColumn.valuesForScoring()[random.nextInt(PlayerColumn.valuesForScoring().length)];
   }
 
   private PlayerDataSet randomDataSet() {
