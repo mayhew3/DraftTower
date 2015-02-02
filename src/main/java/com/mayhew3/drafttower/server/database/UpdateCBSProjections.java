@@ -1,27 +1,48 @@
 package com.mayhew3.drafttower.server.database;
 
 
-import com.google.common.collect.Lists;
-
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.List;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UpdateCBSProjections extends DatabaseUtility {
-  public static void main(String[] args) {
-    List<String> numberColumns = Lists.newArrayList("Rank", "1B", "2B", "3B", "AB", "BB", "CS", "G", "H", "HR", "KO", "R", "RBI", "SB");
-    List<String> stringColumns = Lists.newArrayList("FirstName", "LastName", "MLBTeam", "Position", "PlayerString");
 
-    String sourceSQL = "SELECT * FROM tmp_cbsbatting";
+  private static final Logger logger = Logger.getLogger(UpdateCBSProjections.class.getName());
+
+  public static void main(String[] args) throws SQLException {
+    initConnection();
+
+    updateAllPlayersInTable("tmp_cbsbatting");
+    updateAllPlayersInTable("tmp_cbspitching");
+    updateAllPlayersInTable("tmpeligibility");
+  }
+
+  private static void updateAllPlayersInTable(String tableName) throws SQLException {
+    String sourceSQL = "SELECT * FROM " + tableName;
     ResultSet sourceResults = executeQuery(sourceSQL);
 
+    PreparedStatement updateStatement = getPreparedStatement("UPDATE " + tableName + " SET PlayerString = ? WHERE id = ?");
+
     while (hasMoreElements(sourceResults)) {
-      int playerID = getInt(sourceResults, "PlayerID");
-      String playerSQL = "SELECT * FROM Players WHERE ID = ?";
+      updatePlayer(sourceResults, updateStatement);
+    }
 
-      ResultSet playerResult = prepareAndExecuteStatementFetch(playerSQL, playerID);
-      hasMoreElements(playerResult);
+    updateStatement.close();
+  }
 
-//      String updateSQL = "UPDATE Players "
+  private static void updatePlayer(ResultSet sourceResults, PreparedStatement updateStatement) {
+    Integer id = getInt(sourceResults, "id");
+    String playerString = getString(sourceResults, "PlayerString");
+
+    logger.log(Level.INFO, "Updating player '" + playerString + "' (" + id + ")");
+
+    String replaced = playerString.replace(" |", "");
+
+    if (!replaced.equals(playerString)) {
+      executePreparedUpdateWithParamsWithoutClose(updateStatement, replaced, id);
+      logger.log(Level.INFO, "Replaced and updated: '" + replaced + "'");
     }
   }
 }

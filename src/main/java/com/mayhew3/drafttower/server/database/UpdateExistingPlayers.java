@@ -7,15 +7,21 @@ import com.google.common.collect.Maps;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UpdateExistingPlayers extends DatabaseUtility {
+
+  private static final Logger logger = Logger.getLogger(UpdateExistingPlayers.class.getName());
 
   public static void main(String[] args) {
     initConnection();
 
-    System.out.println("Splitting names.");
+    logger.log(Level.INFO, "Splitting names.");
 
     String sql = "SELECT * FROM Players " +
         " WHERE NewPlayerString <> PlayerString" +
@@ -39,7 +45,7 @@ public class UpdateExistingPlayers extends DatabaseUtility {
         existingPlayer.MLBTeam = getString(resultSet, "MLBTeam");
         existingPlayer.Position = getString(resultSet, "Position");
 
-        System.out.println("Running on player '" + newPlayerString + "' (" + id + ")...");
+        logger.log(Level.INFO, "Running on player '" + newPlayerString + "' (" + id + ")...");
         updatePlayerFields(id, oldPlayerString, newPlayerString, existingPlayer);
       } catch (SQLException e) {
         failures.add(i);
@@ -51,35 +57,35 @@ public class UpdateExistingPlayers extends DatabaseUtility {
     }
 
     if (!failures.isEmpty()) {
-      System.out.println("Failed to fetch " + failures.size() + " rows from players table:");
-      System.out.println("Rows {" + Joiner.on(", ").join(failures) + "}");
+      logger.log(Level.INFO, "Failed to fetch " + failures.size() + " rows from players table:");
+      logger.log(Level.INFO, "Rows {" + Joiner.on(", ").join(failures) + "}");
     }
 
     if (!failedPlayers.isEmpty()) {
-      System.out.println("String parse failed on " + failedPlayers.size() + " rows from players table:");
+      logger.log(Level.INFO, "String parse failed on " + failedPlayers.size() + " rows from players table:");
       for (FailedPlayer failedPlayer : failedPlayers) {
-        System.out.println("ID " + failedPlayer.id + ": " + failedPlayer.message);
+        logger.log(Level.INFO, "ID " + failedPlayer.id + ": " + failedPlayer.message);
       }
     }
   }
 
 
   private static void updatePlayerFields(int id, String oldPlayerString, String newPlayerString, PlayerInfo existingPlayer) throws FailedPlayer {
-    PlayerInfo changedPlayer = parseFromString(id, oldPlayerString);
+    PlayerInfo changedPlayer = parseFromString(id, newPlayerString, existingPlayer);
 
     if (existingPlayer.lastName == null) {
 
-      System.out.println("Splitting '" + oldPlayerString + "' into parts.");
+      logger.log(Level.INFO, "Splitting '" + newPlayerString + "' into parts.");
 
       String sql = "UPDATE Players SET FirstName = ?, LastName = ?, MLBTeam = ?, Position = ?, UpdateTime = NOW() " +
                     "WHERE ID = ?";
       prepareAndExecuteStatementUpdate(sql, changedPlayer.firstName, changedPlayer.lastName, changedPlayer.MLBTeam, changedPlayer.Position, id);
 
-      System.out.println("Updated. " + changedPlayer);
+      logger.log(Level.INFO, "Updated. " + changedPlayer);
 
     } else {
 
-      System.out.println("Updating '" + oldPlayerString + "' to '" + newPlayerString + "'");
+      logger.log(Level.INFO, "Updating '" + oldPlayerString + "' (" + existingPlayer + ") to '" + newPlayerString + "'");
 
       Map<String, String> changedFields = Maps.newHashMap();
 
@@ -110,7 +116,7 @@ public class UpdateExistingPlayers extends DatabaseUtility {
         if (choice < 0 || choice > 1) {
           throw new IllegalArgumentException("Choice must be 0 or 1.");
         } else if (choice == 0) {
-          throw new FailedPlayer(id, "User chose not to change player name from " + existingPlayer + " to " + changedPlayer);
+          throw new FailedPlayer(id, "User chose not to change player name from " + existingPlayer + " (" + oldPlayerString + ") to " + changedPlayer);
         }
       }
 
@@ -140,7 +146,7 @@ public class UpdateExistingPlayers extends DatabaseUtility {
       }
 
 
-      System.out.println("UPDATED: " + Joiner.on(", ").join(changedFields.keySet()));
+      logger.log(Level.INFO, "UPDATED: " + Joiner.on(", ").join(changedFields.keySet()));
     }
 
   }
@@ -158,49 +164,86 @@ public class UpdateExistingPlayers extends DatabaseUtility {
     return position1.equals(position2);
   }
 
-  private static PlayerInfo parseFromString(int id, String playerString) throws FailedPlayer {
+  private static PlayerInfo parseFromString(int id, String playerString, PlayerInfo existingPlayer) throws FailedPlayer {
     PlayerInfo playerInfo = new PlayerInfo();
 
-    String[] commaParts = playerString.split(", ");
-    if (commaParts.length != 2) {
-      throw new FailedPlayer(id, "Found player without exactly one comma.");
+    List<String> parts = Lists.newArrayList(playerString.split(" "));
+    int numParts = parts.size();
+
+    if (numParts < 4) {
+      throw new FailedPlayer(id, "Found player with fewer than 4 symbols: '" +
+                                      playerString + "'");
     }
 
-    playerInfo.lastName = commaParts[0];
+    playerInfo.MLBTeam = Iterables.getLast(parts);
+    parts.remove(playerInfo.MLBTeam);
 
-    String remainingString = commaParts[1];
+    playerInfo.Position = Iterables.getLast(parts);
+    parts.remove(playerInfo.Position);
 
-    List<String> spaceParts = Lists.newArrayList(remainingString.split(" "));
-    int numParts = spaceParts.size();
-
-
-    if (numParts < 3) {
-      throw new FailedPlayer(id, "Found player with fewer than 3 symbols after the comma: '" +
-                                      remainingString + "', Player " + playerString);
+    if (playerInfo.MLBTeam.length() < 2 || playerInfo.MLBTeam.length() > 3) {
+      throw new FailedPlayer(id, "Incorrect team name '" + playerInfo.MLBTeam + "', from player string '" + playerString + "'");
     }
 
-    playerInfo.MLBTeam = Iterables.getLast(spaceParts);
-    spaceParts.remove(playerInfo.MLBTeam);
-
-    playerInfo.Position = Iterables.getLast(spaceParts);
-    spaceParts.remove(playerInfo.Position);
-
-    if (playerInfo.MLBTeam.length() < 2) {
-      throw new FailedPlayer(id, "Incorrect team name '" + playerInfo.MLBTeam + "', from remainder string '" + remainingString + "'");
+    if (playerInfo.Position.length() < 1 || playerInfo.Position.length() > 2) {
+      throw new FailedPlayer(id, "Incorrect position '" + playerInfo.Position + "', from player string '" + playerString + "'");
     }
 
-    if (playerInfo.Position.length() < 1) {
-      throw new FailedPlayer(id, "Incorrect position '" + playerInfo.Position + "', from remainder string '" + remainingString + "'");
+    if (parts.size() > 2) {
+
+      List<String> potentialLastNames = new ArrayList<>();
+      List<String> potentialFirstNames = new ArrayList<>();
+
+      Integer maxFirstName = parts.size() - 1;
+      for (int firstNameSize = 1; firstNameSize <= maxFirstName; firstNameSize++) {
+        List<String> lastNameStrings = parts.subList(firstNameSize, parts.size());
+
+        Joiner joiner = Joiner.on(" ");
+        String potentialLastName = joiner.join(lastNameStrings);
+        List<String> firstNameStrings = parts.subList(0, firstNameSize);
+        String potentialFirstName = joiner.join(firstNameStrings);
+
+        if (Objects.equals(existingPlayer.lastName, potentialLastName)) {
+
+          playerInfo.firstName = potentialFirstName;
+          playerInfo.lastName = potentialLastName;
+
+          return playerInfo;
+        }
+
+        potentialLastNames.add(potentialLastName);
+        potentialFirstNames.add(potentialFirstName);
+      }
+
+      List<String> displayOptions = new ArrayList<>();
+      for (int i = 0; i < potentialLastNames.size(); i++) {
+        displayOptions.add(i+1 + ") '" + potentialLastNames.get(i) + "'");
+      }
+      Joiner commaJoiner = Joiner.on(", ");
+      String selectedOption = InputGetter.grabInput("Potential last names: " + commaJoiner.join(displayOptions) + ", 0) None of these. ");
+      Integer selectedIndex = Integer.valueOf(selectedOption);
+
+      if (selectedIndex == null || selectedIndex == 0) {
+        throw new FailedPlayer(id, "Full name had more than three parts, and no combination matched existing LastName field.");
+      } else {
+        String selectedLastName = potentialLastNames.get(selectedIndex - 1);
+        String selectedFirstName = potentialFirstNames.get(selectedIndex - 1);
+
+        playerInfo.lastName = selectedLastName;
+        playerInfo.firstName = selectedFirstName;
+
+        return playerInfo;
+      }
+    } else if (parts.size() < 2) {
+      throw new FailedPlayer(id, "Found fewer than two parts to full name.");
+    } else {
+      playerInfo.firstName = parts.get(0);
+      playerInfo.lastName = parts.get(1);
+
+      return playerInfo;
     }
-
-
-    if (spaceParts.size() < 1) {
-      throw new FailedPlayer(id, "Found no parts remaining in the first name piece.");
-    }
-
-    Joiner joiner = Joiner.on(" ");
-    playerInfo.firstName = joiner.join(spaceParts);
-    return playerInfo;
   }
+
+
 
 }
