@@ -6,7 +6,10 @@ import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
@@ -25,6 +28,22 @@ import com.mayhew3.drafttower.shared.QueueEntry;
  * Table displaying players queue.
  */
 public class QueueTable extends PlayerTable<QueueEntry> {
+
+  interface Resources extends ClientBundle {
+    interface Css extends CssResource {
+      String warning();
+      String warningHigh();
+    }
+
+    @Source("QueueTable.css")
+    Css css();
+  }
+
+  protected static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
+  static {
+    CSS.ensureInjected();
+    BASE_CSS.ensureInjected();
+  }
 
   private final QueueDataProvider presenter;
 
@@ -61,6 +80,9 @@ public class QueueTable extends PlayerTable<QueueEntry> {
           }
         };
     addColumn(eligibilityColumn, "Eligibility");
+
+    Column<QueueEntry, QueueEntry> warningColumn = new IdentityColumn<>(new PredictionCell());
+    addColumn(warningColumn, "");
 
     Column<QueueEntry, String> removeColumn = new Column<QueueEntry, String>(new ButtonCell()) {
       @Override
