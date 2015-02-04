@@ -2,8 +2,9 @@ package com.mayhew3.drafttower.client.audio;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.media.client.Audio;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -15,6 +16,20 @@ import com.mayhew3.drafttower.client.GinBindingAnnotations.TtsUrlPrefix;
  * Controls audio clips.
  */
 public class AudioWidget extends Composite implements AudioView {
+
+  interface Resources extends ClientBundle {
+    interface Css extends CssResource {
+      String frame();
+    }
+
+    @Source("AudioWidget.css")
+    Css css();
+  }
+
+  private static final Resources.Css CSS = ((Resources) GWT.create(Resources.class)).css();
+  static {
+    CSS.ensureInjected();
+  }
 
   private final Audio itsOver;
   private final Frame audioFrame;
@@ -32,8 +47,7 @@ public class AudioWidget extends Composite implements AudioView {
     container.add(itsOver);
 
     audioFrame = new Frame();
-    audioFrame.setSize("0", "0");
-    audioFrame.getElement().getStyle().setBorderWidth(0, Unit.PX);
+    audioFrame.setStyleName(CSS.frame());
     container.add(audioFrame);
 
     initWidget(container);
