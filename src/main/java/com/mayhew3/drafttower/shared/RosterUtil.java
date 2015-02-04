@@ -3,11 +3,8 @@ package com.mayhew3.drafttower.shared;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import static com.mayhew3.drafttower.shared.Position.*;
 
@@ -148,4 +145,36 @@ public class RosterUtil {
     }
   }
 
+  public Map<Position, Integer[]> getNumFilled(List<DraftPick> picks, int pickNum) {
+    Map<Position, Integer[]> numFilled = new HashMap<>();
+    for (int i = 0; i < 10; i++) {
+      final int team = i;
+      Multimap<Position, DraftPick> roster = constructRoster(
+          Lists.newArrayList(Iterables.filter(
+              picks.subList(0, pickNum),
+              new Predicate<DraftPick>() {
+                @Override
+                public boolean apply(DraftPick pick) {
+                  return pick.getTeam() == team;
+                }
+              })));
+      for (Position position : values()) {
+        if (position == DH || position == RS) {
+          continue;
+        }
+        Integer[] numFilledForPosition = numFilled.get(position);
+        if (numFilledForPosition == null) {
+          numFilledForPosition = new Integer[position == P ? 6 : position == OF ? 3 : 1];
+          Arrays.fill(numFilledForPosition, 0);
+          numFilled.put(position, numFilledForPosition);
+        }
+        for (int j = 0; j < numFilledForPosition.length; j++) {
+          if (roster.get(position).size() >= j + 1) {
+            numFilledForPosition[j] = numFilledForPosition[j] + 1;
+          }
+        }
+      }
+    }
+    return numFilled;
+  }
 }

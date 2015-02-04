@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ListMultimap;
 import com.mayhew3.drafttower.shared.*;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,4 +32,6 @@ public interface PlayerDataSource {
   void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws DataSourceException;
 
   GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException;
+
+  List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException;
 }

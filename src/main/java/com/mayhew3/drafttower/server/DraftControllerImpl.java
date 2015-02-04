@@ -51,6 +51,7 @@ public class DraftControllerImpl implements DraftController {
 
   private final DraftStatus status;
   private long pausedPickTime;
+  private List<DraftStatusListener> listeners;
 
   @Inject
   public DraftControllerImpl(DraftTowerWebSocket socketServlet,
@@ -81,6 +82,7 @@ public class DraftControllerImpl implements DraftController {
     this.numTeams = numTeams;
     this.status = status;
     this.lock = lock;
+    this.listeners = new ArrayList<>();
 
     status.setConnectedTeams(new HashSet<Integer>());
     status.setRobotTeams(new HashSet<Integer>());
@@ -392,6 +394,9 @@ public class DraftControllerImpl implements DraftController {
   @VisibleForTesting
   public void sendStatusUpdates() {
     socketServlet.sendMessage(getEncodedStatus());
+    for (DraftStatusListener listener : listeners) {
+      listener.onDraftStatusChanged(status);
+    }
   }
 
   private String getEncodedStatus() {
@@ -399,5 +404,11 @@ public class DraftControllerImpl implements DraftController {
       status.setSerialId(status.getSerialId() + 1);
       return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
     }
+  }
+
+  @Override
+  public void addListener(DraftStatusListener listener) {
+    listeners.add(listener);
+    listener.onDraftStatusChanged(status);
   }
 }

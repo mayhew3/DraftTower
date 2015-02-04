@@ -15,6 +15,7 @@ public class TestServerModule extends AbstractGinModule {
   protected void configure() {
     bind(CurrentTimeProvider.class).to(FakeCurrentTimeProvider.class);
     bind(DraftTimer.class).to(TestDraftTimer.class).in(Singleton.class);
+    bind(PredictionModel.class).to(TestPredictionModel.class);
     if (GWT.isClient()) {
       bind(PlayerDataSource.class).to(TestPlayerDataSourceClient.class).in(Singleton.class);
     } else {

@@ -6,8 +6,10 @@ import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.mayhew3.drafttower.shared.Position.*;
@@ -30,6 +32,12 @@ public class RosterUtilTest {
         return input.getShortName();
       }
     }));
+    return pick;
+  }
+
+  private static DraftPick pick(long playerId, int team, Position... eligibilities) {
+    DraftPick pick = pick(playerId, eligibilities);
+    pick.setTeam(team);
     return pick;
   }
 
@@ -297,5 +305,42 @@ public class RosterUtilTest {
     Assert.assertEquals(Lists.newArrayList("1B"), RosterUtil.splitEligibilities("1B"));
     Assert.assertEquals(Lists.newArrayList("1B", "2B"), RosterUtil.splitEligibilities("1B,2B"));
     Assert.assertEquals(Lists.newArrayList("DH"), RosterUtil.splitEligibilities(""));
+  }
+
+  @Test
+  public void testGetNumFilled() {
+    ArrayList<DraftPick> picks = Lists.newArrayList(
+        pick(1, 1, P),
+        pick(2, 1, P),
+        pick(3, 1, FB),
+        pick(4, 1, SB),
+        pick(5, 1, OF),
+        pick(6, 2, P),
+        pick(7, 2, P),
+        pick(8, 2, P),
+        pick(9, 2, FB),
+        pick(10, 2, OF),
+        pick(11, 2, OF)
+    );
+    Map<Position,Integer[]> numFilled = new RosterUtil().getNumFilled(picks, 11);
+    Assert.assertEquals(2, numFilled.get(FB)[0].intValue());
+    Assert.assertEquals(1, numFilled.get(SB)[0].intValue());
+    Assert.assertEquals(0, numFilled.get(SS)[0].intValue());
+    Assert.assertEquals(2, numFilled.get(P)[1].intValue());
+    Assert.assertEquals(1, numFilled.get(P)[2].intValue());
+    Assert.assertEquals(0, numFilled.get(P)[3].intValue());
+    Assert.assertEquals(2, numFilled.get(OF)[0].intValue());
+    Assert.assertEquals(1, numFilled.get(OF)[1].intValue());
+    Assert.assertEquals(0, numFilled.get(OF)[2].intValue());
+    numFilled = new RosterUtil().getNumFilled(picks, 9);
+    Assert.assertEquals(2, numFilled.get(FB)[0].intValue());
+    Assert.assertEquals(1, numFilled.get(SB)[0].intValue());
+    Assert.assertEquals(0, numFilled.get(SS)[0].intValue());
+    Assert.assertEquals(2, numFilled.get(P)[1].intValue());
+    Assert.assertEquals(1, numFilled.get(P)[2].intValue());
+    Assert.assertEquals(0, numFilled.get(P)[3].intValue());
+    Assert.assertEquals(1, numFilled.get(OF)[0].intValue());
+    Assert.assertEquals(0, numFilled.get(OF)[1].intValue());
+    Assert.assertEquals(0, numFilled.get(OF)[2].intValue());
   }
 }

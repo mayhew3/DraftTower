@@ -57,17 +57,29 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     Stopwatch stopwatch = Stopwatch.createStarted();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
+    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
+    TableSpec tableSpec = request.getTableSpec();
+    List<Player> players = getPlayers(teamId, tableSpec);
+
+    response.setPlayers(players);
+
+    stopwatch.stop();
+    logger.info("Player table request took " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+    return response;
+  }
+
+  @Override
+  public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException {
     List<Player> players;
     ResultSet resultSet = null;
     try {
-      TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
-      String cacheKey = getKey(request.getTableSpec(), teamId);
+      String cacheKey = getKey(tableSpec, teamId);
       if (cache.containsKey(cacheKey)) {
         players = cache.get(cacheKey);
       } else {
         players = new ArrayList<>();
 
-        resultSet = getResultSetForUnclaimedPlayerRows(request, teamId);
+        resultSet = getResultSetForUnclaimedPlayerRows(teamId, tableSpec);
         while (resultSet.next()) {
           Player player = beanFactory.createPlayer().as();
           player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -139,12 +151,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } finally {
       close(resultSet);
     }
-
-    response.setPlayers(players);
-
-    stopwatch.stop();
-    logger.info("Player table request took " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
-    return response;
+    return players;
   }
 
   @Override
@@ -173,15 +180,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player Queries
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(UnclaimedPlayerListRequest request, final TeamId teamID)
+  private ResultSet getResultSetForUnclaimedPlayerRows(final TeamId teamID, TableSpec tableSpec)
       throws SQLException {
-
-    TableSpec tableSpec = request.getTableSpec();
 
     String sql = "select * from ";
     sql = getFromJoins(teamID, sql, null, true, true);
 
-    sql = addFilters(request, sql);
+    sql = addFilters(sql, tableSpec);
 
     sql = addOrdering(tableSpec, sql);
 
@@ -388,12 +393,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return builder.toString();
   }
 
-  private String addFilters(UnclaimedPlayerListRequest request, String sql) {
+  private String addFilters(String sql, TableSpec tableSpec) {
     List<String> filters = new ArrayList<>();
 
     filters.add("(AB > 0 or INN > 0)");
 
-    addTableSpecFilter(filters, request.getTableSpec());
+    addTableSpecFilter(filters, tableSpec);
 
     if (filters.isEmpty()) {
       return sql;

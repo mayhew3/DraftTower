@@ -32,7 +32,8 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
   public TestWrapper getTestWrapper(
       final TearDownAccepter tearDownAccepter,
       final DraftStatus draftStatus,
-      final PlayerDataSource playerDataSource) {
+      final PlayerDataSource playerDataSource,
+      final PickProbabilityPredictor pickProbabilityPredictor) {
     return new TestWrapper() {
       @Override
       public void toRunBeforeTest() {
@@ -49,6 +50,7 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
             draftStatus.getRobotTeams().clear();
             draftStatus.setSerialId(0);
             ((TestPlayerDataSource) playerDataSource).reset();
+            pickProbabilityPredictor.reset();
           }
         });
       }

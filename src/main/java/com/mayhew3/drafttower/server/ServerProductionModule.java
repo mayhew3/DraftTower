@@ -36,6 +36,7 @@ public class ServerProductionModule extends AbstractModule {
     bind(DraftTowerWebSocket.class).to(DraftTowerWebSocketServlet.class).in(Singleton.class);
     bind(Lock.class).to(LockImpl.class).in(Singleton.class);
     bind(PlayerDataSource.class).to(PlayerDataSourceImpl.class);
+    bind(PredictionModel.class).to(PredictionModelImpl.class).in(Singleton.class);
     bind(TeamDataSource.class).to(TeamDataSourceImpl.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
   }
