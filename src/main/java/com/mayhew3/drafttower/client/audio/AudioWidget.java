@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client.audio;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.ui.Composite;
@@ -32,6 +33,7 @@ public class AudioWidget extends Composite implements AudioView {
 
     audioFrame = new Frame();
     audioFrame.setSize("0", "0");
+    audioFrame.getElement().getStyle().setBorderWidth(0, Unit.PX);
     container.add(audioFrame);
 
     initWidget(container);
