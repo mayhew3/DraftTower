@@ -118,7 +118,7 @@ public class QueueTableGwtTest extends TestBase {
     dragToBottom("-players-table-2", "-queue-1");
     dragToBottom("-players-table-3", "-queue-2");
 
-    click("-queue-2-3-button");
+    click("-queue-2-4-button");
     assertEquals("0000000000", getInnerText("-queue-1-1"));
     assertEquals("2222222222", getInnerText("-queue-2-1"));
   }
@@ -153,5 +153,12 @@ public class QueueTableGwtTest extends TestBase {
         ginjector.getBeanFactory()));
     finishDragToBottom("-players-table-1", "-queue-1");
     assertEquals("Drag players here", getInnerText("-queue-1-1"));
+  }
+
+  public void testPrediction() {
+    login(1);
+    dragToBottom("-players-table-1", "-queue-1");
+    assertEquals("!", getInnerText("-queue-1-3"));
+    assertContains("90%", getInnerHTML("-queue-1-3"));
   }
 }

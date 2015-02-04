@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
+ <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
+  <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
+  <Application name="Rattle/PMML" version="1.4"/>
+  <Timestamp>2015-02-01 16:33:59</Timestamp>
+ </Header>
+ <DataDictionary numberOfFields="3">
+  <DataField name="pickedSS1" optype="continuous" dataType="double"/>
+  <DataField name="hasSS" optype="continuous" dataType="double"/>
+  <DataField name="startPick" optype="continuous" dataType="double"/>
+ </DataDictionary>
+ <GeneralRegressionModel modelName="General_Regression_Model" modelType="generalizedLinear" functionName="regression" algorithmName="glm" distribution="normal" linkFunction="identity">
+  <MiningSchema>
+   <MiningField name="pickedSS1" usageType="predicted"/>
+   <MiningField name="hasSS" usageType="active"/>
+   <MiningField name="startPick" usageType="active"/>
+  </MiningSchema>
+  <Output>
+   <OutputField name="Predicted_pickedSS1" feature="predictedValue"/>
+  </Output>
+  <ParameterList>
+   <Parameter name="p0" label="(Intercept)"/>
+   <Parameter name="p1" label="hasSS"/>
+   <Parameter name="p2" label="startPick"/>
+  </ParameterList>
+  <FactorList/>
+  <CovariateList>
+   <Predictor name="hasSS"/>
+   <Predictor name="startPick"/>
+  </CovariateList>
+  <PPMatrix>
+   <PPCell value="1" predictorName="hasSS" parameterName="p1"/>
+   <PPCell value="1" predictorName="startPick" parameterName="p2"/>
+  </PPMatrix>
+  <ParamMatrix>
+   <PCell parameterName="p0" df="1" beta="0.60702404925844"/>
+   <PCell parameterName="p1" df="1" beta="-0.0986093796065626"/>
+   <PCell parameterName="p2" df="1" beta="0.00279771726862256"/>
+  </ParamMatrix>
+ </GeneralRegressionModel>
+</PMML>

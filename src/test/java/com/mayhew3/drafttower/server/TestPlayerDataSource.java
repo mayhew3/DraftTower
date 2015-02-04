@@ -56,18 +56,20 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   @Override
   public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
-    TableSpec tableSpec = request.getTableSpec();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
+    synchronized (availablePlayers) {
+      response.setPlayers(getPlayers(null, request.getTableSpec()));
+    }
+    return response;
+  }
+
+  @Override
+  public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) {
     PlayerColumn sortCol = tableSpec.getSortCol();
     Comparator<Player> comparator = sortCol == WIZARD
         ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
         : sortCol.getComparator(tableSpec.isAscending());
-    synchronized (availablePlayers) {
-      response.setPlayers(
-          Ordering.from(comparator)
-              .sortedCopy(availablePlayers.values()));
-    }
-    return response;
+    return Ordering.from(comparator).sortedCopy(availablePlayers.values());
   }
 
   @Override

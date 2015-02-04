@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
+ <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
+  <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
+  <Application name="Rattle/PMML" version="1.4"/>
+  <Timestamp>2015-02-01 16:33:59</Timestamp>
+ </Header>
+ <DataDictionary numberOfFields="8">
+  <DataField name="pickedP1" optype="continuous" dataType="double"/>
+  <DataField name="has1P" optype="continuous" dataType="double"/>
+  <DataField name="has2P" optype="continuous" dataType="double"/>
+  <DataField name="has3P" optype="continuous" dataType="double"/>
+  <DataField name="has4P" optype="continuous" dataType="double"/>
+  <DataField name="has5P" optype="continuous" dataType="double"/>
+  <DataField name="has6P" optype="continuous" dataType="double"/>
+  <DataField name="startPick" optype="continuous" dataType="double"/>
+ </DataDictionary>
+ <GeneralRegressionModel modelName="General_Regression_Model" modelType="generalizedLinear" functionName="regression" algorithmName="glm" distribution="normal" linkFunction="identity">
+  <MiningSchema>
+   <MiningField name="pickedP1" usageType="predicted"/>
+   <MiningField name="has1P" usageType="active"/>
+   <MiningField name="has2P" usageType="active"/>
+   <MiningField name="has3P" usageType="active"/>
+   <MiningField name="has4P" usageType="active"/>
+   <MiningField name="has5P" usageType="active"/>
+   <MiningField name="has6P" usageType="active"/>
+   <MiningField name="startPick" usageType="active"/>
+  </MiningSchema>
+  <Output>
+   <OutputField name="Predicted_pickedP1" feature="predictedValue"/>
+  </Output>
+  <ParameterList>
+   <Parameter name="p0" label="(Intercept)"/>
+   <Parameter name="p1" label="has1P"/>
+   <Parameter name="p2" label="has2P"/>
+   <Parameter name="p3" label="has3P"/>
+   <Parameter name="p4" label="has4P"/>
+   <Parameter name="p5" label="has5P"/>
+   <Parameter name="p6" label="has6P"/>
+   <Parameter name="p7" label="startPick"/>
+  </ParameterList>
+  <FactorList/>
+  <CovariateList>
+   <Predictor name="has1P"/>
+   <Predictor name="has2P"/>
+   <Predictor name="has3P"/>
+   <Predictor name="has4P"/>
+   <Predictor name="has5P"/>
+   <Predictor name="has6P"/>
+   <Predictor name="startPick"/>
+  </CovariateList>
+  <PPMatrix>
+   <PPCell value="1" predictorName="has1P" parameterName="p1"/>
+   <PPCell value="1" predictorName="has2P" parameterName="p2"/>
+   <PPCell value="1" predictorName="has3P" parameterName="p3"/>
+   <PPCell value="1" predictorName="has4P" parameterName="p4"/>
+   <PPCell value="1" predictorName="has5P" parameterName="p5"/>
+   <PPCell value="1" predictorName="has6P" parameterName="p6"/>
+   <PPCell value="1" predictorName="startPick" parameterName="p7"/>
+  </PPMatrix>
+  <ParamMatrix>
+   <PCell parameterName="p0" df="1" beta="0.67134673975715"/>
+   <PCell parameterName="p1" df="1" beta="0.00695557396304784"/>
+   <PCell parameterName="p2" df="1" beta="-0.0130615470688325"/>
+   <PCell parameterName="p3" df="1" beta="-0.112542246865357"/>
+   <PCell parameterName="p4" df="1" beta="0.0787191273584649"/>
+   <PCell parameterName="p5" df="1" beta="-0.0577085733158499"/>
+   <PCell parameterName="p6" df="1" beta="-0.0842436448898438"/>
+   <PCell parameterName="p7" df="1" beta="0.00775028074359725"/>
+  </ParamMatrix>
+ </GeneralRegressionModel>
+</PMML>

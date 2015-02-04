@@ -10,6 +10,7 @@ import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles queue operations.
@@ -19,6 +20,8 @@ public class QueueHandler {
 
   private final BeanFactory beanFactory;
   private final PlayerDataSource playerDataSource;
+  private final TeamDataSource teamDataSource;
+  private final PickProbabilityPredictor pickProbabilityPredictor;
   private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
   private final DraftStatus status;
   private final Lock lock;
@@ -26,11 +29,14 @@ public class QueueHandler {
   @Inject
   public QueueHandler(BeanFactory beanFactory,
       PlayerDataSource playerDataSource,
+      TeamDataSource teamDataSource, PickProbabilityPredictor pickProbabilityPredictor,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
       DraftStatus status,
       Lock lock) {
     this.beanFactory = beanFactory;
     this.playerDataSource = playerDataSource;
+    this.teamDataSource = teamDataSource;
+    this.pickProbabilityPredictor = pickProbabilityPredictor;
     this.queues = queues;
     this.status = status;
     this.lock = lock;
@@ -38,8 +44,14 @@ public class QueueHandler {
 
   public List<QueueEntry> getQueue(TeamDraftOrder team) {
     synchronized (queues) {
-      List<QueueEntry> queue = queues.get(team);
-      return Lists.newArrayList(queue);
+      List<QueueEntry> queue = Lists.newArrayList(queues.get(team));
+      Map<Long, Float> pickPredictions = pickProbabilityPredictor.getTeamPredictions(team);
+      for (QueueEntry queueEntry : queue) {
+        if (pickPredictions.containsKey(queueEntry.getPlayerId())) {
+          queueEntry.setPickProbability(pickPredictions.get(queueEntry.getPlayerId()));
+        }
+      }
+      return queue;
     }
   }
 

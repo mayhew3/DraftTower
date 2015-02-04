@@ -45,6 +45,7 @@ public class SimTest {
   @Inject private DraftStatus draftStatus;
   @Inject private DraftTimer draftTimer;
   @Inject private PlayerDataSource playerDataSource;
+  @Inject private PickProbabilityPredictor pickProbabilityPredictor;
   @Inject private Lock lock;
 
   @Inject private TearDownAccepter tearDownAccepter;
@@ -230,6 +231,12 @@ public class SimTest {
       Assert.assertEquals("Wrong current team",
           draftStatus.getCurrentTeam(),
           draftStatus.getPicks().size() % 10 + 1);
+      Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(
+          new TeamDraftOrder(draftStatus.getCurrentTeam()));
+      for (Long predictionPlayer : predictions.keySet()) {
+        Assert.assertFalse("Predictions for current team include selected player",
+            selectedPlayerIds.contains(predictionPlayer));
+      }
     }
   }
 }

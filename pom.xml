@@ -119,6 +119,11 @@
       <artifactId>mockito-all</artifactId>
       <version>1.9.5</version>
     </dependency>
+    <dependency>
+        <groupId>org.jpmml</groupId>
+        <artifactId>pmml-evaluator</artifactId>
+        <version>1.1.15</version>
+    </dependency>
   </dependencies>
   <build>
     <!-- Generate compiled stuff in the folder used for developing mode -->
