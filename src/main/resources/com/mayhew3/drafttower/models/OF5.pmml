@@ -3,7 +3,7 @@
  <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
   <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2015-02-01 16:33:59</Timestamp>
+  <Timestamp>2015-02-04 22:58:54</Timestamp>
  </Header>
  <DataDictionary numberOfFields="5">
   <DataField name="pickedOF5" optype="continuous" dataType="double"/>
@@ -44,11 +44,11 @@
    <PPCell value="1" predictorName="startPick" parameterName="p4"/>
   </PPMatrix>
   <ParamMatrix>
-   <PCell parameterName="p0" df="1" beta="0.31928420830791"/>
-   <PCell parameterName="p1" df="1" beta="-0.0240784587503051"/>
-   <PCell parameterName="p2" df="1" beta="0.00681730822372495"/>
-   <PCell parameterName="p3" df="1" beta="-0.0176138235528149"/>
-   <PCell parameterName="p4" df="1" beta="0.000711265942759887"/>
+   <PCell parameterName="p0" df="1" beta="0.517632818990108"/>
+   <PCell parameterName="p1" df="1" beta="-0.0369264405685352"/>
+   <PCell parameterName="p2" df="1" beta="-0.0076086595457686"/>
+   <PCell parameterName="p3" df="1" beta="-0.0146722014795739"/>
+   <PCell parameterName="p4" df="1" beta="0.00100379902042892"/>
   </ParamMatrix>
  </GeneralRegressionModel>
 </PMML>

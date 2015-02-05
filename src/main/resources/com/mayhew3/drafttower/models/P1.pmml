@@ -3,7 +3,7 @@
  <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
   <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2015-02-01 16:33:59</Timestamp>
+  <Timestamp>2015-02-04 22:58:54</Timestamp>
  </Header>
  <DataDictionary numberOfFields="8">
   <DataField name="pickedP1" optype="continuous" dataType="double"/>
@@ -59,14 +59,14 @@
    <PPCell value="1" predictorName="startPick" parameterName="p7"/>
   </PPMatrix>
   <ParamMatrix>
-   <PCell parameterName="p0" df="1" beta="0.67134673975715"/>
-   <PCell parameterName="p1" df="1" beta="0.00695557396304784"/>
-   <PCell parameterName="p2" df="1" beta="-0.0130615470688325"/>
-   <PCell parameterName="p3" df="1" beta="-0.112542246865357"/>
-   <PCell parameterName="p4" df="1" beta="0.0787191273584649"/>
-   <PCell parameterName="p5" df="1" beta="-0.0577085733158499"/>
-   <PCell parameterName="p6" df="1" beta="-0.0842436448898438"/>
-   <PCell parameterName="p7" df="1" beta="0.00775028074359725"/>
+   <PCell parameterName="p0" df="1" beta="0.863653182724246"/>
+   <PCell parameterName="p1" df="1" beta="0.018122467297963"/>
+   <PCell parameterName="p2" df="1" beta="-0.167689520070022"/>
+   <PCell parameterName="p3" df="1" beta="0.106536808767008"/>
+   <PCell parameterName="p4" df="1" beta="-0.0132845219050183"/>
+   <PCell parameterName="p5" df="1" beta="0.0402237192052223"/>
+   <PCell parameterName="p6" df="1" beta="-0.0997528552542576"/>
+   <PCell parameterName="p7" df="1" beta="0.00235441235338756"/>
   </ParamMatrix>
  </GeneralRegressionModel>
 </PMML>
