@@ -98,6 +98,14 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                   PlayerColumn.setWizard(player, columnString, position);
                 }
               }
+            } else if (playerColumn == PlayerColumn.ELIG) {
+              String[] elig = resultSet.getString(playerColumn.getColumnName()).split(",");
+              int indexOfDH = Arrays.binarySearch(elig, "DH");
+              if (indexOfDH >= 0) {
+                System.arraycopy(elig, indexOfDH + 1, elig, indexOfDH, elig.length - (indexOfDH + 1));
+                elig[elig.length - 1] = "DH";
+              }
+              playerColumn.set(player, Joiner.on(",").join(elig));
             } else {
               String columnString = resultSet.getString(playerColumn.getColumnName());
               if (columnString != null) {
