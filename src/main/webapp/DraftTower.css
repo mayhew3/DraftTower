@@ -7,3 +7,7 @@
 body {
   font-family: leelawadee, "Helvetica Neue", arial, sans-serif;
 }
+
+th {
+  text-shadow: none !important;
+}

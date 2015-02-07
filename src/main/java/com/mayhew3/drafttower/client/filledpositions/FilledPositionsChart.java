@@ -1,13 +1,15 @@
 package com.mayhew3.drafttower.client.filledpositions;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.Position;
 
@@ -26,6 +28,8 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
       String positionPanel();
       String positionLabel();
       String barLabel();
+      String innerBarLabel();
+      String outerBarLabel();
       String bar();
     }
 
@@ -57,8 +61,8 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
 
   private final FilledPositionsPresenter presenter;
 
-  private final Map<Position, InlineLabel> barLabels = new EnumMap<>(Position.class);
-  private final Map<Position, Label> bars = new EnumMap<>(Position.class);
+  private final Multimap<Position, InlineLabel> barLabels = HashMultimap.create();
+  private final Map<Position, Widget> bars = new EnumMap<>(Position.class);
 
   @Inject
   public FilledPositionsChart(FilledPositionsPresenter presenter) {
@@ -77,13 +81,20 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
 
       InlineLabel barLabel = new InlineLabel("0/" + presenter.getDenominator(position));
       barLabel.setStyleName(CSS.barLabel());
+      barLabel.addStyleName(CSS.outerBarLabel());
       positionPanel.add(barLabel);
       barLabels.put(position, barLabel);
 
-      Label bar = new Label();
+      FlowPanel bar = new FlowPanel();
       bar.setStyleName(CSS.bar());
       positionPanel.add(bar);
       bars.put(position, bar);
+
+      InlineLabel innerBarLabel = new InlineLabel("0/" + presenter.getDenominator(position));
+      innerBarLabel.setStyleName(CSS.barLabel());
+      innerBarLabel.addStyleName(CSS.innerBarLabel());
+      bar.add(innerBarLabel);
+      barLabels.put(position, innerBarLabel);
 
       container.add(positionPanel);
     }
@@ -98,7 +109,9 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
     for (Position position : FilledPositionsPresenter.positions) {
       Integer numerator = counts.get(position);
       int denominator = presenter.getDenominator(position);
-      barLabels.get(position).setText(numerator + "/" + denominator);
+      for (InlineLabel label : barLabels.get(position)) {
+        label.setText(numerator + "/" + denominator);
+      }
       bars.get(position).setWidth(((numerator / (float) denominator) * 100) + "px");
       bars.get(position).getElement().getStyle().setBackgroundColor(colors[numerator * 10 / denominator]);
     }
@@ -107,12 +120,12 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
   @Override
   protected void onEnsureDebugId(String baseID) {
     super.onEnsureDebugId(baseID);
-    for (Entry<Position, Label> bar : bars.entrySet()) {
+    for (Entry<Position, Widget> bar : bars.entrySet()) {
       bar.getValue().ensureDebugId(baseID + "-" + bar.getKey().getShortName());
     }
-    for (Entry<Position, InlineLabel> barLabel : barLabels.entrySet()) {
-      barLabel.getValue().ensureDebugId(
-          baseID + "-" + barLabel.getKey().getShortName() + "label");
+    for (Position position : barLabels.keySet()) {
+      barLabels.get(position).iterator().next().ensureDebugId(
+          baseID + "-" + position.getShortName() + "label");
     }
   }
 }
