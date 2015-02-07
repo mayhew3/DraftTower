@@ -304,6 +304,7 @@ public class RosterUtilTest {
   public void testSplitEligibilities() {
     Assert.assertEquals(Lists.newArrayList("1B"), RosterUtil.splitEligibilities("1B"));
     Assert.assertEquals(Lists.newArrayList("1B", "2B"), RosterUtil.splitEligibilities("1B,2B"));
+    Assert.assertEquals(Lists.newArrayList("2B", "DH"), RosterUtil.splitEligibilities("DH,2B"));
     Assert.assertEquals(Lists.newArrayList("DH"), RosterUtil.splitEligibilities(""));
   }
 

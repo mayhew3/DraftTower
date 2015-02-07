@@ -30,9 +30,17 @@ public class RosterUtil {
       P, P, P, P, P, P, P);
 
   public static List<String> splitEligibilities(String eligibility) {
-    return eligibility.isEmpty()
-        ? Lists.newArrayList("DH")
-        : Lists.newArrayList(eligibility.split(","));
+    if (eligibility.isEmpty()) {
+      return Lists.newArrayList("DH");
+    } else {
+      String[] eligSplit = eligibility.split(",");
+      int indexOfDH = Arrays.binarySearch(eligSplit, "DH");
+      if (indexOfDH >= 0) {
+        System.arraycopy(eligSplit, indexOfDH + 1, eligSplit, indexOfDH, eligSplit.length - (indexOfDH + 1));
+        eligSplit[eligSplit.length - 1] = "DH";
+      }
+      return Lists.newArrayList(eligSplit);
+    }
   }
 
   public Multimap<Position, DraftPick> constructRoster(List<DraftPick> picks) {
