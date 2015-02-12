@@ -63,6 +63,8 @@ public class PickProbabilityPredictor implements DraftStatusListener {
     if (picks.size() - lastPicksSize > 10) {
       lastPicksSize = picks.size() - 10;
     }
+    PlayerColumn sortCol = predictionModel.getSortCol();
+    boolean ascending = predictionModel.getSortColAscending();
     Set<Long> selectedPlayers = new HashSet<>();
     for (int i = 0; i < lastPicksSize; i++) {
       selectedPlayers.add(picks.get(i).getPlayerId());
@@ -83,7 +85,7 @@ public class PickProbabilityPredictor implements DraftStatusListener {
         Map<Position, Integer[]> numFilled = rosterUtil.getNumFilled(picks, pickNum);
 
         TeamDraftOrder draftOrder = new TeamDraftOrder(nextTeam);
-        ListMultimap<Position, Long> topPlayerIds = getTopPlayers(selectedPlayers, draftOrder);
+        ListMultimap<Position, Long> topPlayerIds = getTopPlayers(selectedPlayers, draftOrder, sortCol, ascending);
 
         Map<Long, Float> predictions = predictionsByTeam.get(draftOrder);
         predictions.clear();
@@ -105,11 +107,14 @@ public class PickProbabilityPredictor implements DraftStatusListener {
     lastPicksSize = picks.size();
   }
 
-  private ListMultimap<Position, Long> getTopPlayers(Set<Long> selectedPlayers, TeamDraftOrder draftOrder) throws DataSourceException {
+  private ListMultimap<Position, Long> getTopPlayers(
+      Set<Long> selectedPlayers,
+      TeamDraftOrder draftOrder,
+      PlayerColumn sortCol, boolean ascending) throws DataSourceException {
     TableSpec tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
-    tableSpec.setSortCol(PlayerColumn.DRAFT);
-    tableSpec.setAscending(true);
+    tableSpec.setSortCol(sortCol);
+    tableSpec.setAscending(ascending);
     List<Player> players = playerDataSource.getPlayers(
         teamDataSource.getTeamIdByDraftOrder(draftOrder), tableSpec);
     ListMultimap<Position, Long> topPlayerIds = ArrayListMultimap.create();

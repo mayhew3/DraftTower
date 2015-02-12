@@ -3,10 +3,10 @@
  <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
   <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2015-02-04 22:58:54</Timestamp>
+  <Timestamp>2015-02-11 22:21:13</Timestamp>
  </Header>
  <DataDictionary numberOfFields="8">
-  <DataField name="pickedP5" optype="continuous" dataType="double"/>
+  <DataField name="pickedWizardP5" optype="continuous" dataType="double"/>
   <DataField name="has1P" optype="continuous" dataType="double"/>
   <DataField name="has2P" optype="continuous" dataType="double"/>
   <DataField name="has3P" optype="continuous" dataType="double"/>
@@ -17,7 +17,7 @@
  </DataDictionary>
  <GeneralRegressionModel modelName="General_Regression_Model" modelType="generalizedLinear" functionName="regression" algorithmName="glm" distribution="normal" linkFunction="identity">
   <MiningSchema>
-   <MiningField name="pickedP5" usageType="predicted"/>
+   <MiningField name="pickedWizardP5" usageType="predicted"/>
    <MiningField name="has1P" usageType="active"/>
    <MiningField name="has2P" usageType="active"/>
    <MiningField name="has3P" usageType="active"/>
@@ -27,7 +27,7 @@
    <MiningField name="startPick" usageType="active"/>
   </MiningSchema>
   <Output>
-   <OutputField name="Predicted_pickedP5" feature="predictedValue"/>
+   <OutputField name="Predicted_pickedWizardP5" feature="predictedValue"/>
   </Output>
   <ParameterList>
    <Parameter name="p0" label="(Intercept)"/>
@@ -59,14 +59,14 @@
    <PPCell value="1" predictorName="startPick" parameterName="p7"/>
   </PPMatrix>
   <ParamMatrix>
-   <PCell parameterName="p0" df="1" beta="0.125869282351362"/>
-   <PCell parameterName="p1" df="1" beta="-0.0123904634484963"/>
-   <PCell parameterName="p2" df="1" beta="0.023185830385535"/>
-   <PCell parameterName="p3" df="1" beta="0.0123620781055396"/>
-   <PCell parameterName="p4" df="1" beta="-0.0809151714629424"/>
-   <PCell parameterName="p5" df="1" beta="0.0668524447160233"/>
-   <PCell parameterName="p6" df="1" beta="-0.0644964528294795"/>
-   <PCell parameterName="p7" df="1" beta="0.00325824907641104"/>
+   <PCell parameterName="p0" df="1" beta="0.0157714507658333"/>
+   <PCell parameterName="p1" df="1" beta="0.0203346465611585"/>
+   <PCell parameterName="p2" df="1" beta="-0.0174521431611403"/>
+   <PCell parameterName="p3" df="1" beta="0.0254822837970256"/>
+   <PCell parameterName="p4" df="1" beta="0.0134934898358572"/>
+   <PCell parameterName="p5" df="1" beta="-0.0324436001134973"/>
+   <PCell parameterName="p6" df="1" beta="0.0134947342556115"/>
+   <PCell parameterName="p7" df="1" beta="-0.000513398960023414"/>
   </ParamMatrix>
  </GeneralRegressionModel>
 </PMML>

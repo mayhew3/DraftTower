@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.Position;
 
 /**
@@ -7,4 +8,8 @@ import com.mayhew3.drafttower.shared.Position;
  */
 public interface PredictionModel {
   public float getPrediction(Position position, int rank, int pickNum, Integer... numFilled);
+
+  PlayerColumn getSortCol();
+
+  boolean getSortColAscending();
 }

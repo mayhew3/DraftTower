@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.server;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.Position;
 import org.dmg.pmml.FieldName;
 import org.dmg.pmml.GeneralRegressionModel;
@@ -62,5 +63,15 @@ public class PredictionModelImpl implements PredictionModel {
       e.printStackTrace();
     }
     return 0;
+  }
+
+  @Override
+  public PlayerColumn getSortCol() {
+    return PlayerColumn.WIZARD;
+  }
+
+  @Override
+  public boolean getSortColAscending() {
+    return false;
   }
 }

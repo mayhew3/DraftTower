@@ -3,21 +3,21 @@
  <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
   <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2015-02-04 22:58:54</Timestamp>
+  <Timestamp>2015-02-11 22:21:13</Timestamp>
  </Header>
  <DataDictionary numberOfFields="3">
-  <DataField name="pickedSS3" optype="continuous" dataType="double"/>
+  <DataField name="pickedWizardSS3" optype="continuous" dataType="double"/>
   <DataField name="hasSS" optype="continuous" dataType="double"/>
   <DataField name="startPick" optype="continuous" dataType="double"/>
  </DataDictionary>
  <GeneralRegressionModel modelName="General_Regression_Model" modelType="generalizedLinear" functionName="regression" algorithmName="glm" distribution="normal" linkFunction="identity">
   <MiningSchema>
-   <MiningField name="pickedSS3" usageType="predicted"/>
+   <MiningField name="pickedWizardSS3" usageType="predicted"/>
    <MiningField name="hasSS" usageType="active"/>
    <MiningField name="startPick" usageType="active"/>
   </MiningSchema>
   <Output>
-   <OutputField name="Predicted_pickedSS3" feature="predictedValue"/>
+   <OutputField name="Predicted_pickedWizardSS3" feature="predictedValue"/>
   </Output>
   <ParameterList>
    <Parameter name="p0" label="(Intercept)"/>
@@ -34,9 +34,9 @@
    <PPCell value="1" predictorName="startPick" parameterName="p2"/>
   </PPMatrix>
   <ParamMatrix>
-   <PCell parameterName="p0" df="1" beta="0.279763959474757"/>
-   <PCell parameterName="p1" df="1" beta="-0.0531095410043541"/>
-   <PCell parameterName="p2" df="1" beta="0.00160723326159956"/>
+   <PCell parameterName="p0" df="1" beta="0.105135363941952"/>
+   <PCell parameterName="p1" df="1" beta="-0.00428518319119445"/>
+   <PCell parameterName="p2" df="1" beta="-0.000252847324768646"/>
   </ParamMatrix>
  </GeneralRegressionModel>
 </PMML>
