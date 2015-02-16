@@ -71,7 +71,7 @@
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.22" level="project" />
     <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:20030825.184428" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.4" level="project" />
-    <orderEntry type="library" name="Maven: com.google.gwt:gwt-visualization:1.1.2" level="project" />
+    <orderEntry type="library" name="Maven: com.google.gwt.google-apis:gwt-visualization:1.1.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.guiceberry:guiceberry:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava-testlib:10.0" level="project" />
     <orderEntry type="library" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />

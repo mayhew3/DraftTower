@@ -21,6 +21,21 @@
     <jetty-server.version>8.1.8.v20121106</jetty-server.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <!-- Up-to-date GWT visualization is not available in central repo. Using
+              alfresco instead. -->
+      <id>alfresco-repository</id>
+      <url>http://maven.alfresco.com/nexus/content/repositories/activiti-thirdparty/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>com.google.gwt</groupId>
@@ -105,7 +120,7 @@
       <version>1.5.4</version>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt</groupId>
+      <groupId>com.google.gwt.google-apis</groupId>
       <artifactId>gwt-visualization</artifactId>
       <version>1.1.2</version>
     </dependency>
@@ -189,6 +204,9 @@
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
+          <excludes>
+            <exclude>**/src/main/java/com/mayhew3/drafttower/server/database/*.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
