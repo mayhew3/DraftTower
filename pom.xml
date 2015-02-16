@@ -205,7 +205,7 @@
           <source>1.7</source>
           <target>1.7</target>
           <excludes>
-            <exclude>**/src/main/java/com/mayhew3/drafttower/server/database/*.java</exclude>
+            <exclude>com/mayhew3/drafttower/server/database/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>
