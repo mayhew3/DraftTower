@@ -216,7 +216,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
   @Override
   public void updateAutoPickWizard(TeamDraftOrder teamDraftOrder, PlayerDataSet wizardTable) {
-    String sql = "UPDATE autoPickWizards " +
+    String sql = "UPDATE autopickwizards " +
         "SET WizardTable = ? " +
         "WHERE TeamID = ?";
     String wizardTableName = wizardTable == null ? "" : wizardTable.getDisplayName();

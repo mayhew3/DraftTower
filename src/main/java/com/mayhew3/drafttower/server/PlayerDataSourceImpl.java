@@ -292,14 +292,14 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
         "   from wizardratings\n" +
-        "   where projectionRow = projectionsPitching.ID\n" +
+        "   where projectionRow = projectionspitching.ID\n" +
         "   and batting = 0\n" +
         "  ) as Wizard" +
             (allWizardPositions ?
             ",\n" +
             "  (select round((Rating-1)*0.5, 3)\n" +
             "   from wizardratings\n" +
-            "   where projectionRow = projectionsPitching.ID\n" +
+            "   where projectionRow = projectionspitching.ID\n" +
             "   and batting = 0\n" +
             "  ) as WizardP, " +
             getNullBattingWizardClauses()
@@ -330,7 +330,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max(Rating), 0), 3) \n" +
         "   from wizardratings\n" +
-        "   where projectionRow = projectionsBatting.ID\n" +
+        "   where projectionRow = projectionsbatting.ID\n" +
         "   and batting = 1 \n" +
         wizardFilterClause +
         "  ) as Wizard\n" +
@@ -376,7 +376,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       }
       builder.append("  (select round(Rating, 3)\n" +
               "   from wizardratings\n" +
-              "   where projectionRow = projectionsBatting.ID\n" +
+              "   where projectionRow = projectionsbatting.ID\n" +
               "   and batting = 1 \n" +
               "   and Position = '")
           .append(position.getShortName())
@@ -503,7 +503,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       greaterRank = prevRank-1;
     }
 
-    String sql = "UPDATE CustomRankings SET Rank = " + newRankForInbetween +
+    String sql = "UPDATE customrankings SET Rank = " + newRankForInbetween +
         " WHERE TeamID = ? AND Rank BETWEEN ? AND ?";
     Statement statement = null;
     try {
@@ -516,7 +516,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   private void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
-    String sql = "UPDATE CustomRankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
+    String sql = "UPDATE customrankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
     Statement statement = null;
     try {
       statement = prepareStatementUpdate(sql, newRank, teamID, playerID);
@@ -596,7 +596,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public void backOutLastDraftPick(int pickToRemove) throws DataSourceException {
-    String sql = "UPDATE DraftResults SET BackedOut = 1 WHERE OverallPick = " + pickToRemove;
+    String sql = "UPDATE draftresults SET BackedOut = 1 WHERE OverallPick = " + pickToRemove;
 
     Statement statement = null;
     try {
@@ -688,7 +688,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
       int offset = lowerBound - 1;
 
-      sql = "update customRankings \n" +
+      sql = "update customrankings \n" +
           "set Rank = " + (upperBound - offset + 1) + "\n" +
           "where teamid = " + teamID;
       statement = executeUpdate(sql);
@@ -696,7 +696,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
       logger.log(FINE, "Executed base update for " + teamID);
 
-      sql = "update customRankings cr\n" +
+      sql = "update customrankings cr\n" +
           "inner join tmp_rankings tr\n" +
           " on (cr.PlayerID = tr.PlayerID and cr.TeamID = tr.TeamID)\n" +
           "set cr.Rank = tr.Rank - " + offset + " \n" +
