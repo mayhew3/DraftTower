@@ -145,7 +145,7 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
   @Override
   public HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards() {
-    String sql = "SELECT * FROM autoPickWizards";
+    String sql = "SELECT * FROM autopickwizards";
 
     HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
 
