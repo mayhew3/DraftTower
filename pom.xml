@@ -12,6 +12,26 @@
   <version>1.0-SNAPSHOT</version>
   <name>Draft Tower</name>
 
+  <profiles>
+    <profile>
+      <id>openshift</id>
+      <properties>
+        <jetty.port>${env.OPENSHIFT_JETTY_PORT}</jetty.port>
+        <jetty.host>${env.OPENSHIFT_JETTY_IP}</jetty.host>
+      </properties>
+    </profile>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <jetty.port>8080</jetty.port>
+        <jetty.host>0.0.0.0</jetty.host>
+      </properties>
+    </profile>
+  </profiles>
+
   <properties>
     <!-- Convenience property to set the GWT version -->
     <gwtVersion>2.7.0</gwtVersion>
@@ -227,6 +247,12 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>${jetty-server.version}</version>
         <configuration>
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>${jetty.port}</port>
+              <host>${jetty.host}</host>
+            </connector>
+          </connectors>
           <webApp>
             <contextPath>/</contextPath>
           </webApp>
