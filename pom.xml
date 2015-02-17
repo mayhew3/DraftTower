@@ -16,8 +16,8 @@
     <profile>
       <id>openshift</id>
       <properties>
-        <jetty.port>${env.OPENSHIFT_JETTY_PORT}</jetty.port>
-        <jetty.host>${env.OPENSHIFT_JETTY_IP}</jetty.host>
+        <jetty.port>${env.OPENSHIFT_DIY_PORT}</jetty.port>
+        <jetty.host>${env.OPENSHIFT_DIY_IP}</jetty.host>
       </properties>
     </profile>
     <profile>
