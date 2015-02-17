@@ -166,7 +166,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws DataSourceException {
     ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
-    String sql = "select TeamID, PlayerID from Keepers";
+    String sql = "select TeamID, PlayerID from keepers";
 
     ResultSet resultSet = null;
     try {
@@ -263,7 +263,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     if (positionFilterString != null) {
       wizardFilterClause = " and Position " + positionFilterString + " ";
-      playerFilterClause = " and pa.PlayerID IN (SELECT PlayerID FROM Eligibilities WHERE Position " + positionFilterString + ") ";
+      playerFilterClause = " and pa.PlayerID IN (SELECT PlayerID FROM eligibilities WHERE Position " + positionFilterString + ") ";
     }
 
 
@@ -291,20 +291,20 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         )) +
         "Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
-        "   from wizardRatings\n" +
+        "   from wizardratings\n" +
         "   where projectionRow = projectionsPitching.ID\n" +
         "   and batting = 0\n" +
         "  ) as Wizard" +
             (allWizardPositions ?
             ",\n" +
             "  (select round((Rating-1)*0.5, 3)\n" +
-            "   from wizardRatings\n" +
+            "   from wizardratings\n" +
             "   where projectionRow = projectionsPitching.ID\n" +
             "   and batting = 0\n" +
             "  ) as WizardP, " +
             getNullBattingWizardClauses()
             : "") +
-        " FROM projectionsPitching)\n" +
+        " FROM projectionspitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
         " G, AB, \n" +
@@ -329,7 +329,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         )) +
         "  Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max(Rating), 0), 3) \n" +
-        "   from wizardRatings\n" +
+        "   from wizardratings\n" +
         "   where projectionRow = projectionsBatting.ID\n" +
         "   and batting = 1 \n" +
         wizardFilterClause +
@@ -339,7 +339,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  NULL as WizardP, \n" +
             getBattingWizardClauses()
             : "") +
-        " FROM projectionsBatting)";
+        " FROM projectionsbatting)";
 
     sql +=
         "(SELECT p.PlayerString as Player, p.CBS_ID, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
@@ -349,18 +349,18 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             " p.Injury,\n" +
             " pa.*\n" +
             "FROM (" + subselect + ") pa\n" +
-            "INNER JOIN Players p\n" +
+            "INNER JOIN players p\n" +
             " ON pa.PlayerID = p.ID\n" +
             "INNER JOIN data_sources ds\n" +
             " ON pa.DataSource = ds.ID\n" +
-            "INNER JOIN customRankings cr\n" +
+            "INNER JOIN customrankings cr\n" +
             " ON cr.PlayerID = pa.PlayerID\n" +
             "WHERE cr.TeamID = " + teamID + " \n" +
             playerFilterClause;
 
     if (filterClaimed) {
-      sql += " AND pa.PlayerID NOT IN (SELECT PlayerID FROM DraftResults WHERE BackedOut = 0)\n" +
-          " AND pa.PlayerID NOT IN (SELECT PlayerID FROM Keepers) ";
+      sql += " AND pa.PlayerID NOT IN (SELECT PlayerID FROM draftresults WHERE BackedOut = 0)\n" +
+          " AND pa.PlayerID NOT IN (SELECT PlayerID FROM keepers) ";
     }
 
     sql += " ) p_all ";
@@ -375,7 +375,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         builder.append(", ");
       }
       builder.append("  (select round(Rating, 3)\n" +
-              "   from wizardRatings\n" +
+              "   from wizardratings\n" +
               "   where projectionRow = projectionsBatting.ID\n" +
               "   and batting = 1 \n" +
               "   and Position = '")
@@ -532,7 +532,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Override
   public void populateQueueEntry(QueueEntry queueEntry) throws DataSourceException {
     String sql = "select PlayerString,Eligibility " +
-        "from Players " +
+        "from players " +
         "where ID = " + queueEntry.getPlayerId();
 
     ResultSet resultSet = null;
@@ -552,7 +552,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   @Override
   public void populateDraftPick(DraftPick draftPick) throws DataSourceException {
     String sql = "select FirstName,LastName,Eligibility " +
-        "from Players " +
+        "from players " +
         "where ID = " + draftPick.getPlayerId();
 
     ResultSet resultSet = null;
@@ -610,7 +610,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public void populateDraftStatus(DraftStatus status) throws DataSourceException {
-    String sql = "SELECT * from DraftResultsLoad "
+    String sql = "SELECT * from draftresultsload "
         + "ORDER BY Round, Pick";
     ResultSet resultSet = null;
     try {
