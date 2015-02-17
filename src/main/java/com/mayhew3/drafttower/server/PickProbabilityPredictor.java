@@ -73,16 +73,19 @@ public class PickProbabilityPredictor implements DraftStatusListener {
          pickNum < picks.size() || predictionsByTeam.get(new TeamDraftOrder(1)).isEmpty();
          pickNum++) {
       try {
-        if (pickNum < picks.size()) {
+        if (lastPicksSize == 0 && predictionsByTeam.get(new TeamDraftOrder(1)).isEmpty()) {
+          pickNum--;
+        }
+        if (pickNum >= 0 && pickNum < picks.size()) {
           selectedPlayers.add(picks.get(pickNum).getPlayerId());
         }
-        int nextTeam = picks.isEmpty() ? 1 : picks.get(pickNum).getTeam() + 1;
+        int nextTeam = (pickNum < 0 || picks.isEmpty()) ? 1 : picks.get(pickNum).getTeam() + 1;
         if (nextTeam > 10) {
           nextTeam -= 10;
         }
         int nextPickNum = pickNum + 1;
         logger.info("Updating predictions for team " + nextTeam);
-        Map<Position, Integer[]> numFilled = rosterUtil.getNumFilled(picks, pickNum);
+        Map<Position, Integer[]> numFilled = rosterUtil.getNumFilled(picks, nextPickNum);
 
         TeamDraftOrder draftOrder = new TeamDraftOrder(nextTeam);
         ListMultimap<Position, Long> topPlayerIds = getTopPlayers(selectedPlayers, draftOrder, sortCol, ascending);
