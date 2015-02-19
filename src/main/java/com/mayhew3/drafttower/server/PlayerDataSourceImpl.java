@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.*;
 import com.google.inject.Inject;
@@ -220,55 +221,31 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, Set<Position> openPositions) throws DataSourceException {
+  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, List<DraftPick> picks, final EnumSet<Position> openPositions) throws DataSourceException {
     TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
 
-    String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(teamId, sql, createFilterStringFromPositions(openPositions), true, false);
-
-    List<String> filters = new ArrayList<>();
-    addDataSetFilter(filters, wizardTable);
-
-    if (!filters.isEmpty()) {
-      sql += " where " + Joiner.on(" and ").join(filters) + " ";
+    final Set<Long> selectedPlayerIds = new HashSet<>();
+    for (DraftPick pick : picks) {
+      selectedPlayerIds.add(pick.getPlayerId());
     }
 
-    if (wizardTable == null) {
-      sql += " order by MyRank asc";
-    } else {
-      String wizardColumnName = PlayerColumn.WIZARD.getColumnName();
-      sql += " order by case when " + wizardColumnName + " is null then 1 else 0 end, " + wizardColumnName + " desc ";
-    }
-
-    ResultSet resultSet = null;
-    try {
-      resultSet = executeQuery(sql);
-      Long firstReserve = null;
-      while (resultSet.next()) {
-        if (firstReserve == null) {
-          firstReserve = resultSet.getLong("PlayerID");
-          if (openPositions.isEmpty()) {
-            return firstReserve;
-          }
-        }
-        List<String> eligibility = RosterUtil.splitEligibilities(
-            resultSet.getString("Eligibility"));
-        if (!eligibility.contains("P") && openPositions.contains(DH)) {
-          return resultSet.getLong("PlayerID");
-        }
-        for (String position : eligibility) {
-          if (openPositions.contains(Position.fromShortName(position))) {
-            return resultSet.getLong("PlayerID");
-          }
-        }
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setPlayerDataSet(wizardTable == null ? PlayerDataSet.CBSSPORTS : wizardTable);
+    tableSpec.setSortCol(wizardTable == null ? PlayerColumn.MYRANK : PlayerColumn.WIZARD);
+    tableSpec.setAscending(wizardTable == null);
+    List<Player> players = getPlayers(teamId, tableSpec);
+    Player player = Iterables.getFirst(Iterables.filter(players, new Predicate<Player>() {
+      @Override
+      public boolean apply(Player player) {
+        return !selectedPlayerIds.contains(player.getPlayerId()) &&
+            (openPositions.isEmpty() || hasAllOpenPositions(openPositions)
+                || Position.apply(player, openPositions));
       }
-      //noinspection ConstantConditions
-      return firstReserve;
-    } catch (SQLException e) {
-      throw new DataSourceException(e);
-    } finally {
-      close(resultSet);
+    }), null);
+    if (player == null) {
+      throw new DataSourceException("Couldn't find best player.");
     }
+    return player.getPlayerId();
   }
 
 

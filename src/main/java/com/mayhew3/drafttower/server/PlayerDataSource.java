@@ -3,8 +3,8 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ListMultimap;
 import com.mayhew3.drafttower.shared.*;
 
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Handles lookup and persistence of player-related data.
@@ -19,7 +19,7 @@ public interface PlayerDataSource {
 
   void populateDraftPick(DraftPick draftPick) throws DataSourceException;
 
-  long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, Set<Position> openPositions) throws DataSourceException;
+  long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, List<DraftPick> picks, EnumSet<Position> openPositions) throws DataSourceException;
 
   void changePlayerRank(ChangePlayerRankRequest request) throws DataSourceException;
 
