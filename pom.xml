@@ -18,6 +18,7 @@
       <properties>
         <jetty.port>${env.OPENSHIFT_DIY_PORT}</jetty.port>
         <jetty.host>${env.OPENSHIFT_DIY_IP}</jetty.host>
+        <ws.port>8000</ws.port>
       </properties>
     </profile>
     <profile>
@@ -28,6 +29,7 @@
       <properties>
         <jetty.port>8080</jetty.port>
         <jetty.host>0.0.0.0</jetty.host>
+        <ws.port>8080</ws.port>
       </properties>
     </profile>
   </profiles>
@@ -253,6 +255,12 @@
               <host>${jetty.host}</host>
             </connector>
           </connectors>
+          <systemProperties>
+            <systemProperty>
+              <name>ws.port</name>
+              <value>${ws.port}</value>
+            </systemProperty>
+          </systemProperties>
           <webApp>
             <contextPath>/</contextPath>
           </webApp>

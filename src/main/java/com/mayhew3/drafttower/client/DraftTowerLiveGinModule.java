@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.user.client.Window;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.*;
 import com.mayhew3.drafttower.client.graphs.BarGraphsApi;
@@ -30,12 +31,18 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @DraftSocketUrl
-  public String getDraftSocketUrl() {
-    return Window.Location.createUrlBuilder()
-        .setProtocol("ws")
-        .setPath(Window.Location.getPath()
-            + ServletEndpoints.DRAFT_SOCKET_ENDPOINT)
-        .buildString();
+  public Provider<String> getDraftSocketUrl(final TeamsInfo teamsInfo) {
+    return new Provider<String>() {
+      @Override
+      public String get() {
+        return Window.Location.createUrlBuilder()
+            .setProtocol("ws")
+            .setPort(teamsInfo.getWebSocketPort())
+            .setPath(Window.Location.getPath()
+                + ServletEndpoints.DRAFT_SOCKET_ENDPOINT)
+            .buildString();
+      }
+    };
   }
 
   @Provides @UnclaimedPlayerInfoUrl
