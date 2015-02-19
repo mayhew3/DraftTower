@@ -129,27 +129,27 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             // TODO m3: read points values from DB?
             if (player.getEligibility().contains("P")) {
               player.setPoints(Float.toString(
-                  Float.parseFloat(player.getINN()) * 2.3f +
-                      Float.parseFloat(player.getHA()) * -0.5f +
-                      Float.parseFloat(player.getBBI()) * -1.5f +
-                      Float.parseFloat(player.getK()) * 2f +
-                      Float.parseFloat(player.getER()) * -1.5f +
-                      Float.parseFloat(player.getHRA()) * -2f +
-                      Float.parseFloat(player.getWL()) * 10f +
-                      Float.parseFloat(player.getS()) * 10f
+                  parseFloatOrZero(player.getINN()) * 2.3f +
+                      parseFloatOrZero(player.getHA()) * -0.5f +
+                      parseFloatOrZero(player.getBBI()) * -1.5f +
+                      parseFloatOrZero(player.getK()) * 2f +
+                      parseFloatOrZero(player.getER()) * -1.5f +
+                      parseFloatOrZero(player.getHRA()) * -2f +
+                      parseFloatOrZero(player.getWL()) * 10f +
+                      parseFloatOrZero(player.getS()) * 10f
               ));
             } else {
               player.setPoints(Float.toString(
-                  Float.parseFloat(player.getAB()) * -2f +
-                      Float.parseFloat(player.getH()) * 6f +
-                      Float.parseFloat(player.get2B()) * 3f +
-                      Float.parseFloat(player.get3B()) * 5f +
-                      Float.parseFloat(player.getHR()) * 5f +
-                      Float.parseFloat(player.getRHR()) * 3f +
-                      Float.parseFloat(player.getRBI()) * 3f +
-                      Float.parseFloat(player.getSB()) * 2f +
-                      Float.parseFloat(player.getCS()) * -4f +
-                      Float.parseFloat(player.getBB()) * 3f
+                  parseFloatOrZero(player.getAB()) * -2f +
+                      parseFloatOrZero(player.getH()) * 6f +
+                      parseFloatOrZero(player.get2B()) * 3f +
+                      parseFloatOrZero(player.get3B()) * 5f +
+                      parseFloatOrZero(player.getHR()) * 5f +
+                      parseFloatOrZero(player.getRHR()) * 3f +
+                      parseFloatOrZero(player.getRBI()) * 3f +
+                      parseFloatOrZero(player.getSB()) * 2f +
+                      parseFloatOrZero(player.getCS()) * -4f +
+                      parseFloatOrZero(player.getBB()) * 3f
               ));
             }
           }
@@ -173,6 +173,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
     players = Ordering.from(comparator).sortedCopy(players);
     return players;
+  }
+
+  private float parseFloatOrZero(String value) {
+    if (value == null) {
+      return 0f;
+    }
+    return Float.parseFloat(value);
   }
 
   @Override
