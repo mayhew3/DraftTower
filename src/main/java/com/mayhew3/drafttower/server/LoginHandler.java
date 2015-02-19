@@ -85,6 +85,7 @@ public class LoginHandler {
     response.setInitialWizardTable(autoPickWizardTables.get(teamDraftOrder));
     response.setTeams(teamDataSource.getTeams());
     response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
+    response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port", "8080")));
     return responseBean;
   }
 

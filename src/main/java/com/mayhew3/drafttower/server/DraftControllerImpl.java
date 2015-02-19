@@ -177,6 +177,7 @@ public class DraftControllerImpl implements DraftController {
         try {
           playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
               teamDraftOrder,
+              status.getPicks(),
               rosterUtil.getOpenPositions(
                   Lists.newArrayList(Iterables.filter(status.getPicks(),
                       new Predicate<DraftPick>() {

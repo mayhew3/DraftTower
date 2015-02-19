@@ -2,11 +2,9 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -44,12 +42,25 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       BeanFactory beanFactory,
       TeamDataSource teamDataSource,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
-      @NumTeams int numTeams) {
+      @NumTeams int numTeams) throws DataSourceException {
     this.db = db;
     this.beanFactory = beanFactory;
     this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.numTeams = numTeams;
+
+    // Warm up caches
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setSortCol(PlayerColumn.MYRANK);
+    tableSpec.setAscending(true);
+    for (int i = 1; i <= 10; i++) {
+      logger.info("Warming caches: " + i + "/10");
+      TeamId team = new TeamId(i);
+      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+        tableSpec.setPlayerDataSet(playerDataSet);
+        getPlayers(team, tableSpec);
+      }
+    }
   }
 
   @Override
@@ -120,27 +131,27 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             // TODO m3: read points values from DB?
             if (player.getEligibility().contains("P")) {
               player.setPoints(Float.toString(
-                  Float.parseFloat(player.getINN()) * 2.3f +
-                      Float.parseFloat(player.getHA()) * -0.5f +
-                      Float.parseFloat(player.getBBI()) * -1.5f +
-                      Float.parseFloat(player.getK()) * 2f +
-                      Float.parseFloat(player.getER()) * -1.5f +
-                      Float.parseFloat(player.getHRA()) * -2f +
-                      Float.parseFloat(player.getWL()) * 10f +
-                      Float.parseFloat(player.getS()) * 10f
+                  parseFloatOrZero(player.getINN()) * 2.3f +
+                      parseFloatOrZero(player.getHA()) * -0.5f +
+                      parseFloatOrZero(player.getBBI()) * -1.5f +
+                      parseFloatOrZero(player.getK()) * 2f +
+                      parseFloatOrZero(player.getER()) * -1.5f +
+                      parseFloatOrZero(player.getHRA()) * -2f +
+                      parseFloatOrZero(player.getWL()) * 10f +
+                      parseFloatOrZero(player.getS()) * 10f
               ));
             } else {
               player.setPoints(Float.toString(
-                  Float.parseFloat(player.getAB()) * -2f +
-                      Float.parseFloat(player.getH()) * 6f +
-                      Float.parseFloat(player.get2B()) * 3f +
-                      Float.parseFloat(player.get3B()) * 5f +
-                      Float.parseFloat(player.getHR()) * 5f +
-                      Float.parseFloat(player.getRHR()) * 3f +
-                      Float.parseFloat(player.getRBI()) * 3f +
-                      Float.parseFloat(player.getSB()) * 2f +
-                      Float.parseFloat(player.getCS()) * -4f +
-                      Float.parseFloat(player.getBB()) * 3f
+                  parseFloatOrZero(player.getAB()) * -2f +
+                      parseFloatOrZero(player.getH()) * 6f +
+                      parseFloatOrZero(player.get2B()) * 3f +
+                      parseFloatOrZero(player.get3B()) * 5f +
+                      parseFloatOrZero(player.getHR()) * 5f +
+                      parseFloatOrZero(player.getRHR()) * 3f +
+                      parseFloatOrZero(player.getRBI()) * 3f +
+                      parseFloatOrZero(player.getSB()) * 2f +
+                      parseFloatOrZero(player.getCS()) * -4f +
+                      parseFloatOrZero(player.getBB()) * 3f
               ));
             }
           }
@@ -159,7 +170,18 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } finally {
       close(resultSet);
     }
+    Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
+        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+        : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
+    players = Ordering.from(comparator).sortedCopy(players);
     return players;
+  }
+
+  private float parseFloatOrZero(String value) {
+    if (value == null) {
+      return 0f;
+    }
+    return Float.parseFloat(value);
   }
 
   @Override
@@ -196,61 +218,35 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     sql = addFilters(sql, tableSpec);
 
-    sql = addOrdering(tableSpec, sql);
-
     return executeQuery(sql);
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, Set<Position> openPositions) throws DataSourceException {
+  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, List<DraftPick> picks, final EnumSet<Position> openPositions) throws DataSourceException {
     TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
 
-    String sql = "select PlayerID, Eligibility from ";
-    sql = getFromJoins(teamId, sql, createFilterStringFromPositions(openPositions), true, false);
-
-    List<String> filters = new ArrayList<>();
-    addDataSetFilter(filters, wizardTable);
-
-    if (!filters.isEmpty()) {
-      sql += " where " + Joiner.on(" and ").join(filters) + " ";
+    final Set<Long> selectedPlayerIds = new HashSet<>();
+    for (DraftPick pick : picks) {
+      selectedPlayerIds.add(pick.getPlayerId());
     }
 
-    if (wizardTable == null) {
-      sql += " order by MyRank asc";
-    } else {
-      String wizardColumnName = PlayerColumn.WIZARD.getColumnName();
-      sql += " order by case when " + wizardColumnName + " is null then 1 else 0 end, " + wizardColumnName + " desc ";
-    }
-
-    ResultSet resultSet = null;
-    try {
-      resultSet = executeQuery(sql);
-      Long firstReserve = null;
-      while (resultSet.next()) {
-        if (firstReserve == null) {
-          firstReserve = resultSet.getLong("PlayerID");
-          if (openPositions.isEmpty()) {
-            return firstReserve;
-          }
-        }
-        List<String> eligibility = RosterUtil.splitEligibilities(
-            resultSet.getString("Eligibility"));
-        if (!eligibility.contains("P") && openPositions.contains(DH)) {
-          return resultSet.getLong("PlayerID");
-        }
-        for (String position : eligibility) {
-          if (openPositions.contains(Position.fromShortName(position))) {
-            return resultSet.getLong("PlayerID");
-          }
-        }
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setPlayerDataSet(wizardTable == null ? PlayerDataSet.CBSSPORTS : wizardTable);
+    tableSpec.setSortCol(wizardTable == null ? PlayerColumn.MYRANK : PlayerColumn.WIZARD);
+    tableSpec.setAscending(wizardTable == null);
+    List<Player> players = getPlayers(teamId, tableSpec);
+    Player player = Iterables.getFirst(Iterables.filter(players, new Predicate<Player>() {
+      @Override
+      public boolean apply(Player player) {
+        return !selectedPlayerIds.contains(player.getPlayerId()) &&
+            (openPositions.isEmpty() || hasAllOpenPositions(openPositions)
+                || Position.apply(player, openPositions));
       }
-      //noinspection ConstantConditions
-      return firstReserve;
-    } catch (SQLException e) {
-      throw new DataSourceException(e);
-    } finally {
-      close(resultSet);
+    }), null);
+    if (player == null) {
+      throw new DataSourceException("Couldn't find best player.");
     }
+    return player.getPlayerId();
   }
 
 
@@ -580,7 +576,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TeamId teamID = teamDataSource.getTeamIdByDraftOrder(new TeamDraftOrder(draftPick.getTeam()));
 
     String draftPosition = "'" + draftPick.getEligibilities().get(0) + "'";
-    String sql = "INSERT INTO DraftResults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
+    String sql = "INSERT INTO draftresults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
         "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
           ", " + draftPosition + ", " + (draftPick.isKeeper() ? "1" : "0") + ")";
 
@@ -845,8 +841,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   private static String getKey(TableSpec tableSpec, TeamId teamId) {
     return tableSpec.getPlayerDataSet().ordinal() + ""
-        + tableSpec.getSortCol().ordinal() + ""
-        + (tableSpec.isAscending() ? "a" : "d")
         + teamId.get();
   }
 }

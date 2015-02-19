@@ -16,6 +16,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,7 +52,8 @@ public class DraftControllerTest {
     Mockito.when(playerDataSource.getBestPlayerId(
         Mockito.<PlayerDataSet>any(),
         Mockito.<TeamDraftOrder>any(),
-        Mockito.anySetOf(Position.class)))
+        Mockito.anyListOf(DraftPick.class),
+        Mockito.<EnumSet<Position>>any()))
         .thenAnswer(new Answer<Long>() {
           @Override
           public Long answer(InvocationOnMock invocation) throws Throwable {

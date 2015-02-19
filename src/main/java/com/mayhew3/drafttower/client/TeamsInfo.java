@@ -72,4 +72,8 @@ public class TeamsInfo {
     }
     return nextTeam == getTeam();
   }
+
+  public int getWebSocketPort() {
+    return loginResponse.getWebSocketPort();
+  }
 }

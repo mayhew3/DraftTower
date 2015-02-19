@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.client.websocket;
 
+import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.DraftSocketUrl;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
@@ -21,11 +22,11 @@ public class WebsocketImpl implements Websocket {
   private final Set<WebsocketListener> listeners = new HashSet<>();
 
   private final String name;
-  private final String url;
+  private final Provider<String> urlProvider;
 
   @Inject
-  public WebsocketImpl(@DraftSocketUrl String url) {
-    this.url = url;
+  public WebsocketImpl(@DraftSocketUrl Provider<String> urlProvider) {
+    this.urlProvider = urlProvider;
     this.name = "dtws-" + counter++;
   }
 
@@ -86,7 +87,7 @@ public class WebsocketImpl implements Websocket {
 
   @Override
   public void open() {
-    _open(this, name, url);
+    _open(this, name, urlProvider.get());
   }
 
   @Override

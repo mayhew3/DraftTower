@@ -94,7 +94,7 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, final Set<Position> openPositions) {
+  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, List<DraftPick> picks, final EnumSet<Position> openPositions) {
     synchronized (availablePlayers) {
       return Collections.max(availablePlayers.values(), new Comparator<Player>() {
         @Override

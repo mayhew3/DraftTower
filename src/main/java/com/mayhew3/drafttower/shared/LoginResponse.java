@@ -26,4 +26,7 @@ public interface LoginResponse {
 
   boolean isAlreadyLoggedIn();
   void setAlreadyLoggedIn(boolean alreadyLoggedIn);
+
+  int getWebSocketPort();
+  void setWebSocketPort(int webSocketPort);
 }
