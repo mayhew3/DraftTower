@@ -598,7 +598,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     TeamId teamID = teamDataSource.getTeamIdByDraftOrder(new TeamDraftOrder(draftPick.getTeam()));
 
     String draftPosition = "'" + draftPick.getEligibilities().get(0) + "'";
-    String sql = "INSERT INTO DraftResults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
+    String sql = "INSERT INTO draftresults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
         "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
           ", " + draftPosition + ", " + (draftPick.isKeeper() ? "1" : "0") + ")";
 
