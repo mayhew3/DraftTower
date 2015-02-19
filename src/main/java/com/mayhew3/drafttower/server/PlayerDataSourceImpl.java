@@ -54,6 +54,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     tableSpec.setSortCol(PlayerColumn.MYRANK);
     tableSpec.setAscending(true);
     for (int i = 1; i <= 10; i++) {
+      logger.info("Warming caches: " + i + "/10");
       TeamId team = new TeamId(i);
       for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
         tableSpec.setPlayerDataSet(playerDataSet);
