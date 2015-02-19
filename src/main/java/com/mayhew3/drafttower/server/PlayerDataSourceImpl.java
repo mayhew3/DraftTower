@@ -3,10 +3,7 @@ package com.mayhew3.drafttower.server;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -44,12 +41,24 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       BeanFactory beanFactory,
       TeamDataSource teamDataSource,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
-      @NumTeams int numTeams) {
+      @NumTeams int numTeams) throws DataSourceException {
     this.db = db;
     this.beanFactory = beanFactory;
     this.teamDataSource = teamDataSource;
     this.teamTokens = teamTokens;
     this.numTeams = numTeams;
+
+    // Warm up caches
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setSortCol(PlayerColumn.MYRANK);
+    tableSpec.setAscending(true);
+    for (int i = 1; i <= 10; i++) {
+      TeamId team = new TeamId(i);
+      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+        tableSpec.setPlayerDataSet(playerDataSet);
+        getPlayers(team, tableSpec);
+      }
+    }
   }
 
   @Override
@@ -159,6 +168,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } finally {
       close(resultSet);
     }
+    Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
+        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+        : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
+    players = Ordering.from(comparator).sortedCopy(players);
     return players;
   }
 
@@ -195,8 +208,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     sql = getFromJoins(teamID, sql, null, true, true);
 
     sql = addFilters(sql, tableSpec);
-
-    sql = addOrdering(tableSpec, sql);
 
     return executeQuery(sql);
   }
@@ -845,8 +856,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   private static String getKey(TableSpec tableSpec, TeamId teamId) {
     return tableSpec.getPlayerDataSet().ordinal() + ""
-        + tableSpec.getSortCol().ordinal() + ""
-        + (tableSpec.isAscending() ? "a" : "d")
         + teamId.get();
   }
 }
