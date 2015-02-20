@@ -321,9 +321,10 @@ public class RosterUtilTest {
         pick(8, 2, P),
         pick(9, 2, FB),
         pick(10, 2, OF),
-        pick(11, 2, OF)
+        pick(11, 2, OF),
+        pick(12, 10, TB)
     );
-    Map<Position,Integer[]> numFilled = new RosterUtil().getNumFilled(picks, 11);
+    Map<Position,Integer[]> numFilled = new RosterUtil().getNumFilled(picks, 12);
     Assert.assertEquals(2, numFilled.get(FB)[0].intValue());
     Assert.assertEquals(1, numFilled.get(SB)[0].intValue());
     Assert.assertEquals(0, numFilled.get(SS)[0].intValue());
@@ -333,6 +334,7 @@ public class RosterUtilTest {
     Assert.assertEquals(2, numFilled.get(OF)[0].intValue());
     Assert.assertEquals(1, numFilled.get(OF)[1].intValue());
     Assert.assertEquals(0, numFilled.get(OF)[2].intValue());
+    Assert.assertEquals(1, numFilled.get(TB)[0].intValue());
     numFilled = new RosterUtil().getNumFilled(picks, 9);
     Assert.assertEquals(2, numFilled.get(FB)[0].intValue());
     Assert.assertEquals(1, numFilled.get(SB)[0].intValue());
@@ -343,5 +345,6 @@ public class RosterUtilTest {
     Assert.assertEquals(1, numFilled.get(OF)[0].intValue());
     Assert.assertEquals(0, numFilled.get(OF)[1].intValue());
     Assert.assertEquals(0, numFilled.get(OF)[2].intValue());
+    Assert.assertEquals(0, numFilled.get(TB)[0].intValue());
   }
 }
