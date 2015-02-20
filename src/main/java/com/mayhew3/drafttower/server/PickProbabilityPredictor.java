@@ -26,7 +26,7 @@ public class PickProbabilityPredictor implements DraftStatusListener {
   private final BeanFactory beanFactory;
   private final RosterUtil rosterUtil;
   private final PredictionModel predictionModel;
-  private int lastPicksSize;
+  private int lastPicksSize = -1;
 
   @Inject
   public PickProbabilityPredictor(PlayerDataSource playerDataSource,
@@ -52,14 +52,13 @@ public class PickProbabilityPredictor implements DraftStatusListener {
   public void onDraftStatusChanged(DraftStatus draftStatus) {
     List<DraftPick> picks = draftStatus.getPicks();
     if (lastPicksSize > picks.size()) {
+      lastPicksSize = picks.size();
       return;
     }
-    if (picks.size() == lastPicksSize
-        && !predictionsByTeam.get(new TeamDraftOrder(1)).isEmpty()) {
+    if (picks.size() == lastPicksSize) {
       return;
     }
     // When draft status changes, recompute predictions for team that just picked.
-    // This gets a little weird with backed out picks but shouldn't do too much damage.
     if (picks.size() - lastPicksSize > 10) {
       lastPicksSize = picks.size() - 10;
     }
@@ -69,13 +68,8 @@ public class PickProbabilityPredictor implements DraftStatusListener {
     for (int i = 0; i < lastPicksSize; i++) {
       selectedPlayers.add(picks.get(i).getPlayerId());
     }
-    for (int pickNum = lastPicksSize;
-         pickNum < picks.size() || predictionsByTeam.get(new TeamDraftOrder(1)).isEmpty();
-         pickNum++) {
+    for (int pickNum = lastPicksSize; pickNum < picks.size(); pickNum++) {
       try {
-        if (lastPicksSize == 0 && predictionsByTeam.get(new TeamDraftOrder(1)).isEmpty()) {
-          pickNum--;
-        }
         if (pickNum >= 0 && pickNum < picks.size()) {
           selectedPlayers.add(picks.get(pickNum).getPlayerId());
         }
@@ -118,8 +112,10 @@ public class PickProbabilityPredictor implements DraftStatusListener {
     tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
     tableSpec.setSortCol(sortCol);
     tableSpec.setAscending(ascending);
+
     List<Player> players = playerDataSource.getPlayers(
         teamDataSource.getTeamIdByDraftOrder(draftOrder), tableSpec);
+
     ListMultimap<Position, Long> topPlayerIds = ArrayListMultimap.create();
     for (Player player : players) {
       if (selectedPlayers.contains(player.getPlayerId())) {
@@ -136,8 +132,9 @@ public class PickProbabilityPredictor implements DraftStatusListener {
         }
       }
       boolean filledAllPositions = true;
-      for (Entry<Position, Collection<Long>> entry : topPlayerIds.asMap().entrySet()) {
-        if (entry.getValue().size() < getNumPlayersForPosition(entry.getKey())) {
+      for (Position position : Position.REAL_POSITIONS) {
+        if (position != Position.DH &&
+            topPlayerIds.get(position).size() < getNumPlayersForPosition(position)) {
           filledAllPositions = false;
           break;
         }
@@ -158,7 +155,7 @@ public class PickProbabilityPredictor implements DraftStatusListener {
   }
 
   public void reset() {
-    lastPicksSize = 0;
+    lastPicksSize = -1;
     for (TeamDraftOrder team : predictionsByTeam.keySet()) {
       predictionsByTeam.get(team).clear();
     }

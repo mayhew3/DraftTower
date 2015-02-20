@@ -234,7 +234,7 @@ public class SimTest {
       Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(
           new TeamDraftOrder(draftStatus.getCurrentTeam()));
       for (Long predictionPlayer : predictions.keySet()) {
-        Assert.assertFalse("Predictions for current team include selected player",
+        Assert.assertFalse("Predictions for current team include selected player " + predictionPlayer,
             selectedPlayerIds.contains(predictionPlayer));
       }
     }

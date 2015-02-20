@@ -155,7 +155,7 @@ public class RosterUtil {
 
   public Map<Position, Integer[]> getNumFilled(List<DraftPick> picks, int pickNum) {
     Map<Position, Integer[]> numFilled = new HashMap<>();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 1; i <= 10; i++) {
       final int team = i;
       Multimap<Position, DraftPick> roster = constructRoster(
           Lists.newArrayList(Iterables.filter(
