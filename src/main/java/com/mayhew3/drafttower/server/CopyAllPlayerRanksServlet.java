@@ -20,13 +20,13 @@ import java.io.IOException;
 public class CopyAllPlayerRanksServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
-  private final PlayerDataSource playerDataSource;
+  private final PlayerDataProvider playerDataProvider;
 
   @Inject
   public CopyAllPlayerRanksServlet(BeanFactory beanFactory,
-      PlayerDataSource playerDataSource) {
+      PlayerDataProvider playerDataProvider) {
     this.beanFactory = beanFactory;
-    this.playerDataSource = playerDataSource;
+    this.playerDataProvider = playerDataProvider;
   }
 
   @Override
@@ -36,7 +36,7 @@ public class CopyAllPlayerRanksServlet extends HttpServlet {
         AutoBeanCodex.decode(beanFactory, CopyAllPlayerRanksRequest.class, requestStr).as();
 
     try {
-      playerDataSource.copyTableSpecToCustom(request);
+      playerDataProvider.copyTableSpecToCustom(request);
     } catch (DataSourceException e) {
       throw new ServletException(e);
     }

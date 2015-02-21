@@ -28,7 +28,7 @@ public class DraftControllerTest {
   private DraftStatus draftStatus;
   private ListMultimap<TeamDraftOrder, Integer> keepers;
   private ListMultimap<TeamDraftOrder, QueueEntry> queues;
-  private PlayerDataSource playerDataSource;
+  private PlayerDataProvider playerDataSource;
   private BeanFactory beanFactory;
   private List<DraftPick> picks;
   private FakeCurrentTimeProvider currentTimeProvider;
@@ -41,7 +41,7 @@ public class DraftControllerTest {
     keepers = ArrayListMultimap.create();
     queues = ArrayListMultimap.create();
     picks = new ArrayList<>();
-    playerDataSource = Mockito.mock(PlayerDataSource.class);
+    playerDataSource = Mockito.mock(PlayerDataProvider.class);
     Mockito.doAnswer(new Answer<Void>() {
       @Override
       public Void answer(InvocationOnMock invocation) throws Throwable {

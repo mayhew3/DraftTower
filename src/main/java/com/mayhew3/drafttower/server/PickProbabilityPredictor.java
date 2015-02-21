@@ -21,7 +21,7 @@ public class PickProbabilityPredictor implements DraftStatusListener {
   private static final Logger logger = Logger.getLogger(DraftControllerImpl.class.getName());
 
   private final Map<TeamDraftOrder, Map<Long, Float>> predictionsByTeam = new ConcurrentHashMap<>();
-  private final PlayerDataSource playerDataSource;
+  private final PlayerDataProvider playerDataProvider;
   private final TeamDataSource teamDataSource;
   private final BeanFactory beanFactory;
   private final RosterUtil rosterUtil;
@@ -29,13 +29,13 @@ public class PickProbabilityPredictor implements DraftStatusListener {
   private int lastPicksSize = -1;
 
   @Inject
-  public PickProbabilityPredictor(PlayerDataSource playerDataSource,
+  public PickProbabilityPredictor(PlayerDataProvider playerDataProvider,
       TeamDataSource teamDataSource,
       DraftController draftController,
       BeanFactory beanFactory,
       RosterUtil rosterUtil,
       PredictionModel predictionModel) {
-    this.playerDataSource = playerDataSource;
+    this.playerDataProvider = playerDataProvider;
     this.teamDataSource = teamDataSource;
     this.beanFactory = beanFactory;
     this.rosterUtil = rosterUtil;
@@ -113,7 +113,7 @@ public class PickProbabilityPredictor implements DraftStatusListener {
     tableSpec.setSortCol(sortCol);
     tableSpec.setAscending(ascending);
 
-    List<Player> players = playerDataSource.getPlayers(
+    List<Player> players = playerDataProvider.getPlayers(
         teamDataSource.getTeamIdByDraftOrder(draftOrder), tableSpec);
 
     ListMultimap<Position, Long> topPlayerIds = ArrayListMultimap.create();

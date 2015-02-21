@@ -55,15 +55,6 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   protected abstract List<DraftPick> createDraftPicksList();
 
   @Override
-  public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) {
-    UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
-    synchronized (availablePlayers) {
-      response.setPlayers(getPlayers(null, request.getTableSpec()));
-    }
-    return response;
-  }
-
-  @Override
   public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) {
     PlayerColumn sortCol = tableSpec.getSortCol();
     Comparator<Player> comparator = sortCol == WIZARD
@@ -94,50 +85,25 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, List<DraftPick> picks, final EnumSet<Position> openPositions) {
-    synchronized (availablePlayers) {
-      return Collections.max(availablePlayers.values(), new Comparator<Player>() {
-        @Override
-        public int compare(Player o1, Player o2) {
-          return maxWizard(o1, openPositions) - maxWizard(o2, openPositions);
+  public void shiftInBetweenRanks(TeamId teamID, int lesserRank, int greaterRank, boolean increase) {
+    for (Player player : allPlayers.values()) {
+      int rank = Integer.parseInt(player.getMyRank());
+      if (rank >= lesserRank && rank <= greaterRank) {
+        if (increase) {
+          player.setMyRank(Integer.toString(rank + 1));
+        } else {
+          player.setMyRank(Integer.toString(rank - 1));
         }
-
-        private int maxWizard(Player player, final Set<Position> openPositions) {
-          String wizardStr = PlayerColumn.getWizard(player, EnumSet.copyOf(openPositions));
-          return wizardStr == null
-              ? Integer.MIN_VALUE
-              : (int) (Float.parseFloat(wizardStr) * 1000);
-        }
-      }).getPlayerId();
+      }
     }
   }
 
   @Override
-  public void changePlayerRank(ChangePlayerRankRequest request) {
-    synchronized (availablePlayers) {
-      long playerId = request.getPlayerId();
-      int prevRank = request.getPrevRank();
-      int newRank = request.getNewRank();
-      int lesserRank = prevRank + 1;
-      int greaterRank = newRank;
-      if (prevRank > newRank) {
-        lesserRank = newRank;
-        greaterRank = prevRank - 1;
-      }
-      // Update all players.
-      for (Player player : allPlayers.values()) {
-        if (player.getPlayerId() == playerId) {
-          player.setMyRank(Integer.toString(newRank));
-        } else {
-          int rank = Integer.parseInt(player.getMyRank());
-          if (rank >= lesserRank && rank <= greaterRank) {
-            if (prevRank > newRank) {
-              player.setMyRank(Integer.toString(rank + 1));
-            } else {
-              player.setMyRank(Integer.toString(rank - 1));
-            }
-          }
-        }
+  public void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
+    for (Player player : allPlayers.values()) {
+      if (player.getPlayerId() == playerID) {
+        player.setMyRank(Integer.toString(newRank));
+        break;
       }
     }
   }
@@ -164,8 +130,7 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
-  public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) {
-    TableSpec tableSpec = request.getTableSpec();
+  public void copyTableSpecToCustom(TeamId teamId, TableSpec tableSpec) {
     PlayerColumn sortCol = tableSpec.getSortCol();
     Comparator<Player> comparator = sortCol == WIZARD
         ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
@@ -284,10 +249,6 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   public void setKeepers(ListMultimap<TeamDraftOrder, Integer> keepers) {
     this.keepers = keepers;
-  }
-
-  public Player getPlayer(long playerId) {
-    return allPlayers.get(playerId);
   }
 
   public Collection<Player> getAllPlayers() {

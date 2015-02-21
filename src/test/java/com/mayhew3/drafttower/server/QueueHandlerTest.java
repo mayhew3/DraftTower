@@ -41,8 +41,7 @@ public class QueueHandlerTest {
         .thenReturn(new TeamId(1));
 
     handler = new QueueHandler(beanFactory,
-        Mockito.mock(PlayerDataSource.class),
-        teamDataSource,
+        Mockito.mock(PlayerDataProvider.class),
         pickProbabilityPredictor,
         queues,
         draftStatus,

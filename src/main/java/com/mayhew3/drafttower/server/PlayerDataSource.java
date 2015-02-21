@@ -3,7 +3,6 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ListMultimap;
 import com.mayhew3.drafttower.shared.*;
 
-import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -11,17 +10,11 @@ import java.util.List;
  */
 public interface PlayerDataSource {
 
-  UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws DataSourceException;
-
   ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws DataSourceException;
 
   void populateQueueEntry(QueueEntry queueEntry) throws DataSourceException;
 
   void populateDraftPick(DraftPick draftPick) throws DataSourceException;
-
-  long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder team, List<DraftPick> picks, EnumSet<Position> openPositions) throws DataSourceException;
-
-  void changePlayerRank(ChangePlayerRankRequest request) throws DataSourceException;
 
   void postDraftPick(DraftPick draftPick, DraftStatus status) throws DataSourceException;
 
@@ -29,9 +22,13 @@ public interface PlayerDataSource {
 
   void populateDraftStatus(DraftStatus status) throws DataSourceException;
 
-  void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws DataSourceException;
+  void copyTableSpecToCustom(TeamId teamID, TableSpec tableSpec) throws DataSourceException;
 
   GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException;
 
   List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException;
+
+  void shiftInBetweenRanks(TeamId teamID, int lesserRank, int greaterRank, boolean increase);
+
+  void updatePlayerRank(TeamId teamID, int newRank, long playerID);
 }

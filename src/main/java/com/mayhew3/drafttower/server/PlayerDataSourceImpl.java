@@ -1,23 +1,20 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static com.mayhew3.drafttower.shared.Position.*;
+import static com.mayhew3.drafttower.shared.Position.REAL_POSITIONS;
 import static java.util.logging.Level.*;
 
 /**
@@ -31,51 +28,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private final DataSource db;
   private final BeanFactory beanFactory;
   private final TeamDataSource teamDataSource;
-  private final Map<String, TeamDraftOrder> teamTokens;
   private final int numTeams;
-
-  private final Map<String, List<Player>> cache = new ConcurrentHashMap<>();
 
   @Inject
   public PlayerDataSourceImpl(DataSource db,
       BeanFactory beanFactory,
       TeamDataSource teamDataSource,
-      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
-      @NumTeams int numTeams) throws DataSourceException {
+      @NumTeams int numTeams) {
     this.db = db;
     this.beanFactory = beanFactory;
     this.teamDataSource = teamDataSource;
-    this.teamTokens = teamTokens;
     this.numTeams = numTeams;
-
-    // Warm up caches
-    TableSpec tableSpec = beanFactory.createTableSpec().as();
-    tableSpec.setSortCol(PlayerColumn.MYRANK);
-    tableSpec.setAscending(true);
-    for (int i = 1; i <= 10; i++) {
-      logger.info("Warming caches: " + i + "/10");
-      TeamId team = new TeamId(i);
-      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-        tableSpec.setPlayerDataSet(playerDataSet);
-        getPlayers(team, tableSpec);
-      }
-    }
-  }
-
-  @Override
-  public UnclaimedPlayerListResponse lookupUnclaimedPlayers(UnclaimedPlayerListRequest request) throws DataSourceException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
-
-    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
-    TableSpec tableSpec = request.getTableSpec();
-    List<Player> players = getPlayers(teamId, tableSpec);
-
-    response.setPlayers(players);
-
-    stopwatch.stop();
-    logger.info("Player table request took " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
-    return response;
   }
 
   @Override
@@ -83,96 +46,86 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     List<Player> players;
     ResultSet resultSet = null;
     try {
-      String cacheKey = getKey(teamId, tableSpec.getPlayerDataSet());
-      if (cache.containsKey(cacheKey)) {
-        players = cache.get(cacheKey);
-      } else {
-        players = new ArrayList<>();
+      players = new ArrayList<>();
 
-        resultSet = getResultSetForUnclaimedPlayerRows(teamId, tableSpec);
-        while (resultSet.next()) {
-          Player player = beanFactory.createPlayer().as();
-          player.setPlayerId(resultSet.getInt("PlayerID"));
-          player.setCBSId(resultSet.getInt("CBS_ID"));
+      resultSet = getResultSetForUnclaimedPlayerRows(teamId, tableSpec);
+      while (resultSet.next()) {
+        Player player = beanFactory.createPlayer().as();
+        player.setPlayerId(resultSet.getInt("PlayerID"));
+        player.setCBSId(resultSet.getInt("CBS_ID"));
 
-          List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.valuesForScoring());
-          playerColumns.remove(PlayerColumn.NAME);
-          PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
-          playerColumns.remove(PlayerColumn.PTS);
+        List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.valuesForScoring());
+        playerColumns.remove(PlayerColumn.NAME);
+        PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+        playerColumns.remove(PlayerColumn.PTS);
 
-          for (PlayerColumn playerColumn : playerColumns) {
-            if (playerColumn == PlayerColumn.WIZARD) {
-              for (Position position : REAL_POSITIONS) {
-                String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
-                if (columnString != null) {
-                  PlayerColumn.setWizard(player, columnString, position);
-                }
-              }
-            } else if (playerColumn == PlayerColumn.ELIG) {
-              String[] elig = resultSet.getString(playerColumn.getColumnName()).split(",");
-              int indexOfDH = Arrays.binarySearch(elig, "DH");
-              if (indexOfDH >= 0) {
-                System.arraycopy(elig, indexOfDH + 1, elig, indexOfDH, elig.length - (indexOfDH + 1));
-                elig[elig.length - 1] = "DH";
-              }
-              playerColumn.set(player, Joiner.on(",").join(elig));
-            } else {
-              String columnString = resultSet.getString(playerColumn.getColumnName());
+        for (PlayerColumn playerColumn : playerColumns) {
+          if (playerColumn == PlayerColumn.WIZARD) {
+            for (Position position : REAL_POSITIONS) {
+              String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
               if (columnString != null) {
-                if (columnString.startsWith("0.")) {
-                  columnString = columnString.substring(1);
-                }
-                playerColumn.set(player, columnString);
+                PlayerColumn.setWizard(player, columnString, position);
               }
             }
-          }
-          if (Scoring.POINTS) {
-            // TODO m3: read points values from DB?
-            if (player.getEligibility().contains("P")) {
-              player.setPoints(Float.toString(
-                  parseFloatOrZero(player.getINN()) * 2.3f +
-                      parseFloatOrZero(player.getHA()) * -0.5f +
-                      parseFloatOrZero(player.getBBI()) * -1.5f +
-                      parseFloatOrZero(player.getK()) * 2f +
-                      parseFloatOrZero(player.getER()) * -1.5f +
-                      parseFloatOrZero(player.getHRA()) * -2f +
-                      parseFloatOrZero(player.getWL()) * 10f +
-                      parseFloatOrZero(player.getS()) * 10f
-              ));
-            } else {
-              player.setPoints(Float.toString(
-                  parseFloatOrZero(player.getAB()) * -2f +
-                      parseFloatOrZero(player.getH()) * 6f +
-                      parseFloatOrZero(player.get2B()) * 3f +
-                      parseFloatOrZero(player.get3B()) * 5f +
-                      parseFloatOrZero(player.getHR()) * 5f +
-                      parseFloatOrZero(player.getRHR()) * 3f +
-                      parseFloatOrZero(player.getRBI()) * 3f +
-                      parseFloatOrZero(player.getSB()) * 2f +
-                      parseFloatOrZero(player.getCS()) * -4f +
-                      parseFloatOrZero(player.getBB()) * 3f
-              ));
+          } else if (playerColumn == PlayerColumn.ELIG) {
+            String[] elig = resultSet.getString(playerColumn.getColumnName()).split(",");
+            int indexOfDH = Arrays.binarySearch(elig, "DH");
+            if (indexOfDH >= 0) {
+              System.arraycopy(elig, indexOfDH + 1, elig, indexOfDH, elig.length - (indexOfDH + 1));
+              elig[elig.length - 1] = "DH";
+            }
+            playerColumn.set(player, Joiner.on(",").join(elig));
+          } else {
+            String columnString = resultSet.getString(playerColumn.getColumnName());
+            if (columnString != null) {
+              if (columnString.startsWith("0.")) {
+                columnString = columnString.substring(1);
+              }
+              playerColumn.set(player, columnString);
             }
           }
-
-          String injury = resultSet.getString("Injury");
-          if (injury != null) {
-            player.setInjury(injury);
-          }
-
-          players.add(player);
         }
-        cache.put(cacheKey, players);
+        if (Scoring.POINTS) {
+          // TODO m3: read points values from DB?
+          if (player.getEligibility().contains("P")) {
+            player.setPoints(Float.toString(
+                parseFloatOrZero(player.getINN()) * 2.3f +
+                    parseFloatOrZero(player.getHA()) * -0.5f +
+                    parseFloatOrZero(player.getBBI()) * -1.5f +
+                    parseFloatOrZero(player.getK()) * 2f +
+                    parseFloatOrZero(player.getER()) * -1.5f +
+                    parseFloatOrZero(player.getHRA()) * -2f +
+                    parseFloatOrZero(player.getWL()) * 10f +
+                    parseFloatOrZero(player.getS()) * 10f
+            ));
+          } else {
+            player.setPoints(Float.toString(
+                parseFloatOrZero(player.getAB()) * -2f +
+                    parseFloatOrZero(player.getH()) * 6f +
+                    parseFloatOrZero(player.get2B()) * 3f +
+                    parseFloatOrZero(player.get3B()) * 5f +
+                    parseFloatOrZero(player.getHR()) * 5f +
+                    parseFloatOrZero(player.getRHR()) * 3f +
+                    parseFloatOrZero(player.getRBI()) * 3f +
+                    parseFloatOrZero(player.getSB()) * 2f +
+                    parseFloatOrZero(player.getCS()) * -4f +
+                    parseFloatOrZero(player.getBB()) * 3f
+            ));
+          }
+        }
+
+        String injury = resultSet.getString("Injury");
+        if (injury != null) {
+          player.setInjury(injury);
+        }
+
+        players.add(player);
       }
     } catch (SQLException e) {
       throw new DataSourceException("Error getting next element of results.", e);
     } finally {
       close(resultSet);
     }
-    Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
-        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
-        : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
-    players = Ordering.from(comparator).sortedCopy(players);
     return players;
   }
 
@@ -218,34 +171,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     sql = addFilters(sql, tableSpec);
 
     return executeQuery(sql);
-  }
-
-  @Override
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, List<DraftPick> picks, final EnumSet<Position> openPositions) throws DataSourceException {
-    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
-
-    final Set<Long> selectedPlayerIds = new HashSet<>();
-    for (DraftPick pick : picks) {
-      selectedPlayerIds.add(pick.getPlayerId());
-    }
-
-    TableSpec tableSpec = beanFactory.createTableSpec().as();
-    tableSpec.setPlayerDataSet(wizardTable == null ? PlayerDataSet.CBSSPORTS : wizardTable);
-    tableSpec.setSortCol(wizardTable == null ? PlayerColumn.MYRANK : PlayerColumn.WIZARD);
-    tableSpec.setAscending(wizardTable == null);
-    List<Player> players = getPlayers(teamId, tableSpec);
-    Player player = Iterables.getFirst(Iterables.filter(players, new Predicate<Player>() {
-      @Override
-      public boolean apply(Player player) {
-        return !selectedPlayerIds.contains(player.getPlayerId()) &&
-            (openPositions.isEmpty() || hasAllOpenPositions(openPositions)
-                || Position.apply(player, openPositions));
-      }
-    }), null);
-    if (player == null) {
-      throw new DataSourceException("Couldn't find best player.");
-    }
-    return player.getPlayerId();
   }
 
 
@@ -433,38 +358,15 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return sql;
   }
 
-  private boolean hasAllOpenPositions(Set<Position> openPositions) {
-    return openPositions.size() == Position.REAL_POSITIONS.size()
-        || (openPositions.contains(DH) && openPositions.contains(P));
-  }
-
   // Player Rank
 
   @Override
-  public void changePlayerRank(ChangePlayerRankRequest request) throws DataSourceException {
-    if (teamTokens.containsKey(request.getTeamToken())) {
-      TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
-      long playerId = request.getPlayerId();
-      int prevRank = request.getPrevRank();
-      int newRank = request.getNewRank();
-
-      logger.info("Change player rank for team " + teamID
-          + " player " + playerId + " from rank " + prevRank + " to new rank " + newRank);
-
-      shiftInBetweenRanks(teamID, prevRank, newRank);
-      updatePlayerRank(teamID, newRank, playerId);
-    }
-  }
-
-  private void shiftInBetweenRanks(TeamId teamID, int prevRank, int newRank) {
-    String newRankForInbetween = "Rank-1";
-    int lesserRank = prevRank+1;
-    int greaterRank = newRank;
-
-    if (prevRank > newRank) {
+  public void shiftInBetweenRanks(TeamId teamID, int lesserRank, int greaterRank, boolean increase) {
+    String newRankForInbetween;
+    if (increase) {
       newRankForInbetween = "Rank+1";
-      lesserRank = newRank;
-      greaterRank = prevRank-1;
+    } else {
+      newRankForInbetween = "Rank-1";
     }
 
     String sql = "UPDATE customrankings SET Rank = " + newRankForInbetween +
@@ -477,24 +379,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } finally {
       close(statement);
     }
-
-    // Update in caches
-    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-      List<Player> players = cache.get(getKey(teamID, playerDataSet));
-      for (Player player : players) {
-        int rank = Integer.parseInt(player.getMyRank());
-        if (rank >= lesserRank && rank <= greaterRank) {
-          if (prevRank > newRank) {
-            player.setMyRank(Integer.toString(rank + 1));
-          } else {
-            player.setMyRank(Integer.toString(rank - 1));
-          }
-        }
-      }
-    }
   }
 
-  private void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
+  @Override
+  public void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
     String sql = "UPDATE customrankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
     Statement statement = null;
     try {
@@ -503,18 +391,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       logger.log(SEVERE, "Unable to change rank for player!", e);
     } finally {
       close(statement);
-    }
-
-
-    // Update in caches
-    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-      List<Player> players = cache.get(getKey(teamID, playerDataSet));
-      for (Player player : players) {
-        if (player.getPlayerId() == playerID) {
-          player.setMyRank(Integer.toString(newRank));
-          break;
-        }
-      }
     }
   }
 
@@ -622,10 +498,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws DataSourceException {
-    final TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
-    TableSpec tableSpec = request.getTableSpec();
-
+  public void copyTableSpecToCustom(TeamId teamID, TableSpec tableSpec) throws DataSourceException {
     if (tableSpec.getSortCol() == PlayerColumn.MYRANK) {
       logger.log(SEVERE, "Cannot set MyRank to MyRank column.");
       return;
@@ -697,15 +570,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
 
     logger.log(FINE, "Executed big update for " + teamID);
-    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-      cache.remove(getKey(teamID, playerDataSet));
-    }
   }
 
   private void prepareTmpTable(TeamId teamID) throws SQLException {
     executeUpdate("delete from tmp_rankings where teamID = " + teamID);
   }
-
 
   @Override
   public GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException {
@@ -761,9 +630,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return graphsData;
   }
 
-
   // DB utility methods
-
 
   private ResultSet executeQuery(String sql) throws SQLException {
     Statement statement = db.getConnection().createStatement();
@@ -782,7 +649,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     preparedStatement.executeUpdate();
     return preparedStatement;
   }
-
 
   @SuppressWarnings("unchecked")
   private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
@@ -832,10 +698,5 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
-  }
-
-  private static String getKey(TeamId teamId, PlayerDataSet playerDataSet) {
-    return playerDataSet.ordinal() + ""
-        + teamId.get();
   }
 }
