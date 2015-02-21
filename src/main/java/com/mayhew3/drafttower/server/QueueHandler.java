@@ -19,8 +19,7 @@ import java.util.Map;
 public class QueueHandler {
 
   private final BeanFactory beanFactory;
-  private final PlayerDataSource playerDataSource;
-  private final TeamDataSource teamDataSource;
+  private final PlayerDataProvider playerDataProvider;
   private final PickProbabilityPredictor pickProbabilityPredictor;
   private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
   private final DraftStatus status;
@@ -28,14 +27,13 @@ public class QueueHandler {
 
   @Inject
   public QueueHandler(BeanFactory beanFactory,
-      PlayerDataSource playerDataSource,
-      TeamDataSource teamDataSource, PickProbabilityPredictor pickProbabilityPredictor,
+      PlayerDataProvider playerDataProvider,
+      PickProbabilityPredictor pickProbabilityPredictor,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
       DraftStatus status,
       Lock lock) {
     this.beanFactory = beanFactory;
-    this.playerDataSource = playerDataSource;
-    this.teamDataSource = teamDataSource;
+    this.playerDataProvider = playerDataProvider;
     this.pickProbabilityPredictor = pickProbabilityPredictor;
     this.queues = queues;
     this.status = status;
@@ -74,7 +72,7 @@ public class QueueHandler {
     }
     QueueEntry queueEntry = beanFactory.createQueueEntry().as();
     queueEntry.setPlayerId(playerId);
-    playerDataSource.populateQueueEntry(queueEntry);
+    playerDataProvider.populateQueueEntry(queueEntry);
     if (position != null) {
       List<QueueEntry> queue = queues.get(team);
       synchronized (queues) {

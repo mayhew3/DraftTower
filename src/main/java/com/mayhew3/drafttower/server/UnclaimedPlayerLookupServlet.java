@@ -22,13 +22,13 @@ import java.io.IOException;
 public class UnclaimedPlayerLookupServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
-  private final PlayerDataSource playerDataSource;
+  private final PlayerDataProvider playerDataProvider;
 
   @Inject
   public UnclaimedPlayerLookupServlet(BeanFactory beanFactory,
-      PlayerDataSource playerDataSource) {
+      PlayerDataProvider playerDataProvider) {
     this.beanFactory = beanFactory;
-    this.playerDataSource = playerDataSource;
+    this.playerDataProvider = playerDataProvider;
   }
 
   @Override
@@ -36,9 +36,9 @@ public class UnclaimedPlayerLookupServlet extends HttpServlet {
     String requestStr = CharStreams.toString(req.getReader());
     UnclaimedPlayerListRequest request =
         AutoBeanCodex.decode(beanFactory, UnclaimedPlayerListRequest.class, requestStr).as();
-    UnclaimedPlayerListResponse response = null;
+    UnclaimedPlayerListResponse response;
     try {
-      response = playerDataSource.lookupUnclaimedPlayers(request);
+      response = playerDataProvider.lookupUnclaimedPlayers(request);
     } catch (DataSourceException e) {
       throw new ServletException(e);
     }

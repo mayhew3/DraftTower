@@ -24,15 +24,15 @@ import java.util.Map;
 public class GraphsServlet extends HttpServlet {
 
   private final BeanFactory beanFactory;
-  private final PlayerDataSource playerDataSource;
+  private final PlayerDataProvider playerDataProvider;
   private final Map<String, TeamDraftOrder> teamTokens;
 
   @Inject
   public GraphsServlet(BeanFactory beanFactory,
-      PlayerDataSource playerDataSource,
+      PlayerDataProvider playerDataProvider,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     this.beanFactory = beanFactory;
-    this.playerDataSource = playerDataSource;
+    this.playerDataProvider = playerDataProvider;
     this.teamTokens = teamTokens;
   }
 
@@ -44,7 +44,7 @@ public class GraphsServlet extends HttpServlet {
     GraphsData response;
     try {
       if (teamTokens.containsKey(request.getTeamToken())) {
-        response = playerDataSource.getGraphsData(teamTokens.get(request.getTeamToken()));
+        response = playerDataProvider.getGraphsData(teamTokens.get(request.getTeamToken()));
         resp.getWriter().append(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(response)).getPayload());
       }
     } catch (DataSourceException e) {

@@ -36,7 +36,7 @@ public class DraftControllerImpl implements DraftController {
   private final Lock lock;
   private final DraftTowerWebSocket socketServlet;
   private final BeanFactory beanFactory;
-  private final PlayerDataSource playerDataSource;
+  private final PlayerDataProvider playerDataProvider;
   private final TeamDataSource teamDataSource;
   private final CurrentTimeProvider currentTimeProvider;
   private final DraftTimer draftTimer;
@@ -56,7 +56,7 @@ public class DraftControllerImpl implements DraftController {
   @Inject
   public DraftControllerImpl(DraftTowerWebSocket socketServlet,
       BeanFactory beanFactory,
-      PlayerDataSource playerDataSource,
+      PlayerDataProvider playerDataProvider,
       TeamDataSource teamDataSource,
       CurrentTimeProvider currentTimeProvider,
       DraftTimer draftTimer,
@@ -70,7 +70,7 @@ public class DraftControllerImpl implements DraftController {
       @NumTeams int numTeams) throws DataSourceException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
-    this.playerDataSource = playerDataSource;
+    this.playerDataProvider = playerDataProvider;
     this.teamDataSource = teamDataSource;
     this.currentTimeProvider = currentTimeProvider;
     this.draftTimer = draftTimer;
@@ -87,7 +87,7 @@ public class DraftControllerImpl implements DraftController {
     status.setConnectedTeams(new HashSet<Integer>());
     status.setRobotTeams(new HashSet<Integer>());
     status.setPicks(new ArrayList<DraftPick>());
-    playerDataSource.populateDraftStatus(status);
+    playerDataProvider.populateDraftStatus(status);
     int round = status.getPicks().size() / numTeams;
     int currentTeam = status.getPicks().isEmpty()
         ? 1
@@ -175,7 +175,7 @@ public class DraftControllerImpl implements DraftController {
     try (Lock ignored = lock.lock()) {
       if (playerId == Player.BEST_DRAFT_PICK) {
         try {
-          playerId = playerDataSource.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
+          playerId = playerDataProvider.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
               teamDraftOrder,
               status.getPicks(),
               rosterUtil.getOpenPositions(
@@ -208,14 +208,14 @@ public class DraftControllerImpl implements DraftController {
       pick.setPlayerId(playerId);
       pick.setKeeper(keeper);
       try {
-        playerDataSource.populateDraftPick(pick);
+        playerDataProvider.populateDraftPick(pick);
       } catch (DataSourceException e) {
         logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
       }
       status.getPicks().add(pick);
 
       try {
-        playerDataSource.postDraftPick(pick, status);
+        playerDataProvider.postDraftPick(pick, status);
       } catch (DataSourceException e) {
         logger.log(SEVERE, "SQL error posting draft pick for player ID " + playerId, e);
       }
@@ -353,7 +353,7 @@ public class DraftControllerImpl implements DraftController {
     try (Lock ignored = lock.lock()) {
       status.getPicks().remove(pickToRemove - 1);
       try {
-        playerDataSource.backOutLastDraftPick(pickToRemove);
+        playerDataProvider.backOutLastDraftPick(pickToRemove);
       } catch (DataSourceException e) {
         logger.log(SEVERE, "SQL error backing out last draft pick.", e);
       }

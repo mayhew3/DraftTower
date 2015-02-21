@@ -23,8 +23,8 @@ import java.util.Map;
 public class ServerTestSafeModule extends AbstractGinModule {
 
   @Provides @Singleton @Keepers
-  public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataSource playerDataSource) throws DataSourceException {
-    return playerDataSource.getAllKeepers();
+  public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataProvider playerDataProvider) throws DataSourceException {
+    return playerDataProvider.getAllKeepers();
   }
 
   @Provides @Singleton @Queues

@@ -18,7 +18,7 @@ import java.util.Map;
 public class TestServerRpc implements ServerRpc {
 
   private final LoginHandler loginHandler;
-  private final PlayerDataSource playerDataSource;
+  private final PlayerDataProvider playerDataProvider;
   private final TeamDataSource teamDataSource;
   private final QueueHandler queueHandler;
   private final BeanFactory beanFactory;
@@ -27,13 +27,13 @@ public class TestServerRpc implements ServerRpc {
 
   @Inject
   public TestServerRpc(LoginHandler loginHandler,
-      PlayerDataSource playerDataSource,
+      PlayerDataProvider playerDataProvider,
       TeamDataSource teamDataSource,
       QueueHandler queueHandler, 
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       BeanFactory beanFactory) {
     this.loginHandler = loginHandler;
-    this.playerDataSource = playerDataSource;
+    this.playerDataProvider = playerDataProvider;
     this.teamDataSource = teamDataSource;
     this.queueHandler = queueHandler;
     this.teamTokens = teamTokens;
@@ -109,7 +109,7 @@ public class TestServerRpc implements ServerRpc {
   public void sendGraphsRequest(AutoBean<GetGraphsDataRequest> requestBean,
       Function<GraphsData, Void> callback) {
     try {
-      callback.apply(playerDataSource.getGraphsData(
+      callback.apply(playerDataProvider.getGraphsData(
           teamTokens.get(requestBean.as().getTeamToken())));
     } catch (DataSourceException e) {
       throw new RuntimeException(e);
@@ -119,7 +119,7 @@ public class TestServerRpc implements ServerRpc {
   @Override
   public void sendPlayerListRequest(AutoBean<UnclaimedPlayerListRequest> requestBean, Function<UnclaimedPlayerListResponse, Void> callback) {
     try {
-      callback.apply(playerDataSource.lookupUnclaimedPlayers(requestBean.as()));
+      callback.apply(playerDataProvider.lookupUnclaimedPlayers(requestBean.as()));
     } catch (DataSourceException e) {
       throw new RuntimeException(e);
     }
@@ -128,7 +128,7 @@ public class TestServerRpc implements ServerRpc {
   @Override
   public void sendChangePlayerRankRequest(AutoBean<ChangePlayerRankRequest> requestBean, Runnable callback) {
     try {
-      playerDataSource.changePlayerRank(requestBean.as());
+      playerDataProvider.changePlayerRank(requestBean.as());
       callback.run();
     } catch (DataSourceException e) {
       throw new RuntimeException(e);
@@ -138,7 +138,7 @@ public class TestServerRpc implements ServerRpc {
   @Override
   public void sendCopyRanksRequest(AutoBean<CopyAllPlayerRanksRequest> requestBean, Runnable callback) {
     try {
-      playerDataSource.copyTableSpecToCustom(requestBean.as());
+      playerDataProvider.copyTableSpecToCustom(requestBean.as());
       callback.run();
     } catch (DataSourceException e) {
       throw new RuntimeException(e);

@@ -35,8 +35,8 @@ public class PickProbabilityPredictorTest {
       players.add(testPlayerGenerator.generatePlayer(i, Position.C, i));
     }
 
-    PlayerDataSource playerDataSource = Mockito.mock(PlayerDataSource.class);
-    Mockito.when(playerDataSource.getPlayers(
+    PlayerDataProvider playerDataProvider = Mockito.mock(PlayerDataProvider.class);
+    Mockito.when(playerDataProvider.getPlayers(
         Mockito.any(TeamId.class), Mockito.any(TableSpec.class)))
         .thenReturn(players);
     TeamDataSource teamDataSource = Mockito.mock(TeamDataSource.class);
@@ -49,7 +49,7 @@ public class PickProbabilityPredictorTest {
         });
     DraftController draftController = Mockito.mock(DraftController.class);
     pickProbabilityPredictor = new PickProbabilityPredictor(
-        playerDataSource,
+        playerDataProvider,
         teamDataSource,
         draftController,
         beanFactory,
