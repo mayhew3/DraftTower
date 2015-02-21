@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
@@ -84,7 +83,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     List<Player> players;
     ResultSet resultSet = null;
     try {
-      String cacheKey = getKey(tableSpec, teamId);
+      String cacheKey = getKey(teamId, tableSpec.getPlayerDataSet());
       if (cache.containsKey(cacheKey)) {
         players = cache.get(cacheKey);
       } else {
@@ -418,15 +417,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private void addDataSetFilter(List<String> filters, PlayerDataSet playerDataSet) {
-    if (playerDataSet == null) {
-      filters.add("Source = '" + PlayerDataSet.CBSSPORTS.getDisplayName() + "' ");
-    } else {
-      filters.add("Source = '" + playerDataSet.getDisplayName() + "' ");
-    }
-  }
-
-
   private String addOrdering(TableSpec tableSpec, String sql) {
     PlayerColumn sortCol = tableSpec.getSortCol();
     String sortColumnName;
@@ -443,31 +433,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return sql;
   }
 
-
-  // Open Positions
-
-  private String createFilterStringFromPositions(Set<Position> openPositions) {
-    // needs no filter if all positions are open, {P, DH} are open, or all positions are full (reserve time!)
-    if (openPositions.isEmpty() || hasAllOpenPositions(openPositions)) {
-      return null;
-    } else {
-      String joined = Joiner.on(',').join(Iterables.transform(openPositions, new Function<Position, String>() {
-        @Override
-        public String apply(Position input) {
-          return "'" + input.getShortName() + "'";
-        }
-      }));
-      return " in (" + joined + ") ";
-    }
-  }
-
   private boolean hasAllOpenPositions(Set<Position> openPositions) {
     return openPositions.size() == Position.REAL_POSITIONS.size()
         || (openPositions.contains(DH) && openPositions.contains(P));
   }
-
-
-
 
   // Player Rank
 
@@ -484,7 +453,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
       shiftInBetweenRanks(teamID, prevRank, newRank);
       updatePlayerRank(teamID, newRank, playerId);
-      cache.clear();
     }
   }
 
@@ -509,6 +477,21 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } finally {
       close(statement);
     }
+
+    // Update in caches
+    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+      List<Player> players = cache.get(getKey(teamID, playerDataSet));
+      for (Player player : players) {
+        int rank = Integer.parseInt(player.getMyRank());
+        if (rank >= lesserRank && rank <= greaterRank) {
+          if (prevRank > newRank) {
+            player.setMyRank(Integer.toString(rank + 1));
+          } else {
+            player.setMyRank(Integer.toString(rank - 1));
+          }
+        }
+      }
+    }
   }
 
   private void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
@@ -521,9 +504,19 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     } finally {
       close(statement);
     }
+
+
+    // Update in caches
+    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+      List<Player> players = cache.get(getKey(teamID, playerDataSet));
+      for (Player player : players) {
+        if (player.getPlayerId() == playerID) {
+          player.setMyRank(Integer.toString(newRank));
+          break;
+        }
+      }
+    }
   }
-
-
 
   @Override
   public void populateQueueEntry(QueueEntry queueEntry) throws DataSourceException {
@@ -704,9 +697,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
 
     logger.log(FINE, "Executed big update for " + teamID);
-    cache.clear();
+    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+      cache.remove(getKey(teamID, playerDataSet));
+    }
   }
-
 
   private void prepareTmpTable(TeamId teamID) throws SQLException {
     executeUpdate("delete from tmp_rankings where teamID = " + teamID);
@@ -770,6 +764,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // DB utility methods
 
+
   private ResultSet executeQuery(String sql) throws SQLException {
     Statement statement = db.getConnection().createStatement();
     return statement.executeQuery(sql);
@@ -781,13 +776,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return statement;
   }
 
-
   protected Statement prepareStatementUpdate(String sql, Object... params) throws SQLException {
     PreparedStatement preparedStatement = prepareStatement(sql, Lists.newArrayList(params));
 
     preparedStatement.executeUpdate();
     return preparedStatement;
   }
+
 
   @SuppressWarnings("unchecked")
   private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
@@ -839,8 +834,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private static String getKey(TableSpec tableSpec, TeamId teamId) {
-    return tableSpec.getPlayerDataSet().ordinal() + ""
+  private static String getKey(TeamId teamId, PlayerDataSet playerDataSet) {
+    return playerDataSet.ordinal() + ""
         + teamId.get();
   }
 }
