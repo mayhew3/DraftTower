@@ -42,13 +42,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException {
+  public List<Player> getPlayers(TeamId teamId, PlayerDataSet playerDataSet) throws DataSourceException {
     List<Player> players;
     ResultSet resultSet = null;
     try {
       players = new ArrayList<>();
 
-      resultSet = getResultSetForUnclaimedPlayerRows(teamId, tableSpec);
+      resultSet = getResultSetForUnclaimedPlayerRows(teamId, playerDataSet);
       while (resultSet.next()) {
         Player player = beanFactory.createPlayer().as();
         player.setPlayerId(resultSet.getInt("PlayerID"));
@@ -88,7 +88,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         if (Scoring.POINTS) {
           // TODO m3: read points values from DB?
           if (player.getEligibility().contains("P")) {
-            player.setPoints(Float.toString(
+            player.setPoints(String.format("%1f",
                 parseFloatOrZero(player.getINN()) * 2.3f +
                     parseFloatOrZero(player.getHA()) * -0.5f +
                     parseFloatOrZero(player.getBBI()) * -1.5f +
@@ -99,7 +99,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                     parseFloatOrZero(player.getS()) * 10f
             ));
           } else {
-            player.setPoints(Float.toString(
+            player.setPoints(String.format("%1f",
                 parseFloatOrZero(player.getAB()) * -2f +
                     parseFloatOrZero(player.getH()) * 6f +
                     parseFloatOrZero(player.get2B()) * 3f +
@@ -162,13 +162,13 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player Queries
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(final TeamId teamID, TableSpec tableSpec)
+  private ResultSet getResultSetForUnclaimedPlayerRows(final TeamId teamID, PlayerDataSet playerDataSet)
       throws SQLException {
 
     String sql = "select * from ";
     sql = getFromJoins(teamID, sql, null, true, true);
 
-    sql = addFilters(sql, tableSpec);
+    sql = addFilters(sql, playerDataSet);
 
     return executeQuery(sql);
   }
@@ -321,12 +321,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return builder.toString();
   }
 
-  private String addFilters(String sql, TableSpec tableSpec) {
+  private String addFilters(String sql, PlayerDataSet playerDataSet) {
     List<String> filters = new ArrayList<>();
 
     filters.add("(AB > 0 or INN > 0)");
 
-    addTableSpecFilter(filters, tableSpec);
+    addDataSetFilter(filters, playerDataSet);
 
     if (filters.isEmpty()) {
       return sql;
@@ -335,8 +335,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
   }
 
-  private void addTableSpecFilter(List<String> filters, TableSpec tableSpec) {
-    String sourceFilter = tableSpec.getPlayerDataSet().getDisplayName();
+  private void addDataSetFilter(List<String> filters, PlayerDataSet playerDataSet) {
+    String sourceFilter = playerDataSet.getDisplayName();
     if (sourceFilter != null) {
       filters.add("Source = '" + sourceFilter + "' ");
     }
@@ -518,7 +518,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       sql = getFromJoins(teamID, sql, null, false, false);
 
       List<String> filters = new ArrayList<>();
-      addTableSpecFilter(filters, tableSpec);
+      addDataSetFilter(filters, tableSpec.getPlayerDataSet());
 
       if (!filters.isEmpty()) {
         sql += " where " + Joiner.on(" and ").join(filters) + " ";

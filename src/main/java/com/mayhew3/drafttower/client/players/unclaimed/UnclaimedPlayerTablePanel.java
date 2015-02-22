@@ -3,19 +3,17 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.user.cellview.client.AbstractPager;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.Handler;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.SimplePager.ImageButtonsConstants;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.HasRows;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PositionFilter;
@@ -34,6 +32,84 @@ import static com.mayhew3.drafttower.shared.PlayerDataSet.CBSSPORTS;
  */
 public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPlayerTablePanelView {
 
+  private class Pager extends AbstractPager {
+
+    private final Label firstPage;
+    private final Label prevPage;
+    private final Label nextPage;
+
+    private Pager() {
+      FlowPanel container = new FlowPanel();
+      initWidget(container);
+
+      firstPage = new InlineLabel("◀◀");
+      firstPage.setStyleName(CSS.pagerButton());
+      firstPage.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          if (!firstPage.getStyleName().contains(CSS.pagerDisabled())) {
+            firstPage();
+          }
+        }
+      });
+
+      prevPage = new InlineLabel("◀");
+      prevPage.setStyleName(CSS.pagerButton());
+      prevPage.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          if (!prevPage.getStyleName().contains(CSS.pagerDisabled())) {
+            previousPage();
+          }
+        }
+      });
+
+      nextPage = new InlineLabel("▶");
+      nextPage.setStyleName(CSS.pagerButton());
+      nextPage.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          if (!nextPage.getStyleName().contains(CSS.pagerDisabled())) {
+            nextPage();
+          }
+        }
+      });
+
+      container.add(firstPage);
+      container.add(prevPage);
+      container.add(nextPage);
+    }
+
+    @Override
+    public void setDisplay(HasRows display) {
+      // Enable or disable all buttons.
+      boolean disableButtons = (display == null || display.getRowCount() == 0);
+      firstPage.setStyleName(CSS.pagerDisabled(), disableButtons);
+      prevPage.setStyleName(CSS.pagerDisabled(), disableButtons);
+      nextPage.setStyleName(CSS.pagerDisabled(), disableButtons);
+      super.setDisplay(display);
+    }
+
+    @Override
+    protected void onRangeOrRowCountChanged() {
+      HasRows display = getDisplay();
+
+      firstPage.setStyleName(CSS.pagerDisabled(), !hasPreviousPage());
+      prevPage.setStyleName(CSS.pagerDisabled(), !hasPreviousPage());
+
+      if (isRangeLimited() || !display.isRowCountExact()) {
+        nextPage.setStyleName(CSS.pagerDisabled(), !hasNextPage());
+      }
+    }
+
+    @Override
+    protected void onEnsureDebugId(String baseID) {
+      firstPage.ensureDebugId(baseID + "-firstPage");
+      prevPage.ensureDebugId(baseID + "-prevPage");
+      nextPage.ensureDebugId(baseID + "-nextPage");
+    }
+  }
+
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
@@ -47,6 +123,8 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
       String filterCheckBox();
       String search();
       String clearSearch();
+      String pagerButton();
+      String pagerDisabled();
     }
 
     @Source("UnclaimedPlayerTablePanel.css")
@@ -66,7 +144,7 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
   private final CheckBox hideInjuries;
-  private final SimplePager pager;
+  private final Pager pager;
   private final UnclaimedPlayerTable table;
 
   @Inject
@@ -177,7 +255,7 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     buttonPanels.add(filterButtons);
 
     FlowPanel pagerAndSearch = new FlowPanel();
-    pager = new SimplePager();
+    pager = new Pager();
     pager.addStyleName(CSS.headerElement());
     pager.setDisplay(table);
     pagerAndSearch.add(pager);
@@ -282,28 +360,7 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     UIObject.ensureDebugId(useForAutoPick.getElement().getElementsByTagName("input").getItem(0), baseID + "-autopick");
     UIObject.ensureDebugId(hideInjuries.getElement().getElementsByTagName("input").getItem(0), baseID + "-hideInjuries");
 
-    ImageButtonsConstants imageButtonsConstants = GWT.create(ImageButtonsConstants.class);
-    NodeList<Element> pagerButtons = pager.getElement().getElementsByTagName("img");
-    for (int i = 0; i < pagerButtons.getLength(); i++) {
-      Element button = pagerButtons.getItem(i);
-      String buttonLabel = button.getAttribute("aria-label");
-      if (buttonLabel.equals(imageButtonsConstants.firstPage())) {
-        UIObject.ensureDebugId(button, baseID, "firstPage");
-      }
-      if (buttonLabel.equals(imageButtonsConstants.prevPage())) {
-        UIObject.ensureDebugId(button, baseID, "prevPage");
-      }
-      if (buttonLabel.equals(imageButtonsConstants.nextPage())) {
-        UIObject.ensureDebugId(button, baseID, "nextPage");
-      }
-      if (buttonLabel.equals(imageButtonsConstants.fastForward())) {
-        UIObject.ensureDebugId(button, baseID, "fastForward");
-      }
-      if (buttonLabel.equals(imageButtonsConstants.lastPage())) {
-        UIObject.ensureDebugId(button, baseID, "lastPage");
-      }
-    }
-
+    pager.ensureDebugId(baseID);
     table.ensureDebugId(baseID + "-table");
   }
 }

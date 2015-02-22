@@ -26,7 +26,7 @@ public interface PlayerDataSource {
 
   GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException;
 
-  List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException;
+  List<Player> getPlayers(TeamId teamId, PlayerDataSet playerDataSet) throws DataSourceException;
 
   void shiftInBetweenRanks(TeamId teamID, int lesserRank, int greaterRank, boolean increase);
 

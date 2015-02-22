@@ -3,6 +3,8 @@ package com.mayhew3.drafttower.server;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
@@ -55,12 +57,15 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   protected abstract List<DraftPick> createDraftPicksList();
 
   @Override
-  public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) {
-    PlayerColumn sortCol = tableSpec.getSortCol();
-    Comparator<Player> comparator = sortCol == WIZARD
-        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
-        : sortCol.getComparator(tableSpec.isAscending());
-    return Ordering.from(comparator).sortedCopy(availablePlayers.values());
+  public List<Player> getPlayers(TeamId teamId, PlayerDataSet playerDataSet) {
+    synchronized (availablePlayers) {
+      List<Player> players = new ArrayList<>();
+      for (Player player : availablePlayers.values()) {
+        players.add(AutoBeanCodex.decode(beanFactory, Player.class,
+            AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(player))).as());
+      }
+      return players;
+    }
   }
 
   @Override
