@@ -88,7 +88,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         if (Scoring.POINTS) {
           // TODO m3: read points values from DB?
           if (player.getEligibility().contains("P")) {
-            player.setPoints(Float.toString(
+            player.setPoints(String.format("%1f",
                 parseFloatOrZero(player.getINN()) * 2.3f +
                     parseFloatOrZero(player.getHA()) * -0.5f +
                     parseFloatOrZero(player.getBBI()) * -1.5f +
@@ -99,7 +99,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                     parseFloatOrZero(player.getS()) * 10f
             ));
           } else {
-            player.setPoints(Float.toString(
+            player.setPoints(String.format("%1f",
                 parseFloatOrZero(player.getAB()) * -2f +
                     parseFloatOrZero(player.getH()) * 6f +
                     parseFloatOrZero(player.get2B()) * 3f +
