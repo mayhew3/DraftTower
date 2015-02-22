@@ -13,7 +13,6 @@ import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -79,17 +78,20 @@ public class PlayerDataProvider {
 
   public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException {
     List<Player> players;
-    String cacheKey = getKey(teamId, tableSpec.getPlayerDataSet());
+    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
+    String cacheKey = getKey(teamId, playerDataSet);
     if (cache.containsKey(cacheKey)) {
       players = cache.get(cacheKey);
     } else {
-      players = new CopyOnWriteArrayList<>(dataSource.getPlayers(teamId, tableSpec));
+      players = dataSource.getPlayers(teamId, playerDataSet);
       cache.put(cacheKey, players);
     }
-    Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
-        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
-        : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
-    players = Ordering.from(comparator).sortedCopy(players);
+    synchronized (players) {
+      Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
+          ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+          : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
+      players = Ordering.from(comparator).sortedCopy(players);
+    }
     return players;
   }
 
@@ -170,13 +172,15 @@ public class PlayerDataProvider {
     for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
       List<Player> players = cache.get(getKey(teamID, playerDataSet));
       if (players != null) {
-        for (Player player : players) {
-          int rank = Integer.parseInt(player.getMyRank());
-          if (rank >= lesserRank && rank <= greaterRank) {
-            if (prevRank > newRank) {
-              player.setMyRank(Integer.toString(rank + 1));
-            } else {
-              player.setMyRank(Integer.toString(rank - 1));
+        synchronized (players) {
+          for (Player player : players) {
+            int rank = Integer.parseInt(player.getMyRank());
+            if (rank >= lesserRank && rank <= greaterRank) {
+              if (prevRank > newRank) {
+                player.setMyRank(Integer.toString(rank + 1));
+              } else {
+                player.setMyRank(Integer.toString(rank - 1));
+              }
             }
           }
         }
@@ -191,10 +195,12 @@ public class PlayerDataProvider {
     for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
       List<Player> players = cache.get(getKey(teamID, playerDataSet));
       if (players != null) {
-        for (Player player : players) {
-          if (player.getPlayerId() == playerId) {
-            player.setMyRank(Integer.toString(newRank));
-            break;
+        synchronized (players) {
+          for (Player player : players) {
+            if (player.getPlayerId() == playerId) {
+              player.setMyRank(Integer.toString(newRank));
+              break;
+            }
           }
         }
       }
