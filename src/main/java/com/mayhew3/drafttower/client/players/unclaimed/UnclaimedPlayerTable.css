@@ -35,3 +35,25 @@ tr:hover .newsCell {
   font-size: 8px;
   vertical-align: sub;
 }
+
+.gwt-CellTable-cellTableSortedHeaderAscending,
+.gwt-CellTable-cellTableSortedHeaderDescending {
+  position: relative;
+}
+
+.gwt-CellTable-cellTableSortedHeaderAscending img,
+.gwt-CellTable-cellTableSortedHeaderDescending img {
+  background: none ! important;
+}
+
+.gwt-CellTable-cellTableSortedHeaderAscending:before {
+  content: '\25B2';
+  position: absolute;
+  right: 0;
+}
+
+.gwt-CellTable-cellTableSortedHeaderDescending:before {
+  content: '\25BC';
+  position: absolute;
+  right: 0;
+}
