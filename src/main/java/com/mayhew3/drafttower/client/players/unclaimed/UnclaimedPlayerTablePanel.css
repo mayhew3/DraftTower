@@ -75,7 +75,7 @@ td:last-child > div > .filterButton {
 .headerElement {
   display: inline-block;
   margin-right: 10px;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .headerLine {
@@ -88,4 +88,16 @@ td:last-child > div > .filterButton {
 
 .clearSearch {
   cursor: pointer;
+}
+
+.pagerButton {
+  padding-left: 10px;
+  padding-right: 10px;
+  letter-spacing: -5px;
+  cursor: pointer;
+}
+
+.pagerDisabled {
+  color: #ccc;
+  cursor: default;
 }
