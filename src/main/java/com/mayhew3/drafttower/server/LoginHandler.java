@@ -61,8 +61,7 @@ public class LoginHandler {
     }
     if (responseBean == null) {
       TeamDraftOrder teamDraftOrder = teamDataSource.getTeamDraftOrder(
-          username,
-          password);
+          username, password);
       if (teamDraftOrder != null) {
         if (draftStatus.getConnectedTeams().contains(teamDraftOrder.get())) {
           responseBean = createAlreadyLoggedInResponse();

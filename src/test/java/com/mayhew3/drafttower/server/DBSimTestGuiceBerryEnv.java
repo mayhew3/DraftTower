@@ -17,13 +17,14 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.SharedModule;
 
 import javax.inject.Singleton;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Guice environment for simulated client tests.
+ * Guice environment for simulated client tests with real DB.
  */
-public class SimTestGuiceBerryEnv extends AbstractModule {
+public class DBSimTestGuiceBerryEnv extends AbstractModule {
   private static class SimTestMain implements GuiceBerryEnvMain {
     @Override
     public void run() {}
@@ -31,9 +32,9 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
 
   @Provides
   public TestWrapper getTestWrapper(
+      final DataSource dataSource,
       final TearDownAccepter tearDownAccepter,
       final DraftStatus draftStatus,
-      final PlayerDataSource playerDataSource,
       final PlayerDataProvider playerDataProvider,
       final PickProbabilityPredictor pickProbabilityPredictor) {
     return new TestWrapper() {
@@ -51,8 +52,8 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
             draftStatus.getPicks().clear();
             draftStatus.getRobotTeams().clear();
             draftStatus.setSerialId(0);
-            ((TestPlayerDataSource) playerDataSource).reset();
             playerDataProvider.reset();
+            TestServerDBModule.resetDB(dataSource);
             pickProbabilityPredictor.reset();
           }
         });
@@ -72,7 +73,7 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
 
   @Provides @CommissionerTeam
   public String getCommissionerTeam() {
-    return "1";
+    return "7";
   }
 
   @Override
@@ -82,7 +83,7 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
 
     install(new GinModuleAdapter(new SharedModule()));
     install(new GinModuleAdapter(new ServerTestSafeModule()));
-    install(new GinModuleAdapter(new TestServerModule()));
+    install(new GinModuleAdapter(new TestServerDBModule()));
     bind(DraftTowerWebSocket.class).to(DraftTowerWebSocketServlet.class).in(Singleton.class);
     bind(Lock.class).to(LockImpl.class).in(Singleton.class);
     bind(TokenGenerator.class).to(TokenGeneratorImpl.class);

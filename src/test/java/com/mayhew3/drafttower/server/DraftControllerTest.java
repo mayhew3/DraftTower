@@ -199,6 +199,16 @@ public class DraftControllerTest {
   }
 
   @Test
+  public void testBackOutFirstPickKeeperNoOp() throws Exception {
+    picks = createPicksList(1);
+    keepers.put(new TeamDraftOrder(1), 0);
+    DraftControllerImpl draftController = createDraftController();
+    draftController.backOutLastPick();
+    Assert.assertEquals(2, draftStatus.getCurrentTeam());
+    Assert.assertEquals(1, draftStatus.getPicks().size());
+  }
+
+  @Test
   public void testAutoPickNoQueueSetsRobotMode() throws Exception {
     DraftControllerImpl draftController = createDraftController();
     draftController.timerExpired();

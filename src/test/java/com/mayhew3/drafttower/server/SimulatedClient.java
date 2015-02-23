@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.server;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.websocket.WebsocketListener;
+import com.mayhew3.drafttower.server.SimTest.CommissionerTeam;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
 import org.eclipse.jetty.websocket.WebSocket.Connection;
@@ -36,10 +37,14 @@ public abstract class SimulatedClient implements WebsocketListener {
   @Inject protected SetAutoPickWizardServlet setAutoPickWizardServlet;
   @Inject protected UnclaimedPlayerLookupServlet unclaimedPlayerLookupServlet;
   @Inject protected DraftStatus draftStatus;
+  @Inject @CommissionerTeam protected String commissionerTeam;
+  @Inject protected PlayerDataProvider playerDataProvider;
+  protected List<Player> players;
 
   private final Cookie[] cookies;
   protected String username;
   protected String teamToken;
+  protected int teamDraftOrder;
 
   protected Connection connection;
   protected List<Exception> exceptions;
@@ -112,6 +117,7 @@ public abstract class SimulatedClient implements WebsocketListener {
         LoginResponse response = AutoBeanCodex.decode(beanFactory, LoginResponse.class,
             (String) invocation.getArguments()[0]).as();
         teamToken = response.getTeamToken();
+        teamDraftOrder = response.getTeam();
         return null;
       }
     }).when(writer).append(Mockito.<CharSequence>any());
@@ -156,6 +162,16 @@ public abstract class SimulatedClient implements WebsocketListener {
     webSocket.onOpen(connection);
 
     sendDraftCommand(Command.IDENTIFY, null);
+
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    tableSpec.setSortCol(PlayerColumn.MYRANK);
+    tableSpec.setAscending(true);
+    try {
+      players = playerDataProvider.getPlayers(new TeamId(1), tableSpec);
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected void getPlayerQueue() throws ServletException, IOException {

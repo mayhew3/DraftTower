@@ -211,6 +211,7 @@ public class DraftControllerImpl implements DraftController {
         playerDataProvider.populateDraftPick(pick);
       } catch (DataSourceException e) {
         logger.log(SEVERE, "SQL error looking up player name/eligibility for ID " + playerId, e);
+        return;
       }
       status.getPicks().add(pick);
 
@@ -277,6 +278,20 @@ public class DraftControllerImpl implements DraftController {
     }
   }
 
+  private boolean areAllPicksKeepers() {
+    try (Lock ignored = lock.lock()) {
+      if (status.getPicks().size() < numTeams) {
+        for (int i = status.getPicks().size(); i > 0; i--) {
+          if (keepers.get(new TeamDraftOrder(i)).isEmpty()) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   private Set<Integer> getNextPickKeeperTeams(int round) {
     try (Lock ignored = lock.lock()) {
       Set<Integer> nextPickKeeperTeams = new HashSet<>();
@@ -331,7 +346,7 @@ public class DraftControllerImpl implements DraftController {
   @VisibleForTesting
   void backOutLastPick() {
     try (Lock ignored = lock.lock()) {
-      if (status.getPicks().isEmpty()) {
+      if (status.getPicks().isEmpty() || areAllPicksKeepers()) {
         logger.warning("Attempt to back out pick when there are no picks!");
       } else {
         boolean wasPaused = status.isPaused();

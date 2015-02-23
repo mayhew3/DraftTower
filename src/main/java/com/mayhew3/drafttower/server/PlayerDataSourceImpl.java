@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
@@ -43,88 +44,87 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public List<Player> getPlayers(TeamId teamId, PlayerDataSet playerDataSet) throws DataSourceException {
-    List<Player> players;
-    ResultSet resultSet = null;
+    final List<Player> players = new ArrayList<>();
     try {
-      players = new ArrayList<>();
+      getResultSetForUnclaimedPlayerRows(teamId, playerDataSet, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            Player player = beanFactory.createPlayer().as();
+            player.setPlayerId(resultSet.getInt("PlayerID"));
+            player.setCBSId(resultSet.getInt("CBS_ID"));
 
-      resultSet = getResultSetForUnclaimedPlayerRows(teamId, playerDataSet);
-      while (resultSet.next()) {
-        Player player = beanFactory.createPlayer().as();
-        player.setPlayerId(resultSet.getInt("PlayerID"));
-        player.setCBSId(resultSet.getInt("CBS_ID"));
+            List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.valuesForScoring());
+            playerColumns.remove(PlayerColumn.NAME);
+            PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+            playerColumns.remove(PlayerColumn.PTS);
 
-        List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.valuesForScoring());
-        playerColumns.remove(PlayerColumn.NAME);
-        PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
-        playerColumns.remove(PlayerColumn.PTS);
-
-        for (PlayerColumn playerColumn : playerColumns) {
-          if (playerColumn == PlayerColumn.WIZARD) {
-            for (Position position : REAL_POSITIONS) {
-              String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
-              if (columnString != null) {
-                PlayerColumn.setWizard(player, columnString, position);
+            for (PlayerColumn playerColumn : playerColumns) {
+              if (playerColumn == PlayerColumn.WIZARD) {
+                for (Position position : REAL_POSITIONS) {
+                  String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
+                  if (columnString != null) {
+                    PlayerColumn.setWizard(player, columnString, position);
+                  }
+                }
+              } else if (playerColumn == PlayerColumn.ELIG) {
+                String[] elig = resultSet.getString(playerColumn.getColumnName()).split(",");
+                int indexOfDH = Arrays.binarySearch(elig, "DH");
+                if (indexOfDH >= 0) {
+                  System.arraycopy(elig, indexOfDH + 1, elig, indexOfDH, elig.length - (indexOfDH + 1));
+                  elig[elig.length - 1] = "DH";
+                }
+                playerColumn.set(player, Joiner.on(",").join(elig));
+              } else {
+                String columnString = resultSet.getString(playerColumn.getColumnName());
+                if (columnString != null) {
+                  if (columnString.startsWith("0.")) {
+                    columnString = columnString.substring(1);
+                  }
+                  playerColumn.set(player, columnString);
+                }
               }
             }
-          } else if (playerColumn == PlayerColumn.ELIG) {
-            String[] elig = resultSet.getString(playerColumn.getColumnName()).split(",");
-            int indexOfDH = Arrays.binarySearch(elig, "DH");
-            if (indexOfDH >= 0) {
-              System.arraycopy(elig, indexOfDH + 1, elig, indexOfDH, elig.length - (indexOfDH + 1));
-              elig[elig.length - 1] = "DH";
-            }
-            playerColumn.set(player, Joiner.on(",").join(elig));
-          } else {
-            String columnString = resultSet.getString(playerColumn.getColumnName());
-            if (columnString != null) {
-              if (columnString.startsWith("0.")) {
-                columnString = columnString.substring(1);
+            if (Scoring.POINTS) {
+              // TODO m3: read points values from DB?
+              if (player.getEligibility().contains("P")) {
+                player.setPoints(String.format("%.1f",
+                    parseFloatOrZero(player.getINN()) * 2.3f +
+                        parseFloatOrZero(player.getHA()) * -0.5f +
+                        parseFloatOrZero(player.getBBI()) * -1.5f +
+                        parseFloatOrZero(player.getK()) * 2f +
+                        parseFloatOrZero(player.getER()) * -1.5f +
+                        parseFloatOrZero(player.getHRA()) * -2f +
+                        parseFloatOrZero(player.getWL()) * 10f +
+                        parseFloatOrZero(player.getS()) * 10f
+                ));
+              } else {
+                player.setPoints(String.format("%.1f",
+                    parseFloatOrZero(player.getAB()) * -2f +
+                        parseFloatOrZero(player.getH()) * 6f +
+                        parseFloatOrZero(player.get2B()) * 3f +
+                        parseFloatOrZero(player.get3B()) * 5f +
+                        parseFloatOrZero(player.getHR()) * 5f +
+                        parseFloatOrZero(player.getRHR()) * 3f +
+                        parseFloatOrZero(player.getRBI()) * 3f +
+                        parseFloatOrZero(player.getSB()) * 2f +
+                        parseFloatOrZero(player.getCS()) * -4f +
+                        parseFloatOrZero(player.getBB()) * 3f
+                ));
               }
-              playerColumn.set(player, columnString);
             }
+
+            String injury = resultSet.getString("Injury");
+            if (injury != null) {
+              player.setInjury(injury);
+            }
+
+            players.add(player);
           }
         }
-        if (Scoring.POINTS) {
-          // TODO m3: read points values from DB?
-          if (player.getEligibility().contains("P")) {
-            player.setPoints(String.format("%1f",
-                parseFloatOrZero(player.getINN()) * 2.3f +
-                    parseFloatOrZero(player.getHA()) * -0.5f +
-                    parseFloatOrZero(player.getBBI()) * -1.5f +
-                    parseFloatOrZero(player.getK()) * 2f +
-                    parseFloatOrZero(player.getER()) * -1.5f +
-                    parseFloatOrZero(player.getHRA()) * -2f +
-                    parseFloatOrZero(player.getWL()) * 10f +
-                    parseFloatOrZero(player.getS()) * 10f
-            ));
-          } else {
-            player.setPoints(String.format("%1f",
-                parseFloatOrZero(player.getAB()) * -2f +
-                    parseFloatOrZero(player.getH()) * 6f +
-                    parseFloatOrZero(player.get2B()) * 3f +
-                    parseFloatOrZero(player.get3B()) * 5f +
-                    parseFloatOrZero(player.getHR()) * 5f +
-                    parseFloatOrZero(player.getRHR()) * 3f +
-                    parseFloatOrZero(player.getRBI()) * 3f +
-                    parseFloatOrZero(player.getSB()) * 2f +
-                    parseFloatOrZero(player.getCS()) * -4f +
-                    parseFloatOrZero(player.getBB()) * 3f
-            ));
-          }
-        }
-
-        String injury = resultSet.getString("Injury");
-        if (injury != null) {
-          player.setInjury(injury);
-        }
-
-        players.add(player);
-      }
+      });
     } catch (SQLException e) {
       throw new DataSourceException("Error getting next element of results.", e);
-    } finally {
-      close(resultSet);
     }
     return players;
   }
@@ -138,39 +138,38 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws DataSourceException {
-    ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
+    final ListMultimap<TeamDraftOrder, Integer> keepers = ArrayListMultimap.create();
 
     String sql = "select TeamID, PlayerID from keepers";
 
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      while (resultSet.next()) {
-        TeamId teamID = new TeamId(resultSet.getInt("TeamID"));
-        int playerID = resultSet.getInt("PlayerID");
-        keepers.put(teamDataSource.getDraftOrderByTeamId(teamID), playerID);
-      }
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            TeamId teamID = new TeamId(resultSet.getInt("TeamID"));
+            int playerID = resultSet.getInt("PlayerID");
+            keepers.put(teamDataSource.getDraftOrderByTeamId(teamID), playerID);
+          }
+        }
+      });
     } catch (SQLException e) {
       throw new DataSourceException("Error retreiving keepers from database.", e);
-    } finally {
-      close(resultSet);
     }
     return keepers;
   }
 
-
-
   // Unclaimed Player Queries
 
-  private ResultSet getResultSetForUnclaimedPlayerRows(final TeamId teamID, PlayerDataSet playerDataSet)
-      throws SQLException {
+  private void getResultSetForUnclaimedPlayerRows(final TeamId teamID, PlayerDataSet playerDataSet, ResultSetCallback callback)
+      throws SQLException, DataSourceException {
 
     String sql = "select * from ";
     sql = getFromJoins(teamID, sql, null, true, true);
 
     sql = addFilters(sql, playerDataSet);
 
-    return executeQuery(sql);
+    executeQuery(sql, callback);
   }
 
 
@@ -371,67 +370,63 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     String sql = "UPDATE customrankings SET Rank = " + newRankForInbetween +
         " WHERE TeamID = ? AND Rank BETWEEN ? AND ?";
-    Statement statement = null;
     try {
-      statement = prepareStatementUpdate(sql, teamID, lesserRank, greaterRank);
+      prepareStatementUpdate(sql, teamID, lesserRank, greaterRank);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to shift ranks for intermediate players!", e);
-    } finally {
-      close(statement);
     }
   }
 
   @Override
   public void updatePlayerRank(TeamId teamID, int newRank, long playerID) {
     String sql = "UPDATE customrankings SET Rank = ? WHERE TeamID = ? AND PlayerID = ?";
-    Statement statement = null;
     try {
-      statement = prepareStatementUpdate(sql, newRank, teamID, playerID);
+      prepareStatementUpdate(sql, newRank, teamID, playerID);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to change rank for player!", e);
-    } finally {
-      close(statement);
     }
   }
 
   @Override
-  public void populateQueueEntry(QueueEntry queueEntry) throws DataSourceException {
+  public void populateQueueEntry(final QueueEntry queueEntry) throws DataSourceException {
     String sql = "select PlayerString,Eligibility " +
         "from players " +
         "where ID = " + queueEntry.getPlayerId();
 
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      resultSet.next();
-      queueEntry.setPlayerName(resultSet.getString("PlayerString"));
-      queueEntry.setEligibilities(
-          RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          resultSet.next();
+          queueEntry.setPlayerName(resultSet.getString("PlayerString"));
+          queueEntry.setEligibilities(
+              RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
+        }
+      });
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    } finally {
-      close(resultSet);
     }
   }
 
   @Override
-  public void populateDraftPick(DraftPick draftPick) throws DataSourceException {
+  public void populateDraftPick(final DraftPick draftPick) throws DataSourceException {
     String sql = "select FirstName,LastName,Eligibility " +
         "from players " +
         "where ID = " + draftPick.getPlayerId();
 
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      resultSet.next();
-      draftPick.setPlayerName(
-          resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
-      draftPick.setEligibilities(
-          RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          resultSet.next();
+          draftPick.setPlayerName(
+              resultSet.getString("FirstName") + " " + resultSet.getString("LastName"));
+          draftPick.setEligibilities(
+              RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
+        }
+      });
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    } finally {
-      close(resultSet);
     }
   }
 
@@ -439,7 +434,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public void postDraftPick(DraftPick draftPick, DraftStatus status) throws DataSourceException {
     int overallPick = status.getPicks().size();
     int round = (overallPick - 1) / numTeams + 1;
-    int pick = ((overallPick-1) % numTeams) + 1;
+    int pick = ((overallPick - 1) % numTeams) + 1;
 
     long playerID = draftPick.getPlayerId();
     TeamId teamID = teamDataSource.getTeamIdByDraftOrder(new TeamDraftOrder(draftPick.getTeam()));
@@ -449,13 +444,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
           ", " + draftPosition + ", " + (draftPick.isKeeper() ? "1" : "0") + ")";
 
-    Statement statement = null;
     try {
-      statement = executeUpdate(sql);
+      executeUpdate(sql);
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    } finally {
-      close(statement);
     }
   }
 
@@ -463,98 +455,88 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public void backOutLastDraftPick(int pickToRemove) throws DataSourceException {
     String sql = "UPDATE draftresults SET BackedOut = 1 WHERE OverallPick = " + pickToRemove;
 
-    Statement statement = null;
     try {
-      statement = executeUpdate(sql);
+      executeUpdate(sql);
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    } finally {
-      close(statement);
     }
   }
 
   @Override
-  public void populateDraftStatus(DraftStatus status) throws DataSourceException {
+  public void populateDraftStatus(final DraftStatus status) throws DataSourceException {
     String sql = "SELECT * from draftresultsload "
         + "ORDER BY Round, Pick";
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      while (resultSet.next()) {
-        DraftPick pick = beanFactory.createDraftPick().as();
-        pick.setPlayerId(resultSet.getInt("PlayerID"));
-        pick.setPlayerName(resultSet.getString("PlayerName"));
-        pick.setEligibilities(
-            RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
-        pick.setTeam(resultSet.getInt("DraftOrder"));
-        pick.setKeeper(resultSet.getBoolean("Keeper"));
-        status.getPicks().add(pick);
-      }
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            DraftPick pick = beanFactory.createDraftPick().as();
+            pick.setPlayerId(resultSet.getInt("PlayerID"));
+            pick.setPlayerName(resultSet.getString("PlayerName"));
+            pick.setEligibilities(
+                RosterUtil.splitEligibilities(resultSet.getString("Eligibility")));
+            pick.setTeam(resultSet.getInt("DraftOrder"));
+            pick.setKeeper(resultSet.getBoolean("Keeper"));
+            status.getPicks().add(pick);
+          }
+        }
+      });
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    } finally {
-      close(resultSet);
     }
   }
 
   @Override
-  public void copyTableSpecToCustom(TeamId teamID, TableSpec tableSpec) throws DataSourceException {
-    if (tableSpec.getSortCol() == PlayerColumn.MYRANK) {
+  public void copyTableSpecToCustom(final TeamId teamID, TableSpec tableSpec) throws DataSourceException {
+    PlayerColumn sortCol = tableSpec.getSortCol();
+    if (sortCol == PlayerColumn.MYRANK) {
       logger.log(SEVERE, "Cannot set MyRank to MyRank column.");
       return;
     }
 
     logger.log(INFO, "Request from Team " + teamID + " to copy player ranks from " + tableSpec.getPlayerDataSet().getDisplayName()
-        + ", " + tableSpec.getSortCol().getShortName() + ".");
+        + ", " + sortCol.getShortName() + ".");
 
     try {
       prepareTmpTable(teamID);
 
       logger.log(FINE, "Cleared temp table for " + teamID);
 
-      String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
-          " SELECT " + teamID + ", PlayerID \n" +
-          " FROM ";
-      sql = getFromJoins(teamID, sql, null, false, false);
-
-      List<String> filters = new ArrayList<>();
-      addDataSetFilter(filters, tableSpec.getPlayerDataSet());
-
-      if (!filters.isEmpty()) {
-        sql += " where " + Joiner.on(" and ").join(filters) + " ";
+      if (sortCol == PlayerColumn.PTS) {
+        insertTempPointsRankings(teamID, tableSpec);
+      } else {
+        insertTempRankings(teamID, tableSpec);
       }
-
-      sql = addOrdering(tableSpec, sql);
-
-      Statement statement = executeUpdate(sql);
-      close(statement);
 
       logger.log(FINE, "Executed big insert for " + teamID);
 
-      sql = "select min(rank) as lower_bound, max(rank) as upper_bound \n" +
+      String sql = "select min(rank) as lower_bound, max(rank) as upper_bound \n" +
           "from tmp_rankings \n" +
           "where teamID = " + teamID;
-      ResultSet resultSet = executeQuery(sql);
-      resultSet.next();
+      final int[] lowerBound = new int[1];
+      final int[] upperBound = new int[1];
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          resultSet.next();
 
-      logger.log(FINE, "Executed bounds query for " + teamID);
+          logger.log(FINE, "Executed bounds query for " + teamID);
 
-      int lowerBound = resultSet.getInt("lower_bound");
-      int upperBound = resultSet.getInt("upper_bound");
+          lowerBound[0] = resultSet.getInt("lower_bound");
+          upperBound[0] = resultSet.getInt("upper_bound");
 
-      logger.log(FINE, "Got bounds off of result set.");
+          logger.log(FINE, "Got bounds off of result set.");
+        }
+      });
 
-      close(resultSet);
 
-      logger.log(FINE, "Closed bounds connections.");
-
-      int offset = lowerBound - 1;
+      int offset = lowerBound[0] - 1;
 
       sql = "update customrankings \n" +
-          "set Rank = " + (upperBound - offset + 1) + "\n" +
+          "set Rank = " + (upperBound[0] - offset + 1) + "\n" +
           "where teamid = " + teamID;
-      statement = executeUpdate(sql);
-      close(statement);
+      executeUpdate(sql);
 
       logger.log(FINE, "Executed base update for " + teamID);
 
@@ -563,13 +545,48 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           " on (cr.PlayerID = tr.PlayerID and cr.TeamID = tr.TeamID)\n" +
           "set cr.Rank = tr.Rank - " + offset + " \n" +
           "where tr.teamID = " + teamID;
-      statement = executeUpdate(sql);
-      close(statement);
+      executeUpdate(sql);
     } catch (SQLException e) {
       throw new DataSourceException(e);
     }
 
     logger.log(FINE, "Executed big update for " + teamID);
+  }
+
+  private void insertTempRankings(TeamId teamID, TableSpec tableSpec) throws SQLException {
+    String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
+        " SELECT " + teamID + ", PlayerID \n" +
+        " FROM ";
+    sql = getFromJoins(teamID, sql, null, false, false);
+
+    List<String> filters = new ArrayList<>();
+    addDataSetFilter(filters, tableSpec.getPlayerDataSet());
+
+    if (!filters.isEmpty()) {
+      sql += " where " + Joiner.on(" and ").join(filters) + " ";
+    }
+
+    sql = addOrdering(tableSpec, sql);
+
+    executeUpdate(sql);
+  }
+
+  private void insertTempPointsRankings(TeamId teamID, TableSpec tableSpec) throws SQLException, DataSourceException {
+    StringBuilder sql = new StringBuilder("INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
+        " VALUES ");
+
+    List<Player> playersByPts = Ordering.from(PlayerColumn.PTS.getComparator(tableSpec.isAscending()))
+        .sortedCopy(getPlayers(teamID, tableSpec.getPlayerDataSet()));
+    boolean needsComma = false;
+    for (Player player : playersByPts) {
+      if (needsComma) {
+        sql.append(",");
+      }
+      sql.append("(").append(teamID).append(",").append(player.getPlayerId()).append((")"));
+      needsComma = true;
+    }
+
+    executeUpdate(sql.toString());
   }
 
   private void prepareTmpTable(TeamId teamID) throws SQLException {
@@ -578,7 +595,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   @Override
   public GraphsData getGraphsData(TeamDraftOrder myTeam) throws DataSourceException {
-    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(myTeam);
+    final TeamId teamId = teamDataSource.getTeamIdByDraftOrder(myTeam);
     String sql;
     if (Scoring.CATEGORIES) {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
@@ -589,42 +606,43 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     }
 
     GraphsData graphsData = beanFactory.createGraphsData().as();
-    Map<PlayerColumn, Float> myValues = new HashMap<>();
+    final Map<PlayerColumn, Float> myValues = new HashMap<>();
     graphsData.setMyValues(myValues);
-    Map<PlayerColumn, Float> avgValues = new HashMap<>();
+    final Map<PlayerColumn, Float> avgValues = new HashMap<>();
     graphsData.setAvgValues(avgValues);
-    Map<String, Float> teamPitchingValues = new HashMap<>();
+    final Map<String, Float> teamPitchingValues = new HashMap<>();
     graphsData.setTeamPitchingValues(teamPitchingValues);
-    Map<String, Float> teamBattingValues = new HashMap<>();
+    final Map<String, Float> teamBattingValues = new HashMap<>();
     graphsData.setTeamBattingValues(teamBattingValues);
 
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      while (resultSet.next()) {
-        int resultTeam = resultSet.getInt("TeamID");
-        if (Scoring.CATEGORIES) {
-          for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
-            float value = resultSet.getFloat(graphStat.getColumnName());
-            if (resultTeam == teamId.get()) {
-              myValues.put(graphStat, value);
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            int resultTeam = resultSet.getInt("TeamID");
+            if (Scoring.CATEGORIES) {
+              for (PlayerColumn graphStat : GraphsData.GRAPH_STATS) {
+                float value = resultSet.getFloat(graphStat.getColumnName());
+                if (resultTeam == teamId.get()) {
+                  myValues.put(graphStat, value);
+                }
+                if (!avgValues.containsKey(graphStat)) {
+                  avgValues.put(graphStat, 0f);
+                }
+                avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
+              }
+            } else {
+              teamPitchingValues.put(Integer.toString(resultTeam),
+                  resultSet.getFloat("pitching"));
+              teamBattingValues.put(Integer.toString(resultTeam),
+                  resultSet.getFloat("batting"));
             }
-            if (!avgValues.containsKey(graphStat)) {
-              avgValues.put(graphStat, 0f);
-            }
-            avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
           }
-        } else {
-          teamPitchingValues.put(Integer.toString(resultTeam),
-              resultSet.getFloat("pitching"));
-          teamBattingValues.put(Integer.toString(resultTeam),
-              resultSet.getFloat("batting"));
         }
-      }
+      });
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    } finally {
-      close(resultSet);
     }
 
     return graphsData;
@@ -632,71 +650,45 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // DB utility methods
 
-  private ResultSet executeQuery(String sql) throws SQLException {
-    Statement statement = db.getConnection().createStatement();
-    return statement.executeQuery(sql);
-  }
-
-  private Statement executeUpdate(String sql) throws SQLException {
-    Statement statement = db.getConnection().createStatement();
-    statement.executeUpdate(sql);
-    return statement;
-  }
-
-  protected Statement prepareStatementUpdate(String sql, Object... params) throws SQLException {
-    PreparedStatement preparedStatement = prepareStatement(sql, Lists.newArrayList(params));
-
-    preparedStatement.executeUpdate();
-    return preparedStatement;
-  }
-
-  @SuppressWarnings("unchecked")
-  private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
-    PreparedStatement preparedStatement = db.getConnection().prepareStatement(sql);
-
-    int i = 1;
-    for (Object param : params) {
-      if (param instanceof String) {
-        preparedStatement.setString(i, (String) param);
-      } else if (param instanceof Integer) {
-        preparedStatement.setInt(i, (Integer) param);
-      } else if (param instanceof Long) {
-        preparedStatement.setLong(i, (Long) param);
-      } else if (param instanceof IntWrapper) {
-        preparedStatement.setInt(i, ((IntWrapper) param).get());
-      } else {
-        throw new RuntimeException("Unknown type of param: " + param.getClass());
+  private void executeQuery(String sql, ResultSetCallback callback) throws SQLException, DataSourceException {
+    try (Connection connection = db.getConnection()) {
+      try (Statement statement = connection.createStatement()) {
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+          callback.onResultSet(resultSet);
+        }
       }
-      i++;
-    }
-    return preparedStatement;
-  }
-
-  private static void close(ResultSet resultSet) {
-    try {
-      if (resultSet == null) {
-        return;
-      }
-      Statement statement = resultSet.getStatement();
-      Connection connection = statement.getConnection();
-      resultSet.close();
-      statement.close();
-      connection.close();
-    } catch (SQLException e) {
-      logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
   }
 
-  private static void close(Statement statement) {
-    try {
-      if (statement == null) {
-        return;
+  private void executeUpdate(String sql) throws SQLException {
+    try (Connection connection = db.getConnection()) {
+      try (Statement statement = connection.createStatement()) {
+        statement.executeUpdate(sql);
       }
-      Connection connection = statement.getConnection();
-      statement.close();
-      connection.close();
-    } catch (SQLException e) {
-      logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
   }
+
+  protected void prepareStatementUpdate(String sql, Object... params) throws SQLException {
+    try (Connection connection = db.getConnection()) {
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        int i = 1;
+        for (Object param : params) {
+          if (param instanceof String) {
+            preparedStatement.setString(i, (String) param);
+          } else if (param instanceof Integer) {
+            preparedStatement.setInt(i, (Integer) param);
+          } else if (param instanceof Long) {
+            preparedStatement.setLong(i, (Long) param);
+          } else if (param instanceof IntWrapper) {
+            preparedStatement.setInt(i, ((IntWrapper) param).get());
+          } else {
+            throw new RuntimeException("Unknown type of param: " + param.getClass());
+          }
+          i++;
+        }
+        preparedStatement.executeUpdate();
+      }
+    }
+  }
+
 }
