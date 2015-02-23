@@ -25,7 +25,7 @@ public class FuzzClient extends SimulatedClient {
       } catch (ServletException | IOException e) {
         exceptions.add(e);
       }
-    } else if ("1".equals(username) && draftStatus.getCurrentPickDeadline() == 0) {
+    } else if (commissionerTeam.equals(username) && draftStatus.getCurrentPickDeadline() == 0) {
       sendDraftCommand(Command.START_DRAFT, null);
     } else {
       try {
@@ -84,7 +84,7 @@ public class FuzzClient extends SimulatedClient {
             sendDraftCommand(Command.DO_PICK, randomPlayer());
             break;
           case 31:
-            if ("1".equals(username)) {
+            if (commissionerTeam.equals(username)) {
               sendDraftCommand(draftStatus.isPaused()
                   ? Command.RESUME : Command.PAUSE, null);
             } else {
@@ -92,14 +92,14 @@ public class FuzzClient extends SimulatedClient {
             }
             break;
           case 32:
-            if ("1".equals(username) && random.nextBoolean()) {
+            if (commissionerTeam.equals(username) && random.nextBoolean()) {
               sendDraftCommand(Command.BACK_OUT, null);
             } else {
               getUnclaimedPlayers(randomTableSpec());
             }
             break;
           case 33:
-            if ("1".equals(username)) {
+            if (commissionerTeam.equals(username)) {
               sendDraftCommand(Command.FORCE_PICK, random.nextBoolean()
                   ? randomPlayer() : null);
             } else {
@@ -117,7 +117,7 @@ public class FuzzClient extends SimulatedClient {
   }
 
   private long randomPlayer() {
-    return Math.abs(random.nextLong()) % 220;
+    return players.get(random.nextInt(players.size())).getPlayerId();
   }
 
   private TableSpec randomTableSpec() {
@@ -133,6 +133,8 @@ public class FuzzClient extends SimulatedClient {
   }
 
   private PlayerDataSet randomDataSet() {
-    return PlayerDataSet.values()[random.nextInt(PlayerDataSet.values().length)];
+    // TODO uncomment when we have projections for other data sets
+//    return PlayerDataSet.values()[random.nextInt(PlayerDataSet.values().length)];
+    return PlayerDataSet.CBSSPORTS;
   }
 }

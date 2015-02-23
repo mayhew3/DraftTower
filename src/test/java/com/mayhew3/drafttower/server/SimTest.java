@@ -1,7 +1,7 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.testing.TearDownAccepter;
-import com.google.guiceberry.junit4.GuiceBerryRule;
+import com.google.inject.BindingAnnotation;
 import com.mayhew3.drafttower.server.simclient.BadLoginClient;
 import com.mayhew3.drafttower.server.simclient.FlakyClient;
 import com.mayhew3.drafttower.server.simclient.FuzzClient;
@@ -10,24 +10,28 @@ import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.*;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Test harness for running draft with simulated clients.
  */
-public class SimTest {
+public abstract class SimTest {
 
-  private static final long TIMEOUT_MS = 300000;
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface CommissionerTeam {}
+
   private static final int CYCLES_TIMER_EXPIRE = 10;
-
-  @Rule
-  public final GuiceBerryRule guiceBerry =
-      new GuiceBerryRule(SimTestGuiceBerryEnv.class);
 
   @Inject private Provider<PickNextPlayerClient> pickNextPlayerClientProvider;
   @Inject private Provider<BadLoginClient> badLoginClientProvider;
@@ -128,7 +132,7 @@ public class SimTest {
           public void run() {
             Random random = new Random();
             while (!draftStatus.isOver()
-                && System.currentTimeMillis() - startTime < TIMEOUT_MS) {
+                && System.currentTimeMillis() - startTime < getTimeoutMs()) {
               try {
                 client.performAction();
               } catch (Throwable t) {
@@ -150,7 +154,7 @@ public class SimTest {
       int lastNumPicks = 0;
       int numCyclesThisPick = 0;
       while (!draftStatus.isOver()
-          && System.currentTimeMillis() - startTime < TIMEOUT_MS) {
+          && System.currentTimeMillis() - startTime < getTimeoutMs()) {
         verify();
         if (draftStatus.getCurrentPickDeadline() > 0 && !draftStatus.isPaused()) {
           if (lastNumPicks == draftStatus.getPicks().size()) {
@@ -179,6 +183,8 @@ public class SimTest {
     }
     endDraftAndWaitForThreads(threads);
   }
+
+  protected abstract double getTimeoutMs();
 
   private void endDraftAndWaitForThreads(List<Thread> threads) {
     draftStatus.setOver(true);
@@ -224,10 +230,12 @@ public class SimTest {
             draftPick.getTeam(),
             i % 10 + 1);
       }
-      Assert.assertEquals("Wrong number of unavailable players",
-          draftStatus.getPicks().size(),
-          ((TestPlayerDataSource) playerDataSource).getAllPlayers().size()
-              - ((TestPlayerDataSource) playerDataSource).getAvailablePlayers().size());
+      if (playerDataSource instanceof TestPlayerDataSource) {
+        Assert.assertEquals("Wrong number of unavailable players",
+            draftStatus.getPicks().size(),
+            ((TestPlayerDataSource) playerDataSource).getAllPlayers().size()
+                - ((TestPlayerDataSource) playerDataSource).getAvailablePlayers().size());
+      }
       Assert.assertEquals("Wrong current team",
           draftStatus.getCurrentTeam(),
           draftStatus.getPicks().size() % 10 + 1);

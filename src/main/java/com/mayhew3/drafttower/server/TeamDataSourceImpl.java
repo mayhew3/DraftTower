@@ -5,7 +5,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.BeanFactory;
@@ -15,12 +14,9 @@ import com.mayhew3.drafttower.shared.Team;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.util.logging.Level.SEVERE;
 
 /**
  * Looks up teams in the database.
@@ -55,18 +51,21 @@ public class TeamDataSourceImpl implements TeamDataSource {
         "and users.user = '" + username + "' " +
         "and users.Pword = '" + password + "'";
 
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      if (resultSet.next()) {
-        return new TeamDraftOrder(resultSet.getInt("DraftOrder"));
-      } else {
-        return null;
-      }
+      final int[] result = new int[1];
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          if (resultSet.next()) {
+            result[0] = resultSet.getInt("DraftOrder");
+          } else {
+            result[0] = -1;
+          }
+        }
+      });
+      return result[0] == -1 ? null : new TeamDraftOrder(result[0]);
     } catch (SQLException e) {
       throw new DataSourceException("Cannot connect to login server.");
-    }  finally {
-      close(resultSet);
     }
   }
 
@@ -81,14 +80,17 @@ public class TeamDataSourceImpl implements TeamDataSource {
         "where teams.DraftOrder = '" + teamDraftOrder + "' " +
         "and userrole.site = 'uncharted'";
 
-    ResultSet resultSet = null;
     try {
-      resultSet = executeQuery(sql);
-      return resultSet.next() && resultSet.getString("Role").equals("admin");
+      final boolean[] result = new boolean[1];
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          result[0] = resultSet.next() && resultSet.getString("Role").equals("admin");
+        }
+      });
+      return result[0];
     } catch (SQLException e) {
       throw new DataSourceException(e);
-    }  finally {
-      close(resultSet);
     }
   }
 
@@ -97,24 +99,25 @@ public class TeamDataSourceImpl implements TeamDataSource {
     if (teamNamesCache == null) {
       synchronized (this) {
         if (teamNamesCache == null) {
-          Builder<String, Team> teamNamesBuilder = ImmutableMap.builder();
+          final Builder<String, Team> teamNamesBuilder = ImmutableMap.builder();
           String sql = "select Name, users.FirstName, DraftOrder " +
               "from teams " +
               "inner join users " +
               "on teams.userid = users.user";
-          ResultSet resultSet = null;
           try {
-            resultSet = executeQuery(sql);
-            while (resultSet.next()) {
-              Team team = beanFactory.createTeam().as();
-              team.setShortName(resultSet.getString("FirstName"));
-              team.setLongName(resultSet.getString("Name"));
-              teamNamesBuilder.put(resultSet.getString("DraftOrder"), team);
-            }
+            executeQuery(sql, new ResultSetCallback() {
+              @Override
+              public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+                while (resultSet.next()) {
+                  Team team = beanFactory.createTeam().as();
+                  team.setShortName(resultSet.getString("FirstName"));
+                  team.setLongName(resultSet.getString("Name"));
+                  teamNamesBuilder.put(resultSet.getString("DraftOrder"), team);
+                }
+              }
+            });
           } catch (SQLException e) {
             throw new DataSourceException(e);
-          } finally {
-            close(resultSet);
           }
           teamNamesCache = teamNamesBuilder.build();
         }
@@ -123,57 +126,40 @@ public class TeamDataSourceImpl implements TeamDataSource {
     return teamNamesCache;
   }
 
-  private ResultSet executeQuery(String sql) throws SQLException {
-    Statement statement = db.getConnection().createStatement();
-    return statement.executeQuery(sql);
-  }
-
-  private static void close(ResultSet resultSet) {
-    try {
-      if (resultSet == null) {
-        return;
+  private void executeQuery(String sql, ResultSetCallback callback) throws SQLException, DataSourceException {
+    try (Connection connection = db.getConnection()) {
+      try (Statement statement = connection.createStatement()) {
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+          callback.onResultSet(resultSet);
+        }
       }
-      Statement statement = resultSet.getStatement();
-      Connection connection = statement.getConnection();
-      resultSet.close();
-      statement.close();
-      connection.close();
-    } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Unable to close connection after use.", e);
     }
   }
 
   @Override
   public HashMap<TeamDraftOrder, PlayerDataSet> getAutoPickWizards() {
     String sql = "SELECT * FROM autopickwizards";
-
-    HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
-
-    ResultSet resultSet = null;
+    final HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
     try {
-      resultSet = executeQuery(sql);
-      while (resultSet.next()) {
-        TeamDraftOrder teamDraftOrder = getDraftOrderByTeamId(new TeamId(resultSet.getInt("teamID")));
-
-        String dataSetName = resultSet.getString("WizardTable");
-
-        if (dataSetName != null) {
-          Optional<PlayerDataSet> dataSet = PlayerDataSet.getDataSetWithName(dataSetName);
-
-          if (!dataSet.isPresent()) {
-            throw new RuntimeException("Team " + teamDraftOrder + " is linked to unrecognized DataSet '" + dataSetName + "'.");
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            TeamDraftOrder teamDraftOrder = getDraftOrderByTeamId(new TeamId(resultSet.getInt("teamID")));
+            String dataSetName = resultSet.getString("WizardTable");
+            if (dataSetName != null) {
+              Optional<PlayerDataSet> dataSet = PlayerDataSet.getDataSetWithName(dataSetName);
+              if (!dataSet.isPresent()) {
+                throw new RuntimeException("Team " + teamDraftOrder + " is linked to unrecognized DataSet '" + dataSetName + "'.");
+              }
+              autoPickWizards.put(teamDraftOrder, dataSet.get());
+            }
           }
-
-          autoPickWizards.put(teamDraftOrder, dataSet.get());
         }
-      }
-
+      });
     } catch (DataSourceException | SQLException e) {
       logger.log(Level.SEVERE, "Couldn't fetch team selections for which auto-pick source to use. Using default of CBSSPORTS, as backup.");
-    } finally {
-      close(resultSet);
     }
-
     return autoPickWizards;
   }
 
@@ -195,17 +181,18 @@ public class TeamDataSourceImpl implements TeamDataSource {
           String sql = "select id, DraftOrder " +
               "from teams";
 
-          ResultSet resultSet = null;
           try {
-            resultSet = executeQuery(sql);
-            while (resultSet.next()) {
-              teamIdDraftOrderMap.put(new TeamId(resultSet.getInt("id")),
-                  new TeamDraftOrder(resultSet.getInt("DraftOrder")));
-            }
+            executeQuery(sql, new ResultSetCallback() {
+              @Override
+              public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+                while (resultSet.next()) {
+                  teamIdDraftOrderMap.put(new TeamId(resultSet.getInt("id")),
+                      new TeamDraftOrder(resultSet.getInt("DraftOrder")));
+                }
+              }
+            });
           } catch (SQLException e) {
             throw new DataSourceException(e);
-          } finally {
-            close(resultSet);
           }
 
         }
@@ -221,59 +208,38 @@ public class TeamDataSourceImpl implements TeamDataSource {
         "WHERE TeamID = ?";
     String wizardTableName = wizardTable == null ? "" : wizardTable.getDisplayName();
 
-    Statement statement = null;
     try {
-      statement = prepareStatementUpdate(sql, wizardTableName,
-          getTeamIdByDraftOrder(teamDraftOrder).get());
+      prepareStatementUpdate(sql, wizardTableName, getTeamIdByDraftOrder(teamDraftOrder).get());
     } catch (DataSourceException | SQLException e) {
       logger.log(Level.SEVERE, "Unable to update auto-pick preference from user input, wizardTable is '" + wizardTableName + "'", e);
-    } finally {
-      close(statement);
     }
   }
 
 
-  protected Statement prepareStatementUpdate(String sql, Object... params) throws SQLException {
-    PreparedStatement preparedStatement = prepareStatement(sql, Lists.newArrayList(params));
-
-    preparedStatement.executeUpdate();
-    return preparedStatement;
-  }
-
-  private PreparedStatement prepareStatement(String sql, List<Object> params) throws SQLException {
-    PreparedStatement preparedStatement = db.getConnection().prepareStatement(sql);
-
-    int i = 1;
-    for (Object param : params) {
-      if (param instanceof String) {
-        if ("".equals(param)) {
-          preparedStatement.setNull(i, Types.VARCHAR);
-        } else {
-          preparedStatement.setString(i, (String) param);
+  protected void prepareStatementUpdate(String sql, Object... params) throws SQLException {
+    try (Connection connection = db.getConnection()) {
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        int i = 1;
+        for (Object param : params) {
+          if (param instanceof String) {
+            if ("".equals(param)) {
+              preparedStatement.setNull(i, Types.VARCHAR);
+            } else {
+              preparedStatement.setString(i, (String) param);
+            }
+          } else if (param instanceof Integer) {
+            preparedStatement.setInt(i, (Integer) param);
+          } else if (param instanceof Long) {
+            preparedStatement.setLong(i, (Long) param);
+          } else if (param instanceof Boolean) {
+            preparedStatement.setBoolean(i, (Boolean) param);
+          } else {
+            throw new IllegalArgumentException("Unknown type of param: " + param + " of type " + param.getClass());
+          }
+          i++;
         }
-      } else if (param instanceof Integer) {
-        preparedStatement.setInt(i, (Integer) param);
-      } else if (param instanceof Long) {
-        preparedStatement.setLong(i, (Long) param);
-      } else if (param instanceof Boolean) {
-        preparedStatement.setBoolean(i, (Boolean) param);
-      } else {
-        throw new IllegalArgumentException("Unknown type of param: " + param + " of type " + param.getClass());
+        preparedStatement.executeUpdate();
       }
-      i++;
-    }
-    return preparedStatement;
-  }
-
-
-  private void close(Statement statement) {
-    try {
-      Connection connection = statement.getConnection();
-      statement.close();
-      connection.close();
-    } catch (SQLException e) {
-      logger.log(SEVERE, "Unable to close SQL connection after use.", e);
     }
   }
-
 }

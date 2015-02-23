@@ -25,10 +25,12 @@ public class PickNextPlayerClient extends SimulatedClient {
       } catch (ServletException | IOException e) {
         exceptions.add(e);
       }
-    } else if ("1".equals(username) && draftStatus.getCurrentPickDeadline() == 0) {
-      sendDraftCommand(Command.START_DRAFT, null);
-    } else if (draftStatus.getCurrentTeam() == Integer.parseInt(username)) {
-      sendDraftCommand(Command.DO_PICK, (long) draftStatus.getPicks().size());
+    } else {
+      if (commissionerTeam.equals(username) && draftStatus.getCurrentPickDeadline() == 0) {
+        sendDraftCommand(Command.START_DRAFT, null);
+      } else if (draftStatus.getCurrentTeam() == teamDraftOrder) {
+        sendDraftCommand(Command.DO_PICK, players.get(draftStatus.getPicks().size()).getPlayerId());
+      }
     }
   }
 }
