@@ -1,3 +1,7 @@
+.table td {
+  border-color: transparent !important;
+}
+
 .keeper {
   background: #fafad2 !important;
 }
