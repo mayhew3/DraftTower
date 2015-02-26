@@ -31,6 +31,7 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
       String innerBarLabel();
       String outerBarLabel();
       String bar();
+      String lastRoundBar();
     }
 
     @Source("FilledPositionsChart.css")
@@ -63,6 +64,7 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
 
   private final Multimap<Position, InlineLabel> barLabels = HashMultimap.create();
   private final Map<Position, Widget> bars = new EnumMap<>(Position.class);
+  private final Map<Position, Widget> lastRoundBars = new EnumMap<>(Position.class);
 
   @Inject
   public FilledPositionsChart(FilledPositionsPresenter presenter) {
@@ -90,6 +92,11 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
       positionPanel.add(bar);
       bars.put(position, bar);
 
+      FlowPanel lastRoundBar = new FlowPanel();
+      lastRoundBar.setStyleName(CSS.lastRoundBar());
+      bar.add(lastRoundBar);
+      lastRoundBars.put(position, lastRoundBar);
+
       InlineLabel innerBarLabel = new InlineLabel("0/" + presenter.getDenominator(position));
       innerBarLabel.setStyleName(CSS.barLabel());
       innerBarLabel.addStyleName(CSS.innerBarLabel());
@@ -105,15 +112,17 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
   }
 
   @Override
-  public void setCounts(Map<Position, Integer> counts) {
+  public void setCounts(FilledPositionsCounts counts) {
     for (Position position : FilledPositionsPresenter.positions) {
-      Integer numerator = counts.get(position);
+      Integer numerator = counts.getPositionCount(position);
       int denominator = presenter.getDenominator(position);
       for (InlineLabel label : barLabels.get(position)) {
         label.setText(numerator + "/" + denominator);
       }
       bars.get(position).setWidth(((numerator / (float) denominator) * 100) + "px");
       bars.get(position).getElement().getStyle().setBackgroundColor(colors[numerator * 10 / denominator]);
+      int lastRoundNumerator = counts.getPositionLastRoundCount(position);
+      lastRoundBars.get(position).setWidth(((lastRoundNumerator / (float) denominator) * 100) + "px");
     }
   }
 
@@ -122,6 +131,9 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
     super.onEnsureDebugId(baseID);
     for (Entry<Position, Widget> bar : bars.entrySet()) {
       bar.getValue().ensureDebugId(baseID + "-" + bar.getKey().getShortName());
+    }
+    for (Entry<Position, Widget> lastRoundBar : lastRoundBars.entrySet()) {
+      lastRoundBar.getValue().ensureDebugId(baseID + "-" + lastRoundBar.getKey().getShortName() + "-last");
     }
     for (Position position : barLabels.keySet()) {
       barLabels.get(position).iterator().next().ensureDebugId(

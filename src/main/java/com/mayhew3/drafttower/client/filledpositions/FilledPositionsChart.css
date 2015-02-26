@@ -26,6 +26,7 @@
   color: white;
   text-shadow: 1px 1px 1px #888;
   padding-top: 0;
+  position: relative;
 }
 
 .outerBarLabel {
@@ -42,4 +43,15 @@
 
   -webkit-transition: width ease 1s, background-color ease 1s;
   transition: width ease 1s, background-color ease 1s;
+}
+
+.lastRoundBar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background-color: #f00;
+
+  -webkit-transition: width ease 1s;
+  transition: width ease 1s;
 }
