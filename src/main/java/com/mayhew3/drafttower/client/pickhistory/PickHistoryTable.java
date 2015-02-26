@@ -18,6 +18,7 @@ public class PickHistoryTable extends CellTable<PickHistoryInfo> {
 
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
+      String table();
       String keeper();
     }
 
@@ -32,6 +33,7 @@ public class PickHistoryTable extends CellTable<PickHistoryInfo> {
 
   @Inject
   public PickHistoryTable(PickHistoryPresenter presenter) {
+    addStyleName(CSS.table());
     setPageSize(Integer.MAX_VALUE);
     addColumn(new TextColumn<PickHistoryInfo> () {
       @Override

@@ -1,17 +1,12 @@
 package com.mayhew3.drafttower.client.filledpositions;
 
-import com.google.common.base.Function;
-import com.google.common.collect.*;
 import com.google.gwt.event.shared.EventBus;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
-import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
 
 import static com.mayhew3.drafttower.shared.Position.*;
 
@@ -42,26 +37,7 @@ public class FilledPositionsPresenter implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    List<DraftPick> picks = event.getStatus().getPicks();
-    ImmutableListMultimap<Integer, DraftPick> picksPerTeam =
-        Multimaps.index(picks, new Function<DraftPick, Integer>() {
-          @Override
-          public Integer apply(DraftPick input) {
-            return input.getTeam();
-          }
-        });
-    Map<Position, Integer> counts = Maps.newEnumMap(Position.class);
-    for (Position position : positions) {
-      counts.put(position, 0);
-    }
-    for (int i = 1; i <= numTeams; i++) {
-      Multimap<Position, DraftPick> roster =
-          rosterUtil.constructRoster(Lists.newArrayList(picksPerTeam.get(i)));
-      for (Position position : positions) {
-        counts.put(position, counts.get(position) + roster.get(position).size());
-      }
-    }
-    view.setCounts(counts);
+    view.setCounts(new FilledPositionsCounts(event.getStatus().getPicks(), numTeams, rosterUtil));
   }
 
   public int getDenominator(Position position) {

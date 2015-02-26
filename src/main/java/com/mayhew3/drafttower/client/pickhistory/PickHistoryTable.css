@@ -1,3 +1,11 @@
+.table tr:first-child {
+  font-size: 130%;
+}
+
+.table td {
+  border-color: transparent !important;
+}
+
 .keeper {
   background: #fafad2 !important;
 }

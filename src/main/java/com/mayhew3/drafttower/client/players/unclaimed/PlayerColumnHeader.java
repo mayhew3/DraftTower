@@ -53,7 +53,8 @@ class PlayerColumnHeader extends Header<SafeHtml> {
 
   private SafeHtml getShortName() {
     if (pitcherColumn != null) {
-      if (Position.isPitcherFilter(positionFilterProvider.get())) {
+      if (Position.isPitcherFilter(positionFilterProvider.get())
+          || column.getShortName().equals(pitcherColumn.getShortName())) {
         return new SafeHtmlBuilder()
             .appendEscaped(pitcherColumn.getShortName())
             .toSafeHtml();
