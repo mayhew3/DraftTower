@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.mayhew3.drafttower.shared.Player;
 
@@ -26,7 +27,8 @@ public class InjuryColumn extends Column<Player, SafeHtml> {
   public SafeHtml getValue(Player player) {
     if (player.getInjury() != null) {
       return TEMPLATES.injury(UnclaimedPlayerTable.CSS.injury(), player.getInjury());
+    } else {
+      return new SafeHtmlBuilder().appendHtmlConstant("&nbsp;&nbsp;&nbsp;").toSafeHtml();
     }
-    return null;
   }
 }
