@@ -26,6 +26,10 @@ tr:hover .newsCell {
   color: #00C;
 }
 
+.splitHeader {
+  letter-spacing: -1px;
+}
+
 .splitHeader .batterStat {
   font-size: 8px;
   vertical-align: super;
