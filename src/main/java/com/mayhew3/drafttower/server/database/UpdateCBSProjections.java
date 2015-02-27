@@ -17,6 +17,7 @@ public class UpdateCBSProjections extends DatabaseUtility {
     updateAllPlayersInTable("tmp_cbsbatting");
     updateAllPlayersInTable("tmp_cbspitching");
     updateAllPlayersInTable("tmpeligibility");
+    updateAllPlayersInTable("cbs_draftaverages");
   }
 
   private static void updateAllPlayersInTable(String tableName) throws SQLException {
@@ -39,6 +40,8 @@ public class UpdateCBSProjections extends DatabaseUtility {
     logger.log(Level.INFO, "Updating player '" + playerString + "' (" + id + ")");
 
     String replaced = playerString.replace(" |", "");
+    replaced = replaced.replace(" \\*", "");
+    replaced = replaced.trim();
 
     if (!replaced.equals(playerString)) {
       executePreparedUpdateWithParamsWithoutClose(updateStatement, replaced, id);
