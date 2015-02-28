@@ -46,7 +46,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public List<Player> getPlayers(TeamId teamId, PlayerDataSet playerDataSet) throws DataSourceException {
     final List<Player> players = new ArrayList<>();
     try {
-      getResultSetForUnclaimedPlayerRows(teamId, playerDataSet, new ResultSetCallback() {
+      getResultSetForPlayerRows(teamId, playerDataSet, new ResultSetCallback() {
         @Override
         public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
           while (resultSet.next()) {
@@ -159,9 +159,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return keepers;
   }
 
-  // Unclaimed Player Queries
+  // Player Queries
 
-  private void getResultSetForUnclaimedPlayerRows(final TeamId teamID, PlayerDataSet playerDataSet, ResultSetCallback callback)
+  private void getResultSetForPlayerRows(final TeamId teamID, PlayerDataSet playerDataSet, ResultSetCallback callback)
       throws SQLException, DataSourceException {
 
     String sql = "select * from ";
@@ -176,7 +176,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   // Unclaimed Player utility methods
 
   @SuppressWarnings("ConstantConditions")
-  private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterClaimed, boolean allWizardPositions) {
+  private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterKeepers, boolean allWizardPositions) {
     String wizardFilterClause = "";
     String playerFilterClause = "";
 
@@ -277,9 +277,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "WHERE cr.TeamID = " + teamID + " \n" +
             playerFilterClause;
 
-    if (filterClaimed) {
-      sql += " AND pa.PlayerID NOT IN (SELECT PlayerID FROM draftresults WHERE BackedOut = 0)\n" +
-          " AND pa.PlayerID NOT IN (SELECT PlayerID FROM keepers) ";
+    if (filterKeepers) {
+      sql += " AND pa.PlayerID NOT IN (SELECT PlayerID FROM keepers) ";
     }
 
     sql += " ) p_all ";
@@ -384,6 +383,17 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       prepareStatementUpdate(sql, newRank, teamID, playerID);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to change rank for player!", e);
+    }
+  }
+
+  @Override
+  public void resetDraft() throws DataSourceException {
+    String sql = "truncate table draftresults";
+
+    try {
+      executeUpdate(sql);
+    } catch (SQLException e) {
+      throw new DataSourceException(e);
     }
   }
 

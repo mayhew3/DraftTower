@@ -47,7 +47,7 @@ public class PlayerDataProvider {
     warmCaches();
   }
 
-  private void warmCaches() throws DataSourceException {
+  protected void warmCaches() throws DataSourceException {
     TableSpec tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setSortCol(PlayerColumn.MYRANK);
     tableSpec.setAscending(true);
@@ -78,21 +78,23 @@ public class PlayerDataProvider {
 
   public List<Player> getPlayers(TeamId teamId, TableSpec tableSpec) throws DataSourceException {
     List<Player> players;
-    PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
-    String cacheKey = getKey(teamId, playerDataSet);
-    if (cache.containsKey(cacheKey)) {
-      players = cache.get(cacheKey);
-    } else {
-      players = dataSource.getPlayers(teamId, playerDataSet);
-      cache.put(cacheKey, players);
+    synchronized (cache) {
+      PlayerDataSet playerDataSet = tableSpec.getPlayerDataSet();
+      String cacheKey = getKey(teamId, playerDataSet);
+      if (cache.containsKey(cacheKey)) {
+        players = cache.get(cacheKey);
+      } else {
+        players = dataSource.getPlayers(teamId, playerDataSet);
+        cache.put(cacheKey, players);
+      }
+      synchronized (players) {
+        Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
+            ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
+            : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
+        players = Ordering.from(comparator).sortedCopy(players);
+      }
+      return players;
     }
-    synchronized (players) {
-      Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
-          ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
-          : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
-      players = Ordering.from(comparator).sortedCopy(players);
-    }
-    return players;
   }
 
   public ListMultimap<TeamDraftOrder, Integer> getAllKeepers() throws DataSourceException {
@@ -169,17 +171,19 @@ public class PlayerDataProvider {
     dataSource.shiftInBetweenRanks(teamID, lesserRank, greaterRank, prevRank > newRank);
 
     // Update in caches
-    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-      List<Player> players = cache.get(getKey(teamID, playerDataSet));
-      if (players != null) {
-        synchronized (players) {
-          for (Player player : players) {
-            int rank = Integer.parseInt(player.getMyRank());
-            if (rank >= lesserRank && rank <= greaterRank) {
-              if (prevRank > newRank) {
-                player.setMyRank(Integer.toString(rank + 1));
-              } else {
-                player.setMyRank(Integer.toString(rank - 1));
+    synchronized (cache) {
+      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+        List<Player> players = cache.get(getKey(teamID, playerDataSet));
+        if (players != null) {
+          synchronized (players) {
+            for (Player player : players) {
+              int rank = Integer.parseInt(player.getMyRank());
+              if (rank >= lesserRank && rank <= greaterRank) {
+                if (prevRank > newRank) {
+                  player.setMyRank(Integer.toString(rank + 1));
+                } else {
+                  player.setMyRank(Integer.toString(rank - 1));
+                }
               }
             }
           }
@@ -192,14 +196,16 @@ public class PlayerDataProvider {
     dataSource.updatePlayerRank(teamID, newRank, playerId);
 
     // Update in caches
-    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-      List<Player> players = cache.get(getKey(teamID, playerDataSet));
-      if (players != null) {
-        synchronized (players) {
-          for (Player player : players) {
-            if (player.getPlayerId() == playerId) {
-              player.setMyRank(Integer.toString(newRank));
-              break;
+    synchronized (cache) {
+      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+        List<Player> players = cache.get(getKey(teamID, playerDataSet));
+        if (players != null) {
+          synchronized (players) {
+            for (Player player : players) {
+              if (player.getPlayerId() == playerId) {
+                player.setMyRank(Integer.toString(newRank));
+                break;
+              }
             }
           }
         }
@@ -211,8 +217,10 @@ public class PlayerDataProvider {
     final TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
     TableSpec tableSpec = request.getTableSpec();
     dataSource.copyTableSpecToCustom(teamID, tableSpec);
-    for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
-      cache.remove(getKey(teamID, playerDataSet));
+    synchronized (cache) {
+      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+        cache.remove(getKey(teamID, playerDataSet));
+      }
     }
   }
 
@@ -247,7 +255,13 @@ public class PlayerDataProvider {
 
   @VisibleForTesting
   public void reset() throws DataSourceException {
-    cache.clear();
-    warmCaches();
+    synchronized (cache) {
+      cache.clear();
+      warmCaches();
+    }
+  }
+
+  public void resetDraft() throws DataSourceException {
+    dataSource.resetDraft();
   }
 }

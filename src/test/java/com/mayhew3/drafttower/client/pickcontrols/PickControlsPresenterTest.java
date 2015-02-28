@@ -294,6 +294,21 @@ public class PickControlsPresenterTest {
   }
 
   @Test
+  public void testResetDraftInvisibleOnDraftStatusChangeNotCommish() {
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+    Mockito.verify(view).setForcePickVisible(false);
+  }
+
+  @Test
+  public void testResetDraftVisibleOnDraftStatusChangeCommish() {
+    Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+    Mockito.verify(view).setResetVisible(true);
+  }
+
+  @Test
   public void testWakeUpInvisibleOnDraftStatusChangeNotRobot() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));

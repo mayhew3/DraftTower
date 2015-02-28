@@ -43,6 +43,7 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   @UiField Button enqueue;
   @UiField Button forcePick;
   @UiField Button wakeUp;
+  @UiField Button reset;
 
   @Inject
   public PickControlsWidget(PickControlsPresenter presenter) {
@@ -75,6 +76,11 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     presenter.wakeUp();
   }
 
+  @UiHandler("reset")
+  public void handleReset(ClickEvent e) {
+    presenter.resetDraft();
+  }
+
   @Override
   public void setSelectedPlayerName(String name) {
     selectedPlayerLabel.setText(name);
@@ -101,6 +107,11 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   }
 
   @Override
+  public void setResetVisible(boolean visible) {
+    reset.setVisible(visible);
+  }
+
+  @Override
   public void setWakeUpVisible(boolean visible) {
     wakeUp.setVisible(visible);
   }
@@ -112,5 +123,6 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     enqueue.ensureDebugId(baseID + "-enqueue");
     forcePick.ensureDebugId(baseID + "-force");
     wakeUp.ensureDebugId(baseID + "-wakeUp");
+    reset.ensureDebugId(baseID + "-reset");
   }
 }

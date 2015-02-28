@@ -38,6 +38,16 @@ public class TeamOrderWidgetGwtTest extends TestBase {
     assertEquals("On deck!", getInnerText("-teamOrder-status"));
   }
 
+  public void testOnDeckAfterReset() {
+    login(1);
+    simulateDraftStatus(new Position[][] {
+        {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P}, {P},
+    });
+    assertEquals("On deck!", getInnerText("-teamOrder-status"));
+    click("-pickControls-reset");
+    assertEquals("", getInnerText("-teamOrder-status"));
+  }
+
   public void testNoStatus() {
     login(3);
     simulateDraftStart();

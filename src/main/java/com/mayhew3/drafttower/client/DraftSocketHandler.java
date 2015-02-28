@@ -31,7 +31,8 @@ public class DraftSocketHandler implements
     PickPlayerEvent.Handler,
     BackOutPickEvent.Handler,
     ForcePickPlayerEvent.Handler,
-    WakeUpEvent.Handler {
+    WakeUpEvent.Handler,
+    ResetDraftEvent.Handler {
 
   private static final int CLOCK_SYNC_CYCLES = 5;
 
@@ -78,6 +79,7 @@ public class DraftSocketHandler implements
     eventBus.addHandler(BackOutPickEvent.TYPE, this);
     eventBus.addHandler(ForcePickPlayerEvent.TYPE, this);
     eventBus.addHandler(WakeUpEvent.TYPE, this);
+    eventBus.addHandler(ResetDraftEvent.TYPE, this);
   }
 
   @Override
@@ -195,6 +197,11 @@ public class DraftSocketHandler implements
   @Override
   public void onWakeUp(WakeUpEvent event) {
     sendDraftCommand(WAKE_UP);
+  }
+
+  @Override
+  public void onResetDraft(ResetDraftEvent event) {
+    sendDraftCommand(RESET_DRAFT);
   }
 
   public int getServerClockDiff() {

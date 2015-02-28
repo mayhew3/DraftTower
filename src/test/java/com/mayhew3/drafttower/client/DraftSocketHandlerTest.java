@@ -286,6 +286,12 @@ public class DraftSocketHandlerTest {
     Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.WAKE_UP, null));
   }
 
+  @Test
+  public void testOnResetDraft() {
+    handler.onResetDraft(new ResetDraftEvent());
+    Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.RESET_DRAFT, null));
+  }
+
   private String getExpectedDraftCommandPayload(Command commandType, Long playerId) {
     AutoBean<DraftCommand> commandBean = beanFactory.createDraftCommand();
     commandBean.as().setCommandType(commandType);
