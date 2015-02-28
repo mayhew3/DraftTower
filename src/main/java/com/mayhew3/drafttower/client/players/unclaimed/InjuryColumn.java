@@ -14,7 +14,7 @@ import com.mayhew3.drafttower.shared.Player;
 public class InjuryColumn extends Column<Player, SafeHtml> {
 
   public interface Templates extends SafeHtmlTemplates {
-    @Template("<span class=\"{0}\" title=\"{1}\">+</span>")
+    @Template("<span class=\"{0}\" data-tooltip=\"{1}\">+</span>")
     SafeHtml injury(String className, String injury);
   }
   private static final Templates TEMPLATES = GWT.create(Templates.class);

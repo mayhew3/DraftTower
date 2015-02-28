@@ -2,6 +2,23 @@
   color: red;
 }
 
+.injury:before {
+  content: attr(data-tooltip);
+  position: absolute;
+  background: #222;
+  color: #eee;
+  font-size: 10px;
+  border-radius: 3px;
+  width: 100px;
+  margin-left: 20px;
+  padding: 4px;
+  display: none;
+}
+
+.injury:hover:before {
+  display: block;
+}
+
 .newsCell {
   cursor: pointer;
   color: rgba(0, 0, 0, 0);

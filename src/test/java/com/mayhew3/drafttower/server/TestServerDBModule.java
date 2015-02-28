@@ -51,7 +51,7 @@ public class TestServerDBModule extends AbstractGinModule {
   private static void initDB(DataSource dataSource) throws SQLException {
     try (Connection connection = dataSource.getConnection()) {
       ScriptUtils.executeSqlScript(connection,
-          new EncodedResource(new FileSystemResource("database/2015_02_05_uncharted_cbs.sql")),
+          new EncodedResource(new FileSystemResource("database/UnchartedData2015.sql")),
           false, false, ScriptUtils.DEFAULT_COMMENT_PREFIX, ScriptUtils.DEFAULT_STATEMENT_SEPARATOR,
           "!@#$%^",  // nonsense block comment start delimiter to preserve block comments
           ScriptUtils.DEFAULT_BLOCK_COMMENT_END_DELIMITER);
