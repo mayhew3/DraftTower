@@ -165,6 +165,13 @@ public class DraftControllerImpl implements DraftController {
         case WAKE_UP:
           status.getRobotTeams().remove(teamDraftOrder.get());
           break;
+        case RESET_DRAFT:
+          try {
+            resetDraft();
+          } catch (DataSourceException e) {
+            logger.log(SEVERE, "Failed to reset draft.", e);
+            return;
+          }
       }
       sendStatusUpdates();
     }
@@ -362,6 +369,16 @@ public class DraftControllerImpl implements DraftController {
         }
       }
     }
+  }
+
+  private void resetDraft() throws DataSourceException {
+    playerDataProvider.resetDraft();
+    status.getPicks().clear();
+    status.setCurrentTeam(1);
+    status.setCurrentPickDeadline(0);
+    status.setPaused(true);
+    status.setNextPickKeeperTeams(getNextPickKeeperTeams(0));
+    status.setOver(false);
   }
 
   private void removePick(int pickToRemove) {

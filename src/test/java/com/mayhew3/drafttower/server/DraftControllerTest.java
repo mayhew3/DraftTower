@@ -515,6 +515,19 @@ public class DraftControllerTest {
   }
 
   @Test
+  public void testOnDraftCommandResetDraft() throws Exception {
+    picks = createPicksList(25);
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.RESET_DRAFT);
+    draftController.onDraftCommand(draftCommand);
+    Assert.assertEquals(0, draftStatus.getPicks().size());
+    Assert.assertEquals(1, draftStatus.getCurrentTeam());
+    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+  }
+
+  @Test
   public void testOnClientConnectedSendsStatus() throws Exception {
     DraftControllerImpl draftController = createDraftController();
     draftController.onClientConnected();

@@ -51,7 +51,7 @@ public class SimTestGuiceBerryEnv extends AbstractModule {
             draftStatus.getPicks().clear();
             draftStatus.getRobotTeams().clear();
             draftStatus.setSerialId(0);
-            ((TestPlayerDataSource) playerDataSource).reset();
+            playerDataSource.resetDraft();
             playerDataProvider.reset();
             pickProbabilityPredictor.reset();
           }

@@ -65,6 +65,8 @@ public class TeamOrderPresenter implements
       } else {
         view.setStatus("");
       }
+    } else {
+      view.setStatus("");
     }
   }
 

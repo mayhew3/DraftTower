@@ -12,6 +12,7 @@
     </div>
     <div>
       <g:Button ui:field="forcePick" styleName="{style.css.force}">Force pick</g:Button>
+      <g:Button ui:field="reset" styleName="{style.css.force}">Reset draft</g:Button>
       <g:Button ui:field="wakeUp">Wake up!</g:Button>
     </div>
   </g:HTMLPanel>

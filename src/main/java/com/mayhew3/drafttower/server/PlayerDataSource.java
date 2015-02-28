@@ -31,4 +31,6 @@ public interface PlayerDataSource {
   void shiftInBetweenRanks(TeamId teamID, int lesserRank, int greaterRank, boolean increase);
 
   void updatePlayerRank(TeamId teamID, int newRank, long playerID);
+
+  void resetDraft() throws DataSourceException;
 }

@@ -14,5 +14,7 @@ public interface PickControlsView {
 
   void setForcePickVisible(boolean visible);
 
+  void setResetVisible(boolean visible);
+
   void setWakeUpVisible(boolean visible);
 }

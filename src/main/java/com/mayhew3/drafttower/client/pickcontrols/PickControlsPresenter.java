@@ -76,6 +76,7 @@ public class PickControlsPresenter implements
     view.setEnqueueEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
     view.setForcePickEnabled(status != null && status.getCurrentPickDeadline() > 0);
     view.setForcePickVisible(teamsInfo.isCommissionerTeam());
+    view.setResetVisible(teamsInfo.isCommissionerTeam());
     view.setWakeUpVisible(status != null && status.getRobotTeams().contains(teamsInfo.getTeam()));
   }
 
@@ -96,5 +97,9 @@ public class PickControlsPresenter implements
 
   public void wakeUp() {
     eventBus.fireEvent(new WakeUpEvent());
+  }
+
+  public void resetDraft() {
+    eventBus.fireEvent(new ResetDraftEvent());
   }
 }

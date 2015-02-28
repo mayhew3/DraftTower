@@ -114,6 +114,13 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
+  public void resetDraft() {
+    availablePlayers.clear();
+    availablePlayers.putAll(allPlayers);
+    draftPicks.clear();
+  }
+
+  @Override
   public void postDraftPick(DraftPick draftPick, DraftStatus status) {
     draftPicks.add(draftPick);
     synchronized (availablePlayers) {
@@ -262,11 +269,5 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   public Collection<Player> getAvailablePlayers() {
     return availablePlayers.values();
-  }
-
-  public void reset() {
-    availablePlayers.clear();
-    availablePlayers.putAll(allPlayers);
-    draftPicks.clear();
   }
 }
