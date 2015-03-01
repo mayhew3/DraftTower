@@ -108,7 +108,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
 
   @Provides @PlayerPopupUrlPrefix
   public String getPlayerPopupUrlPrefix() {
-    return "http://uncharted.baseball.cbssports.com/players/playerpage/snippet/";
+    return "http://uncharted.baseball.cbssports.com/players/playerpage/";
   }
 
   @Override
