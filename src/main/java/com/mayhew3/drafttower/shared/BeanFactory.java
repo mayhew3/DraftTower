@@ -23,6 +23,7 @@ public interface BeanFactory extends AutoBeanFactory {
   AutoBean<ReorderPlayerQueueRequest> createReorderPlayerQueueRequest();
   AutoBean<TableSpec> createTableSpec();
   AutoBean<SetWizardTableRequest> createSetAutoPickWizardRequest();
+  AutoBean<SetCloserLimitRequest> createSetCloserLimitsRequest();
   AutoBean<Team> createTeam();
   AutoBean<GetGraphsDataRequest> createGetGraphsDataRequest();
   AutoBean<GraphsData> createGraphsData();

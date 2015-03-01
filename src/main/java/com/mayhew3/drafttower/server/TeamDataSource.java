@@ -23,4 +23,10 @@ public interface TeamDataSource {
   TeamDraftOrder getDraftOrderByTeamId(TeamId teamID) throws DataSourceException;
 
   TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws DataSourceException;
+
+  Map<TeamDraftOrder, Integer> getMinClosers();
+
+  Map<TeamDraftOrder, Integer> getMaxClosers();
+
+  void updateCloserLimits(TeamDraftOrder teamDraftOrder, int teamMinClosers, int teamMaxClosers);
 }

@@ -63,9 +63,12 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   public void testViewSetUpOnLoginNonCopyableSortColumn() {
     LoginResponse loginResponse = Mockito.mock(LoginResponse.class);
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(null);
+    Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
+    Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).setCopyRanksEnabled(false, true);
     Mockito.verify(view).updateUseForAutoPickCheckbox(false, true);
+    Mockito.verify(view).setCloserLimits(0, 7);
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -74,9 +77,12 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(tablePresenter.getSortedPlayerColumn()).thenReturn(PlayerColumn.HR);
     LoginResponse loginResponse = Mockito.mock(LoginResponse.class);
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(null);
+    Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
+    Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).setCopyRanksEnabled(true, true);
     Mockito.verify(view).updateUseForAutoPickCheckbox(false, false);
+    Mockito.verify(view).setCloserLimits(0, 7);
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -84,11 +90,14 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   public void testViewSetUpOnLoginInitialWizardTableDifferentFromTableSpecSortedByWizard() {
     LoginResponse loginResponse = Mockito.mock(LoginResponse.class);
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(PlayerDataSet.GURU);
+    Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
+    Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
     mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.GURU);
     Mockito.verify(view).updateUseForAutoPickCheckbox(false, true);
     Mockito.verify(view).setCopyRanksEnabled(false, true);
+    Mockito.verify(view).setCloserLimits(0, 7);
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -97,11 +106,14 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(tablePresenter.getSortedPlayerColumn()).thenReturn(PlayerColumn.HR);
     LoginResponse loginResponse = Mockito.mock(LoginResponse.class);
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(PlayerDataSet.GURU);
+    Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
+    Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
     mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.GURU);
     Mockito.verify(view).updateUseForAutoPickCheckbox(false, false);
     Mockito.verify(view).setCopyRanksEnabled(true, true);
+    Mockito.verify(view).setCloserLimits(0, 7);
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -109,11 +121,27 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   public void testViewSetUpOnLoginInitialWizardTableSameAsTableSpec() {
     LoginResponse loginResponse = Mockito.mock(LoginResponse.class);
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(PlayerDataSet.CBSSPORTS);
+    Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
+    Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
     mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.CBSSPORTS);
     Mockito.verify(view).updateUseForAutoPickCheckbox(true, true);
     Mockito.verify(view).setCopyRanksEnabled(false, true);
+    Mockito.verify(view).setCloserLimits(0, 7);
+    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testViewSetUpOnLoginCloserLimits() {
+    LoginResponse loginResponse = Mockito.mock(LoginResponse.class);
+    Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(null);
+    Mockito.when(loginResponse.getMinClosers()).thenReturn(2);
+    Mockito.when(loginResponse.getMaxClosers()).thenReturn(4);
+    presenter.onLogin(new LoginEvent(loginResponse));
+    Mockito.verify(view).setCopyRanksEnabled(false, true);
+    Mockito.verify(view).updateUseForAutoPickCheckbox(false, true);
+    Mockito.verify(view).setCloserLimits(2, 4);
     Mockito.verifyNoMoreInteractions(view);
   }
 

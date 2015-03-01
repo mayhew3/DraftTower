@@ -33,6 +33,8 @@ public class ServletConfig extends GuiceServletContextListener {
             .with(CopyAllPlayerRanksServlet.class);
         serve("/" + ServletEndpoints.SET_AUTOPICK_WIZARD_ENDPOINT)
             .with(SetAutoPickWizardServlet.class);
+        serve("/" + ServletEndpoints.SET_CLOSER_LIMITS_ENDPOINT)
+            .with(SetCloserLimitServlet.class);
         serve("/" + ServletEndpoints.QUEUE_ENDPOINT + "/*")
             .with(QueueServlet.class);
         serve("/" + ServletEndpoints.GRAPHS_ENDPOINT)

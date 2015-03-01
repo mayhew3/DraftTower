@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
 import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -45,8 +44,6 @@ public class DraftControllerImpl implements DraftController {
   private final Map<String, TeamDraftOrder> teamTokens;
   private final ListMultimap<TeamDraftOrder, Integer> keepers;
   private final ListMultimap<TeamDraftOrder, QueueEntry> queues;
-  private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
-
   private final int numTeams;
 
   private final DraftStatus status;
@@ -66,7 +63,6 @@ public class DraftControllerImpl implements DraftController {
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
-      @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
       @NumTeams int numTeams) throws DataSourceException {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
@@ -78,7 +74,6 @@ public class DraftControllerImpl implements DraftController {
     this.teamTokens = teamTokens;
     this.keepers = keepers;
     this.queues = queues;
-    this.autoPickWizardTables = autoPickWizardTables;
     this.numTeams = numTeams;
     this.status = status;
     this.lock = lock;
@@ -182,7 +177,7 @@ public class DraftControllerImpl implements DraftController {
     try (Lock ignored = lock.lock()) {
       if (playerId == Player.BEST_DRAFT_PICK) {
         try {
-          playerId = playerDataProvider.getBestPlayerId(autoPickWizardTables.get(teamDraftOrder),
+          playerId = playerDataProvider.getBestPlayerId(
               teamDraftOrder,
               status.getPicks(),
               rosterUtil.getOpenPositions(

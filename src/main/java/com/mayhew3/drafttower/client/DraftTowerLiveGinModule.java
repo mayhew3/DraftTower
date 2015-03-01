@@ -77,6 +77,14 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
         .buildString();
   }
 
+  @Provides @SetCloserLimitsUrl
+  public String getSetCloserLimitsUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.SET_CLOSER_LIMITS_ENDPOINT)
+        .buildString();
+  }
+
   @Provides @QueuesUrl
   public String getQueuesUrl() {
     return Window.Location.createUrlBuilder()
@@ -100,7 +108,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
 
   @Provides @PlayerPopupUrlPrefix
   public String getPlayerPopupUrlPrefix() {
-    return "http://uncharted.baseball.cbssports.com/players/playerpage/snippet/";
+    return "http://uncharted.baseball.cbssports.com/players/playerpage/";
   }
 
   @Override

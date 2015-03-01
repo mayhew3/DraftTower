@@ -20,4 +20,7 @@ public interface DraftPick {
 
   boolean isKeeper();
   void setKeeper(boolean keeper);
+
+  boolean isCloser();
+  void setCloser(boolean closer);
 }

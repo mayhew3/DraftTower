@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -117,6 +118,8 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
       String headerLine();
       String hideInjuries();
       String rightSideControls();
+      String autoPickSettings();
+      String autoPickPopup();
       String autoPick();
       String buttonContainer();
       String filterButton();
@@ -141,8 +144,11 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
   private final Map<Position, CheckBox> positionOverrideCheckBoxes = new HashMap<>();
   private final TextBox nameSearch;
   private final InlineLabel clearSearch;
+  private final Button autoPickSettings;
   private final CheckBox useForAutoPick;
   private final Button copyRanks;
+  private final TextBox minClosers;
+  private final TextBox maxClosers;
   private final CheckBox hideInjuries;
   private final Pager pager;
   private final UnclaimedPlayerTable table;
@@ -169,6 +175,24 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     });
     rightSideControls.add(hideInjuries);
 
+    autoPickSettings = new Button("AutoPick settings ▼");
+    autoPickSettings.setStyleName(CSS.autoPickSettings());
+    rightSideControls.add(autoPickSettings);
+
+    final PopupPanel autoPickPopup = new PopupPanel(true, false);
+    autoPickPopup.setStyleName(CSS.autoPickPopup());
+    autoPickPopup.addAutoHidePartner(autoPickSettings.getElement());
+
+    FlowPanel autoPickPopupContents = new FlowPanel();
+    autoPickPopup.setWidget(autoPickPopupContents);
+
+    autoPickSettings.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        autoPickPopup.showRelativeTo(autoPickSettings);
+      }
+    });
+
     useForAutoPick = new CheckBox("Use this wizard for auto-pick");
     useForAutoPick.setStyleName(CSS.autoPick());
     useForAutoPick.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -177,7 +201,7 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
         presenter.setUseForAutoPick(event.getValue());
       }
     });
-    rightSideControls.add(useForAutoPick);
+    autoPickPopupContents.add(useForAutoPick);
 
     copyRanks = new Button("Copy this order to MyRank");
     copyRanks.addClickHandler(new ClickHandler() {
@@ -186,7 +210,33 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
         presenter.copyRanks();
       }
     });
-    rightSideControls.add(copyRanks);
+    autoPickPopupContents.add(copyRanks);
+
+    FlowPanel minClosersPanel = new FlowPanel();
+    minClosersPanel.add(new InlineLabel("Min closers: "));
+    minClosers = new TextBox();
+    initCloserLimitTextBox(minClosers);
+    minClosers.addValueChangeHandler(new ValueChangeHandler<String>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        presenter.setCloserLimits(event.getValue(), maxClosers.getValue());
+      }
+    });
+    minClosersPanel.add(minClosers);
+    autoPickPopupContents.add(minClosersPanel);
+
+    FlowPanel maxClosersPanel = new FlowPanel();
+    maxClosersPanel.add(new InlineLabel("Max closers: "));
+    maxClosers = new TextBox();
+    initCloserLimitTextBox(maxClosers);
+    maxClosers.addValueChangeHandler(new ValueChangeHandler<String>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        presenter.setCloserLimits(minClosers.getValue(), event.getValue());
+      }
+    });
+    maxClosersPanel.add(maxClosers);
+    autoPickPopupContents.add(maxClosersPanel);
 
     table.addColumnSortHandler(new Handler() {
       @Override
@@ -296,6 +346,14 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     presenter.setView(this);
   }
 
+  private void initCloserLimitTextBox(TextBox textBox) {
+    InputElement input = InputElement.as(textBox.getElement());
+    input.setAttribute("type", "number");
+    input.setAttribute("min", "0");
+    input.setAttribute("max", "7");
+    textBox.setVisibleLength(2);
+  }
+
   @Override
   public void setPositionFilter(PositionFilter positionFilter) {
     for (Entry<PositionFilter, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
@@ -318,6 +376,12 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     } else {
       copyRanks.setEnabled(enabled);
     }
+  }
+
+  @Override
+  public void setCloserLimits(int minClosersValue, int maxClosersValue) {
+    minClosers.setValue(Integer.toString(minClosersValue), false);
+    maxClosers.setValue(Integer.toString(maxClosersValue), false);
   }
 
   @Override
@@ -356,8 +420,11 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     nameSearch.ensureDebugId(baseID + "-search");
     clearSearch.ensureDebugId(baseID + "-clear");
     copyRanks.ensureDebugId(baseID + "-copyRanks");
+    autoPickSettings.ensureDebugId(baseID + "-autopickSettings");
     UIObject.ensureDebugId(useForAutoPick.getElement().getElementsByTagName("input").getItem(0), baseID + "-autopick");
     UIObject.ensureDebugId(hideInjuries.getElement().getElementsByTagName("input").getItem(0), baseID + "-hideInjuries");
+    minClosers.ensureDebugId(baseID + "-minClosers");
+    maxClosers.ensureDebugId(baseID + "-maxClosers");
 
     pager.ensureDebugId(baseID);
     table.ensureDebugId(baseID + "-table");

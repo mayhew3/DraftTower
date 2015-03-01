@@ -2,12 +2,16 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
+import com.mayhew3.drafttower.server.BindingAnnotations.MaxClosers;
+import com.mayhew3.drafttower.server.BindingAnnotations.MinClosers;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
@@ -27,9 +31,19 @@ public class PlayerDataProvider {
 
   private static final Logger logger = Logger.getLogger(PlayerDataProvider.class.getName());
 
+  private static final Predicate<DraftPick> PICK_IS_CLOSER = new Predicate<DraftPick>() {
+    @Override
+    public boolean apply(DraftPick pick) {
+      return pick.isCloser();
+    }
+  };
+
   private final PlayerDataSource dataSource;
   private final BeanFactory beanFactory;
   private final TeamDataSource teamDataSource;
+  private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
+  private final Map<TeamDraftOrder, Integer> minClosers;
+  private final Map<TeamDraftOrder, Integer> maxClosers;
   private final Map<String, TeamDraftOrder> teamTokens;
 
   private final Map<String, List<Player>> cache = new ConcurrentHashMap<>();
@@ -38,10 +52,16 @@ public class PlayerDataProvider {
   public PlayerDataProvider(PlayerDataSource dataSource,
       BeanFactory beanFactory,
       TeamDataSource teamDataSource,
+      @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
+      @MinClosers Map<TeamDraftOrder, Integer> minClosers,
+      @MaxClosers Map<TeamDraftOrder, Integer> maxClosers,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens) throws DataSourceException {
     this.dataSource = dataSource;
     this.beanFactory = beanFactory;
     this.teamDataSource = teamDataSource;
+    this.autoPickWizardTables = autoPickWizardTables;
+    this.minClosers = minClosers;
+    this.maxClosers = maxClosers;
     this.teamTokens = teamTokens;
 
     warmCaches();
@@ -101,35 +121,75 @@ public class PlayerDataProvider {
     return dataSource.getAllKeepers();
   }
 
-  public long getBestPlayerId(PlayerDataSet wizardTable, TeamDraftOrder teamDraftOrder, List<DraftPick> picks, final EnumSet<Position> openPositions) throws DataSourceException {
+  public long getBestPlayerId(final TeamDraftOrder teamDraftOrder, List<DraftPick> picks, final EnumSet<Position> openPositions) throws DataSourceException {
     TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
 
     final Set<Long> selectedPlayerIds = new HashSet<>();
     for (DraftPick pick : picks) {
       selectedPlayerIds.add(pick.getPlayerId());
     }
+    Predicate<Player> unselected = new Predicate<Player>() {
+      @Override
+      public boolean apply(Player player) {
+        return !selectedPlayerIds.contains(player.getPlayerId());
+      }
+    };
+
+    Predicate<Player> openPosition = new Predicate<Player>() {
+      @Override
+      public boolean apply(Player player) {
+        return openPositions.isEmpty()
+            || hasAllOpenPositions(openPositions)
+            || Position.apply(player, openPositions);
+      }
+    };
+
+    Integer teamMinClosers = minClosers.get(teamDraftOrder);
+    Integer teamMaxClosers = maxClosers.get(teamDraftOrder);
+    int numPitcherSlots = RosterUtil.POSITIONS_AND_COUNTS.get(P);
+    if ((teamMinClosers != null && teamMinClosers > 0) ||
+        (teamMaxClosers != null && teamMaxClosers < numPitcherSlots)) {
+      Iterable<DraftPick> teamPitcherPicks = Iterables.filter(picks,
+          new Predicate<DraftPick>() {
+            @Override
+            public boolean apply(DraftPick pick) {
+              return pick.getTeam() == teamDraftOrder.get() &&
+                  pick.getEligibilities().contains("P");
+            }
+          });
+      int numPitcherPicks = Iterables.size(teamPitcherPicks);
+      if (numPitcherPicks < numPitcherSlots) {
+        int closers = Iterables.size(Iterables.filter(teamPitcherPicks, PICK_IS_CLOSER));
+        final boolean noClosers = teamMaxClosers != null && closers >= teamMaxClosers;
+        final boolean closersOnly = teamMinClosers != null &&
+            numPitcherSlots - numPitcherPicks + closers <= teamMinClosers;
+        if (noClosers || closersOnly) {
+          openPosition = Predicates.and(openPosition, new Predicate<Player>() {
+            @Override
+            public boolean apply(Player player) {
+              if (Position.apply(player, EnumSet.of(P))) {
+                if (noClosers) {
+                  return Integer.parseInt(PlayerColumn.GS.get(player)) > Integer.parseInt(PlayerColumn.S.get(player));
+                } else { // closersOnly
+                  return Integer.parseInt(PlayerColumn.GS.get(player)) < Integer.parseInt(PlayerColumn.S.get(player));
+                }
+              }
+              return true;
+            }
+          });
+        }
+      }
+
+    }
 
     TableSpec tableSpec = beanFactory.createTableSpec().as();
+    PlayerDataSet wizardTable = autoPickWizardTables.get(teamDraftOrder);
     tableSpec.setPlayerDataSet(wizardTable == null ? PlayerDataSet.CBSSPORTS : wizardTable);
     tableSpec.setSortCol(wizardTable == null ? PlayerColumn.MYRANK : PlayerColumn.WIZARD);
     tableSpec.setAscending(wizardTable == null);
     List<Player> players = getPlayers(teamId, tableSpec);
-    Iterable<Player> unselectedPlayers = Iterables.filter(players,
-        new Predicate<Player>() {
-          @Override
-          public boolean apply(Player player) {
-            return !selectedPlayerIds.contains(player.getPlayerId());
-          }
-        });
-    Player player = Iterables.getFirst(Iterables.filter(unselectedPlayers,
-        new Predicate<Player>() {
-          @Override
-          public boolean apply(Player player) {
-            return openPositions.isEmpty()
-                || hasAllOpenPositions(openPositions)
-                || Position.apply(player, openPositions);
-          }
-        }), null);
+    Iterable<Player> unselectedPlayers = Iterables.filter(players, unselected);
+    Player player = Iterables.getFirst(Iterables.filter(unselectedPlayers, openPosition), null);
     if (player == null) {
       player = Iterables.getFirst(unselectedPlayers, null);
       if (player == null) {
@@ -160,12 +220,12 @@ public class PlayerDataProvider {
   }
 
   private void shiftInBetweenRanks(TeamId teamID, int prevRank, int newRank) {
-    int lesserRank = prevRank+1;
+    int lesserRank = prevRank + 1;
     int greaterRank = newRank;
 
     if (prevRank > newRank) {
       lesserRank = newRank;
-      greaterRank = prevRank-1;
+      greaterRank = prevRank - 1;
     }
 
     dataSource.shiftInBetweenRanks(teamID, lesserRank, greaterRank, prevRank > newRank);

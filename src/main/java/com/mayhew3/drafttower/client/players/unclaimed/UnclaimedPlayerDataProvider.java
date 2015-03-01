@@ -32,6 +32,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     LoginEvent.Handler,
     ChangePlayerRankEvent.Handler,
     SetAutoPickWizardEvent.Handler,
+    SetCloserLimitsEvent.Handler,
     CopyAllPlayerRanksEvent.Handler {
 
   public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
@@ -73,6 +74,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
 
     eventBus.addHandler(ChangePlayerRankEvent.TYPE, this);
     eventBus.addHandler(SetAutoPickWizardEvent.TYPE, this);
+    eventBus.addHandler(SetCloserLimitsEvent.TYPE, this);
     eventBus.addHandler(CopyAllPlayerRanksEvent.TYPE, this);
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
@@ -250,6 +252,25 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
       public void run() {
         getView().refresh();
       }
+    });
+  }
+
+  @Override
+  public void onSetCloserLimits(SetCloserLimitsEvent event) {
+    if (!teamsInfo.isLoggedIn()) {
+      return;
+    }
+    AutoBean<SetCloserLimitRequest> requestBean =
+        beanFactory.createSetCloserLimitsRequest();
+    SetCloserLimitRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
+
+    request.setMinClosers(event.getMinClosers());
+    request.setMaxClosers(event.getMaxClosers());
+
+    serverRpc.sendSetCloserLimitsRequest(requestBean, new Runnable() {
+      @Override
+      public void run() {}
     });
   }
 

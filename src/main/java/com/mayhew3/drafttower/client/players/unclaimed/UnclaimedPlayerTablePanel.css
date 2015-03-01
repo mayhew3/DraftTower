@@ -68,8 +68,16 @@ td:last-child > div > .filterButton {
   left: 10%;
 }
 
+.autoPickSettings,
 .autoPick {
   display: block;
+}
+
+.autoPickPopup {
+  border: 1px solid #333;
+  background: white;
+  padding: 5px;
+  font-size: 80%;
 }
 
 .headerElement {

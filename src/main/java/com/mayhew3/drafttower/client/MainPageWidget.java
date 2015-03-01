@@ -156,7 +156,7 @@ public class MainPageWidget extends Composite implements
     playerPopup.setGlassEnabled(true);
     playerPopup.setGlassStyleName(CSS.glassPanel());
     playerPopupFrame = new Frame();
-    playerPopupFrame.setSize("810px", "450px");
+    playerPopupFrame.setSize("980px", "450px");
     playerPopupFrame.getElement().setAttribute("seamless", "true");
     playerPopup.setWidget(playerPopupFrame);
 

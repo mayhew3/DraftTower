@@ -21,6 +21,7 @@ public class TestServerRpc implements ServerRpc {
   private final PlayerDataProvider playerDataProvider;
   private final TeamDataSource teamDataSource;
   private final QueueHandler queueHandler;
+  private final CloserLimitsHandler closerLimitsHandler;
   private final BeanFactory beanFactory;
 
   private final Map<String, TeamDraftOrder> teamTokens;
@@ -30,12 +31,14 @@ public class TestServerRpc implements ServerRpc {
       PlayerDataProvider playerDataProvider,
       TeamDataSource teamDataSource,
       QueueHandler queueHandler, 
+      CloserLimitsHandler closerLimitsHandler,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       BeanFactory beanFactory) {
     this.loginHandler = loginHandler;
     this.playerDataProvider = playerDataProvider;
     this.teamDataSource = teamDataSource;
     this.queueHandler = queueHandler;
+    this.closerLimitsHandler = closerLimitsHandler;
     this.teamTokens = teamTokens;
     this.beanFactory = beanFactory;
   }
@@ -151,5 +154,12 @@ public class TestServerRpc implements ServerRpc {
     teamDataSource.updateAutoPickWizard(
         teamTokens.get(request.getTeamToken()), request.getPlayerDataSet());
     callback.run();
+  }
+
+  @Override
+  public void sendSetCloserLimitsRequest(AutoBean<SetCloserLimitRequest> requestBean, Runnable callback) {
+    SetCloserLimitRequest request = requestBean.as();
+    closerLimitsHandler.setCloserLimits(
+        teamTokens.get(request.getTeamToken()), request.getMinClosers(), request.getMaxClosers());
   }
 }

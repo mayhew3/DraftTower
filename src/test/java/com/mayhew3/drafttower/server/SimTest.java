@@ -44,6 +44,7 @@ public abstract class SimTest {
   @Inject private LoginServlet loginServlet;
   @Inject private QueueServlet queueServlet;
   @Inject private SetAutoPickWizardServlet setAutoPickWizardServlet;
+  @Inject private SetCloserLimitServlet setCloserLimitServlet;
   @Inject private UnclaimedPlayerLookupServlet unclaimedPlayerLookupServlet;
 
   @Inject private DraftStatus draftStatus;

@@ -8,6 +8,10 @@ body {
   font-family: leelawadee, "Helvetica Neue", arial, sans-serif;
 }
 
+iframe {
+  border: 0;
+}
+
 th {
   text-shadow: none !important;
 }

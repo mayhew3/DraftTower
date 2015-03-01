@@ -38,4 +38,7 @@ public interface ServerRpc {
 
   public void sendSetWizardTableRequest(AutoBean<SetWizardTableRequest> requestBean,
       Runnable callback);
+
+  public void sendSetCloserLimitsRequest(AutoBean<SetCloserLimitRequest> requestBean,
+      Runnable callback);
 }
