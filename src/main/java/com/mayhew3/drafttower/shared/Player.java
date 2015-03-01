@@ -29,6 +29,9 @@ public interface Player extends DraggableItem {
   String getG();
   void setG(String value);
 
+  String getGS();
+  void setGS(String value);
+
   String getAB();
   void setAB(String value);
 

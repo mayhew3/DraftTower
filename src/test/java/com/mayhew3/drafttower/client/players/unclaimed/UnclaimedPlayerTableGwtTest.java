@@ -327,7 +327,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("129", getInnerText("-players-table-2-11"));
     click("-players-table-0-11");
     assertEquals("139", getInnerText("-players-table-1-11"));
-    assertEquals("138", getInnerText("-players-table-2-11"));
+    assertEquals("137", getInnerText("-players-table-2-11"));
   }
 
   public void testSortByBB_BBI() {

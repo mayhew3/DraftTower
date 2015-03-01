@@ -9,6 +9,9 @@ import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.client.players.PositionFilter;
+import com.mayhew3.drafttower.client.players.SinglePositionFilter;
+import com.mayhew3.drafttower.client.players.UnfilledPositionsFilter;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 import org.junit.Assert;
@@ -60,8 +63,7 @@ public class UnclaimedPlayerDataProviderTest {
     provider = new UnclaimedPlayerDataProvider(beanFactory,
         serverRpc,
         teamsInfo,
-        eventBus,
-        openPositions);
+        eventBus);
     view = Mockito.mock(UnclaimedPlayerTableView.class);
     Mockito.when(view.getVisibleRange()).thenReturn(new Range(0, 40));
     provider.setView(view);
@@ -173,7 +175,7 @@ public class UnclaimedPlayerDataProviderTest {
 
   @Test
   public void testRequestData() {
-    provider.requestData(tableSpec, unfilledPositions, Mockito.mock(Runnable.class));
+    provider.requestData(tableSpec, Mockito.mock(Runnable.class));
     Mockito.verify(serverRpc).sendPlayerListRequest(getPlayerListRequestCaptor.capture(),
         Mockito.<Function<UnclaimedPlayerListResponse, Void>>any());
     UnclaimedPlayerListRequest request = getPlayerListRequestCaptor.getValue().as();
@@ -184,14 +186,14 @@ public class UnclaimedPlayerDataProviderTest {
   @Test
   public void testRequestDataNotLoggedIn() {
     Mockito.when(teamsInfo.isLoggedIn()).thenReturn(false);
-    provider.requestData(tableSpec, unfilledPositions, Mockito.mock(Runnable.class));
+    provider.requestData(tableSpec, Mockito.mock(Runnable.class));
     Mockito.verifyZeroInteractions(serverRpc);
   }
 
   @Test
   public void testRequestDataRequestInFlight() {
-    provider.requestData(tableSpec, unfilledPositions, Mockito.mock(Runnable.class));
-    provider.requestData(tableSpec, unfilledPositions, Mockito.mock(Runnable.class));
+    provider.requestData(tableSpec, Mockito.mock(Runnable.class));
+    provider.requestData(tableSpec, Mockito.mock(Runnable.class));
     Mockito.verify(serverRpc, Mockito.times(1)).sendPlayerListRequest(
         Mockito.<AutoBean<UnclaimedPlayerListRequest>>any(),
         Mockito.<Function<UnclaimedPlayerListResponse, Void>>any());
@@ -199,15 +201,15 @@ public class UnclaimedPlayerDataProviderTest {
 
   @Test
   public void testHandlePlayerListResponse() {
-    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec, unfilledPositions);
+    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec);
     Assert.assertEquals(3, provider.playersByDataSet.get(tableSpec.getPlayerDataSet()).getTotalPlayers());
   }
 
   @Test
   public void testHandlePlayerListResponseCallsCallback() {
     Runnable requestCallback = Mockito.mock(Runnable.class);
-    provider.requestData(tableSpec, unfilledPositions, requestCallback);
-    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec, unfilledPositions);
+    provider.requestData(tableSpec, requestCallback);
+    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec);
     Mockito.verify(requestCallback).run();
   }
 
@@ -216,7 +218,7 @@ public class UnclaimedPlayerDataProviderTest {
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createDraftStatus(Lists.newArrayList(
             DraftStatusTestUtil.createDraftPick(1, "", false, "C", 1, beanFactory)), beanFactory)));
-    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec, unfilledPositions);
+    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec);
     Assert.assertEquals(2, provider.playersByDataSet.get(tableSpec.getPlayerDataSet()).getTotalPlayers());
   }
 
@@ -236,7 +238,7 @@ public class UnclaimedPlayerDataProviderTest {
     Assert.assertEquals(UnclaimedPlayerDataProvider.DEFAULT_SORT_ASCENDING,
         request.getTableSpec().isAscending());
     provider.handlePlayerListResponse(
-        createPlayerListResponse(), provider.getTableSpec(), provider.getPositionFilterProvider().get());
+        createPlayerListResponse(), provider.getTableSpec());
     Mockito.verify(display).setRowData(Mockito.eq(1), playerListCaptor.capture());
     List<Player> playerList = playerListCaptor.getValue();
     Assert.assertEquals(2, playerList.size());
@@ -250,14 +252,21 @@ public class UnclaimedPlayerDataProviderTest {
 
   @Test
   public void testRangeChangedEmptyPositionFilter() {
-    provider.setPositionFilter(EnumSet.noneOf(Position.class));
+    OpenPositions openPositions = Mockito.mock(OpenPositions.class);
+    Mockito.when(openPositions.get()).thenReturn(EnumSet.noneOf(Position.class));
+    provider.setPositionFilter(new UnfilledPositionsFilter(openPositions), EnumSet.noneOf(Position.class));
     provider.rangeChanged(provider.getView());
-    Assert.assertEquals(Position.REAL_POSITIONS, provider.getPositionFilterProvider().get());
+    PositionFilter positionFilter = provider.getPositionFilterProvider().get();
+    for (Position position : Position.REAL_POSITIONS) {
+      Player player = Mockito.mock(Player.class);
+      Mockito.when(player.getEligibility()).thenReturn(position.getShortName());
+      Assert.assertTrue(positionFilter.apply(player, EnumSet.noneOf(Position.class)));
+    }
   }
 
   @Test
   public void testOnDraftStatusChangedPickedPlayers() {
-    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec, unfilledPositions);
+    provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createDraftStatus(Lists.newArrayList(
             DraftStatusTestUtil.createDraftPick(1, "", false, "C", 1, beanFactory)), beanFactory)));
@@ -340,14 +349,16 @@ public class UnclaimedPlayerDataProviderTest {
   @Test
   public void testSetPositionFilter() {
     InOrder inOrder = Mockito.inOrder(view);
-    EnumSet<Position> pitchers = EnumSet.of(Position.P);
-    EnumSet<Position> firstBasemen = EnumSet.of(Position.FB);
-    EnumSet<Position> middleInfielders = EnumSet.of(Position.SB, Position.SS);
-    provider.setPositionFilter(pitchers);
+    SinglePositionFilter pitchers = new SinglePositionFilter(Position.P);
+    provider.setPositionFilter(pitchers, EnumSet.noneOf(Position.class));
     Assert.assertEquals(pitchers, provider.getPositionFilterProvider().get());
-    provider.setPositionFilter(firstBasemen);
+    SinglePositionFilter firstBasemen = new SinglePositionFilter(Position.FB);
+    provider.setPositionFilter(firstBasemen, EnumSet.noneOf(Position.class));
     Assert.assertEquals(firstBasemen, provider.getPositionFilterProvider().get());
-    provider.setPositionFilter(middleInfielders);
+    OpenPositions openPositions = Mockito.mock(OpenPositions.class);
+    Mockito.when(openPositions.get()).thenReturn(EnumSet.of(Position.SB, Position.SS));
+    UnfilledPositionsFilter middleInfielders = new UnfilledPositionsFilter(openPositions);
+    provider.setPositionFilter(middleInfielders, EnumSet.noneOf(Position.class));
     Assert.assertEquals(middleInfielders, provider.getPositionFilterProvider().get());
     inOrder.verify(view, Mockito.calls(2)).positionFilterUpdated(true);
     inOrder.verify(view).positionFilterUpdated(false);

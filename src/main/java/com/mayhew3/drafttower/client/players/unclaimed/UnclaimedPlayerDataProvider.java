@@ -10,11 +10,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
-import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;
+import com.mayhew3.drafttower.client.players.AllPositionFilter;
 import com.mayhew3.drafttower.client.players.PlayerDataProvider;
 import com.mayhew3.drafttower.client.players.PlayerTableView;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
@@ -40,11 +41,11 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   private final BeanFactory beanFactory;
   private final ServerRpc serverRpc;
   private final TeamsInfo teamsInfo;
-  private final OpenPositions openPositions;
   private final EventBus eventBus;
 
   private final TableSpec tableSpec;
-  private EnumSet<Position> positionFilter = EnumSet.allOf(Position.class);
+  private PositionFilter positionFilter = new AllPositionFilter();
+  private EnumSet<Position> excludedPositions;
   private boolean hideInjuries;
   private String nameFilter;
 
@@ -57,14 +58,12 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   public UnclaimedPlayerDataProvider(BeanFactory beanFactory,
       ServerRpc serverRpc,
       TeamsInfo teamsInfo,
-      EventBus eventBus,
-      OpenPositions openPositions) {
+      EventBus eventBus) {
     super(eventBus);
 
     this.beanFactory = beanFactory;
     this.serverRpc = serverRpc;
     this.teamsInfo = teamsInfo;
-    this.openPositions = openPositions;
     this.eventBus = eventBus;
 
     tableSpec = beanFactory.createTableSpec().as();
@@ -93,7 +92,6 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   @Override
   public void onLogin(LoginEvent event) {
     requestData(tableSpec,
-        openPositions.get(),
         new Runnable() {
           @Override
           public void run() {
@@ -111,10 +109,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   }
 
   @VisibleForTesting
-  void requestData(
-      final TableSpec tableSpec,
-      final EnumSet<Position> positionFilter,
-      Runnable callback) {
+  void requestData(final TableSpec tableSpec, Runnable callback) {
     if (!teamsInfo.isLoggedIn()) {
       return;
     }
@@ -135,8 +130,8 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
       @Override
       public Void apply(UnclaimedPlayerListResponse playerListResponse) {
         handlePlayerListResponse(playerListResponse,
-            tableSpec,
-            positionFilter);
+            tableSpec
+        );
         return null;
       }
     });
@@ -145,12 +140,10 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   @VisibleForTesting
   void handlePlayerListResponse(
       UnclaimedPlayerListResponse playerListResponse,
-      TableSpec tableSpec,
-      EnumSet<Position> defaultPositionFilter) {
+      TableSpec tableSpec) {
     PlayerList playerList = new PlayerList(
         playerListResponse.getPlayers(),
         tableSpec.getSortCol(),
-        defaultPositionFilter,
         tableSpec.isAscending());
     playerList.ensurePlayersRemoved(picks);
     playersByDataSet.put(tableSpec.getPlayerDataSet(), playerList);
@@ -166,12 +159,8 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     int rowCount = display.getVisibleRange().getLength();
     if (display instanceof UnclaimedPlayerTableView) {
       UnclaimedPlayerTableView table = (UnclaimedPlayerTableView) display;
-      if (positionFilter.isEmpty()) {
-        positionFilter = Position.REAL_POSITIONS;
-      }
       if (!playersByDataSet.containsKey(tableSpec.getPlayerDataSet())) {
         requestData(tableSpec,
-            positionFilter,
             new Runnable() {
               @Override
               public void run() {
@@ -181,7 +170,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
       } else {
         PlayerList playerList = playersByDataSet.get(tableSpec.getPlayerDataSet());
         Iterable<Player> players = playerList.getPlayers(
-            tableSpec, rowStart, rowCount, positionFilter, hideInjuries, nameFilter);
+            tableSpec, rowStart, rowCount, positionFilter, excludedPositions, hideInjuries, nameFilter);
         table.setRowData(rowStart, Lists.newArrayList(players));
         table.setRowCount(playerList.getTotalPlayers(), true);
         table.computePageSize();
@@ -302,16 +291,17 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     return getView().getSortedPlayerColumn();
   }
 
-  public void setPositionFilter(EnumSet<Position> positionFilter) {
-    boolean reSort = Position.isPitcherFilter(this.positionFilter) != Position.isPitcherFilter(positionFilter);
+  public void setPositionFilter(PositionFilter positionFilter, EnumSet<Position> excludedPositions) {
+    boolean reSort = this.positionFilter.isPitcherFilter() != positionFilter.isPitcherFilter();
     this.positionFilter = positionFilter;
+    this.excludedPositions = excludedPositions;
     getView().positionFilterUpdated(reSort);
   }
 
-  public Provider<EnumSet<Position>> getPositionFilterProvider() {
-    return new Provider<EnumSet<Position>>() {
+  public Provider<PositionFilter> getPositionFilterProvider() {
+    return new Provider<PositionFilter>() {
       @Override
-      public EnumSet<Position> get() {
+      public PositionFilter get() {
         return positionFilter;
       }
     };

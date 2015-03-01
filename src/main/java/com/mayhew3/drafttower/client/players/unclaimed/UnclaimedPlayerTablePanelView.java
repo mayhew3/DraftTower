@@ -7,7 +7,7 @@ import com.mayhew3.drafttower.shared.PlayerDataSet;
  * View interface for main player table.
  */
 public interface UnclaimedPlayerTablePanelView {
-  void setPositionFilter(PositionFilter positionFilter, boolean unfilledSelected);
+  void setPositionFilter(PositionFilter positionFilter);
 
   void setCopyRanksEnabled(boolean enabled, boolean defer);
 
