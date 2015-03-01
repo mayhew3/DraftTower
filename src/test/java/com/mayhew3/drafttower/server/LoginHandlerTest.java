@@ -19,19 +19,23 @@ import java.util.Map;
 public class LoginHandlerTest {
 
   private LoginHandler handler;
-  private Map<String, TeamDraftOrder> teamTokens;
-  private Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
   private Map<String, Team> teamsMap;
 
   @Before
   public void setUp() throws Exception {
     BeanFactory beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
-    teamTokens = new HashMap<>();
+    Map<String, TeamDraftOrder> teamTokens = new HashMap<>();
     teamTokens.put("t4token", new TeamDraftOrder(4));
     teamTokens.put("t5token", new TeamDraftOrder(5));
 
-    autoPickWizardTables = new HashMap<>();
+    Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables = new HashMap<>();
     autoPickWizardTables.put(new TeamDraftOrder(4), PlayerDataSet.GURU);
+
+    Map<TeamDraftOrder, Integer> minClosers = new HashMap<>();
+    minClosers.put(new TeamDraftOrder(4), 2);
+
+    Map<TeamDraftOrder, Integer> maxClosers = new HashMap<>();
+    maxClosers.put(new TeamDraftOrder(4), 4);
 
     TeamDataSource teamDataSource = Mockito.mock(TeamDataSource.class);
     teamsMap = new HashMap<>();
@@ -67,7 +71,9 @@ public class LoginHandlerTest {
         beanFactory,
         tokenGenerator,
         teamTokens,
-        autoPickWizardTables);
+        autoPickWizardTables,
+        minClosers,
+        maxClosers);
   }
 
   @Test
@@ -100,6 +106,8 @@ public class LoginHandlerTest {
     Assert.assertEquals(4, response.getTeam());
     Assert.assertEquals("t4token", response.getTeamToken());
     Assert.assertEquals(PlayerDataSet.GURU, response.getInitialWizardTable());
+    Assert.assertEquals(2, response.getMinClosers());
+    Assert.assertEquals(4, response.getMaxClosers());
     Assert.assertEquals(teamsMap, response.getTeams());
     Assert.assertTrue(response.isCommissionerTeam());
   }

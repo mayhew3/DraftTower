@@ -3,11 +3,10 @@ package com.mayhew3.drafttower.server;
 import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
+import com.mayhew3.drafttower.server.BindingAnnotations.MaxClosers;
+import com.mayhew3.drafttower.server.BindingAnnotations.MinClosers;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.DraftStatus;
-import com.mayhew3.drafttower.shared.LoginResponse;
-import com.mayhew3.drafttower.shared.PlayerDataSet;
+import com.mayhew3.drafttower.shared.*;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,7 +22,9 @@ public class LoginHandler {
   private final TokenGenerator tokenGenerator;
   private final Map<String, TeamDraftOrder> teamTokens;
   private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
-  
+  private final Map<TeamDraftOrder, Integer> minClosers;
+  private final Map<TeamDraftOrder, Integer> maxClosers;
+
   @Inject
   public LoginHandler(
       TeamDataSource teamDataSource,
@@ -31,13 +32,17 @@ public class LoginHandler {
       BeanFactory beanFactory,
       TokenGenerator tokenGenerator,
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
-      @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables) {
+      @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
+      @MinClosers Map<TeamDraftOrder, Integer> minClosers,
+      @MaxClosers Map<TeamDraftOrder, Integer> maxClosers) {
     this.teamDataSource = teamDataSource;
     this.draftStatus = draftStatus;
     this.beanFactory = beanFactory;
     this.tokenGenerator = tokenGenerator;
     this.teamTokens = teamTokens;
     this.autoPickWizardTables = autoPickWizardTables;
+    this.minClosers = minClosers;
+    this.maxClosers = maxClosers;
   }  
 
   public AutoBean<LoginResponse> doLogin(
@@ -82,6 +87,10 @@ public class LoginHandler {
     response.setTeam(teamDraftOrder.get());
     response.setTeamToken(teamToken);
     response.setInitialWizardTable(autoPickWizardTables.get(teamDraftOrder));
+    Integer teamMinClosers = minClosers.get(teamDraftOrder);
+    response.setMinClosers(teamMinClosers == null ? 0 : teamMinClosers);
+    Integer teamMaxClosers = maxClosers.get(teamDraftOrder);
+    response.setMaxClosers(teamMaxClosers == null ? RosterUtil.POSITIONS_AND_COUNTS.get(Position.P) : teamMaxClosers);
     response.setTeams(teamDataSource.getTeams());
     response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
     response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port", "8080")));

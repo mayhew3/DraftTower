@@ -35,6 +35,7 @@ public abstract class SimulatedClient implements WebsocketListener {
   @Inject protected LoginServlet loginServlet;
   @Inject protected QueueServlet queueServlet;
   @Inject protected SetAutoPickWizardServlet setAutoPickWizardServlet;
+  @Inject protected SetCloserLimitServlet setCloserLimitServlet;
   @Inject protected UnclaimedPlayerLookupServlet unclaimedPlayerLookupServlet;
   @Inject protected DraftStatus draftStatus;
   @Inject @CommissionerTeam protected String commissionerTeam;
@@ -232,6 +233,18 @@ public abstract class SimulatedClient implements WebsocketListener {
     HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
     Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
     setAutoPickWizardServlet.doPost(req, resp);
+  }
+
+  protected void setCloserLimits(int minClosers, int maxClosers) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<SetCloserLimitRequest> request = beanFactory.createSetCloserLimitsRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setMinClosers(minClosers);
+    request.as().setMaxClosers(maxClosers);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    setCloserLimitServlet.doPost(req, resp);
   }
 
   protected void getUnclaimedPlayers(TableSpec tableSpec) throws ServletException, IOException {

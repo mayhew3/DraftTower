@@ -24,6 +24,12 @@ public interface LoginResponse {
   PlayerDataSet getInitialWizardTable();
   void setInitialWizardTable(PlayerDataSet playerDataSet);
 
+  int getMinClosers();
+  void setMinClosers(int minClosers);
+
+  int getMaxClosers();
+  void setMaxClosers(int maxClosers);
+
   boolean isAlreadyLoggedIn();
   void setAlreadyLoggedIn(boolean alreadyLoggedIn);
 

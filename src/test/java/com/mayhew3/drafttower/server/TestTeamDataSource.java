@@ -20,6 +20,8 @@ public class TestTeamDataSource implements TeamDataSource {
   @Inject BeanFactory beanFactory;
   @Inject @NumTeams int numTeams;
   private HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
+  private HashMap<TeamDraftOrder, Integer> minClosers = new HashMap<>();
+  private HashMap<TeamDraftOrder, Integer> maxClosers = new HashMap<>();
 
   @Override
   public TeamDraftOrder getTeamDraftOrder(String username, String password) {
@@ -73,5 +75,21 @@ public class TestTeamDataSource implements TeamDataSource {
   @Override
   public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) {
     return new TeamId(draftOrder.get());
+  }
+
+  @Override
+  public Map<TeamDraftOrder, Integer> getMinClosers() {
+    return minClosers;
+  }
+
+  @Override
+  public Map<TeamDraftOrder, Integer> getMaxClosers() {
+    return maxClosers;
+  }
+
+  @Override
+  public void updateCloserLimits(TeamDraftOrder teamDraftOrder, int teamMinClosers, int teamMaxClosers) {
+    minClosers.put(teamDraftOrder, teamMinClosers);
+    maxClosers.put(teamDraftOrder, teamMaxClosers);
   }
 }

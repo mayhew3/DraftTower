@@ -50,7 +50,6 @@ public class DraftControllerTest {
       }
     }).when(playerDataSource).populateDraftStatus(Mockito.<DraftStatus>any());
     Mockito.when(playerDataSource.getBestPlayerId(
-        Mockito.<PlayerDataSet>any(),
         Mockito.<TeamDraftOrder>any(),
         Mockito.anyListOf(DraftPick.class),
         Mockito.<EnumSet<Position>>any()))
@@ -87,7 +86,6 @@ public class DraftControllerTest {
         teamTokens,
         keepers,
         queues,
-        new HashMap<TeamDraftOrder, PlayerDataSet>(),
         10);
     Mockito.reset(socketServlet);
     return draftController;

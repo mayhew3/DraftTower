@@ -138,11 +138,14 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     login(1);
     ginjector.getScheduler().flush();
     click(Scoring.CATEGORIES ? "-players-table-0-13" : "-players-table-0-17");
+    click("-players-autopickSettings");
     assertFalse(isEnabled("-players-copyRanks"));
     click(Scoring.CATEGORIES ? "-players-table-0-15" : "-players-table-0-19");
+    click("-players-autopickSettings");
     assertFalse(isEnabled("-players-copyRanks"));
 
     click("-players-table-0-1");
+    click("-players-autopickSettings");
     click("-players-copyRanks");
     for (int i = 1; i < 40; i++) {
       assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + (Scoring.CATEGORIES ? "-15" : "-19")));
@@ -151,18 +154,24 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
 
   public void testAutoPickWizardCheckbox() {
     login(1);
+    click("-players-autopickSettings");
     assertFalse(isEnabled("-players-autopick"));
     click("-players-table-0-" + (Scoring.CATEGORIES ? "13" : "17"));
+    click("-players-autopickSettings");
     assertTrue(isEnabled("-players-autopick"));
 
     click("-players-GURU");
+    click("-players-autopickSettings");
     assertFalse(isChecked("-players-autopick"));
+    click("-players-autopickSettings");
     click("-players-autopick");
     assertTrue(isChecked("-players-autopick"));
 
     click("-players-Averages");
+    click("-players-autopickSettings");
     assertFalse(isChecked("-players-autopick"));
     click("-players-GURU");
+    click("-players-autopickSettings");
     assertTrue(isChecked("-players-autopick"));
   }
 

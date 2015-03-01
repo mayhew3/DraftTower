@@ -29,7 +29,7 @@ public class FuzzClient extends SimulatedClient {
       sendDraftCommand(Command.START_DRAFT, null);
     } else {
       try {
-        switch (random.nextInt(35)) {
+        switch (random.nextInt(38)) {
           case 0:
           case 1:
           case 2:
@@ -108,6 +108,11 @@ public class FuzzClient extends SimulatedClient {
             break;
           case 34:
             sendDraftCommand(Command.WAKE_UP, null);
+            break;
+          case 35:
+          case 36:
+          case 37:
+            setCloserLimits(random.nextInt(10), random.nextInt(10));
             break;
         }
       } catch (Exception e) {

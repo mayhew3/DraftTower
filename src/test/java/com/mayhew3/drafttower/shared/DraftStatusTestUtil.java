@@ -29,11 +29,11 @@ public class DraftStatusTestUtil {
   }
 
   public static DraftPick createDraftPick(int team, String name, boolean isKeeper, BeanFactory beanFactory) {
-    return createDraftPick(team, name, isKeeper, "P", lastPlayerId++, beanFactory);
+    return createDraftPick(team, name, isKeeper, "P", (long) lastPlayerId++, beanFactory);
   }
 
   public static DraftPick createDraftPick(int team, String name, boolean isKeeper, String position, BeanFactory beanFactory) {
-    return createDraftPick(team, name, isKeeper, position, lastPlayerId++, beanFactory);
+    return createDraftPick(team, name, isKeeper, position, (long) lastPlayerId++, beanFactory);
   }
 
   public static DraftPick createAndPostDraftPick(
@@ -44,10 +44,15 @@ public class DraftStatusTestUtil {
   }
 
   public static DraftPick createDraftPick(int team, String name, boolean isKeeper, String position, long id, BeanFactory beanFactory) {
+    return createDraftPick(team, name, isKeeper, false, position, id, beanFactory);
+  }
+
+  public static DraftPick createDraftPick(int team, String name, boolean isKeeper, boolean isCloser, String position, long id, BeanFactory beanFactory) {
     DraftPick draftPick = beanFactory.createDraftPick().as();
     draftPick.setTeam(team);
     draftPick.setEligibilities(ImmutableList.of(position));
     draftPick.setKeeper(isKeeper);
+    draftPick.setCloser(isCloser);
     draftPick.setPlayerName(name);
     draftPick.setPlayerId(id);
     return draftPick;

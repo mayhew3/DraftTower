@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -171,6 +172,23 @@ public class TeamDataSourceImpl implements TeamDataSource {
   @Override
   public TeamId getTeamIdByDraftOrder(TeamDraftOrder draftOrder) throws DataSourceException {
     return getTeamIdDraftOrderMap().inverse().get(draftOrder);
+  }
+
+  @Override
+  public Map<TeamDraftOrder, Integer> getMinClosers() {
+    // TODO(m3): read from DB
+    return new ConcurrentHashMap<>();
+  }
+
+  @Override
+  public Map<TeamDraftOrder, Integer> getMaxClosers() {
+    // TODO(m3): read from DB
+    return new ConcurrentHashMap<>();
+  }
+
+  @Override
+  public void updateCloserLimits(TeamDraftOrder teamDraftOrder, int teamMinClosers, int teamMaxClosers) {
+    // TODO(m3): update DB
   }
 
   private BiMap<TeamId, TeamDraftOrder> getTeamIdDraftOrderMap() throws DataSourceException {

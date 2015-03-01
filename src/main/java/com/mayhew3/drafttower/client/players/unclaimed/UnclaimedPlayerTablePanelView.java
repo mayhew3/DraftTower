@@ -14,4 +14,6 @@ public interface UnclaimedPlayerTablePanelView {
   void updateDataSetButtons(PlayerDataSet playerDataSet);
 
   void updateUseForAutoPickCheckbox(boolean usersAutoPickWizardTable, boolean shouldBeEnabled);
+
+  void setCloserLimits(int minClosersValue, int maxClosersValue);
 }
