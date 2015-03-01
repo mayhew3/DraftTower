@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
@@ -18,23 +19,21 @@ public class PlayerList {
 
   public PlayerList(List<Player> players,
       PlayerColumn defaultSortCol,
-      EnumSet<Position> defaultPositionFilter,
       boolean defaultSortAscending) {
-    playersBySortCol.put(
-        new SortSpec(defaultSortCol, defaultPositionFilter, defaultSortAscending), players);
+    playersBySortCol.put(new SortSpec(defaultSortCol, defaultSortAscending), players);
   }
 
   public Iterable<Player> getPlayers(TableSpec tableSpec,
       int rowStart, int rowCount,
-      final EnumSet<Position> positionFilter,
+      final PositionFilter positionFilter,
+      final EnumSet<Position> excludedPositions,
       final boolean hideInjuries,
       final String nameFilter) {
-    // TODO(kprevas): refetch when nameFilter is set to get 0 AB/0 INN players?
-    SortSpec sortSpec = new SortSpec(tableSpec.getSortCol(), positionFilter, tableSpec.isAscending());
+    SortSpec sortSpec = new SortSpec(tableSpec.getSortCol(), tableSpec.isAscending());
     if (!playersBySortCol.containsKey(sortSpec)) {
       List<Player> players = playersBySortCol.values().iterator().next();
       Comparator<Player> comparator = sortSpec.getColumn() == PlayerColumn.WIZARD
-          ? PlayerColumn.getWizardComparator(sortSpec.isAscending(), positionFilter)
+          ? positionFilter.getWizardComparator(sortSpec.isAscending())
           : sortSpec.getColumn().getComparator(sortSpec.isAscending());
       playersBySortCol.put(sortSpec,
           Ordering.from(comparator).sortedCopy(players));
@@ -46,9 +45,9 @@ public class PlayerList {
           public boolean apply(Player player) {
             return (nameFilter == null
                 || PlayerColumn.NAME.get(player).toLowerCase()
-                .contains(nameFilter.toLowerCase()))
+                    .contains(nameFilter.toLowerCase()))
                 && (!hideInjuries || player.getInjury() == null)
-                && Position.apply(player, positionFilter)
+                && positionFilter.apply(player, excludedPositions)
                 && !pickedPlayers.contains(player.getPlayerId());
           }
         }), rowStart), rowCount);
@@ -101,7 +100,7 @@ public class PlayerList {
     }
     // Ensure we don't hit the server again if the only sort order we had was by rank.
     if (playersBySortCol.isEmpty()) {
-      playersBySortCol.put(new SortSpec(PlayerColumn.MYRANK, EnumSet.allOf(Position.class), true),
+      playersBySortCol.put(new SortSpec(PlayerColumn.MYRANK, true),
           Ordering.from(PlayerColumn.MYRANK.getComparator(true)).sortedCopy(players));
     }
   }

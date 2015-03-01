@@ -11,6 +11,7 @@ public enum PlayerColumn {
   MLB("Tm", "MLB Team", "MLBTeam", false, true),
   ELIG("Elig", "Eligible Positions", "Eligibility", false, true),
   G("G", "Games Played", "G", true, false),
+  GS("GS", "Games Started", "GS", true, false),
   AB("AB", "At Bats", "AB", true, false),
   OBP("OBP", "On-Base Percentage", "OBP", true, false),
   SLG("SLG", "Slugging Percentage", "SLG", true, false),
@@ -115,6 +116,8 @@ public enum PlayerColumn {
         return player.getEligibility();
       case G:
         return player.getG();
+      case GS:
+        return player.getGS();
       case AB:
         return player.getAB();
       case OBP:
@@ -187,6 +190,9 @@ public enum PlayerColumn {
         break;
       case G:
         player.setG(value);
+        break;
+      case GS:
+        player.setGS(value);
         break;
       case AB:
         player.setAB(value);
@@ -340,7 +346,7 @@ public enum PlayerColumn {
       };
     } else {
       return new PlayerColumn[] {
-          NAME, MLB, ELIG, G, AB, H, X2B, X3B, HR, RHR, RBI, SB, CS, BB, INN, HA, BBI, K, ER, HRA, WL, S, PTS, RANK, DRAFT, WIZARD, MYRANK
+          NAME, MLB, ELIG, G, GS, AB, H, X2B, X3B, HR, RHR, RBI, SB, CS, BB, INN, HA, BBI, K, ER, HRA, WL, S, PTS, RANK, DRAFT, WIZARD, MYRANK
       };
     }
   }

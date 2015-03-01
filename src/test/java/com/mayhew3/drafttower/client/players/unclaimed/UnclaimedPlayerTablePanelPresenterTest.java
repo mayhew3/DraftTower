@@ -7,6 +7,7 @@ import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
 import com.mayhew3.drafttower.client.players.PositionFilter;
+import com.mayhew3.drafttower.client.players.UnfilledPositionsFilter;
 import com.mayhew3.drafttower.shared.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +22,6 @@ import java.util.EnumSet;
  */
 public class UnclaimedPlayerTablePanelPresenterTest {
 
-  private EnumSet<Position> unfilledPositions;
   private UnclaimedPlayerDataProvider tablePresenter;
   private EventBus eventBus;
   private UnclaimedPlayerTablePanelView view;
@@ -32,15 +32,15 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   public void setUp() {
     BeanFactory beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
     OpenPositions openPositions = Mockito.mock(OpenPositions.class);
-    unfilledPositions = EnumSet.of(Position.C, Position.SB, Position.SS, Position.P);
-    Mockito.when(openPositions.get()).thenReturn(unfilledPositions);
+    EnumSet<Position> unfilledPositionsSet = EnumSet.of(Position.C, Position.SB, Position.SS, Position.P);
+    Mockito.when(openPositions.get()).thenReturn(unfilledPositionsSet);
     tablePresenter = Mockito.mock(UnclaimedPlayerDataProvider.class);
     Mockito.when(tablePresenter.getSortedPlayerColumn()).thenReturn(PlayerColumn.WIZARD);
     eventBus = Mockito.mock(EventBus.class);
     view = Mockito.mock(UnclaimedPlayerTablePanelView.class);
 
     presenter = new UnclaimedPlayerTablePanelPresenter(
-        openPositions,
+        new UnfilledPositionsFilter(openPositions),
         tablePresenter,
         eventBus);
     presenter.setView(view);
@@ -56,10 +56,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   @Test
   public void testUnfilledPositionFilterCreated() {
     PositionFilter unfilledPositionFilter = UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(0);
-    Assert.assertEquals("Unfilled", unfilledPositionFilter.getName());
-    Assert.assertEquals(unfilledPositions, unfilledPositionFilter.getPositions());
-    unfilledPositions.add(Position.TB);
-    Assert.assertEquals(unfilledPositions, unfilledPositionFilter.getPositions());
+    Assert.assertTrue(unfilledPositionFilter instanceof UnfilledPositionsFilter);
   }
 
   @Test
@@ -124,16 +121,16 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   public void testSetPositionFilter() {
     PositionFilter positionFilter = UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(1);
     presenter.setPositionFilter(positionFilter);
-    Mockito.verify(view).setPositionFilter(positionFilter, false);
-    Mockito.verify(tablePresenter).setPositionFilter(positionFilter.getPositions());
+    Mockito.verify(view).setPositionFilter(positionFilter);
+    Mockito.verify(tablePresenter).setPositionFilter(positionFilter, EnumSet.noneOf(Position.class));
   }
 
   @Test
   public void testSetPositionFilterUnfilled() {
     PositionFilter unfilledPositionFilter = UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(0);
     presenter.setPositionFilter(unfilledPositionFilter);
-    Mockito.verify(view).setPositionFilter(unfilledPositionFilter, true);
-    Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter.getPositions());
+    Mockito.verify(view).setPositionFilter(unfilledPositionFilter);
+    Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter, EnumSet.noneOf(Position.class));
   }
 
   @Test
@@ -141,10 +138,8 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     presenter.excludedPositions.add(Position.SB);
     PositionFilter unfilledPositionFilter = UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(0);
     presenter.setPositionFilter(unfilledPositionFilter);
-    Mockito.verify(view).setPositionFilter(unfilledPositionFilter, true);
-    EnumSet<Position> expectedPresenterPositions = unfilledPositionFilter.getPositions().clone();
-    expectedPresenterPositions.remove(Position.SB);
-    Mockito.verify(tablePresenter).setPositionFilter(expectedPresenterPositions);
+    Mockito.verify(view).setPositionFilter(unfilledPositionFilter);
+    Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter, EnumSet.of(Position.SB));
   }
 
   @Test
@@ -202,10 +197,8 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     presenter.toggleExcludedPosition(Position.SB);
     Assert.assertTrue(presenter.excludedPositions.contains(Position.SB));
     PositionFilter unfilledPositionFilter = UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(0);
-    Mockito.verify(view).setPositionFilter(unfilledPositionFilter, true);
-    EnumSet<Position> expectedPresenterPositions = unfilledPositionFilter.getPositions().clone();
-    expectedPresenterPositions.remove(Position.SB);
-    Mockito.verify(tablePresenter).setPositionFilter(expectedPresenterPositions);
+    Mockito.verify(view).setPositionFilter(unfilledPositionFilter);
+    Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter, EnumSet.of(Position.SB));
   }
 
   @Test
@@ -214,8 +207,8 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     presenter.toggleExcludedPosition(Position.SB);
     Assert.assertFalse(presenter.excludedPositions.contains(Position.SB));
     PositionFilter unfilledPositionFilter = UnclaimedPlayerTablePanelPresenter.POSITION_FILTERS.get(0);
-    Mockito.verify(view).setPositionFilter(unfilledPositionFilter, true);
-    Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter.getPositions());
+    Mockito.verify(view).setPositionFilter(unfilledPositionFilter);
+    Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter, EnumSet.noneOf(Position.class));
   }
 
   private void mockTableSpecWithPlayerDataSet(PlayerDataSet playerDataSet) {

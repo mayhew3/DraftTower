@@ -7,10 +7,8 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.PlayerColumn;
-import com.mayhew3.drafttower.shared.Position;
-
-import java.util.EnumSet;
 
 /**
 * Class description...
@@ -36,10 +34,10 @@ class PlayerColumnHeader extends Header<SafeHtml> {
 
   private final PlayerColumn column;
   private final PlayerColumn pitcherColumn;
-  private final Provider<EnumSet<Position>> positionFilterProvider;
+  private final Provider<PositionFilter> positionFilterProvider;
 
   public PlayerColumnHeader(PlayerColumn column, PlayerColumn pitcherColumn,
-      Provider<EnumSet<Position>> positionFilterProvider) {
+      Provider<PositionFilter> positionFilterProvider) {
     super(new SafeHtmlCell());
     this.column = column;
     this.pitcherColumn = pitcherColumn;
@@ -53,13 +51,13 @@ class PlayerColumnHeader extends Header<SafeHtml> {
 
   private SafeHtml getShortName() {
     if (pitcherColumn != null) {
-      if (Position.isPitcherFilter(positionFilterProvider.get())
+      if (positionFilterProvider.get().isPitcherFilter()
           || column.getShortName().equals(pitcherColumn.getShortName())) {
         return new SafeHtmlBuilder()
             .appendEscaped(pitcherColumn.getShortName())
             .toSafeHtml();
       }
-      if (Position.isPitchersAndBattersFilter(positionFilterProvider.get())) {
+      if (positionFilterProvider.get().isPitchersAndBattersFilter()) {
         return TEMPLATES.splitHeader(UnclaimedPlayerTable.CSS.splitHeader(),
             UnclaimedPlayerTable.CSS.batterStat(),
             column.getShortName(),
@@ -74,10 +72,10 @@ class PlayerColumnHeader extends Header<SafeHtml> {
 
   private String getLongName() {
     if (pitcherColumn != null) {
-      if (Position.isPitcherFilter(positionFilterProvider.get())) {
+      if (positionFilterProvider.get().isPitcherFilter()) {
         return pitcherColumn.getLongName();
       }
-      if (Position.isPitchersAndBattersFilter(positionFilterProvider.get())) {
+      if (positionFilterProvider.get().isPitchersAndBattersFilter()) {
         return column.getLongName() + "/" + pitcherColumn.getLongName();
       }
     }

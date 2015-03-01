@@ -24,10 +24,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PlayerDragController;
 import com.mayhew3.drafttower.client.players.PlayerTable;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
 
 import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
@@ -98,7 +98,7 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     for (int i = 0; i < COLUMNS.length; i++) {
       PlayerColumn column = COLUMNS[i];
       PlayerColumn pitcherColumn = PITCHER_COLUMNS[i];
-      Provider<EnumSet<Position>> positionFilterProvider = presenter.getPositionFilterProvider();
+      Provider<PositionFilter> positionFilterProvider = presenter.getPositionFilterProvider();
 
       PlayerTableColumn<?> playerTableColumn;
       if (pitcherColumn == null) {

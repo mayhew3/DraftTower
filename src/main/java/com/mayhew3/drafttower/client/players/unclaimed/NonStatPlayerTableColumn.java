@@ -2,11 +2,9 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.cell.client.Cell;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
-import com.mayhew3.drafttower.shared.Position;
-
-import java.util.EnumSet;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.MYRANK;
 import static com.mayhew3.drafttower.shared.PlayerColumn.WIZARD;
@@ -16,12 +14,12 @@ import static com.mayhew3.drafttower.shared.PlayerColumn.WIZARD;
  */
 public class NonStatPlayerTableColumn extends PlayerTableColumn<String> {
 
-  private final Provider<EnumSet<Position>> positionFilterProvider;
+  private final Provider<PositionFilter> positionFilterProvider;
 
   public NonStatPlayerTableColumn(Cell<String> cell,
       PlayerColumn column,
       final UnclaimedPlayerDataProvider presenter,
-      Provider<EnumSet<Position>> positionFilterProvider) {
+      Provider<PositionFilter> positionFilterProvider) {
     super(cell, column);
     this.positionFilterProvider = positionFilterProvider;
 
@@ -35,7 +33,7 @@ public class NonStatPlayerTableColumn extends PlayerTableColumn<String> {
   @Override
   public String getValue(Player player) {
     if (column == WIZARD) {
-      return PlayerColumn.getWizard(player, positionFilterProvider.get());
+      return positionFilterProvider.get().getWizard(player);
     } else {
       return column.get(player);
     }

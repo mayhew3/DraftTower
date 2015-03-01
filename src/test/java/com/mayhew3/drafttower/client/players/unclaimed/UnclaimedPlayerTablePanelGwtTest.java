@@ -31,6 +31,28 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     }
   }
 
+  public void testStartingPitcherFilter() {
+    login(1);
+    click("-players-SP");
+    assertContains("gwt-ToggleButton-down",
+        ensureDebugIdAndGetElement("-players-SP", true).getClassName());
+    for (int i = 1; i < 16; i++) {
+      assertEquals("P", getInnerText("-players-table-" + i + "-4"));
+      assertEquals("0", getInnerText("-players-table-" + i + "-11"));
+    }
+  }
+
+  public void testCloserPitcherFilter() {
+    login(1);
+    click("-players-RP");
+    assertContains("gwt-ToggleButton-down",
+        ensureDebugIdAndGetElement("-players-RP", true).getClassName());
+    for (int i = 1; i < 16; i++) {
+      assertEquals("P", getInnerText("-players-table-" + i + "-4"));
+      assertFalse("0".equals(getInnerText("-players-table-" + i + "-11")));
+    }
+  }
+
   public void testAllPositionFilter() {
     login(1);
     simulateDraftStatus(new Position[][]{

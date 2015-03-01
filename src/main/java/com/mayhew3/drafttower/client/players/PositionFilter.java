@@ -1,31 +1,28 @@
 package com.mayhew3.drafttower.client.players;
 
+import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.Position;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 
 /**
  * Option in the position filters bar.
  */
-public class PositionFilter {
-  private final String name;
-  private final EnumSet<Position> positions;
+public interface PositionFilter {
+  String getName();
 
-  public PositionFilter(String name, EnumSet<Position> positions) {
-    this.name = name;
-    this.positions = positions;
-  }
+  boolean apply(Player player, EnumSet<Position> excludedPositions);
 
-  public PositionFilter(Position singlePosition) {
-    this.name = singlePosition.getShortName();
-    this.positions = EnumSet.of(singlePosition);
-  }
+  boolean showExcludeCheckboxWhenSelected(Position position);
 
-  public String getName() {
-    return name;
-  }
+  Position getPositionForExcludeCheckbox();
 
-  public EnumSet<Position> getPositions() {
-    return positions;
-  }
+  boolean isPitcherFilter();
+
+  boolean isPitchersAndBattersFilter();
+
+  Comparator<Player> getWizardComparator(boolean ascending);
+
+  String getWizard(Player player);
 }

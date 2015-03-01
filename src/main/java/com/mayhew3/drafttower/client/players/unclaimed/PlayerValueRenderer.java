@@ -6,9 +6,8 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.Position;
-
-import java.util.EnumSet;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.ELIG;
 
@@ -23,9 +22,9 @@ public class PlayerValueRenderer extends AbstractSafeHtmlRenderer<PlayerValue> {
   }
   private static final Templates TEMPLATES = GWT.create(Templates.class);
 
-  private final Provider<EnumSet<Position>> positionFilterProvider;
+  private final Provider<PositionFilter> positionFilterProvider;
 
-  public PlayerValueRenderer(Provider<EnumSet<Position>> positionFilterProvider) {
+  public PlayerValueRenderer(Provider<PositionFilter> positionFilterProvider) {
     this.positionFilterProvider = positionFilterProvider;
   }
 
@@ -33,7 +32,7 @@ public class PlayerValueRenderer extends AbstractSafeHtmlRenderer<PlayerValue> {
   public SafeHtml render(PlayerValue value) {
     SafeHtmlBuilder builder = new SafeHtmlBuilder();
     if (value.getValue() != null) {
-      if (Position.isPitchersAndBattersFilter(positionFilterProvider.get())) {
+      if (positionFilterProvider.get().isPitchersAndBattersFilter()) {
         String style;
         if (ELIG.get(value.getPlayer()).contains(Position.P.getShortName())) {
           style = UnclaimedPlayerTable.CSS.pitcherStat();

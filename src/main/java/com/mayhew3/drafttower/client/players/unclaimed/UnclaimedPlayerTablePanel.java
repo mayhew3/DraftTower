@@ -247,8 +247,9 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
         button.setDown(true);
       }
       buttonContainer.add(button);
-      if (positionFilter.getPositions().size() == 1) {
-        buttonContainer.add(positionOverrideCheckBoxes.get(positionFilter.getPositions().iterator().next()));
+      Position positionForExcludeCheckbox = positionFilter.getPositionForExcludeCheckbox();
+      if (positionForExcludeCheckbox != null) {
+        buttonContainer.add(positionOverrideCheckBoxes.get(positionForExcludeCheckbox));
       }
       filterButtons.add(buttonContainer);
     }
@@ -296,14 +297,12 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
   }
 
   @Override
-  public void setPositionFilter(PositionFilter positionFilter, boolean unfilledSelected) {
+  public void setPositionFilter(PositionFilter positionFilter) {
     for (Entry<PositionFilter, ToggleButton> buttonEntry : positionFilterButtons.entrySet()) {
       buttonEntry.getValue().setDown(buttonEntry.getKey() == positionFilter);
     }
     for (Entry<Position, CheckBox> checkBoxEntry : positionOverrideCheckBoxes.entrySet()) {
-      checkBoxEntry.getValue().setVisible(unfilledSelected
-          && (positionFilter.getPositions().isEmpty()
-              || positionFilter.getPositions().contains(checkBoxEntry.getKey())));
+      checkBoxEntry.getValue().setVisible(positionFilter.showExcludeCheckboxWhenSelected(checkBoxEntry.getKey()));
     }
   }
 

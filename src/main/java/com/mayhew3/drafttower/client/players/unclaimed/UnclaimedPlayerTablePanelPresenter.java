@@ -3,12 +3,14 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.gwt.event.shared.EventBus;
-import com.mayhew3.drafttower.client.OpenPositions;
 import com.mayhew3.drafttower.client.events.CopyAllPlayerRanksEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.events.SetAutoPickWizardEvent;
+import com.mayhew3.drafttower.client.players.AllPositionFilter;
 import com.mayhew3.drafttower.client.players.PositionFilter;
+import com.mayhew3.drafttower.client.players.SinglePositionFilter;
+import com.mayhew3.drafttower.client.players.UnfilledPositionsFilter;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
@@ -30,15 +32,17 @@ public class UnclaimedPlayerTablePanelPresenter implements
 
   static final List<PositionFilter> POSITION_FILTERS = Arrays.asList(
       null,  // Unfilled - populated in constructor.
-      new PositionFilter("All", EnumSet.allOf(Position.class)),
-      new PositionFilter(C),
-      new PositionFilter(FB),
-      new PositionFilter(SB),
-      new PositionFilter(TB),
-      new PositionFilter(SS),
-      new PositionFilter(OF),
-      new PositionFilter(DH),
-      new PositionFilter(P));
+      new AllPositionFilter(),
+      new SinglePositionFilter(C),
+      new SinglePositionFilter(FB),
+      new SinglePositionFilter(SB),
+      new SinglePositionFilter(TB),
+      new SinglePositionFilter(SS),
+      new SinglePositionFilter(OF),
+      new SinglePositionFilter(DH),
+      new SinglePositionFilter(P),
+      new StarterPitcherFilter(),
+      new CloserPitcherFilter());
 
   private final UnclaimedPlayerDataProvider tablePresenter;
   private final EventBus eventBus;
@@ -52,12 +56,12 @@ public class UnclaimedPlayerTablePanelPresenter implements
 
   @Inject
   public UnclaimedPlayerTablePanelPresenter(
-      OpenPositions openPositions,
+      UnfilledPositionsFilter unfilledPositionsFilter,
       UnclaimedPlayerDataProvider tablePresenter,
       final EventBus eventBus) {
     this.tablePresenter = tablePresenter;
     this.eventBus = eventBus;
-    POSITION_FILTERS.set(0, new PositionFilter("Unfilled", openPositions.get()));
+    POSITION_FILTERS.set(0, unfilledPositionsFilter);
 
     eventBus.addHandler(LoginEvent.TYPE, this);
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
@@ -104,13 +108,8 @@ public class UnclaimedPlayerTablePanelPresenter implements
 
   public void setPositionFilter(PositionFilter positionFilter) {
     this.positionFilter = positionFilter;
-    boolean unfilledSelected = positionFilter == POSITION_FILTERS.get(0);
-    view.setPositionFilter(positionFilter, unfilledSelected);
-    EnumSet<Position> positions = EnumSet.copyOf(positionFilter.getPositions());
-    if (unfilledSelected) {
-      positions.removeAll(excludedPositions);
-    }
-    tablePresenter.setPositionFilter(positions);
+    view.setPositionFilter(positionFilter);
+    tablePresenter.setPositionFilter(positionFilter, excludedPositions);
   }
 
   public void setUseForAutoPick(boolean useForAutoPick) {

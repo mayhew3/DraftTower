@@ -2,10 +2,15 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.common.collect.Lists;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
+import com.mayhew3.drafttower.client.OpenPositions;
+import com.mayhew3.drafttower.client.players.AllPositionFilter;
+import com.mayhew3.drafttower.client.players.SinglePositionFilter;
+import com.mayhew3.drafttower.client.players.UnfilledPositionsFilter;
 import com.mayhew3.drafttower.shared.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -31,14 +36,15 @@ public class PlayerListTest {
           i < 10 ? Position.C : Position.P,
           i));
     }
-    playerList = new PlayerList(players, PlayerColumn.MYRANK, EnumSet.allOf(Position.class), true);
+    playerList = new PlayerList(players, PlayerColumn.MYRANK, true);
   }
 
   @Test
   public void testGetPlayersSortedAscendingByRank() {
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, true),
-        0, 20, EnumSet.allOf(Position.class), false, null).iterator();
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(0), result.next());
     Assert.assertEquals(players.get(1), result.next());
     Assert.assertEquals(players.get(2), result.next());
@@ -50,7 +56,8 @@ public class PlayerListTest {
   public void testGetPlayersSortedDescendingByRank() {
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, false),
-        0, 20, EnumSet.allOf(Position.class), false, null).iterator();
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(19), result.next());
     Assert.assertEquals(players.get(18), result.next());
     Assert.assertEquals(players.get(17), result.next());
@@ -68,7 +75,8 @@ public class PlayerListTest {
     }
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(Scoring.CATEGORIES ? PlayerColumn.SBCS : PlayerColumn.SB, false),
-        0, 20, EnumSet.allOf(Position.class), false, null).iterator();
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(3), result.next());
     Assert.assertEquals(players.get(9), result.next());
     Assert.assertEquals(players.get(8), result.next());
@@ -81,7 +89,8 @@ public class PlayerListTest {
     players.get(3).setWizardC("50");
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.WIZARD, false),
-        0, 20, EnumSet.allOf(Position.class), false, null).iterator();
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(3), result.next());
     Assert.assertEquals(players.get(19), result.next());
     Assert.assertEquals(players.get(18), result.next());
@@ -92,9 +101,12 @@ public class PlayerListTest {
   @Test
   public void testGetPlayersSortedDescendingByWizardPositionFilter() {
     players.get(3).setWizardC("50");
+    OpenPositions openPositions = Mockito.mock(OpenPositions.class);
+    Mockito.when(openPositions.get()).thenReturn(EnumSet.complementOf(EnumSet.of(Position.C)));
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.WIZARD, false),
-        0, 20, EnumSet.complementOf(EnumSet.of(Position.C)), false, null).iterator();
+        0, 20, new UnfilledPositionsFilter(openPositions), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(19), result.next());
     Assert.assertEquals(players.get(18), result.next());
     Assert.assertEquals(players.get(17), result.next());
@@ -106,7 +118,8 @@ public class PlayerListTest {
   public void testGetPlayersRowStartAndCount() {
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, true),
-        7, 4, EnumSet.allOf(Position.class), false, null).iterator();
+        7, 4, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(7), result.next());
     Assert.assertEquals(players.get(8), result.next());
     Assert.assertEquals(players.get(9), result.next());
@@ -118,7 +131,8 @@ public class PlayerListTest {
   public void testGetPlayersPositionFilter() {
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, true),
-        0, 20, EnumSet.of(Position.P), false, null).iterator();
+        0, 20, new SinglePositionFilter(Position.P), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(10), result.next());
     Assert.assertEquals(players.get(11), result.next());
     Assert.assertEquals(players.get(12), result.next());
@@ -130,7 +144,8 @@ public class PlayerListTest {
   public void testGetPlayersHideInjuries() {
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, true),
-        4, 20, EnumSet.allOf(Position.class), true, null).iterator();
+        4, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        true, null).iterator();
     Assert.assertEquals(players.get(4), result.next());
     Assert.assertEquals(players.get(6), result.next());
     Assert.assertEquals(players.get(7), result.next());
@@ -142,7 +157,8 @@ public class PlayerListTest {
   public void testGetPlayersNameFilter() {
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, true),
-        0, 20, EnumSet.allOf(Position.class), false, "2").iterator();
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, "2").iterator();
     Assert.assertEquals(players.get(2), result.next());
     Assert.assertEquals(players.get(12), result.next());
     Assert.assertFalse(result.hasNext());
@@ -157,7 +173,8 @@ public class PlayerListTest {
         DraftStatusTestUtil.createDraftPick(1, "", false, "C", 5, beanFactory)));
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.MYRANK, true),
-        0, 20, EnumSet.allOf(Position.class), false, null).iterator();
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null).iterator();
     Assert.assertEquals(players.get(3), result.next());
     Assert.assertEquals(players.get(4), result.next());
     Assert.assertEquals(players.get(6), result.next());
@@ -215,17 +232,18 @@ public class PlayerListTest {
   @Test
   public void testUpdatePlayerRankClearsSortCache() {
     playerList.getPlayers(createTableSpec(PlayerColumn.AB, false),
-        0, 20, EnumSet.allOf(Position.class), false, null);
+        0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
+        false, null);
     playerList.updatePlayerRank(1, 1, 3);
     Assert.assertFalse(playerList.playersBySortCol.containsKey(
-        new SortSpec(PlayerColumn.MYRANK, EnumSet.allOf(Position.class), true)));
+        new SortSpec(PlayerColumn.MYRANK, true)));
   }
 
   @Test
   public void testUpdatePlayerRankRestoresSortCacheWhenEmpty() {
     playerList.updatePlayerRank(1, 1, 3);
     Assert.assertTrue(playerList.playersBySortCol.containsKey(
-        new SortSpec(PlayerColumn.MYRANK, EnumSet.allOf(Position.class), true)));
+        new SortSpec(PlayerColumn.MYRANK, true)));
   }
 
   private TableSpec createTableSpec(PlayerColumn playerColumn, boolean ascending) {

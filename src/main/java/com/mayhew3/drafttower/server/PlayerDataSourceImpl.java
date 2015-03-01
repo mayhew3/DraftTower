@@ -197,7 +197,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS RBI,\n" +
         "  NULL AS HR,\n" +
         "  NULL AS SBC,\n" +
-        "  ROUND(INN, 0) AS INN, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, "
+        "  ROUND(INN, 0) AS INN, GS, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, "
         ) : (
         "  NULL AS H,\n" +
         "  NULL AS 2B,\n" +
@@ -208,7 +208,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS SB,\n" +
         "  NULL AS CS,\n" +
         "  NULL AS BB,\n" +
-        "  ROUND(INN, 0) AS INN, HA, BBI, K, ER, HRA, WL, S, "
+        "  ROUND(INN, 0) AS INN, GS, HA, BBI, K, ER, HRA, WL, S, "
         )) +
         "Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
@@ -231,6 +231,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " G, AB, \n" +
         (Scoring.CATEGORIES ? (
         "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
+        "  NULL AS GS,\n" +
         "  NULL AS INN,\n" +
         "  NULL AS ERA,\n" +
         "  NULL AS WHIP,\n" +
@@ -239,6 +240,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "  NULL AS S,\n"
         ) : (
             "  H, 2B, 3B, HR, RHR, RBI, SB, CS, BB,\n" +
+            "  NULL AS GS, " +
             "  NULL AS INN, " +
             "  NULL AS HA, " +
             "  NULL AS BBI," +

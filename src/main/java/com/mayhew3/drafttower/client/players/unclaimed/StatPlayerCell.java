@@ -4,15 +4,13 @@ import com.google.gwt.cell.client.AbstractSafeHtmlCell;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.inject.Provider;
-import com.mayhew3.drafttower.shared.Position;
-
-import java.util.EnumSet;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 
 /**
  * Table cell for a scoring stat.
  */
 public class StatPlayerCell extends AbstractSafeHtmlCell<PlayerValue> {
-  public StatPlayerCell(Provider<EnumSet<Position>> positionFilterProvider) {
+  public StatPlayerCell(Provider<PositionFilter> positionFilterProvider) {
     super(new PlayerValueRenderer(positionFilterProvider));
   }
 

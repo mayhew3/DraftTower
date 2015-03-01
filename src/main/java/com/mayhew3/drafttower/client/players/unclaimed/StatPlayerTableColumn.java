@@ -2,11 +2,9 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.cell.client.Cell;
 import com.google.inject.Provider;
+import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
-import com.mayhew3.drafttower.shared.Position;
-
-import java.util.EnumSet;
 
 /**
  * Player table column for scoring stat.
@@ -15,13 +13,13 @@ public class StatPlayerTableColumn extends PlayerTableColumn<PlayerValue> {
 
   private final PlayerColumn pitcherColumn;
   private final UnclaimedPlayerDataProvider presenter;
-  private final Provider<EnumSet<Position>> positionFilterProvider;
+  private final Provider<PositionFilter> positionFilterProvider;
 
   public StatPlayerTableColumn(Cell<PlayerValue> cell,
       PlayerColumn column,
       PlayerColumn pitcherColumn,
       UnclaimedPlayerDataProvider presenter,
-      Provider<EnumSet<Position>> positionFilterProvider) {
+      Provider<PositionFilter> positionFilterProvider) {
     super(cell, column);
     this.pitcherColumn = pitcherColumn;
     this.presenter = presenter;
@@ -32,7 +30,7 @@ public class StatPlayerTableColumn extends PlayerTableColumn<PlayerValue> {
   @Override
   protected void updateDefaultSort() {
     setDefaultSortAscending(pitcherColumn.isDefaultSortAscending()
-        && Position.isPitcherFilter(positionFilterProvider.get()));
+        && positionFilterProvider.get().isPitcherFilter());
   }
 
   @Override
@@ -51,14 +49,14 @@ public class StatPlayerTableColumn extends PlayerTableColumn<PlayerValue> {
 
   @Override
   public PlayerColumn getSortedColumn() {
-    return Position.isPitcherFilter(positionFilterProvider.get()) ? pitcherColumn : column;
+    return positionFilterProvider.get().isPitcherFilter() ? pitcherColumn : column;
   }
 
   @Override
   public ColumnSort getSortedColumn(boolean isAscending) {
-    if (Position.isPitcherFilter(positionFilterProvider.get())) {
+    if (positionFilterProvider.get().isPitcherFilter()) {
       return new ColumnSort(pitcherColumn, isAscending);
-    } else if (Position.isPitchersAndBattersFilter(positionFilterProvider.get())) {
+    } else if (positionFilterProvider.get().isPitchersAndBattersFilter()) {
       PlayerColumn sortColumn = isAscending ? pitcherColumn : column;
       return new ColumnSort(sortColumn, sortColumn.isDefaultSortAscending());
     } else {

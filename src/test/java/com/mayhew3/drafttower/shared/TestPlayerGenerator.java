@@ -30,7 +30,13 @@ public class TestPlayerGenerator {
     if (position == P) {
       INN.set(player, Integer.toString(i + 10));
       K.set(player, Integer.toString(i + 5));
-      S.set(player, Integer.toString(i));
+      if (i % 2 == 1) {
+        S.set(player, Integer.toString(i));
+        GS.set(player, "0");
+      } else {
+        S.set(player, "0");
+        GS.set(player, Integer.toString(i) + 1);
+      }
       WL.set(player, Integer.toString(i));
       if (Scoring.CATEGORIES) {
         G.set(player, Integer.toString(i / 5 + 1));
