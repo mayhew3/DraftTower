@@ -1,10 +1,8 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
@@ -16,6 +14,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import static com.mayhew3.drafttower.shared.Position.REAL_POSITIONS;
+import static com.mayhew3.drafttower.shared.Position.RS;
 import static java.util.logging.Level.*;
 
 /**
@@ -29,16 +28,19 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   private final DataSource db;
   private final BeanFactory beanFactory;
   private final TeamDataSource teamDataSource;
+  private final RosterUtil rosterUtil;
   private final int numTeams;
 
   @Inject
   public PlayerDataSourceImpl(DataSource db,
       BeanFactory beanFactory,
       TeamDataSource teamDataSource,
+      RosterUtil rosterUtil,
       @NumTeams int numTeams) {
     this.db = db;
     this.beanFactory = beanFactory;
     this.teamDataSource = teamDataSource;
+    this.rosterUtil = rosterUtil;
     this.numTeams = numTeams;
   }
 
@@ -441,7 +443,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   }
 
   @Override
-  public void postDraftPick(DraftPick draftPick, DraftStatus status) throws DataSourceException {
+  public void postDraftPick(final DraftPick draftPick, DraftStatus status) throws DataSourceException {
     int overallPick = status.getPicks().size();
     int round = (overallPick - 1) / numTeams + 1;
     int pick = ((overallPick - 1) % numTeams) + 1;
@@ -449,13 +451,39 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     long playerID = draftPick.getPlayerId();
     TeamId teamID = teamDataSource.getTeamIdByDraftOrder(new TeamDraftOrder(draftPick.getTeam()));
 
-    String draftPosition = "'" + draftPick.getEligibilities().get(0) + "'";
-    String sql = "INSERT INTO draftresults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, DraftPos, Keeper) " +
+    String insertSql = "INSERT INTO draftresults (Round, Pick, PlayerID, BackedOut, OverallPick, TeamID, Keeper) " +
         "VALUES (" + round + ", " + pick + ", " + playerID + ", 0, " + overallPick + ", " + teamID +
-          ", " + draftPosition + ", " + (draftPick.isKeeper() ? "1" : "0") + ")";
+            ", " + (draftPick.isKeeper() ? "1" : "0") + ")";
 
     try {
-      executeUpdate(sql);
+      executeUpdate(insertSql);
+    } catch (SQLException e) {
+      throw new DataSourceException(e);
+    }
+
+    String updateSql = "UPDATE draftresults SET DraftPos = CASE PlayerID ";
+    Multimap<Position, DraftPick> roster = rosterUtil.constructRoster(
+        Lists.newArrayList(Iterables.filter(status.getPicks(), new Predicate<DraftPick>() {
+          @Override
+          public boolean apply(DraftPick input) {
+            return input.getTeam() == draftPick.getTeam();
+          }
+        })));
+    Multimap<DraftPick, Position> pickPositions = ArrayListMultimap.create();
+    Multimaps.invertFrom(roster, pickPositions);
+    String playerIds = "";
+    for (DraftPick rosterPick : pickPositions.keySet()) {
+      Collection<Position> positions = pickPositions.get(rosterPick);
+      updateSql += "WHEN " + rosterPick.getPlayerId() + " THEN '" +
+          Iterables.getFirst(positions, RS).getShortName() + "' ";
+      if (playerIds.length() > 0) {
+        playerIds += ",";
+      }
+      playerIds += rosterPick.getPlayerId();
+    }
+    updateSql += " END WHERE PlayerID in (" + playerIds + ")";
+    try {
+      executeUpdate(updateSql);
     } catch (SQLException e) {
       throw new DataSourceException(e);
     }
