@@ -13,19 +13,23 @@ public class PopulateKeepers extends DatabaseUtility {
     removeExistingKeepers();
 
     addKeeper("gus", "Goldschmidt, Paul");
+    addKeeper("gus", "Rizzo, Anthony");
+    addKeeper("gus", "Rendon, Anthony");
     addKeeper("kevin", "Cano, Robinson");
-    addKeeper("kevin", "Fielder, Prince");
-    addKeeper("kevin", "Wright, David");
-    addKeeper("mayhew", "Gonzalez, Carlos");
-    addKeeper("hunter", "Lee, Cliff");
-    addKeeper("hunter", "Jones, Adam");
+    addKeeper("kevin", "Sale, Chris");
     addKeeper("mayhews", "McCutchen, Andrew");
-    addKeeper("mayhews", "Ramirez, Hanley");
+    addKeeper("mayhews", "Hernandez, Felix");
     addKeeper("laura", "Trout, Mike");
     addKeeper("alcides", "Cabrera, Miguel");
     addKeeper("lakshmi", "Kershaw, Clayton");
-    addKeeper("lakshmi", "Braun, Ryan");
-    addKeeper("lakshmi", "Davis, Chris");
+    addKeeper("lakshmi", "Altuve, Jose");
+    addKeeper("lakshmi", "Brantley, Michael");
+    addKeeper("scott", "Bautista, Jose");
+    addKeeper("scott", "Encarnacion, Edwin");
+    addKeeper("scott", "Price, David");
+    addKeeper("eric", "Stanton, Giancarlo");
+    addKeeper("eric", "Abreu, Jose");
+    addKeeper("eric", "Tulowitzki, Troy");
   }
 
 
