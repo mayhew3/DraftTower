@@ -38,7 +38,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         ensureDebugIdAndGetElement("-players-SP", true).getClassName());
     for (int i = 1; i < 16; i++) {
       assertEquals("P", getInnerText("-players-table-" + i + "-4"));
-      assertEquals("0", getInnerText("-players-table-" + i + "-11"));
+      assertEquals("0", getInnerText("-players-table-" + i + "-10"));
     }
   }
 
@@ -49,7 +49,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         ensureDebugIdAndGetElement("-players-RP", true).getClassName());
     for (int i = 1; i < 16; i++) {
       assertEquals("P", getInnerText("-players-table-" + i + "-4"));
-      assertFalse("0".equals(getInnerText("-players-table-" + i + "-11")));
+      assertFalse("0".equals(getInnerText("-players-table-" + i + "-10")));
     }
   }
 

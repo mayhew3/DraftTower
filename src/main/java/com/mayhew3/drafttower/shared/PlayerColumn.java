@@ -23,18 +23,20 @@ public enum PlayerColumn {
   ERA("ERA", "Earned Run Average", "ERA", true, true),
   WHIP("WHIP", "Walks and Hits per Inning Pitched", "WHIP", true, true),
   WL("W-", "Wins - Losses", "WL", true, false),
-  K("K", "Strikeouts (Pitcher)", "K", true, false),
+  W("W", "Wins", "W", true, false),
+  L("L", "Losses", "L", true, true),
+  K("K", "Strikeouts", "K", true, false),
+  KO("K", "Strikeouts", "KO", true, true),
   S("S", "Saves", "S", true, false),
-  H("H", "Hits", "H", true, false),
+  SO("SO", "Shutouts", "SO", true, false),
+  BS("BS", "Blown Saves", "BS", true, true),
+  X1B("1B", "Singles", "1B", true, false),
   X2B("2B", "Doubles", "2B", true, false),
   X3B("3B", "Triples", "3B", true, false),
   SB("SB", "Stolen Bases", "SB", true, false),
   CS("CS", "Caught Stealing", "CS", true, true),
   BB("BB", "Walks", "BB", true, false),
-  HA("H", "Hits Allowed", "HA", true, true),
-  BBI("BB", "Walks Issued", "BBI", true, true),
   ER("ER", "Earned Runs", "ER", true, true),
-  HRA("HR", "Home Runs Allowed", "HRA", true, true),
   PTS("PTS", "Points", "PTS", true, false),
   RANK("Rank", "Rank", "Rank", true, true),
   DRAFT("Draft", "Average Position in CBS Drafts", "Draft", true, true),
@@ -144,26 +146,30 @@ public enum PlayerColumn {
         return player.getK();
       case S:
         return player.getS();
-      case H:
-        return player.getH();
+      case X1B:
+        return player.get1B();
       case X2B:
         return player.get2B();
       case X3B:
         return player.get3B();
+      case KO:
+        return player.getKO();
       case SB:
         return player.getSB();
       case CS:
         return player.getCS();
       case BB:
         return player.getBB();
-      case HA:
-        return player.getHA();
-      case BBI:
-        return player.getBBI();
       case ER:
         return player.getER();
-      case HRA:
-        return player.getHRA();
+      case W:
+        return player.getW();
+      case L:
+        return player.getL();
+      case SO:
+        return player.getSO();
+      case BS:
+        return player.getBS();
       case PTS:
         return player.getPoints();
       case RANK:
@@ -233,14 +239,17 @@ public enum PlayerColumn {
       case S:
         player.setS(value);
         break;
-      case H:
-        player.setH(value);
+      case X1B:
+        player.set1B(value);
         break;
       case X2B:
         player.set2B(value);
         break;
       case X3B:
         player.set3B(value);
+        break;
+      case KO:
+        player.setKO(value);
         break;
       case SB:
         player.setSB(value);
@@ -251,17 +260,20 @@ public enum PlayerColumn {
       case BB:
         player.setBB(value);
         break;
-      case HA:
-        player.setHA(value);
-        break;
-      case BBI:
-        player.setBBI(value);
-        break;
       case ER:
         player.setER(value);
         break;
-      case HRA:
-        player.setHRA(value);
+      case W:
+        player.setW(value);
+        break;
+      case L:
+        player.setL(value);
+        break;
+      case SO:
+        player.setSO(value);
+        break;
+      case BS:
+        player.setBS(value);
         break;
       case PTS:
         player.setPoints(value);
@@ -346,7 +358,7 @@ public enum PlayerColumn {
       };
     } else {
       return new PlayerColumn[] {
-          NAME, MLB, ELIG, G, GS, AB, H, X2B, X3B, HR, RHR, RBI, SB, CS, BB, INN, HA, BBI, K, ER, HRA, WL, S, PTS, RANK, DRAFT, WIZARD, MYRANK
+          NAME, MLB, ELIG, G, GS, AB, X1B, X2B, X3B, HR, RBI, KO, SB, CS, BB, INN, K, ER, W, L, S, SO, BS, PTS, RANK, DRAFT, WIZARD, MYRANK
       };
     }
   }

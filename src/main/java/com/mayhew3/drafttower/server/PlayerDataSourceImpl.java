@@ -90,28 +90,27 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             if (Scoring.POINTS) {
               // TODO m3: read points values from DB?
               if (player.getEligibility().contains("P")) {
-                player.setPoints(String.format("%.1f",
-                    parseFloatOrZero(player.getINN()) * 2.3f +
-                        parseFloatOrZero(player.getHA()) * -0.5f +
-                        parseFloatOrZero(player.getBBI()) * -1.5f +
-                        parseFloatOrZero(player.getK()) * 2f +
-                        parseFloatOrZero(player.getER()) * -1.5f +
-                        parseFloatOrZero(player.getHRA()) * -2f +
-                        parseFloatOrZero(player.getWL()) * 10f +
-                        parseFloatOrZero(player.getS()) * 10f
+                player.setPoints(Integer.toString(
+                    parseIntOrZero(player.getINN()) * 9 +
+                        parseIntOrZero(player.getK()) * 3 +
+                        parseIntOrZero(player.getER()) * -7 +
+                        parseIntOrZero(player.getS()) * 31 +
+                        parseIntOrZero(player.getW()) * 6 +
+                        parseIntOrZero(player.getL()) * -7 +
+                        parseIntOrZero(player.getSO()) * 8 +
+                        parseIntOrZero(player.getBS()) * -9
                 ));
               } else {
-                player.setPoints(String.format("%.1f",
-                    parseFloatOrZero(player.getAB()) * -2f +
-                        parseFloatOrZero(player.getH()) * 6f +
-                        parseFloatOrZero(player.get2B()) * 3f +
-                        parseFloatOrZero(player.get3B()) * 5f +
-                        parseFloatOrZero(player.getHR()) * 5f +
-                        parseFloatOrZero(player.getRHR()) * 3f +
-                        parseFloatOrZero(player.getRBI()) * 3f +
-                        parseFloatOrZero(player.getSB()) * 2f +
-                        parseFloatOrZero(player.getCS()) * -4f +
-                        parseFloatOrZero(player.getBB()) * 3f
+                player.setPoints(Integer.toString(
+                      parseIntOrZero(player.get1B()) * 8 +
+                        parseIntOrZero(player.get2B()) * 13 +
+                        parseIntOrZero(player.get3B()) * 18 +
+                        parseIntOrZero(player.getHR()) * 18 +
+                        parseIntOrZero(player.getRBI()) * 4 +
+                        parseIntOrZero(player.getSB()) * 6 +
+                        parseIntOrZero(player.getCS()) * -2 +
+                        parseIntOrZero(player.getBB()) * 7 +
+                        parseIntOrZero(player.getKO()) * -1
                 ));
               }
             }
@@ -131,11 +130,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     return players;
   }
 
-  private float parseFloatOrZero(String value) {
+  private int parseIntOrZero(String value) {
     if (value == null) {
-      return 0f;
+      return 0;
     }
-    return Float.parseFloat(value);
+    return Integer.parseInt(value);
   }
 
   @Override
@@ -191,24 +190,27 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
         " APP as G, NULL AS AB, \n" +
         (Scoring.CATEGORIES ? (
-        "  NULL AS OBP,\n" +
-        "  NULL AS SLG,\n" +
-        "  NULL AS RHR,\n" +
-        "  NULL AS RBI,\n" +
-        "  NULL AS HR,\n" +
-        "  NULL AS SBC,\n" +
-        "  ROUND(INN, 0) AS INN, GS, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, "
+            "  NULL AS OBP,\n" +
+            "  NULL AS SLG,\n" +
+            "  NULL AS RHR,\n" +
+            "  NULL AS RBI,\n" +
+            "  NULL AS HR,\n" +
+            "  NULL AS SBC,\n" +
+            "  ROUND(INN, 0) AS INN, GS, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, "
         ) : (
-        "  NULL AS H,\n" +
-        "  NULL AS 2B,\n" +
-        "  NULL AS 3B,\n" +
-        "  NULL AS HR,\n" +
-        "  NULL AS RHR,\n" +
-        "  NULL AS RBI,\n" +
-        "  NULL AS SB,\n" +
-        "  NULL AS CS,\n" +
-        "  NULL AS BB,\n" +
-        "  ROUND(INN, 0) AS INN, GS, HA, BBI, K, ER, HRA, WL, S, "
+            "  NULL AS 1B,\n" +
+            "  NULL AS 2B,\n" +
+            "  NULL AS 3B,\n" +
+            "  NULL AS HR,\n" +
+            "  NULL AS RBI,\n" +
+            "  NULL AS KO,\n" +
+            "  NULL AS SB,\n" +
+            "  NULL AS CS,\n" +
+            "  NULL AS BB,\n" +
+            // TODO(m3): need projections for new stats
+            "  0 AS BS,\n" +
+            "  0 AS SO,\n" +
+            "  ROUND(INN, 0) AS INN, GS, K, ER, W, L, S, "
         )) +
         "Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
@@ -230,25 +232,25 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
         " G, AB, \n" +
         (Scoring.CATEGORIES ? (
-        "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
-        "  NULL AS GS,\n" +
-        "  NULL AS INN,\n" +
-        "  NULL AS ERA,\n" +
-        "  NULL AS WHIP,\n" +
-        "  NULL AS WL,\n" +
-        "  NULL AS K,\n" +
-        "  NULL AS S,\n"
+            "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
+            "  NULL AS GS,\n" +
+            "  NULL AS INN,\n" +
+            "  NULL AS ERA,\n" +
+            "  NULL AS WHIP,\n" +
+            "  NULL AS WL,\n" +
+            "  NULL AS K,\n" +
+            "  NULL AS S,\n"
         ) : (
-            "  H, 2B, 3B, HR, RHR, RBI, SB, CS, BB,\n" +
+            "  1B, 2B, 3B, HR, RBI, KO, SB, CS, BB,\n" +
             "  NULL AS GS, " +
             "  NULL AS INN, " +
-            "  NULL AS HA, " +
-            "  NULL AS BBI," +
-            "  NULL AS K," +
             "  NULL AS ER," +
-            "  NULL AS HRA," +
-            "  NULL AS WL," +
-            "  NULL AS S, "
+            "  NULL AS K," +
+            "  NULL AS W," +
+            "  NULL AS L," +
+            "  NULL AS S, " +
+            "  NULL AS BS, " +
+            "  NULL AS SO, "
         )) +
         "  Rank, Draft, DataSource, \n" +
         "  (select round(coalesce(max(Rating), 0), 3) \n" +

@@ -71,8 +71,8 @@ public interface Player extends DraggableItem {
   String getS();
   void setS(String value);
 
-  String getH();
-  void setH(String value);
+  String get1B();
+  void set1B(String value);
 
   String get2B();
   void set2B(String value);
@@ -89,17 +89,23 @@ public interface Player extends DraggableItem {
   String getBB();
   void setBB(String value);
 
-  String getHA();
-  void setHA(String value);
-
-  String getBBI();
-  void setBBI(String value);
+  String getKO();
+  void setKO(String value);
 
   String getER();
   void setER(String value);
 
-  String getHRA();
-  void setHRA(String value);
+  String getW();
+  void setW(String value);
+
+  String getL();
+  void setL(String value);
+
+  String getSO();
+  void setSO(String value);
+
+  String getBS();
+  void setBS(String value);
 
   String getPoints();
   void setPoints(String value);
