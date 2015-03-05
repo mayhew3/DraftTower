@@ -31,22 +31,25 @@ public class TestPlayerGenerator {
       INN.set(player, Integer.toString(i + 10));
       K.set(player, Integer.toString(i + 5));
       if (i % 2 == 1) {
-        S.set(player, Integer.toString(i));
+        S.set(player, Integer.toString((i / 3) + 1));
+        BS.set(player, Integer.toString(i / 9));
         GS.set(player, "0");
+        SO.set(player, "0");
       } else {
         S.set(player, "0");
-        GS.set(player, Integer.toString(i) + 1);
+        BS.set(player, "0");
+        GS.set(player, Integer.toString(i + 1));
+        SO.set(player, Integer.toString(i / 50));
       }
-      WL.set(player, Integer.toString(i));
       if (Scoring.CATEGORIES) {
+        WL.set(player, Integer.toString(i));
         G.set(player, Integer.toString(i / 5 + 1));
         ERA.set(player, Float.toString(2 + i / 100f));
         WHIP.set(player, Float.toString(1 + i / 100f));
       } else {
-        HA.set(player, Integer.toString(i + 5));
         ER.set(player, Integer.toString(i / 3));
-        HRA.set(player, Integer.toString(i / 6));
-        BBI.set(player, Integer.toString(i / 2));
+        W.set(player, Integer.toString(i / 6));
+        L.set(player, Integer.toString(i / 6));
       }
     } else {
       AB.set(player, Integer.toString(i * 20));
@@ -58,12 +61,13 @@ public class TestPlayerGenerator {
         SLG.set(player, Float.toString(.4f + i / 50f));
         SBCS.set(player, Integer.toString(i));
       } else {
-        H.set(player, Integer.toString(i * 5));
+        X1B.set(player, Integer.toString(i * 5));
         X2B.set(player, Integer.toString(i));
         X3B.set(player, Integer.toString(i / 5));
         SB.set(player, Integer.toString(i));
         CS.set(player, Integer.toString(i / 5));
         BB.set(player, Integer.toString(i * 2));
+        KO.set(player, Integer.toString(i + 5));
       }
       player.setWizardDH(Float.toString(-3 + i / 20f));
     }

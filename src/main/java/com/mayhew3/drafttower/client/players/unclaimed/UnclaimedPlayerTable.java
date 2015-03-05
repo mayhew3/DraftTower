@@ -65,14 +65,14 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
   new PlayerColumn[] {
       NAME, MLB, ELIG, AB, HR, RBI, OBP, SLG, RHR, SBCS, RANK, WIZARD, DRAFT, MYRANK
   } : new PlayerColumn[] {
-      NAME, MLB, ELIG, AB, H, X2B, X3B, HR, RBI, RHR, BB, SB, CS, PTS, RANK, WIZARD, DRAFT, MYRANK
+      NAME, MLB, ELIG, AB, KO, X1B, X2B, X3B, HR, RBI, BB, SB, CS, PTS, RANK, WIZARD, DRAFT, MYRANK
   };
   @SuppressWarnings("ConstantConditions")
   private static final PlayerColumn PITCHER_COLUMNS[] = Scoring.CATEGORIES ?
   new PlayerColumn[] {
       null, null, null, G, INN, K, ERA, WHIP, WL, S, null, null, null, null, null, null
   } : new PlayerColumn[] {
-      null, null, null, INN, HA, K, ER, HRA, WL, S, BBI, null, null, null, null, null, null, null
+      null, null, null, INN, K, ER, W, L, S, BS, SO, null, null, null, null, null, null, null
   };
 
   private final UnclaimedPlayerDataProvider presenter;

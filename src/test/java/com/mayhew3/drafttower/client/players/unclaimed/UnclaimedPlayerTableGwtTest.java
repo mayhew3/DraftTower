@@ -176,18 +176,18 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("148", getInnerText("-players-table-2-6"));
   }
 
-  public void testSortByH_HA() {
+  public void testSortByK() {
     if (Scoring.CATEGORIES) {
       return;
     }
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-6");
-    assertEquals("220", getInnerText("-players-table-1-6"));
-    assertEquals("215", getInnerText("-players-table-2-6"));
-    click("-players-table-0-6");
     assertEquals("5", getInnerText("-players-table-1-6"));
-    assertEquals("6", getInnerText("-players-table-2-6"));
+    assertEquals("5", getInnerText("-players-table-2-6"));
+    click("-players-table-0-6");
+    assertEquals("144", getInnerText("-players-table-1-6"));
+    assertEquals("143", getInnerText("-players-table-2-6"));
   }
 
   public void testSortByRBI_K() {
@@ -204,18 +204,18 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("143", getInnerText("-players-table-2-7"));
   }
 
-  public void testSortBy2B_K() {
+  public void testSortBy1B_ER() {
     if (Scoring.CATEGORIES) {
       return;
     }
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-7");
-    assertEquals("44", getInnerText("-players-table-1-7"));
-    assertEquals("43", getInnerText("-players-table-2-7"));
+    assertEquals("220", getInnerText("-players-table-1-7"));
+    assertEquals("215", getInnerText("-players-table-2-7"));
     click("-players-table-0-7");
-    assertEquals("144", getInnerText("-players-table-1-7"));
-    assertEquals("143", getInnerText("-players-table-2-7"));
+    assertEquals("0", getInnerText("-players-table-1-7"));
+    assertEquals("0", getInnerText("-players-table-2-7"));
   }
 
   public void testSortByOBP_ERA() {
@@ -232,18 +232,18 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("2.01", getInnerText("-players-table-2-8"));
   }
 
-  public void testSortBy3B_ER() {
+  public void testSortBy2B_W() {
     if (Scoring.CATEGORIES) {
       return;
     }
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-8");
-    assertEquals("8", getInnerText("-players-table-1-8"));
-    assertEquals("8", getInnerText("-players-table-2-8"));
+    assertEquals("44", getInnerText("-players-table-1-8"));
+    assertEquals("43", getInnerText("-players-table-2-8"));
     click("-players-table-0-8");
-    assertEquals("0", getInnerText("-players-table-1-8"));
-    assertEquals("0", getInnerText("-players-table-2-8"));
+    assertEquals("23", getInnerText("-players-table-1-8"));
+    assertEquals("23", getInnerText("-players-table-2-8"));
   }
 
   public void testSortBySLG_WHIP() {
@@ -260,18 +260,18 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("1.01", getInnerText("-players-table-2-9"));
   }
 
-  public void testSortByHR_HRA() {
-    if (Scoring.POINTS) {
+  public void testSortBy3B_L() {
+    if (Scoring.CATEGORIES) {
       return;
     }
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-9");
-    assertEquals("1.28", getInnerText("-players-table-1-9"));
-    assertEquals("1.26", getInnerText("-players-table-2-9"));
+    assertEquals("8", getInnerText("-players-table-1-9"));
+    assertEquals("8", getInnerText("-players-table-2-9"));
     click("-players-table-0-9");
-    assertEquals("1.0", getInnerText("-players-table-1-9"));
-    assertEquals("1.01", getInnerText("-players-table-2-9"));
+    assertEquals("0", getInnerText("-players-table-1-9"));
+    assertEquals("0", getInnerText("-players-table-2-9"));
   }
 
   public void testSortByRHR_WL() {
@@ -288,18 +288,18 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("138", getInnerText("-players-table-2-10"));
   }
 
-  public void testSortByRBI_WL() {
+  public void testSortByHR_S() {
     if (Scoring.CATEGORIES) {
       return;
     }
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-10");
-    assertEquals("132", getInnerText("-players-table-1-10"));
-    assertEquals("129", getInnerText("-players-table-2-10"));
+    assertEquals("44", getInnerText("-players-table-1-10"));
+    assertEquals("43", getInnerText("-players-table-2-10"));
     click("-players-table-0-10");
-    assertEquals("139", getInnerText("-players-table-1-10"));
-    assertEquals("138", getInnerText("-players-table-2-10"));
+    assertEquals("47", getInnerText("-players-table-1-10"));
+    assertEquals("46", getInnerText("-players-table-2-10"));
   }
 
   public void testSortBySBCS_S() {
@@ -316,7 +316,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("138", getInnerText("-players-table-2-11"));
   }
 
-  public void testSortByRHR_S() {
+  public void testSortByRBI_BS() {
     if (Scoring.CATEGORIES) {
       return;
     }
@@ -326,11 +326,11 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("132", getInnerText("-players-table-1-11"));
     assertEquals("129", getInnerText("-players-table-2-11"));
     click("-players-table-0-11");
-    assertEquals("139", getInnerText("-players-table-1-11"));
-    assertEquals("137", getInnerText("-players-table-2-11"));
+    assertEquals("0", getInnerText("-players-table-1-11"));
+    assertEquals("0", getInnerText("-players-table-2-11"));
   }
 
-  public void testSortByBB_BBI() {
+  public void testSortByBB_SO() {
     if (Scoring.CATEGORIES) {
       return;
     }
@@ -340,8 +340,8 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     assertEquals("88", getInnerText("-players-table-1-12"));
     assertEquals("86", getInnerText("-players-table-2-12"));
     click("-players-table-0-12");
-    assertEquals("0", getInnerText("-players-table-1-12"));
-    assertEquals("0", getInnerText("-players-table-2-12"));
+    assertEquals("2", getInnerText("-players-table-1-12"));
+    assertEquals("2", getInnerText("-players-table-2-12"));
   }
 
   public void testSortBySB() {
