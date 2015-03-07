@@ -193,13 +193,22 @@ public class UnclaimedPlayerTablePanelPresenterTest {
   @Test
   public void testCopyRanks() {
     TableSpec tableSpec = Mockito.mock(TableSpec.class);
-    Mockito.when(tableSpec.getSortCol()).thenReturn(PlayerColumn.WIZARD);
+    Mockito.when(tableSpec.getSortCol()).thenReturn(PlayerColumn.PTS);
     Mockito.when(tablePresenter.getTableSpec()).thenReturn(tableSpec);
     presenter.copyRanks();
     ArgumentCaptor<CopyAllPlayerRanksEvent> eventCaptor = ArgumentCaptor.forClass(CopyAllPlayerRanksEvent.class);
     Mockito.verify(eventBus).fireEvent(eventCaptor.capture());
     CopyAllPlayerRanksEvent firedEvent = eventCaptor.getValue();
     Assert.assertEquals(tableSpec, firedEvent.getTableSpec());
+  }
+
+  @Test
+  public void testCopyRanksNotAllowedForWizardSort() {
+    TableSpec tableSpec = Mockito.mock(TableSpec.class);
+    Mockito.when(tableSpec.getSortCol()).thenReturn(PlayerColumn.WIZARD);
+    Mockito.when(tablePresenter.getTableSpec()).thenReturn(tableSpec);
+    presenter.copyRanks();
+    Mockito.verifyZeroInteractions(eventBus);
   }
 
   @Test

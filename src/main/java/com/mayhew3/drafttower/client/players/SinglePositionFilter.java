@@ -60,4 +60,9 @@ public class SinglePositionFilter implements PositionFilter {
   public String getWizard(Player player) {
     return PlayerColumn.getWizard(player, EnumSet.of(position));
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof SinglePositionFilter && ((SinglePositionFilter) obj).position == position;
+  }
 }

@@ -41,7 +41,7 @@ public class TeamOrderPresenter implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    DraftStatus status = event.getStatus();
+    DraftStatus status = event.getStatus().getDraftStatus();
     view.setRoundText(status.isOver()
         ? "It's over!"
         : "Round " + (status.getPicks().size() / numTeams + 1));

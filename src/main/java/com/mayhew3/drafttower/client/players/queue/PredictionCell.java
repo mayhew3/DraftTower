@@ -8,12 +8,11 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
-import com.mayhew3.drafttower.shared.QueueEntry;
 
 /**
  * {@link TextCell} which displays a tooltip on hover.
  */
-public class PredictionCell extends AbstractSafeHtmlCell<QueueEntry> {
+public class PredictionCell extends AbstractSafeHtmlCell<QueueEntryAndPrediction> {
 
   private static final float PICK_PROBABILITY_THRESHOLD = 0.5f;
   private static final float PICK_PROBABILITY_THRESHOLD_HIGH = 0.8f;
@@ -26,23 +25,23 @@ public class PredictionCell extends AbstractSafeHtmlCell<QueueEntry> {
 
   private static final PredictionTemplate TEMPLATE = GWT.create(PredictionTemplate.class);
 
-  private static class PredictionRenderer extends AbstractSafeHtmlRenderer<QueueEntry> {
+  private static class PredictionRenderer extends AbstractSafeHtmlRenderer<QueueEntryAndPrediction> {
 
     @Override
-    public SafeHtml render(QueueEntry queueEntry) {
-      if (queueEntry.getPickProbability() > PICK_PROBABILITY_THRESHOLD) {
+    public SafeHtml render(QueueEntryAndPrediction queueEntry) {
+      if (queueEntry.pickPrediction > PICK_PROBABILITY_THRESHOLD) {
         String classNames = QueueTable.CSS.warning();
-        if (queueEntry.getPickProbability() > PICK_PROBABILITY_THRESHOLD_HIGH) {
+        if (queueEntry.pickPrediction > PICK_PROBABILITY_THRESHOLD_HIGH) {
           classNames += " " + QueueTable.CSS.warningHigh();
         }
         String tooltip;
-        if (queueEntry.getPickProbability() >= PICK_PROBABILITY_THRESHOLD_MAX) {
-          tooltip = "Draft Wizard predicts that " + queueEntry.getPlayerName() + " " +
+        if (queueEntry.pickPrediction >= PICK_PROBABILITY_THRESHOLD_MAX) {
+          tooltip = "Draft Wizard predicts that " + queueEntry.queueEntry.getPlayerName() + " " +
               "will definitely be picked before your next pick.";
         } else {
           tooltip = "Draft Wizard predicts a " +
-              NumberFormat.getPercentFormat().format(queueEntry.getPickProbability()) +
-              " chance that " + queueEntry.getPlayerName() + " will be picked before " +
+              NumberFormat.getPercentFormat().format(queueEntry.pickPrediction) +
+              " chance that " + queueEntry.queueEntry.getPlayerName() + " will be picked before " +
               "your next pick.";
         }
         return TEMPLATE.prediction(tooltip, classNames);

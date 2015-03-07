@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -15,10 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Tests for {@link DraftControllerImpl}.
@@ -52,7 +50,8 @@ public class DraftControllerTest {
     Mockito.when(playerDataSource.getBestPlayerId(
         Mockito.<TeamDraftOrder>any(),
         Mockito.anyListOf(DraftPick.class),
-        Mockito.<EnumSet<Position>>any()))
+        Mockito.<EnumSet<Position>>any(),
+        Mockito.<Map<Long,Float>>any()))
         .thenAnswer(new Answer<Long>() {
           @Override
           public Long answer(InvocationOnMock invocation) throws Throwable {
@@ -73,10 +72,13 @@ public class DraftControllerTest {
         .thenReturn(true);
     Mockito.when(teamDataSource.isCommissionerTeam(Mockito.eq(new TeamDraftOrder(2))))
         .thenReturn(false);
+    PickProbabilityPredictor pickProbabilityPredictor = new PickProbabilityPredictor(
+        playerDataSource, teamDataSource, beanFactory, RosterTestUtils.createSimpleFakeRosterUtil(), new TestPredictionModel());
     DraftControllerImpl draftController = new DraftControllerImpl(
         socketServlet,
         beanFactory,
         playerDataSource,
+        pickProbabilityPredictor, 
         teamDataSource,
         currentTimeProvider,
         Mockito.mock(DraftTimer.class),
@@ -331,7 +333,7 @@ public class DraftControllerTest {
     draftCommand.setCommandType(Command.IDENTIFY);
     draftController.onDraftCommand(draftCommand);
     Assert.assertTrue(draftStatus.getConnectedTeams().contains(1));
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -343,7 +345,7 @@ public class DraftControllerTest {
     draftCommand.setCommandType(Command.IDENTIFY);
     draftController.onDraftCommand(draftCommand);
     Assert.assertFalse(draftStatus.getRobotTeams().contains(1));
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -354,7 +356,7 @@ public class DraftControllerTest {
     draftCommand.setCommandType(Command.START_DRAFT);
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(76000, draftStatus.getCurrentPickDeadline());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -379,7 +381,7 @@ public class DraftControllerTest {
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(2, draftStatus.getPicks().size());
     Assert.assertEquals(100l, draftStatus.getPicks().get(1).getPlayerId());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -391,7 +393,7 @@ public class DraftControllerTest {
     draftCommand.setCommandType(Command.PAUSE);
     draftController.onDraftCommand(draftCommand);
     Assert.assertTrue(draftStatus.isPaused());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
 
     currentTimeProvider.setCurrentTimeMillis(5000);
 
@@ -402,7 +404,7 @@ public class DraftControllerTest {
     Assert.assertFalse(draftStatus.isPaused());
     Assert.assertEquals(80000, draftStatus.getCurrentPickDeadline());
     Mockito.verify(socketServlet, Mockito.times(2))
-        .sendMessage(Mockito.anyString());
+        .sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -414,7 +416,7 @@ public class DraftControllerTest {
     draftCommand.setCommandType(Command.BACK_OUT);
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(0, draftStatus.getPicks().size());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -427,7 +429,7 @@ public class DraftControllerTest {
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(13, draftStatus.getPicks().size());
     Assert.assertEquals(12l, draftStatus.getPicks().get(12).getPlayerId());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -443,7 +445,7 @@ public class DraftControllerTest {
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(2, draftStatus.getPicks().size());
     Assert.assertEquals(100l, draftStatus.getPicks().get(1).getPlayerId());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -457,7 +459,7 @@ public class DraftControllerTest {
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(2, draftStatus.getPicks().size());
     Assert.assertEquals(100l, draftStatus.getPicks().get(1).getPlayerId());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -469,7 +471,7 @@ public class DraftControllerTest {
     draftCommand.setCommandType(Command.WAKE_UP);
     draftController.onDraftCommand(draftCommand);
     Assert.assertFalse(draftStatus.getRobotTeams().contains(2));
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -522,14 +524,14 @@ public class DraftControllerTest {
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(0, draftStatus.getPicks().size());
     Assert.assertEquals(1, draftStatus.getCurrentTeam());
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
   public void testOnClientConnectedSendsStatus() throws Exception {
     DraftControllerImpl draftController = createDraftController();
     draftController.onClientConnected();
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
@@ -538,14 +540,14 @@ public class DraftControllerTest {
     draftStatus.getConnectedTeams().add(2);
     draftController.onClientDisconnected("2");
     Assert.assertFalse(draftStatus.getConnectedTeams().contains(2));
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   @Test
   public void testOnClientDisconnectedIdempotence() throws Exception {
     DraftControllerImpl draftController = createDraftController();
     draftController.onClientDisconnected("3");
-    Mockito.verify(socketServlet).sendMessage(Mockito.anyString());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
   private List<DraftPick> createPicksList(int numPicks) {

@@ -29,7 +29,7 @@ public class FuzzClient extends SimulatedClient {
       sendDraftCommand(Command.START_DRAFT, null);
     } else {
       try {
-        switch (random.nextInt(38)) {
+        switch (random.nextInt(40)) {
           case 0:
           case 1:
           case 2:
@@ -81,37 +81,33 @@ public class FuzzClient extends SimulatedClient {
           case 28:
           case 29:
           case 30:
-            sendDraftCommand(Command.DO_PICK, randomPlayer());
-            break;
           case 31:
-            if (commissionerTeam.equals(username)) {
-              sendDraftCommand(draftStatus.isPaused()
-                  ? Command.RESUME : Command.PAUSE, null);
-            } else {
-              getUnclaimedPlayers(randomTableSpec());
-            }
-            break;
           case 32:
-            if (commissionerTeam.equals(username) && random.nextBoolean()) {
-              sendDraftCommand(Command.BACK_OUT, null);
-            } else {
-              getUnclaimedPlayers(randomTableSpec());
-            }
+            sendDraftCommand(Command.DO_PICK, randomPlayer());
             break;
           case 33:
             if (commissionerTeam.equals(username)) {
-              sendDraftCommand(Command.FORCE_PICK, random.nextBoolean()
-                  ? randomPlayer() : null);
-            } else {
-              getUnclaimedPlayers(randomTableSpec());
+              sendDraftCommand(draftStatus.isPaused()
+                  ? Command.RESUME : Command.PAUSE, null);
             }
             break;
           case 34:
-            sendDraftCommand(Command.WAKE_UP, null);
+            if (commissionerTeam.equals(username) && random.nextBoolean()) {
+              sendDraftCommand(Command.BACK_OUT, null);
+            }
             break;
           case 35:
+            if (commissionerTeam.equals(username)) {
+              sendDraftCommand(Command.FORCE_PICK, random.nextBoolean()
+                  ? randomPlayer() : null);
+            }
+            break;
           case 36:
+            sendDraftCommand(Command.WAKE_UP, null);
+            break;
           case 37:
+          case 38:
+          case 39:
             setCloserLimits(random.nextInt(10), random.nextInt(10));
             break;
         }

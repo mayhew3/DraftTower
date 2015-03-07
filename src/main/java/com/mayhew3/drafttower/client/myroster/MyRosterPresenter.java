@@ -80,7 +80,7 @@ public class MyRosterPresenter extends ListDataProvider<PickAndPosition> impleme
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     List<DraftPick> myPicks = Lists.newArrayList(
-        Iterables.filter(event.getStatus().getPicks(),
+        Iterables.filter(event.getStatus().getDraftStatus().getPicks(),
             new Predicate<DraftPick>() {
               @Override
               public boolean apply(DraftPick input) {

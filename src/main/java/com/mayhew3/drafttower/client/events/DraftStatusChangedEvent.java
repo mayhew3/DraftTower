@@ -3,7 +3,7 @@ package com.mayhew3.drafttower.client.events;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent.Handler;
-import com.mayhew3.drafttower.shared.DraftStatus;
+import com.mayhew3.drafttower.shared.ClientDraftStatus;
 
 /**
  * Event fired when a draft status update message is received.
@@ -16,13 +16,13 @@ public class DraftStatusChangedEvent extends GwtEvent<Handler> {
 
   public static final Type<Handler> TYPE = new Type<>();
 
-  private final DraftStatus status;
+  private final ClientDraftStatus status;
 
-  public DraftStatusChangedEvent(DraftStatus status) {
+  public DraftStatusChangedEvent(ClientDraftStatus status) {
     this.status = status;
   }
 
-  public DraftStatus getStatus() {
+  public ClientDraftStatus getStatus() {
     return status;
   }
 

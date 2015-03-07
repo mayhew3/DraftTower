@@ -144,9 +144,7 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   @Override
   public void copyTableSpecToCustom(TeamId teamId, TableSpec tableSpec) {
     PlayerColumn sortCol = tableSpec.getSortCol();
-    Comparator<Player> comparator = sortCol == WIZARD
-        ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
-        : sortCol.getComparator(tableSpec.isAscending());
+    Comparator<Player> comparator = sortCol.getComparator(tableSpec.isAscending());
     synchronized (availablePlayers) {
       List<Player> sortedPlayers = Ordering.from(comparator).sortedCopy(allPlayers.values());
       for (int i = 0; i < sortedPlayers.size(); i++) {

@@ -131,9 +131,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     serverRpc.sendPlayerListRequest(requestBean, new Function<UnclaimedPlayerListResponse, Void>() {
       @Override
       public Void apply(UnclaimedPlayerListResponse playerListResponse) {
-        handlePlayerListResponse(playerListResponse,
-            tableSpec
-        );
+        handlePlayerListResponse(playerListResponse, tableSpec);
         return null;
       }
     });
@@ -148,6 +146,8 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
         tableSpec.getSortCol(),
         tableSpec.isAscending());
     playerList.ensurePlayersRemoved(picks);
+    playerList.updateWizardValues(lastStatus == null
+        ? Collections.<Long, Float>emptyMap() : lastStatus.getPickPredictions());
     playersByDataSet.put(tableSpec.getPlayerDataSet(), playerList);
     Runnable callback = requestCallbackByDataSet.remove(tableSpec.getPlayerDataSet());
     if (callback != null) {
@@ -182,9 +182,13 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    picks = event.getStatus().getPicks();
-    for (PlayerList playerList : playersByDataSet.values()) {
-      playerList.ensurePlayersRemoved(picks);
+    ClientDraftStatus status = event.getStatus();
+    if (!status.getDraftStatus().getPicks().equals(picks)) {
+      picks = status.getDraftStatus().getPicks();
+      for (PlayerList playerList : playersByDataSet.values()) {
+        playerList.ensurePlayersRemoved(picks);
+        playerList.updateWizardValues(status.getPickPredictions());
+      }
     }
     super.onDraftStatusChanged(event);
   }

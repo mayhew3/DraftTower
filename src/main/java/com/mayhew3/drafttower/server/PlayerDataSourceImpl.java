@@ -13,7 +13,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static com.mayhew3.drafttower.shared.Position.REAL_POSITIONS;
 import static com.mayhew3.drafttower.shared.Position.RS;
 import static java.util.logging.Level.*;
 
@@ -59,17 +58,11 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             List<PlayerColumn> playerColumns = Lists.newArrayList(PlayerColumn.valuesForScoring());
             playerColumns.remove(PlayerColumn.NAME);
             PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
+            playerColumns.remove(PlayerColumn.WIZARD);
             playerColumns.remove(PlayerColumn.PTS);
 
             for (PlayerColumn playerColumn : playerColumns) {
-              if (playerColumn == PlayerColumn.WIZARD) {
-                for (Position position : REAL_POSITIONS) {
-                  String columnString = resultSet.getString(PlayerColumn.WIZARD.getColumnName() + position.getShortName());
-                  if (columnString != null) {
-                    PlayerColumn.setWizard(player, columnString, position);
-                  }
-                }
-              } else if (playerColumn == PlayerColumn.ELIG) {
+              if (playerColumn == PlayerColumn.ELIG) {
                 String[] elig = resultSet.getString(playerColumn.getColumnName()).split(",");
                 int indexOfDH = Arrays.binarySearch(elig, "DH");
                 if (indexOfDH >= 0) {
@@ -166,7 +159,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       throws SQLException, DataSourceException {
 
     String sql = "select * from ";
-    sql = getFromJoins(teamID, sql, null, true, true);
+    sql = getFromJoins(teamID, sql, null, true);
 
     sql = addFilters(sql, playerDataSet);
 
@@ -177,12 +170,10 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   // Unclaimed Player utility methods
 
   @SuppressWarnings("ConstantConditions")
-  private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterKeepers, boolean allWizardPositions) {
-    String wizardFilterClause = "";
+  private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterKeepers) {
     String playerFilterClause = "";
 
     if (positionFilterString != null) {
-      wizardFilterClause = " and Position " + positionFilterString + " ";
       playerFilterClause = " and pa.PlayerID IN (SELECT PlayerID FROM eligibilities WHERE Position " + positionFilterString + ") ";
     }
 
@@ -212,21 +203,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  0 AS SO,\n" +
             "  ROUND(INN, 0) AS INN, GS, K, ER, W, L, S, "
         )) +
-        "Rank, Draft, DataSource, \n" +
-        "  (select round(coalesce(max((Rating-1)*0.5), 0), 3)\n" +
-        "   from wizardratings\n" +
-        "   where projectionRow = projectionspitching.ID\n" +
-        "   and batting = 0\n" +
-        "  ) as Wizard" +
-            (allWizardPositions ?
-            ",\n" +
-            "  (select round((Rating-1)*0.5, 3)\n" +
-            "   from wizardratings\n" +
-            "   where projectionRow = projectionspitching.ID\n" +
-            "   and batting = 0\n" +
-            "  ) as WizardP, " +
-            getNullBattingWizardClauses()
-            : "") +
+        "Rank, Draft, DataSource \n" +
         " FROM projectionspitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
@@ -252,18 +229,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  NULL AS BS, " +
             "  NULL AS SO, "
         )) +
-        "  Rank, Draft, DataSource, \n" +
-        "  (select round(coalesce(max(Rating), 0), 3) \n" +
-        "   from wizardratings\n" +
-        "   where projectionRow = projectionsbatting.ID\n" +
-        "   and batting = 1 \n" +
-        wizardFilterClause +
-        "  ) as Wizard\n" +
-        (allWizardPositions
-            ? ",\n" +
-            "  NULL as WizardP, \n" +
-            getBattingWizardClauses()
-            : "") +
+        "  Rank, Draft, DataSource \n" +
         " FROM projectionsbatting)";
 
     sql +=
@@ -290,39 +256,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     sql += " ) p_all ";
 
     return sql;
-  }
-
-  private String getBattingWizardClauses() {
-    StringBuilder builder = new StringBuilder();
-    for (Position position : Position.BATTING_POSITIONS) {
-      if (builder.length() > 0) {
-        builder.append(", ");
-      }
-      builder.append("  (select round(Rating, 3)\n" +
-              "   from wizardratings\n" +
-              "   where projectionRow = projectionsbatting.ID\n" +
-              "   and batting = 1 \n" +
-              "   and Position = '")
-          .append(position.getShortName())
-          .append("'\n" +
-              "  ) as Wizard")
-          .append(position.getShortName())
-          .append(" \n");
-    }
-    return builder.toString();
-  }
-
-  private String getNullBattingWizardClauses() {
-    StringBuilder builder = new StringBuilder();
-    for (Position position : Position.BATTING_POSITIONS) {
-      if (builder.length() > 0) {
-        builder.append(", ");
-      }
-      builder.append("  NULL as Wizard")
-          .append(position.getShortName())
-          .append(" \n");
-    }
-    return builder.toString();
   }
 
   private String addFilters(String sql, PlayerDataSet playerDataSet) {
@@ -599,7 +532,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
         " SELECT " + teamID + ", PlayerID \n" +
         " FROM ";
-    sql = getFromJoins(teamID, sql, null, false, false);
+    sql = getFromJoins(teamID, sql, null, false);
 
     List<String> filters = new ArrayList<>();
     addDataSetFilter(filters, tableSpec.getPlayerDataSet());
@@ -642,8 +575,26 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     if (Scoring.CATEGORIES) {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
     } else {
-      sql = "select TeamID, sum(p_all.Wizard) as pitching, sum(p_all.Wizard) as batting from ";
-      sql = getFromJoins(teamId, sql, null, false, false);
+      sql = "select TeamID, " +
+          " sum(p_all.INN) * 9 + " +
+          " sum(p_all.K) * 3 + " +
+          " sum(p_all.ER) * -7 + " +
+          " sum(p_all.S) * 31 + " +
+          " sum(p_all.W) * 6 + " +
+          " sum(p_all.L) * -7 + " +
+          " sum(p_all.SO) * 8 + " +
+          " sum(p_all.BS) * -9 as pitching, " +
+          " sum(p_all.1B) * 8 + " +
+          " sum(p_all.2B) * 13 + " +
+          " sum(p_all.3B) * 18 + " +
+          " sum(p_all.HR) * 18 + " +
+          " sum(p_all.RBI) * 4 + " +
+          " sum(p_all.SB) * 6 + " +
+          " sum(p_all.CS) * -2 + " +
+          " sum(p_all.BB) * 7 + " +
+          " sum(p_all.KO) * -1 as batting " +
+          " from ";
+      sql = getFromJoins(teamId, sql, null, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
     }
 

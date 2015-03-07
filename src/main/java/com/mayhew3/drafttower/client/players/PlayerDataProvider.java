@@ -6,8 +6,8 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
+import com.mayhew3.drafttower.shared.ClientDraftStatus;
 import com.mayhew3.drafttower.shared.DraftPick;
-import com.mayhew3.drafttower.shared.DraftStatus;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -21,7 +21,7 @@ public abstract class PlayerDataProvider<T> implements
   private final AsyncDataProvider<T> delegate;
 
   private PlayerTableView<T> view;
-  private DraftStatus lastStatus;
+  protected ClientDraftStatus lastStatus;
 
   @Inject
   public PlayerDataProvider(EventBus eventBus) {
@@ -50,8 +50,8 @@ public abstract class PlayerDataProvider<T> implements
     if (lastStatus == null) {
       refresh = true;
     } else {
-      List<DraftPick> oldPicks = lastStatus.getPicks();
-      List<DraftPick> newPicks = event.getStatus().getPicks();
+      List<DraftPick> oldPicks = lastStatus.getDraftStatus().getPicks();
+      List<DraftPick> newPicks = event.getStatus().getDraftStatus().getPicks();
       if (newPicks.size() < oldPicks.size()) {
         // Pick backed out.
         refresh = true;

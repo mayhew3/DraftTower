@@ -43,8 +43,8 @@ public class PickControlsPresenter implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    status = event.getStatus();
-    for (DraftPick pick : event.getStatus().getPicks()) {
+    status = event.getStatus().getDraftStatus();
+    for (DraftPick pick : status.getPicks()) {
       if (selectedPlayerId != null && pick.getPlayerId() == selectedPlayerId) {
         clearSelectedPlayer();
         return;

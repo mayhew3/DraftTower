@@ -4,7 +4,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mayhew3.drafttower.server.DraftController.DraftStatusListener;
 import com.mayhew3.drafttower.shared.*;
 
 import java.util.*;
@@ -16,7 +15,7 @@ import java.util.logging.Logger;
  * Provides probability of players being selected.
  */
 @Singleton
-public class PickProbabilityPredictor implements DraftStatusListener {
+public class PickProbabilityPredictor {
 
   private static final Logger logger = Logger.getLogger(DraftControllerImpl.class.getName());
 
@@ -31,7 +30,6 @@ public class PickProbabilityPredictor implements DraftStatusListener {
   @Inject
   public PickProbabilityPredictor(PlayerDataProvider playerDataProvider,
       TeamDataSource teamDataSource,
-      DraftController draftController,
       BeanFactory beanFactory,
       RosterUtil rosterUtil,
       PredictionModel predictionModel) {
@@ -44,11 +42,8 @@ public class PickProbabilityPredictor implements DraftStatusListener {
     for (int i = 1; i <= 10; i++) {
       predictionsByTeam.put(new TeamDraftOrder(i), new HashMap<Long, Float>());
     }
-
-    draftController.addListener(this);
   }
 
-  @Override
   public void onDraftStatusChanged(DraftStatus draftStatus) {
     List<DraftPick> picks = draftStatus.getPicks();
     if (lastPicksSize > picks.size()) {

@@ -91,7 +91,7 @@ public class PickHistoryPresenter extends ListDataProvider<PickHistoryInfo> impl
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     List<PickHistoryInfo> list = new ArrayList<>();
-    List<DraftPick> draftPicks = Lists.reverse(event.getStatus().getPicks());
+    List<DraftPick> draftPicks = Lists.reverse(event.getStatus().getDraftStatus().getPicks());
     for (DraftPick pick : draftPicks) {
       list.add(new PickHistoryInfo(
           getPickNumber(pick, draftPicks),

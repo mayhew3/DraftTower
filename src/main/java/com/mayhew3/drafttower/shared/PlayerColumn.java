@@ -1,7 +1,15 @@
 package com.mayhew3.drafttower.shared;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Player column values.
@@ -99,6 +107,9 @@ public enum PlayerColumn {
         String p2Value = getWizard(p2, positions);
         rtn = Float.compare(p1Value == null ? Float.MIN_VALUE : Float.parseFloat(p1Value),
             p2Value == null ? Float.MIN_VALUE : Float.parseFloat(p2Value));
+        if (rtn == 0) {
+          return PTS.getComparator(ascending).compare(p1, p2);
+        }
         return ascending ? rtn : -rtn;
       }
     };
@@ -320,7 +331,7 @@ public enum PlayerColumn {
     return max == null ? null : max.toString();
   }
 
-  public static void setWizard(Player player, String value, Position position) {
+  private static void setWizard(Player player, String value, Position position) {
     switch (position) {
       case P:
         player.setWizardP(value);
@@ -353,13 +364,55 @@ public enum PlayerColumn {
 
   public static PlayerColumn[] valuesForScoring() {
     if (Scoring.CATEGORIES) {
-      return new PlayerColumn[] {
+      return new PlayerColumn[]{
           NAME, MLB, ELIG, G, AB, OBP, SLG, RHR, RBI, HR, SBCS, INN, ERA, WHIP, WL, K, S, RANK, DRAFT, WIZARD, MYRANK
       };
     } else {
-      return new PlayerColumn[] {
+      return new PlayerColumn[]{
           NAME, MLB, ELIG, G, GS, AB, X1B, X2B, X3B, HR, RBI, KO, SB, CS, BB, INN, K, ER, W, L, S, SO, BS, PTS, RANK, DRAFT, WIZARD, MYRANK
       };
+    }
+  }
+
+  public static void calculateWizardScores(Iterable<Player> players, Map<Long, Float> pickProbabilityPredictions) {
+    for (final Position position : Position.REAL_POSITIONS) {
+      Iterable<Player> positionPlayers = Iterables.filter(players, new Predicate<Player>() {
+        @Override
+        public boolean apply(Player player) {
+          return Position.apply(player, EnumSet.of(position));
+        }
+      });
+      int topPointsSum = 0;
+      int topPointsSumSq = 0;
+      for (Player player : Iterables.limit(positionPlayers, 10)) {
+        topPointsSum += Integer.parseInt(PTS.get(player));
+        topPointsSumSq += Math.pow(Integer.parseInt(PTS.get(player)), 2);
+      }
+      double stdDev = Math.sqrt((topPointsSumSq / 10f) - Math.pow(topPointsSum / 10f, 2));
+      List<Player> playersByPtsAsc = Lists.reverse(Lists.newArrayList(Iterators.limit(
+          Ordering.from(PTS.getComparator(false)).sortedCopy(positionPlayers).iterator(), 10)));
+      Player prevPlayer = null;
+      for (Player player : playersByPtsAsc) {
+        double wizardScore = 0;
+        if (prevPlayer != null) {
+          wizardScore = Double.parseDouble(getWizard(prevPlayer, EnumSet.of(position)));
+          int pointDiff = Integer.parseInt(PTS.get(player)) - Integer.parseInt(PTS.get(prevPlayer));
+          double weight;
+          if (pickProbabilityPredictions.containsKey(player.getPlayerId())) {
+            weight = pickProbabilityPredictions.get(player.getPlayerId());
+          } else {
+            weight = .2f;
+          }
+          wizardScore += pointDiff / (stdDev / 3) * weight;
+        }
+        String wizardScoreFormatted = Double.toString(wizardScore);
+        if (wizardScoreFormatted.contains(".")) {
+          wizardScoreFormatted = wizardScoreFormatted.substring(0,
+              Math.min(wizardScoreFormatted.indexOf('.') + 3, wizardScoreFormatted.length()));
+        }
+        setWizard(player, wizardScoreFormatted, position);
+        prevPlayer = player;
+      }
     }
   }
 }

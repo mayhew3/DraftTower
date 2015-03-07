@@ -130,13 +130,14 @@ public class DraftSocketHandlerTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "name", false, beanFactory)),
         beanFactory);
     draftStatus.setSerialId(1);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     Mockito.verify(openPositions).onDraftStatusChanged(Mockito.argThat(new AutoBeanMatcher<>(draftStatus)));
     ArgumentCaptor<DraftStatusChangedEvent> eventArgumentCaptor = ArgumentCaptor.forClass(DraftStatusChangedEvent.class);
     Mockito.verify(eventBus).fireEvent(eventArgumentCaptor.capture());
     Assert.assertTrue(AutoBeanUtils.deepEquals(
         AutoBeanUtils.getAutoBean(draftStatus),
-        AutoBeanUtils.getAutoBean(eventArgumentCaptor.getValue().getStatus())));
+        AutoBeanUtils.getAutoBean(eventArgumentCaptor.getValue().getStatus().getDraftStatus())));
   }
 
   @Test
@@ -145,9 +146,10 @@ public class DraftSocketHandlerTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "name", false, beanFactory)),
         beanFactory);
     draftStatus.setSerialId(1);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     Mockito.reset(openPositions, eventBus);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     Mockito.verifyZeroInteractions(openPositions, eventBus);
   }
 
@@ -157,10 +159,11 @@ public class DraftSocketHandlerTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "name", false, beanFactory)),
         beanFactory);
     draftStatus.setSerialId(2);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     Mockito.reset(openPositions, eventBus);
     draftStatus.setSerialId(1);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     Mockito.verifyZeroInteractions(openPositions, eventBus);
   }
 
@@ -230,7 +233,8 @@ public class DraftSocketHandlerTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setSerialId(1);
     draftStatus.setCurrentPickDeadline(0);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     handler.onPlayPause(new PlayPauseEvent());
     Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.START_DRAFT, null));
   }
@@ -240,7 +244,8 @@ public class DraftSocketHandlerTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setSerialId(1);
     draftStatus.setCurrentPickDeadline(1);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     handler.onPlayPause(new PlayPauseEvent());
     Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.PAUSE, null));
   }
@@ -251,7 +256,8 @@ public class DraftSocketHandlerTest {
     draftStatus.setSerialId(1);
     draftStatus.setCurrentPickDeadline(1);
     draftStatus.setPaused(true);
-    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(draftStatus)).getPayload());
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
     handler.onPlayPause(new PlayPauseEvent());
     Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.RESUME, null));
   }

@@ -67,7 +67,7 @@ public class PredictionModelImpl implements PredictionModel {
 
   @Override
   public PlayerColumn getSortCol() {
-    return PlayerColumn.WIZARD;
+    return PlayerColumn.PTS;
   }
 
   @Override

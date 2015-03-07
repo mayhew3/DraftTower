@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Function;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
@@ -112,9 +113,9 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
   }
 
   @Override
-  public void sendMessage(String message) {
+  public void sendMessage(Function<? super String, String> messageForTeamToken) {
     for (DraftTowerWebSocket socket : openSockets) {
-      socket.sendMessage(message);
+      socket.sendMessage(messageForTeamToken.apply(socket.teamToken));
     }
   }
 }

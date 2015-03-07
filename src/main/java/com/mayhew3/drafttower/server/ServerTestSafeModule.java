@@ -11,8 +11,8 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.QueueEntry;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Dependency bindings which can be used as-is in tests.
@@ -51,7 +51,7 @@ public class ServerTestSafeModule extends AbstractGinModule {
 
   @Provides @Singleton @TeamTokens
   public Map<String, TeamDraftOrder> getTeamTokens() {
-    return new HashMap<>();
+    return new ConcurrentHashMap<>();
   }
 
   @Override

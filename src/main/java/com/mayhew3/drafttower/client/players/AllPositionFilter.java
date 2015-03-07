@@ -50,4 +50,9 @@ public class AllPositionFilter implements PositionFilter {
   public String getWizard(Player player) {
     return PlayerColumn.getWizard(player, EnumSet.allOf(Position.class));
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof AllPositionFilter;
+  }
 }

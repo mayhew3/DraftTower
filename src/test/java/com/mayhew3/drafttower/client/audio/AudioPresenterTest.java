@@ -63,13 +63,13 @@ public class AudioPresenterTest {
         DraftStatusTestUtil.createDraftPick(3, "previous pick", false, beanFactory),
         DraftStatusTestUtil.createDraftPick(4, "last pick", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
   }
 
   @Test
   public void testDraftStatusChangeNoNewPicks() {
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -77,7 +77,7 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeNoNewPicksOnDeck() {
     onDeck = true;
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -85,7 +85,7 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeNoNewPicksOnClock() {
     onClock = true;
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -94,7 +94,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. ");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -106,7 +106,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -116,7 +116,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -128,7 +128,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -139,7 +139,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("my team. you're on deck");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -150,7 +150,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. my team. you're on deck");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -163,7 +163,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyNoMoreInteractions(view);
   }
 
@@ -174,7 +174,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -185,7 +185,7 @@ public class AudioPresenterTest {
     Mockito.when(teamsInfo.getShortTeamName(5)).thenReturn("team 5 name");
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -194,7 +194,7 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeBackOutPick() {
     picks.remove(picks.size() - 1);
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -203,7 +203,7 @@ public class AudioPresenterTest {
     onDeck = true;
     picks.remove(picks.size() - 1);
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("my team. you're on deck");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -213,7 +213,7 @@ public class AudioPresenterTest {
     onClock = true;
     picks.remove(picks.size() - 1);
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -224,7 +224,7 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 6 name selects second player name. ");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -236,7 +236,7 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 6 name selects second player name. my team. you're on deck");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -248,7 +248,7 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", false, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 6 name selects second player name. my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -260,7 +260,7 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(7, "third player name", true, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. ");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -273,7 +273,7 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(7, "third player name", true, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. my team. you're on deck");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -286,7 +286,7 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(7, "third player name", true, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("team 5 name selects player name. my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -295,13 +295,13 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeKeepersOnly() {
     picks.clear();
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.reset(view);
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(7, "third player name", true, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -309,14 +309,14 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeKeepersOnlyOnDeck() {
     picks.clear();
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.reset(view);
     onDeck = true;
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(7, "third player name", true, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("my team. you're on deck");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -325,14 +325,14 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeKeepersOnlyOnClock() {
     picks.clear();
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.reset(view);
     onClock = true;
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(6, "second player name", true, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(7, "third player name", true, beanFactory));
     audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).play("my team. you're on the clock");
     Mockito.verifyNoMoreInteractions(view);
   }
@@ -342,7 +342,8 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setCurrentPickDeadline(0);
-    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -352,7 +353,8 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setCurrentPickDeadline(0);
-    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -362,7 +364,8 @@ public class AudioPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(5, "player name", false, beanFactory));
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setCurrentPickDeadline(0);
-    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -370,10 +373,12 @@ public class AudioPresenterTest {
   public void testDraftStatusChangeItsOver() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setOver(true);
-    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).playItsOver();
     Mockito.verifyNoMoreInteractions(view);
-    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    audioPresenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verifyNoMoreInteractions(view);
   }
 }

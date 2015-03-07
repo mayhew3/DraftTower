@@ -30,8 +30,10 @@
       <option name="LOCAL" value="true" />
     </RunnerSettings>
     <RunnerSettings RunnerId="Run" />
+    <RunnerSettings RunnerId="Run with VisualVM" />
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />
+    <ConfigurationWrapper RunnerId="Run with VisualVM" />
     <method />
   </configuration>
 </component>

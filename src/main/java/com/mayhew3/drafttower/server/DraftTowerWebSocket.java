@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Function;
 import com.mayhew3.drafttower.shared.DraftCommand;
 
 /**
@@ -14,5 +15,5 @@ public interface DraftTowerWebSocket {
 
   void addListener(DraftCommandListener listener);
 
-  void sendMessage(String message);
+  void sendMessage(Function<? super String, String> messageForTeamToken);
 }

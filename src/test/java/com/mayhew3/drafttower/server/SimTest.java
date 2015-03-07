@@ -211,7 +211,7 @@ public abstract class SimTest {
     verifyDraftStatus();
     if (!clientExceptions.isEmpty()) {
       clientExceptions.get(0).printStackTrace();
-      Assert.fail("Clients had exceptions.");
+      Assert.fail("Clients had exceptions: " + clientExceptions.get(0).getMessage());
     }
     for (SimulatedClient client : clients) {
       client.verify();

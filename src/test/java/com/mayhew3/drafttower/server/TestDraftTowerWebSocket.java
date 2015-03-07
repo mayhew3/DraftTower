@@ -1,15 +1,18 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Function;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.websocket.Websocket;
 import com.mayhew3.drafttower.client.websocket.WebsocketListener;
+import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Simulates web socket communication for tests.
@@ -18,20 +21,23 @@ import java.util.List;
 public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
 
   private final List<DraftCommandListener> serverListeners = new ArrayList<>();
-  private final List<WebsocketListener> clientListeners = new ArrayList<>();
+  private WebsocketListener clientListener;
   private final TeamsInfo teamsInfo;
   private final BeanFactory beanFactory;
   private final CurrentTimeProvider currentTimeProvider;
+  private final Map<String, TeamDraftOrder> teamTokens;
 
   private boolean clientOpened;
 
   @Inject
   public TestDraftTowerWebSocket(TeamsInfo teamsInfo,
       BeanFactory beanFactory,
-      CurrentTimeProvider currentTimeProvider) {
+      CurrentTimeProvider currentTimeProvider,
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     this.teamsInfo = teamsInfo;
     this.beanFactory = beanFactory;
     this.currentTimeProvider = currentTimeProvider;
+    this.teamTokens = teamTokens;
   }
 
   // Server side.
@@ -42,17 +48,15 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
   }
 
   @Override
-  public void sendMessage(String message) {
-    for (WebsocketListener clientListener : clientListeners) {
-      clientListener.onMessage(message);
-    }
+  public void sendMessage(Function<? super String, String> messageForTeamToken) {
+    clientListener.onMessage(messageForTeamToken.apply(teamTokens.keySet().iterator().next()));
   }
 
   // Client side.
 
   @Override
   public void addListener(WebsocketListener listener) {
-    clientListeners.add(listener);
+    clientListener = listener;
   }
 
   @Override
@@ -61,9 +65,7 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
     for (DraftCommandListener serverListener : serverListeners) {
       serverListener.onClientDisconnected(teamsInfo.getTeamToken());
     }
-    for (WebsocketListener clientListener : clientListeners) {
-      clientListener.onClose(SocketTerminationReason.UNKNOWN_REASON);
-    }
+    clientListener.onClose(SocketTerminationReason.UNKNOWN_REASON);
   }
 
   @Override
@@ -77,18 +79,14 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
     for (DraftCommandListener serverListener : serverListeners) {
       serverListener.onClientConnected();
     }
-    for (WebsocketListener clientListener : clientListeners) {
-      clientListener.onOpen();
-    }
+    clientListener.onOpen();
   }
 
   @Override
   public void send(String msg) {
     if (msg.startsWith(ServletEndpoints.CLOCK_SYNC)) {
       String clockSyncResponse = msg + ServletEndpoints.CLOCK_SYNC_SEP + currentTimeProvider.getCurrentTimeMillis();
-      for (WebsocketListener clientListener : clientListeners) {
-        clientListener.onMessage(clockSyncResponse);
-      }
+      clientListener.onMessage(clockSyncResponse);
     } else {
       DraftCommand cmd = AutoBeanCodex.decode(beanFactory, DraftCommand.class, msg).as();
       try {
@@ -97,9 +95,7 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
         }
       } catch (TerminateSocketException e) {
         clientOpened = false;
-        for (WebsocketListener clientListener : clientListeners) {
-          clientListener.onClose(e.getReason());
-        }
+        clientListener.onClose(e.getReason());
       }
     }
   }

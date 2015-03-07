@@ -57,7 +57,7 @@ public class PickHistoryPresenterTest {
       }
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Assert.assertEquals(expected, presenter.getList());
   }
 }

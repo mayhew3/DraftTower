@@ -37,7 +37,8 @@ public class FilledPositionsPresenter implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    view.setCounts(new FilledPositionsCounts(event.getStatus().getPicks(), numTeams, rosterUtil));
+    view.setCounts(new FilledPositionsCounts(
+        event.getStatus().getDraftStatus().getPicks(), numTeams, rosterUtil));
   }
 
   public int getDenominator(Position position) {

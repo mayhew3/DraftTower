@@ -69,11 +69,9 @@ public class TestPlayerGenerator {
         BB.set(player, Integer.toString(i * 2));
         KO.set(player, Integer.toString(i + 5));
       }
-      player.setWizardDH(Float.toString(-3 + i / 20f));
     }
-    PlayerColumn.setWizard(player, Float.toString(-3 + i / 20f), position);
     if (Scoring.POINTS) {
-      PTS.set(player, Float.toString(20f * i));
+      PTS.set(player, Integer.toString(20 * i));
     }
     player.setDraft(Integer.toString(playerId + 1));
     player.setRank(Integer.toString(playerId + 1));

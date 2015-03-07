@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.*;
@@ -30,19 +29,12 @@ public class QueueHandlerTest {
     DraftStatus draftStatus = Mockito.mock(DraftStatus.class);
     picks = new ArrayList<>();
     Mockito.when(draftStatus.getPicks()).thenReturn(picks);
-    PickProbabilityPredictor pickProbabilityPredictor = Mockito.mock(PickProbabilityPredictor.class);
-    Mockito.when(pickProbabilityPredictor.getTeamPredictions(Mockito.<TeamDraftOrder>any()))
-        .thenReturn(new ImmutableMap.Builder<Long, Float>()
-            .put(0l, .9f)
-            .put(1l, .7f)
-            .build());
     TeamDataSource teamDataSource = Mockito.mock(TeamDataSource.class);
     Mockito.when(teamDataSource.getTeamIdByDraftOrder(Mockito.<TeamDraftOrder>any()))
         .thenReturn(new TeamId(1));
 
     handler = new QueueHandler(beanFactory,
         Mockito.mock(PlayerDataProvider.class),
-        pickProbabilityPredictor,
         queues,
         draftStatus,
         new LockImpl());
@@ -58,11 +50,8 @@ public class QueueHandlerTest {
     List<QueueEntry> getQueue = handler.getQueue(new TeamDraftOrder(1));
     Assert.assertEquals(3, getQueue.size());
     Assert.assertEquals(0, getQueue.get(0).getPlayerId());
-    Assert.assertEquals(.9f, getQueue.get(0).getPickProbability(), 0.01f);
     Assert.assertEquals(1, getQueue.get(1).getPlayerId());
-    Assert.assertEquals(.7f, getQueue.get(1).getPickProbability(), 0.01f);
     Assert.assertEquals(2, getQueue.get(2).getPlayerId());
-    Assert.assertEquals(0, getQueue.get(2).getPickProbability(), 0.01f);
   }
 
   @Test

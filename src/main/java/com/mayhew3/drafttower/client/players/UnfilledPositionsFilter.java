@@ -72,4 +72,9 @@ public class UnfilledPositionsFilter implements PositionFilter {
   private EnumSet<Position> getPositions() {
     return openPositions.get();
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof UnfilledPositionsFilter;
+  }
 }

@@ -14,7 +14,4 @@ public interface QueueEntry extends DraggableItem {
 
   List<String> getEligibilities();
   void setEligibilities(List<String> eligibilities);
-
-  float getPickProbability();
-  void setPickProbability(float pickProbability);
 }

@@ -55,7 +55,8 @@ public class PickControlsPresenterTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
     draftStatus.setCurrentPickDeadline(0);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setPickEnabled(false);
   }
 
@@ -66,21 +67,22 @@ public class PickControlsPresenterTest {
     Mockito.reset(view);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setPickEnabled(false);
   }
 
   @Test
   public void testPickDisabledOnDraftStatusChangeNotMyTurn() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setPickEnabled(false);
   }
 
   @Test
   public void testPickDisabledOnSelectionNotMyTurn() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.reset(view);
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.verify(view).setPickEnabled(false);
@@ -90,7 +92,8 @@ public class PickControlsPresenterTest {
   public void testPickDisabledOnDraftStatusChangeMyTurnNoSelection() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setPickEnabled(false);
   }
 
@@ -101,7 +104,8 @@ public class PickControlsPresenterTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
     draftStatus.setPaused(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setPickEnabled(false);
   }
 
@@ -110,7 +114,8 @@ public class PickControlsPresenterTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
     draftStatus.setPaused(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.reset(view);
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.verify(view).setPickEnabled(false);
@@ -122,7 +127,8 @@ public class PickControlsPresenterTest {
     Mockito.reset(view);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setPickEnabled(true);
   }
 
@@ -130,7 +136,8 @@ public class PickControlsPresenterTest {
   public void testPickEnabledOnSelectionMyTurn() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.reset(view);
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.verify(view).setPickEnabled(true);
@@ -144,7 +151,8 @@ public class PickControlsPresenterTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory)),
         beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setPickEnabled(false);
   }
 
@@ -152,7 +160,8 @@ public class PickControlsPresenterTest {
   public void testPickDisabledOnPick() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.pick();
@@ -163,7 +172,8 @@ public class PickControlsPresenterTest {
   public void testPickDisabledOnEnqueue() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.enqueue();
@@ -174,7 +184,8 @@ public class PickControlsPresenterTest {
   public void testPickDisabledOnForcePick() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.forcePick();
@@ -184,7 +195,7 @@ public class PickControlsPresenterTest {
   @Test
   public void testEnqueueDisabledNoSelection() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setEnqueueEnabled(false);
   }
 
@@ -199,7 +210,7 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setEnqueueEnabled(true);
   }
 
@@ -214,7 +225,7 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(2, ""));
     Mockito.reset(view);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setEnqueueEnabled(false);
   }
 
@@ -226,7 +237,8 @@ public class PickControlsPresenterTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory)),
         beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setEnqueueEnabled(false);
   }
 
@@ -234,7 +246,8 @@ public class PickControlsPresenterTest {
   public void testEnqueueDisabledOnPick() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.pick();
@@ -245,7 +258,8 @@ public class PickControlsPresenterTest {
   public void testEnqueueDisabledOnEnqueue() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.enqueue();
@@ -256,7 +270,8 @@ public class PickControlsPresenterTest {
   public void testEnqueueDisabledOnForcePick() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.forcePick();
@@ -267,21 +282,22 @@ public class PickControlsPresenterTest {
   public void testForcePickDisabledOnDraftStatusChangeNotStarted() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.setCurrentPickDeadline(0);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setForcePickEnabled(false);
   }
 
   @Test
   public void testForcePickEnabledOnDraftStatusChange() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setForcePickEnabled(true);
   }
 
   @Test
   public void testForcePickInvisibleOnDraftStatusChangeNotCommish() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setForcePickVisible(false);
   }
 
@@ -289,14 +305,14 @@ public class PickControlsPresenterTest {
   public void testForcePickVisibleOnDraftStatusChangeCommish() {
     Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setForcePickVisible(true);
   }
 
   @Test
   public void testResetDraftInvisibleOnDraftStatusChangeNotCommish() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setForcePickVisible(false);
   }
 
@@ -304,14 +320,14 @@ public class PickControlsPresenterTest {
   public void testResetDraftVisibleOnDraftStatusChangeCommish() {
     Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setResetVisible(true);
   }
 
   @Test
   public void testWakeUpInvisibleOnDraftStatusChangeNotRobot() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
     Mockito.verify(view).setWakeUpVisible(false);
   }
 
@@ -319,7 +335,8 @@ public class PickControlsPresenterTest {
   public void testWakeUpVisibleOnDraftStatusChangeRobot() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
     draftStatus.getRobotTeams().add(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setWakeUpVisible(true);
   }
 
@@ -337,7 +354,8 @@ public class PickControlsPresenterTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory)),
         beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setSelectedPlayerName("");
   }
 
@@ -349,7 +367,8 @@ public class PickControlsPresenterTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, "P", 2, beanFactory)),
         beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view, Mockito.never()).setSelectedPlayerName("");
   }
 
@@ -359,7 +378,8 @@ public class PickControlsPresenterTest {
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, "P", 2, beanFactory)),
         beanFactory);
     draftStatus.setCurrentTeam(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view, Mockito.never()).setSelectedPlayerName("");
   }
 

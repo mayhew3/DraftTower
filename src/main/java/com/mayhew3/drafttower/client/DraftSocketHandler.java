@@ -47,7 +47,7 @@ public class DraftSocketHandler implements
   private final OpenPositions openPositions;
   private final EventBus eventBus;
 
-  private DraftStatus draftStatus;
+  private ClientDraftStatus draftStatus;
   private long latestStatusSerialId = -1;
 
   private final List<Integer> serverClockDiffs = new ArrayList<>();
@@ -109,11 +109,12 @@ public class DraftSocketHandler implements
     if (msg.startsWith(ServletEndpoints.CLOCK_SYNC)) {
       processClockSync(msg);
     } else {
-      draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, msg).as();
-      if (latestStatusSerialId < draftStatus.getSerialId()) {
-        openPositions.onDraftStatusChanged(draftStatus);
+      draftStatus = AutoBeanCodex.decode(beanFactory, ClientDraftStatus.class, msg).as();
+      long serialId = draftStatus.getDraftStatus().getSerialId();
+      if (latestStatusSerialId < serialId) {
+        openPositions.onDraftStatusChanged(draftStatus.getDraftStatus());
         eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
-        latestStatusSerialId = draftStatus.getSerialId();
+        latestStatusSerialId = serialId;
       }
     }
   }
@@ -170,9 +171,9 @@ public class DraftSocketHandler implements
 
   @Override
   public void onPlayPause(PlayPauseEvent event) {
-    if (draftStatus.getCurrentPickDeadline() == 0) {
+    if (draftStatus.getDraftStatus().getCurrentPickDeadline() == 0) {
       sendDraftCommand(START_DRAFT);
-    } else if (draftStatus.isPaused()) {
+    } else if (draftStatus.getDraftStatus().isPaused()) {
       sendDraftCommand(RESUME);
     } else {
       sendDraftCommand(PAUSE);
