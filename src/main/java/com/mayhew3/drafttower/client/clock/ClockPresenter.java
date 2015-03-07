@@ -57,7 +57,7 @@ public class ClockPresenter implements
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    this.status = event.getStatus();
+    this.status = event.getStatus().getDraftStatus();
     update();
   }
 

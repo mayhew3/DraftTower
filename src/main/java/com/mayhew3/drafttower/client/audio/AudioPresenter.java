@@ -46,7 +46,7 @@ public class AudioPresenter implements DraftStatusChangedEvent.Handler {
 
   @Override
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
-    DraftStatus status = event.getStatus();
+    DraftStatus status = event.getStatus().getDraftStatus();
     if (status.isOver()) {
       if (!itWasOver) {
         audioView.playItsOver();

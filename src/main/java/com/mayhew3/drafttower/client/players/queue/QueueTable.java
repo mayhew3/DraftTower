@@ -81,7 +81,16 @@ public class QueueTable extends PlayerTable<QueueEntry> {
         };
     addColumn(eligibilityColumn, "Eligibility");
 
-    Column<QueueEntry, QueueEntry> warningColumn = new IdentityColumn<>(new PredictionCell());
+    Column<QueueEntry, QueueEntryAndPrediction> warningColumn =
+        new Column<QueueEntry, QueueEntryAndPrediction>(new PredictionCell()) {
+          @Override
+          public QueueEntryAndPrediction getValue(QueueEntry queueEntry) {
+            QueueEntryAndPrediction queueEntryAndPrediction = new QueueEntryAndPrediction();
+            queueEntryAndPrediction.queueEntry = queueEntry;
+            queueEntryAndPrediction.pickPrediction = presenter.getPickPrediction(queueEntry.getPlayerId());
+            return queueEntryAndPrediction;
+          }
+        };
     addColumn(warningColumn, "");
 
     Column<QueueEntry, String> removeColumn = new Column<QueueEntry, String>(new ButtonCell()) {

@@ -108,9 +108,8 @@ public class PlayerDataProvider {
         cache.put(cacheKey, players);
       }
       synchronized (players) {
-        Comparator<Player> comparator = tableSpec.getSortCol() == PlayerColumn.WIZARD
-            ? PlayerColumn.getWizardComparator(tableSpec.isAscending(), EnumSet.allOf(Position.class))
-            : tableSpec.getSortCol().getComparator(tableSpec.isAscending());
+        PlayerColumn sortCol = tableSpec.getSortCol() == PlayerColumn.WIZARD ? PlayerColumn.PTS : tableSpec.getSortCol();
+        Comparator<Player> comparator = sortCol.getComparator(tableSpec.isAscending());
         players = Ordering.from(comparator).sortedCopy(players);
       }
       return players;
@@ -121,7 +120,10 @@ public class PlayerDataProvider {
     return dataSource.getAllKeepers();
   }
 
-  public long getBestPlayerId(final TeamDraftOrder teamDraftOrder, List<DraftPick> picks, final EnumSet<Position> openPositions) throws DataSourceException {
+  public long getBestPlayerId(final TeamDraftOrder teamDraftOrder,
+      List<DraftPick> picks,
+      final EnumSet<Position> openPositions,
+      Map<Long, Float> pickProbabilityPredictions) throws DataSourceException {
     TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamDraftOrder);
 
     final Set<Long> selectedPlayerIds = new HashSet<>();
@@ -185,10 +187,14 @@ public class PlayerDataProvider {
     TableSpec tableSpec = beanFactory.createTableSpec().as();
     PlayerDataSet wizardTable = autoPickWizardTables.get(teamDraftOrder);
     tableSpec.setPlayerDataSet(wizardTable == null ? PlayerDataSet.CBSSPORTS : wizardTable);
-    tableSpec.setSortCol(wizardTable == null ? PlayerColumn.MYRANK : PlayerColumn.WIZARD);
+    tableSpec.setSortCol(wizardTable == null ? PlayerColumn.MYRANK : PlayerColumn.PTS);
     tableSpec.setAscending(wizardTable == null);
     List<Player> players = getPlayers(teamId, tableSpec);
     Iterable<Player> unselectedPlayers = Iterables.filter(players, unselected);
+    if (wizardTable != null) {
+      PlayerColumn.calculateWizardScores(unselectedPlayers, pickProbabilityPredictions);
+      unselectedPlayers = Ordering.from(PlayerColumn.getWizardComparator(false, openPositions)).sortedCopy(unselectedPlayers);
+    }
     Player player = Iterables.getFirst(Iterables.filter(unselectedPlayers, openPosition), null);
     if (player == null) {
       player = Iterables.getFirst(unselectedPlayers, null);
@@ -276,6 +282,9 @@ public class PlayerDataProvider {
   public void copyTableSpecToCustom(CopyAllPlayerRanksRequest request) throws DataSourceException {
     final TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
     TableSpec tableSpec = request.getTableSpec();
+    if (tableSpec.getSortCol() == PlayerColumn.WIZARD || tableSpec.getSortCol() == PlayerColumn.MYRANK) {
+      return;
+    }
     dataSource.copyTableSpecToCustom(teamID, tableSpec);
     synchronized (cache) {
       for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {

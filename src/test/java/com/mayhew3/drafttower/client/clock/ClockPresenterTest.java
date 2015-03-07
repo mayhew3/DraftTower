@@ -68,7 +68,8 @@ public class ClockPresenterTest {
     DraftStatus status = DraftStatusTestUtil.createDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
     status.setCurrentPickDeadline(0);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).clear();
     Mockito.verify(view).updatePaused(false, true);
     Mockito.verify(view, Mockito.never()).updateTime(
@@ -80,7 +81,8 @@ public class ClockPresenterTest {
     DraftStatus status = DraftStatusTestUtil.createDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
     status.setOver(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).clear();
   }
 
@@ -88,7 +90,8 @@ public class ClockPresenterTest {
   public void testUpdateNotPausedCanPlay() {
     DraftStatus status = DraftStatusTestUtil.createDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).updatePaused(false, false);
   }
 
@@ -97,7 +100,8 @@ public class ClockPresenterTest {
     DraftStatus status = DraftStatusTestUtil.createDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
     status.setPaused(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).updatePaused(true, true);
     Mockito.verify(view, Mockito.never()).updateTime(
         Mockito.anyLong(), Mockito.anyLong(), Mockito.anyBoolean());
@@ -109,7 +113,8 @@ public class ClockPresenterTest {
         Lists.<DraftPick>newArrayList(), beanFactory);
     status.setCurrentPickDeadline(65100);
     currentTime = 5000;
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).updateTime(1, 0, false);
     Mockito.verify(view).updatePaused(false, false);
   }
@@ -120,7 +125,8 @@ public class ClockPresenterTest {
         Lists.<DraftPick>newArrayList(), beanFactory);
     status.setCurrentPickDeadline(65100);
     currentTime = 60000;
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).updateTime(0, 5, true);
     Mockito.verify(view).updatePaused(false, false);
   }
@@ -131,7 +137,8 @@ public class ClockPresenterTest {
         Lists.<DraftPick>newArrayList(), beanFactory);
     status.setCurrentPickDeadline(65100);
     currentTime = 70000;
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(status));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(status, beanFactory)));
     Mockito.verify(view).updateTime(0, 0, true);
     Mockito.verify(view).updatePaused(false, false);
   }

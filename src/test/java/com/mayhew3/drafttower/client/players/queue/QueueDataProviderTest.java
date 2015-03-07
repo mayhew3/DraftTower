@@ -61,7 +61,7 @@ public class QueueDataProviderTest {
   public void testRefreshOnDraftStatusChangeFirstStatus() {
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus draftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
     Mockito.verify(view).refresh();
@@ -71,11 +71,11 @@ public class QueueDataProviderTest {
   public void testNoRefreshOnDraftStatusChangeNoNewPicks() {
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus initialDraftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
     Mockito.reset(view);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus draftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
     Mockito.verifyZeroInteractions(view);
@@ -85,11 +85,11 @@ public class QueueDataProviderTest {
   public void testNoRefreshOnDraftStatusChangePickBackedOut() {
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus initialDraftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
     Mockito.reset(view);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus draftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
     Mockito.verify(view).refresh();
@@ -97,7 +97,7 @@ public class QueueDataProviderTest {
 
   @Test
   public void testRefreshOnDraftStatusChangeQueuedPlayerPicked() {
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus initialDraftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
     Mockito.reset(view);
@@ -106,7 +106,7 @@ public class QueueDataProviderTest {
     Mockito.when(view.getVisibleItems()).thenReturn(Lists.newArrayList(queueEntry));
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus draftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
     Mockito.verify(view).refresh();
@@ -114,7 +114,7 @@ public class QueueDataProviderTest {
 
   @Test
   public void testNoRefreshOnDraftStatusChangeNoQueuedPlayerPicked() {
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus initialDraftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.<DraftPick>newArrayList(), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
     Mockito.reset(view);
@@ -123,7 +123,7 @@ public class QueueDataProviderTest {
     Mockito.when(view.getVisibleItems()).thenReturn(Lists.newArrayList(queueEntry));
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
+    ClientDraftStatus draftStatus = DraftStatusTestUtil.createClientDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
     Mockito.verify(view, Mockito.never()).refresh();

@@ -67,7 +67,7 @@ public class TeamOrderPresenterTest {
   @Test
   public void testRoundTextNoPicks() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setRoundText("Round 1");
   }
 
@@ -77,7 +77,7 @@ public class TeamOrderPresenterTest {
       picks.add(DraftStatusTestUtil.createDraftPick(i, "", false, beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setRoundText("Round 1");
   }
 
@@ -87,7 +87,7 @@ public class TeamOrderPresenterTest {
       picks.add(DraftStatusTestUtil.createDraftPick(i, "", false, beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setRoundText("Round 1");
   }
 
@@ -97,7 +97,7 @@ public class TeamOrderPresenterTest {
       picks.add(DraftStatusTestUtil.createDraftPick(i, "", false, beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setRoundText("Round 2");
   }
 
@@ -105,7 +105,8 @@ public class TeamOrderPresenterTest {
   public void testRoundTextItsOver() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setOver(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setRoundText("It's over!");
   }
 
@@ -113,7 +114,8 @@ public class TeamOrderPresenterTest {
   public void testSetCurrentTeam() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setCurrentTeam(6);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     for (int i = 1; i <= 10; i++) {
       Mockito.verify(view).setCurrent(i, i == 6);
     }
@@ -124,7 +126,8 @@ public class TeamOrderPresenterTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.getConnectedTeams().add(3);
     draftStatus.getConnectedTeams().add(9);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     for (int i = 1; i <= 10; i++) {
       Mockito.verify(view).setDisconnected(i, i != 3 && i != 9);
     }
@@ -135,7 +138,8 @@ public class TeamOrderPresenterTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.getRobotTeams().add(3);
     draftStatus.getRobotTeams().add(9);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     for (int i = 1; i <= 10; i++) {
       Mockito.verify(view).setRobot(i, i == 3 || i == 9);
     }
@@ -146,7 +150,8 @@ public class TeamOrderPresenterTest {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.getNextPickKeeperTeams().add(3);
     draftStatus.getNextPickKeeperTeams().add(9);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     for (int i = 1; i <= 10; i++) {
       Mockito.verify(view).setKeeper(i, i == 3 || i == 9);
     }
@@ -156,14 +161,15 @@ public class TeamOrderPresenterTest {
   public void testStatusEmptyNotStarted() {
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setCurrentPickDeadline(0);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setStatus("");
   }
 
   @Test
   public void testStatusCleared() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setStatus("");
   }
 
@@ -172,7 +178,7 @@ public class TeamOrderPresenterTest {
     Mockito.when(teamsInfo.isOnDeck(Mockito.any(DraftStatus.class)))
         .thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setStatus("On deck!");
   }
 
@@ -181,7 +187,7 @@ public class TeamOrderPresenterTest {
     Mockito.when(teamsInfo.isMyPick(Mockito.any(DraftStatus.class)))
         .thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setStatus("Your pick!");
   }
 
@@ -191,7 +197,8 @@ public class TeamOrderPresenterTest {
         .thenReturn(true);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setOver(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setStatus("");
   }
 
@@ -200,13 +207,14 @@ public class TeamOrderPresenterTest {
     Mockito.when(teamsInfo.isOnDeck(Mockito.any(DraftStatus.class)))
         .thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     Mockito.verify(view).setStatus("On deck!");
     Mockito.when(teamsInfo.isOnDeck(Mockito.any(DraftStatus.class)))
         .thenReturn(false);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(picks, beanFactory);
     draftStatus.setCurrentPickDeadline(0);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).setStatus("");
   }
 }

@@ -38,7 +38,7 @@ public class MyRosterPresenterTest {
   @Test
   public void testNoPicks() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     List<PickAndPosition> list = presenter.getList();
     Assert.assertEquals(getEmptyRoster(), list);
   }
@@ -49,7 +49,7 @@ public class MyRosterPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(2, "", false, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(3, "", false, beanFactory));
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     List<PickAndPosition> list = presenter.getList();
     Assert.assertEquals(getEmptyRoster(), list);
   }
@@ -62,7 +62,7 @@ public class MyRosterPresenterTest {
     DraftPick myPick = DraftStatusTestUtil.createDraftPick(4, "", false, "SS", beanFactory);
     picks.add(myPick);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     List<PickAndPosition> list = presenter.getList();
     ArrayList<PickAndPosition> expected = getEmptyRoster();
     expected.set(4, new PickAndPosition(myPick, Position.SS));
@@ -84,7 +84,7 @@ public class MyRosterPresenterTest {
       }
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     List<PickAndPosition> list = presenter.getList();
     ArrayList<PickAndPosition> expected = getEmptyRoster();
     expected.set(1, new PickAndPosition(myPicks[0], Position.FB));

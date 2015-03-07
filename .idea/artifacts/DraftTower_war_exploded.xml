@@ -29,7 +29,7 @@
           <element id="library" level="project" name="Maven: com.google.gwt.google-apis:gwt-visualization:1.1.2" />
           <element id="library" level="project" name="Maven: com.google.guiceberry:guiceberry:3.1.0" />
           <element id="library" level="project" name="Maven: com.google.guava:guava-testlib:10.0" />
-          <element id="library" level="project" name="Maven: org.mockito:mockito-all:1.9.5" />
+          <element id="library" level="project" name="Maven: org.mockito:mockito-all:1.10.19" />
           <element id="library" level="project" name="Maven: org.jpmml:pmml-evaluator:1.1.15" />
           <element id="library" level="project" name="Maven: org.jpmml:pmml-manager:1.1.15" />
           <element id="library" level="project" name="Maven: org.jpmml:pmml-model:1.1.13" />

@@ -36,15 +36,23 @@ public class StatPlayerTableColumn extends PlayerTableColumn<PlayerValue> {
   @Override
   public PlayerValue getValue(Player player) {
     if (presenter.getTableSpec().getSortCol() == column) {
-      return new PlayerValue(player, column.get(player));
+      return getColumnValue(player, column);
     }
     if (presenter.getTableSpec().getSortCol() == pitcherColumn) {
-      return new PlayerValue(player, pitcherColumn.get(player));
+      return getColumnValue(player, pitcherColumn);
     }
     if (pitcherColumn != null && pitcherColumn.get(player) != null) {
-      return new PlayerValue(player, pitcherColumn.get(player));
+      return getColumnValue(player, pitcherColumn);
     }
-    return new PlayerValue(player, column.get(player));
+    return getColumnValue(player, column);
+  }
+
+  private PlayerValue getColumnValue(Player player, PlayerColumn column) {
+    if (column == PlayerColumn.WIZARD) {
+      return new PlayerValue(player, positionFilterProvider.get().getWizard(player));
+    } else {
+      return new PlayerValue(player, column.get(player));
+    }
   }
 
   @Override

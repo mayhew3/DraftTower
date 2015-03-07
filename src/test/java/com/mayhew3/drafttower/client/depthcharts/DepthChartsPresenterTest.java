@@ -31,7 +31,7 @@ public class DepthChartsPresenterTest {
   @Test
   public void testNoPicks() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(Lists.<DraftPick>newArrayList(), beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(Lists.<DraftPick>newArrayList(), beanFactory)));
     for (int i = 0; i < 10; i++) {
       for (Position position : Position.REAL_POSITIONS) {
         Assert.assertEquals(0, presenter.getPicks(i, position).size());
@@ -46,7 +46,7 @@ public class DepthChartsPresenterTest {
       picks.add(DraftStatusTestUtil.createDraftPick(i, Integer.toString(i), false, "P", beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     for (int i = 0; i < 10; i++) {
       for (Position position : Position.REAL_POSITIONS) {
         if (i < 5 && position == Position.P) {
@@ -67,7 +67,7 @@ public class DepthChartsPresenterTest {
       picks.add(DraftStatusTestUtil.createDraftPick(i, Integer.toString(i), false, "P", beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     for (int i = 0; i < 10; i++) {
       for (Position position : Position.REAL_POSITIONS) {
         if (position == Position.P) {
@@ -91,7 +91,7 @@ public class DepthChartsPresenterTest {
       }
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     for (int i = 0; i < 10; i++) {
       for (Position position : Position.REAL_POSITIONS) {
         if (EnumSet.of(Position.P, Position.FB, Position.SB).contains(position)) {

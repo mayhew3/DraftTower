@@ -23,6 +23,7 @@ public class PlayerDataProviderTest {
   private Map<TeamDraftOrder, Integer> minClosers;
   private Map<TeamDraftOrder, Integer> maxClosers;
   private PlayerDataProvider playerDataProvider;
+  private Map<Long, Float> pickProbabilities;
 
   @Before
   public void setup() throws Exception {
@@ -33,6 +34,7 @@ public class PlayerDataProviderTest {
     TeamDataSource teamDataSource = Mockito.mock(TeamDataSource.class);
     Mockito.when(teamDataSource.getTeamIdByDraftOrder(Mockito.any(TeamDraftOrder.class)))
         .thenReturn(new TeamId(1));
+    pickProbabilities = new HashMap<>();
     playerDataProvider = new TestPlayerDataProvider(
         new TestPlayerDataSourceServer(beanFactory),
         beanFactory,
@@ -47,7 +49,8 @@ public class PlayerDataProviderTest {
   public void testGetBestPlayer() throws Exception {
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         new ArrayList<DraftPick>(),
-        EnumSet.allOf(Position.class));
+        EnumSet.allOf(Position.class),
+        pickProbabilities);
     Assert.assertEquals(0, bestPlayerId);
   }
 
@@ -55,7 +58,8 @@ public class PlayerDataProviderTest {
   public void testGetBestPlayerSkipsSelectedPlayer() throws Exception {
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, "P", 0, beanFactory)),
-        EnumSet.allOf(Position.class));
+        EnumSet.allOf(Position.class),
+        pickProbabilities);
     Assert.assertEquals(1, bestPlayerId);
   }
 
@@ -63,7 +67,8 @@ public class PlayerDataProviderTest {
   public void testGetBestPlayerSkipsFilledPositions() throws Exception {
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         new ArrayList<DraftPick>(),
-        EnumSet.of(Position.FB));
+        EnumSet.of(Position.FB),
+        pickProbabilities);
     Assert.assertEquals(155, bestPlayerId);
   }
 
@@ -71,7 +76,8 @@ public class PlayerDataProviderTest {
   public void testGetBestPlayerAllPositionsFilled() throws Exception {
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         new ArrayList<DraftPick>(),
-        EnumSet.noneOf(Position.class));
+        EnumSet.noneOf(Position.class),
+        pickProbabilities);
     Assert.assertEquals(0, bestPlayerId);
   }
 
@@ -94,16 +100,21 @@ public class PlayerDataProviderTest {
             DraftStatusTestUtil.createDraftPick(1, "", false, "FB", 167, beanFactory),
             DraftStatusTestUtil.createDraftPick(1, "", false, "FB", 168, beanFactory),
             DraftStatusTestUtil.createDraftPick(1, "", false, "FB", 169, beanFactory)),
-        EnumSet.of(Position.FB));
+        EnumSet.of(Position.FB),
+        pickProbabilities);
     Assert.assertEquals(0, bestPlayerId);
   }
 
   @Test
   public void testGetBestPlayerUsesWizardTable() throws Exception {
+    pickProbabilities.put(139l, .9f);
+    pickProbabilities.put(138l, .8f);
+    pickProbabilities.put(137l, .7f);
     autoPickWizards.put(new TeamDraftOrder(1), PlayerDataSet.CBSSPORTS);
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         new ArrayList<DraftPick>(),
-        EnumSet.allOf(Position.class));
+        EnumSet.allOf(Position.class),
+        pickProbabilities);
     Assert.assertEquals(139, bestPlayerId);
   }
 
@@ -113,7 +124,8 @@ public class PlayerDataProviderTest {
     maxClosers.put(new TeamDraftOrder(1), 4);
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         new ArrayList<DraftPick>(),
-        EnumSet.of(Position.P));
+        EnumSet.of(Position.P),
+        pickProbabilities);
     Assert.assertEquals(0, bestPlayerId);
   }
 
@@ -133,12 +145,12 @@ public class PlayerDataProviderTest {
         DraftStatusTestUtil.createDraftPick(1, "", false, "SB", 155, beanFactory),
         DraftStatusTestUtil.createDraftPick(1, "", false, "TB", 170, beanFactory));
     long bestPlayerId = playerDataProvider.getBestPlayerId(
-        new TeamDraftOrder(1), picks, EnumSet.of(Position.P));
+        new TeamDraftOrder(1), picks, EnumSet.of(Position.P), pickProbabilities);
     Assert.assertEquals(0, bestPlayerId);
 
     picks.add(DraftStatusTestUtil.createDraftPick(2, "", false, "P", 0, beanFactory));
     bestPlayerId = playerDataProvider.getBestPlayerId(
-        new TeamDraftOrder(1), picks, EnumSet.of(Position.P));
+        new TeamDraftOrder(1), picks, EnumSet.of(Position.P), pickProbabilities);
     Assert.assertEquals(1, bestPlayerId);
   }
 
@@ -157,12 +169,12 @@ public class PlayerDataProviderTest {
         DraftStatusTestUtil.createDraftPick(1, "", false, "TB", 170, beanFactory));
 
     long bestPlayerId = playerDataProvider.getBestPlayerId(
-        new TeamDraftOrder(1), picks, EnumSet.of(Position.P));
+        new TeamDraftOrder(1), picks, EnumSet.of(Position.P), pickProbabilities);
     Assert.assertEquals(1, bestPlayerId);
 
     picks.add(DraftStatusTestUtil.createDraftPick(2, "", false, "P", 1, beanFactory));
     bestPlayerId = playerDataProvider.getBestPlayerId(
-        new TeamDraftOrder(1), picks, EnumSet.of(Position.P));
+        new TeamDraftOrder(1), picks, EnumSet.of(Position.P), pickProbabilities);
     Assert.assertEquals(3, bestPlayerId);
   }
 
@@ -181,12 +193,12 @@ public class PlayerDataProviderTest {
         DraftStatusTestUtil.createDraftPick(1, "", false, "TB", 170, beanFactory));
 
     long bestPlayerId = playerDataProvider.getBestPlayerId(
-        new TeamDraftOrder(1), picks, EnumSet.of(Position.P));
+        new TeamDraftOrder(1), picks, EnumSet.of(Position.P), pickProbabilities);
     Assert.assertEquals(0, bestPlayerId);
 
     picks.add(DraftStatusTestUtil.createDraftPick(2, "", false, "P", 0, beanFactory));
     bestPlayerId = playerDataProvider.getBestPlayerId(
-        new TeamDraftOrder(1), picks, EnumSet.of(Position.P));
+        new TeamDraftOrder(1), picks, EnumSet.of(Position.P), pickProbabilities);
     Assert.assertEquals(2, bestPlayerId);
   }
 }

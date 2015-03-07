@@ -35,7 +35,7 @@ public class DepthChartsPresenter extends ListDataProvider<Integer> implements
   public void onDraftStatusChanged(DraftStatusChangedEvent event) {
     rosters.clear();
     List<Integer> teams = new ArrayList<>();
-    List<DraftPick> picks = event.getStatus().getPicks();
+    List<DraftPick> picks = event.getStatus().getDraftStatus().getPicks();
     for (DraftPick draftPick : picks) {
       final int team = draftPick.getTeam();
       if (teams.contains(team)) {

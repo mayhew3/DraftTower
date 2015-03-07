@@ -119,7 +119,7 @@ public class UnclaimedPlayerTablePanelPresenter implements
 
   public void copyRanks() {
     TableSpec tableSpec = tablePresenter.getTableSpec();
-    if (tableSpec.getSortCol() != PlayerColumn.MYRANK) {
+    if (tableSpec.getSortCol() != PlayerColumn.MYRANK && tableSpec.getSortCol() != PlayerColumn.WIZARD) {
       eventBus.fireEvent(new CopyAllPlayerRanksEvent(tableSpec));
     }
   }

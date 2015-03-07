@@ -41,7 +41,7 @@ public class FilledPositionsPresenterTest {
   @Test
   public void testNoPicks() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     ArgumentCaptor<FilledPositionsCounts> arg = ArgumentCaptor.forClass(FilledPositionsCounts.class);
     Mockito.verify(view).setCounts(arg.capture());
     FilledPositionsCounts counts = arg.getValue();
@@ -78,7 +78,7 @@ public class FilledPositionsPresenterTest {
           (i % 10) + 1, "", false, pickPositions[i], beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(picks, beanFactory)));
+        DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
     ArgumentCaptor<FilledPositionsCounts> arg = ArgumentCaptor.forClass(FilledPositionsCounts.class);
     Mockito.verify(view).setCounts(arg.capture());
     FilledPositionsCounts counts = arg.getValue();

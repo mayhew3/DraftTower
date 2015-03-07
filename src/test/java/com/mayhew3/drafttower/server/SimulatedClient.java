@@ -139,7 +139,7 @@ public abstract class SimulatedClient implements WebsocketListener {
 
     webSocket = (DraftTowerWebSocketServlet.DraftTowerWebSocket)
         webSocketServlet.doWebSocketConnect(null, null);
-    connection = Mockito.mock(Connection.class);
+    connection = Mockito.mock(Connection.class, Mockito.withSettings().stubOnly());
     Mockito.doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -147,7 +147,7 @@ public abstract class SimulatedClient implements WebsocketListener {
         if (message.startsWith(ServletEndpoints.CLOCK_SYNC)) {
           // ignore
         } else {
-          draftStatus = AutoBeanCodex.decode(beanFactory, DraftStatus.class, message).as();
+          draftStatus = AutoBeanCodex.decode(beanFactory, ClientDraftStatus.class, message).as().getDraftStatus();
         }
         return null;
       }

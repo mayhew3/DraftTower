@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Message object for communicating current draft status to clients.
+ * Message object encapsulating current draft status.
  */
 public interface DraftStatus {
 

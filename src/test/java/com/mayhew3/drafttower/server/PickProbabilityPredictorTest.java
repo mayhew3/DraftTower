@@ -47,11 +47,9 @@ public class PickProbabilityPredictorTest {
             return new TeamId(((TeamDraftOrder) invocation.getArguments()[0]).get());
           }
         });
-    DraftController draftController = Mockito.mock(DraftController.class);
     pickProbabilityPredictor = new PickProbabilityPredictor(
         playerDataProvider,
         teamDataSource,
-        draftController,
         beanFactory,
         new RosterUtil(),
         new TestPredictionModel());

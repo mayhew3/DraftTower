@@ -235,14 +235,14 @@ public class PlayerListTest {
         0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
         false, null);
     playerList.updatePlayerRank(1, 1, 3);
-    Assert.assertFalse(playerList.playersBySortCol.containsKey(
+    Assert.assertFalse(playerList.playersBySort.containsKey(
         new SortSpec(PlayerColumn.MYRANK, true)));
   }
 
   @Test
   public void testUpdatePlayerRankRestoresSortCacheWhenEmpty() {
     playerList.updatePlayerRank(1, 1, 3);
-    Assert.assertTrue(playerList.playersBySortCol.containsKey(
+    Assert.assertTrue(playerList.playersBySort.containsKey(
         new SortSpec(PlayerColumn.MYRANK, true)));
   }
 

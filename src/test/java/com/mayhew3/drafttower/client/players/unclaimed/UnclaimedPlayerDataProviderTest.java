@@ -79,7 +79,8 @@ public class UnclaimedPlayerDataProviderTest {
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
         Lists.newArrayList(draftPick), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
     Mockito.verify(view).refresh();
   }
 
@@ -87,13 +88,11 @@ public class UnclaimedPlayerDataProviderTest {
   public void testNoRefreshOnDraftStatusChangeNoNewPicks() {
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.newArrayList(draftPick), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(draftPick), beanFactory)));
     Mockito.reset(view);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.newArrayList(draftPick), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(draftPick), beanFactory)));
     Mockito.verifyZeroInteractions(view);
   }
 
@@ -101,47 +100,41 @@ public class UnclaimedPlayerDataProviderTest {
   public void testNoRefreshOnDraftStatusChangePickBackedOut() {
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.newArrayList(draftPick), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(draftPick), beanFactory)));
     Mockito.reset(view);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.<DraftPick>newArrayList(), beanFactory)));
     Mockito.verify(view).refresh();
   }
 
   @Test
   public void testRefreshOnDraftStatusChangeVisiblePlayerPicked() {
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.<DraftPick>newArrayList(), beanFactory)));
     Mockito.reset(view);
     Player player = beanFactory.createPlayer().as();
     player.setPlayerId(1);
     Mockito.when(view.getVisibleItems()).thenReturn(Lists.newArrayList(player));
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.newArrayList(draftPick), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(draftPick), beanFactory)));
     Mockito.verify(view).refresh();
   }
 
   @Test
   public void testNoRefreshOnDraftStatusChangeNoVisiblePlayerPicked() {
-    DraftStatus initialDraftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(initialDraftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.<DraftPick>newArrayList(), beanFactory)));
     Mockito.reset(view);
     Player player = beanFactory.createPlayer().as();
     player.setPlayerId(2);
     Mockito.when(view.getVisibleItems()).thenReturn(Lists.newArrayList(player));
     DraftPick draftPick =
         DraftStatusTestUtil.createDraftPick(1, "", false, "P", 1, beanFactory);
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.newArrayList(draftPick), beanFactory);
-    provider.onDraftStatusChanged(new DraftStatusChangedEvent(draftStatus));
+    provider.onDraftStatusChanged(new DraftStatusChangedEvent(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(draftPick), beanFactory)));
     Mockito.verify(view, Mockito.never()).refresh();
   }
 
@@ -216,7 +209,7 @@ public class UnclaimedPlayerDataProviderTest {
   @Test
   public void testHandlePlayerListResponsePickedPlayers() {
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(Lists.newArrayList(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(
             DraftStatusTestUtil.createDraftPick(1, "", false, "C", 1, beanFactory)), beanFactory)));
     provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec);
     Assert.assertEquals(2, provider.playersByDataSet.get(tableSpec.getPlayerDataSet()).getTotalPlayers());
@@ -268,7 +261,7 @@ public class UnclaimedPlayerDataProviderTest {
   public void testOnDraftStatusChangedPickedPlayers() {
     provider.handlePlayerListResponse(createPlayerListResponse(), tableSpec);
     provider.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createDraftStatus(Lists.newArrayList(
+        DraftStatusTestUtil.createClientDraftStatus(Lists.newArrayList(
             DraftStatusTestUtil.createDraftPick(1, "", false, "C", 1, beanFactory)), beanFactory)));
     Assert.assertEquals(2, provider.playersByDataSet.get(tableSpec.getPlayerDataSet()).getTotalPlayers());
   }

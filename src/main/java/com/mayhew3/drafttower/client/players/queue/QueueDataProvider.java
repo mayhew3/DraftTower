@@ -177,4 +177,9 @@ public class QueueDataProvider extends PlayerDataProvider<QueueEntry> implements
         entry.getPlayerId(),
         targetPosition));
   }
+
+  public float getPickPrediction(long playerId) {
+    return lastStatus.getPickPredictions().containsKey(playerId)
+        ? lastStatus.getPickPredictions().get(playerId) : 0f;
+  }
 }

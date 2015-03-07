@@ -379,11 +379,11 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     login(1);
     ginjector.getScheduler().flush();
     click("-players-table-0-15");
-    assertEquals("2780.0", getInnerText("-players-table-1-15"));
-    assertEquals("2760.0", getInnerText("-players-table-2-15"));
+    assertEquals("2780", getInnerText("-players-table-1-15"));
+    assertEquals("2760", getInnerText("-players-table-2-15"));
     click("-players-table-0-15");
-    assertEquals("0.0", getInnerText("-players-table-1-15"));
-    assertEquals("0.0", getInnerText("-players-table-2-15"));
+    assertEquals("0", getInnerText("-players-table-1-15"));
+    assertEquals("0", getInnerText("-players-table-2-15"));
   }
 
   public void testSortByRank() {
@@ -403,11 +403,11 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     ginjector.getScheduler().flush();
     String column = Scoring.CATEGORIES ? "13" : "17";
     click("-players-table-0-" + column);
-    assertEquals("3.9499998", getInnerText("-players-table-1-" + column));
-    assertEquals("3.9", getInnerText("-players-table-2-" + column));
+    assertEquals("1.8", getInnerText("-players-table-1-" + column));
+    assertEquals("1.8", getInnerText("-players-table-2-" + column));
     click("-players-table-0-" + column);
-    assertEquals("-3.0", getInnerText("-players-table-1-" + column));
-    assertEquals("-3.0", getInnerText("-players-table-2-" + column));
+    assertEquals("0.0", getInnerText("-players-table-1-" + column));
+    assertEquals("0.0", getInnerText("-players-table-2-" + column));
   }
 
   public void testSortByDraft() {

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mayhew3.drafttower.server.TestPlayerDataSource;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -13,6 +14,18 @@ import java.util.List;
 public class DraftStatusTestUtil {
   private static int statusSerialId = 0;
   private static int lastPlayerId = 1;
+
+  public static ClientDraftStatus createClientDraftStatus(DraftStatus draftStatus, BeanFactory beanFactory) {
+    ClientDraftStatus clientDraftStatus = beanFactory.createClientDraftStatus().as();
+    clientDraftStatus.setDraftStatus(draftStatus);
+    clientDraftStatus.setPickPredictions(new HashMap<Long, Float>());
+    return clientDraftStatus;
+  }
+
+  public static ClientDraftStatus createClientDraftStatus(List<DraftPick> picks, BeanFactory beanFactory) {
+    DraftStatus draftStatus = createDraftStatus(picks, beanFactory);
+    return createClientDraftStatus(draftStatus, beanFactory);
+  }
 
   public static DraftStatus createDraftStatus(List<DraftPick> picks, BeanFactory beanFactory) {
     DraftStatus draftStatus = beanFactory.createDraftStatus().as();

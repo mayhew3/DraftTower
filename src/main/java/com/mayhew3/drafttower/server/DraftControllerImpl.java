@@ -1,6 +1,8 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -36,6 +38,7 @@ public class DraftControllerImpl implements DraftController {
   private final DraftTowerWebSocket socketServlet;
   private final BeanFactory beanFactory;
   private final PlayerDataProvider playerDataProvider;
+  private final PickProbabilityPredictor pickProbabilityPredictor;
   private final TeamDataSource teamDataSource;
   private final CurrentTimeProvider currentTimeProvider;
   private final DraftTimer draftTimer;
@@ -48,12 +51,12 @@ public class DraftControllerImpl implements DraftController {
 
   private final DraftStatus status;
   private long pausedPickTime;
-  private List<DraftStatusListener> listeners;
 
   @Inject
   public DraftControllerImpl(DraftTowerWebSocket socketServlet,
       BeanFactory beanFactory,
       PlayerDataProvider playerDataProvider,
+      PickProbabilityPredictor pickProbabilityPredictor,
       TeamDataSource teamDataSource,
       CurrentTimeProvider currentTimeProvider,
       DraftTimer draftTimer,
@@ -67,6 +70,7 @@ public class DraftControllerImpl implements DraftController {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataProvider = playerDataProvider;
+    this.pickProbabilityPredictor = pickProbabilityPredictor;
     this.teamDataSource = teamDataSource;
     this.currentTimeProvider = currentTimeProvider;
     this.draftTimer = draftTimer;
@@ -77,7 +81,6 @@ public class DraftControllerImpl implements DraftController {
     this.numTeams = numTeams;
     this.status = status;
     this.lock = lock;
-    this.listeners = new ArrayList<>();
 
     status.setConnectedTeams(new HashSet<Integer>());
     status.setRobotTeams(new HashSet<Integer>());
@@ -99,7 +102,7 @@ public class DraftControllerImpl implements DraftController {
 
   @Override
   public void onClientConnected() {
-    socketServlet.sendMessage(getEncodedStatus());
+    socketServlet.sendMessage(getStatusEncoder());
   }
 
   @Override
@@ -187,7 +190,8 @@ public class DraftControllerImpl implements DraftController {
                         public boolean apply(DraftPick draftPick) {
                           return draftPick.getTeam() == teamDraftOrder.get();
                         }
-                      }))));
+                      }))),
+              pickProbabilityPredictor.getTeamPredictions(teamDraftOrder));
         } catch (DataSourceException e) {
           logger.log(SEVERE, "SQL error looking up the best draft pick", e);
           return;
@@ -244,7 +248,7 @@ public class DraftControllerImpl implements DraftController {
       if (teamTokens.containsKey(teamToken)) {
         status.getConnectedTeams().remove(teamTokens.get(teamToken).get());
       }
-      socketServlet.sendMessage(getEncodedStatus());
+      socketServlet.sendMessage(getStatusEncoder());
     }
   }
 
@@ -421,22 +425,28 @@ public class DraftControllerImpl implements DraftController {
 
   @VisibleForTesting
   public void sendStatusUpdates() {
-    socketServlet.sendMessage(getEncodedStatus());
-    for (DraftStatusListener listener : listeners) {
-      listener.onDraftStatusChanged(status);
+    if (pickProbabilityPredictor != null) {
+      pickProbabilityPredictor.onDraftStatusChanged(status);
     }
+    socketServlet.sendMessage(getStatusEncoder());
   }
 
-  private String getEncodedStatus() {
+  private Function<String, String> getStatusEncoder() {
     try (Lock ignored = lock.lock()) {
+      final Map<String, String> statusPerTeam = new HashMap<>();
       status.setSerialId(status.getSerialId() + 1);
-      return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
+      ClientDraftStatus clientStatus = beanFactory.createClientDraftStatus().as();
+      clientStatus.setDraftStatus(status);
+      statusPerTeam.put(null, encodeStatus(clientStatus));
+      for (Entry<String, TeamDraftOrder> teamToken : teamTokens.entrySet()) {
+        clientStatus.setPickPredictions(pickProbabilityPredictor.getTeamPredictions(teamToken.getValue()));
+        statusPerTeam.put(teamToken.getKey(), encodeStatus(clientStatus));
+      }
+      return Functions.forMap(statusPerTeam);
     }
   }
 
-  @Override
-  public void addListener(DraftStatusListener listener) {
-    listeners.add(listener);
-    listener.onDraftStatusChanged(status);
+  private String encodeStatus(ClientDraftStatus status) {
+    return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(status)).getPayload();
   }
 }
