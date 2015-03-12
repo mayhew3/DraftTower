@@ -1,4 +1,4 @@
-.table tr:first-child {
+.table tbody tr:first-child {
   font-size: 130%;
 }
 

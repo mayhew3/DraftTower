@@ -38,7 +38,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         ensureDebugIdAndGetElement("-players-SP", true).getClassName());
     for (int i = 1; i < 16; i++) {
       assertEquals("P", getInnerText("-players-table-" + i + "-4"));
-      assertEquals("0", getInnerText("-players-table-" + i + "-10"));
+      assertEquals("0", getInnerText("-players-table-" + i + "-16"));
     }
   }
 
@@ -49,7 +49,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         ensureDebugIdAndGetElement("-players-RP", true).getClassName());
     for (int i = 1; i < 16; i++) {
       assertEquals("P", getInnerText("-players-table-" + i + "-4"));
-      assertFalse("0".equals(getInnerText("-players-table-" + i + "-10")));
+      assertFalse("0".equals(getInnerText("-players-table-" + i + "-16")));
     }
   }
 
@@ -137,10 +137,10 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
   public void testCopyRanksCheckbox() {
     login(1);
     ginjector.getScheduler().flush();
-    click(Scoring.CATEGORIES ? "-players-table-0-13" : "-players-table-0-17");
+    click(Scoring.CATEGORIES ? "-players-table-0-13" : "-players-table-0-19");
     click("-players-autopickSettings");
     assertFalse(isEnabled("-players-copyRanks"));
-    click(Scoring.CATEGORIES ? "-players-table-0-15" : "-players-table-0-19");
+    click(Scoring.CATEGORIES ? "-players-table-0-15" : "-players-table-0-21");
     click("-players-autopickSettings");
     assertFalse(isEnabled("-players-copyRanks"));
 
@@ -148,7 +148,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     click("-players-autopickSettings");
     click("-players-copyRanks");
     for (int i = 1; i < 40; i++) {
-      assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + (Scoring.CATEGORIES ? "-15" : "-19")));
+      assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + (Scoring.CATEGORIES ? "-15" : "-21")));
     }
   }
 
@@ -156,7 +156,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     login(1);
     click("-players-autopickSettings");
     assertFalse(isEnabled("-players-autopick"));
-    click("-players-table-0-" + (Scoring.CATEGORIES ? "13" : "17"));
+    click("-players-table-0-" + (Scoring.CATEGORIES ? "13" : "19"));
     click("-players-autopickSettings");
     assertTrue(isEnabled("-players-autopick"));
 
