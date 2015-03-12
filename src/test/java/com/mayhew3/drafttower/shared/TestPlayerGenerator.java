@@ -32,42 +32,40 @@ public class TestPlayerGenerator {
       K.set(player, Integer.toString(i + 5));
       if (i % 2 == 1) {
         S.set(player, Integer.toString((i / 3) + 1));
-        BS.set(player, Integer.toString(i / 9));
         GS.set(player, "0");
-        SO.set(player, "0");
       } else {
         S.set(player, "0");
-        BS.set(player, "0");
-        GS.set(player, Integer.toString(i + 1));
-        SO.set(player, Integer.toString(i / 50));
+        GS.set(player, Integer.toString(i / 5 + 1));
       }
+      G.set(player, Integer.toString(i / 5 + 1));
+      ERA.set(player, Float.toString(2 + i / 100f));
+      WHIP.set(player, Float.toString(1 + i / 100f));
       if (Scoring.CATEGORIES) {
         WL.set(player, Integer.toString(i));
-        G.set(player, Integer.toString(i / 5 + 1));
-        ERA.set(player, Float.toString(2 + i / 100f));
-        WHIP.set(player, Float.toString(1 + i / 100f));
       } else {
-        ER.set(player, Integer.toString(i / 3));
         W.set(player, Integer.toString(i / 6));
         L.set(player, Integer.toString(i / 6));
+        HA.set(player, Integer.toString(i * 2));
+        HRA.set(player, Integer.toString(i / 4));
+        BBI.set(player, Integer.toString(i));
       }
     } else {
       AB.set(player, Integer.toString(i * 20));
       HR.set(player, Integer.toString(i));
       RBI.set(player, Integer.toString(i * 3));
-      RHR.set(player, Integer.toString(i * 3));
+      OBP.set(player, Float.toString(.25f + i / 100f));
+      SLG.set(player, Float.toString(.4f + i / 50f));
       if (Scoring.CATEGORIES) {
-        OBP.set(player, Float.toString(.25f + i / 100f));
-        SLG.set(player, Float.toString(.4f + i / 50f));
+        RHR.set(player, Integer.toString(i * 3));
         SBCS.set(player, Integer.toString(i));
       } else {
-        X1B.set(player, Integer.toString(i * 5));
-        X2B.set(player, Integer.toString(i));
-        X3B.set(player, Integer.toString(i / 5));
+        G.set(player, Integer.toString(i * 3));
+        H.set(player, Integer.toString(i * 5));
+        R.set(player, Integer.toString(i * 3));
         SB.set(player, Integer.toString(i));
-        CS.set(player, Integer.toString(i / 5));
         BB.set(player, Integer.toString(i * 2));
         KO.set(player, Integer.toString(i + 5));
+        BA.set(player, Float.toString(.2f + i / 100f));
       }
     }
     if (Scoring.POINTS) {

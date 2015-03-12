@@ -84,26 +84,34 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
               // TODO m3: read points values from DB?
               if (player.getEligibility().contains("P")) {
                 player.setPoints(Integer.toString(
-                    parseIntOrZero(player.getINN()) * 9 +
-                        parseIntOrZero(player.getK()) * 3 +
-                        parseIntOrZero(player.getER()) * -7 +
-                        parseIntOrZero(player.getS()) * 31 +
-                        parseIntOrZero(player.getW()) * 6 +
-                        parseIntOrZero(player.getL()) * -7 +
-                        parseIntOrZero(player.getSO()) * 8 +
-                        parseIntOrZero(player.getBS()) * -9
+                    resultSet.getInt("B") * -2 +
+                    parseIntOrZero(player.getBBI()) * -2 +
+                    resultSet.getInt("BS") * -9 +
+                    resultSet.getInt("ER") * -8 +
+                    parseIntOrZero(player.getHA()) * -2 +
+                    resultSet.getInt("HB") * -2 +
+                    parseIntOrZero(player.getINN()) * 12 +
+                    resultSet.getInt("IRS") * -1 +
+                    parseIntOrZero(player.getK()) * 3 +
+                    parseIntOrZero(player.getL()) * -8 +
+                    resultSet.getInt("NH") * 10 +
+                    parseIntOrZero(player.getS()) * 29 +
+                    resultSet.getInt("SO") * 5 +
+                    parseIntOrZero(player.getW()) * 9
                 ));
               } else {
                 player.setPoints(Integer.toString(
-                      parseIntOrZero(player.get1B()) * 8 +
-                        parseIntOrZero(player.get2B()) * 13 +
-                        parseIntOrZero(player.get3B()) * 18 +
-                        parseIntOrZero(player.getHR()) * 18 +
-                        parseIntOrZero(player.getRBI()) * 4 +
-                        parseIntOrZero(player.getSB()) * 6 +
-                        parseIntOrZero(player.getCS()) * -2 +
-                        parseIntOrZero(player.getBB()) * 7 +
-                        parseIntOrZero(player.getKO()) * -1
+                    resultSet.getInt("1B") * 8 +
+                    resultSet.getInt("2B") * 13 +
+                    resultSet.getInt("3B") * 18 +
+                    parseIntOrZero(player.getAB()) * -1 +
+                    parseIntOrZero(player.getBB()) * 7 +
+                    resultSet.getInt("CS") * -6 +
+                    parseIntOrZero(player.getHR()) * 18 +
+                    parseIntOrZero(player.getKO()) * -1 +
+                    parseIntOrZero(player.getR()) * 4 +
+                    parseIntOrZero(player.getRBI()) * 4 +
+                    parseIntOrZero(player.getSB()) * 5
                 ));
               }
             }
@@ -180,54 +188,64 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
     String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
         " APP as G, NULL AS AB, \n" +
+        "  NULL AS OBP,\n" +
+        "  NULL AS SLG,\n" +
+        "  NULL AS RBI,\n" +
+        "  NULL AS HR,\n" +
+        "  ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP,\n" +
+        "  ROUND(INN, 0) AS INN, GS, K, S,\n" +
         (Scoring.CATEGORIES ? (
-            "  NULL AS OBP,\n" +
-            "  NULL AS SLG,\n" +
             "  NULL AS RHR,\n" +
-            "  NULL AS RBI,\n" +
-            "  NULL AS HR,\n" +
             "  NULL AS SBC,\n" +
-            "  ROUND(INN, 0) AS INN, GS, ROUND(ERA, 2) AS ERA, ROUND(WHIP, 3) AS WHIP, WL, K, S, "
+            "  WL, "
         ) : (
+            "  NULL AS H,\n" +
             "  NULL AS 1B,\n" +
             "  NULL AS 2B,\n" +
             "  NULL AS 3B,\n" +
-            "  NULL AS HR,\n" +
-            "  NULL AS RBI,\n" +
+            "  NULL AS R,\n" +
             "  NULL AS KO,\n" +
             "  NULL AS SB,\n" +
             "  NULL AS CS,\n" +
             "  NULL AS BB,\n" +
+            "  NULL AS BA,\n" +
             // TODO(m3): need projections for new stats
             "  0 AS BS,\n" +
             "  0 AS SO,\n" +
-            "  ROUND(INN, 0) AS INN, GS, K, ER, W, L, S, "
+            "  0 AS NH,\n" +
+            "  0 AS B,\n" +
+            "  ER, W, L, HA, HRA, BBI, HB, IRS, "
         )) +
         "Rank, Draft, DataSource \n" +
         " FROM projectionspitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
         " G, AB, \n" +
+        "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RBI, HR,\n" +
+        "  NULL AS GS,\n" +
+        "  NULL AS INN,\n" +
+        "  NULL AS ERA,\n" +
+        "  NULL AS WHIP,\n" +
+        "  NULL AS K,\n" +
+        "  NULL AS S,\n" +
         (Scoring.CATEGORIES ? (
-            "  ROUND(OBP, 3) AS OBP, ROUND(SLG, 3) AS SLG, RHR, RBI, HR, SBC,\n" +
-            "  NULL AS GS,\n" +
-            "  NULL AS INN,\n" +
-            "  NULL AS ERA,\n" +
-            "  NULL AS WHIP,\n" +
-            "  NULL AS WL,\n" +
-            "  NULL AS K,\n" +
-            "  NULL AS S,\n"
+            "  RHR, SBC,\n" +
+            "  NULL AS WL,\n"
         ) : (
-            "  1B, 2B, 3B, HR, RBI, KO, SB, CS, BB,\n" +
-            "  NULL AS GS, " +
-            "  NULL AS INN, " +
+            "  H, 1B, 2B, 3B, R, KO, SB, CS, BB,\n" +
+            "  ROUND(H / AB, 3) AS BA,\n" +
             "  NULL AS ER," +
-            "  NULL AS K," +
             "  NULL AS W," +
             "  NULL AS L," +
-            "  NULL AS S, " +
+            "  NULL AS HA, " +
+            "  NULL AS HRA, " +
+            "  NULL AS BBI, " +
             "  NULL AS BS, " +
-            "  NULL AS SO, "
+            "  NULL AS SO, " +
+            "  NULL AS B, " +
+            "  NULL AS HBP, " +
+            "  NULL AS IRS, " +
+            "  NULL AS NH, "
         )) +
         "  Rank, Draft, DataSource \n" +
         " FROM projectionsbatting)";

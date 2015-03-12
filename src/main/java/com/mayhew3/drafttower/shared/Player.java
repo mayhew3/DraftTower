@@ -35,6 +35,9 @@ public interface Player extends DraggableItem {
   String getAB();
   void setAB(String value);
 
+  String getBA();
+  void setBA(String value);
+
   String getOBP();
   void setOBP(String value);
 
@@ -43,6 +46,9 @@ public interface Player extends DraggableItem {
 
   String getRHR();
   void setRHR(String value);
+
+  String getR();
+  void setR(String value);
 
   String getRBI();
   void setRBI(String value);
@@ -68,23 +74,23 @@ public interface Player extends DraggableItem {
   String getK();
   void setK(String value);
 
+  String getBBI();
+  void setBBI(String value);
+
+  String getHA();
+  void setHA(String value);
+
+  String getHRA();
+  void setHRA(String value);
+
   String getS();
   void setS(String value);
 
-  String get1B();
-  void set1B(String value);
-
-  String get2B();
-  void set2B(String value);
-
-  String get3B();
-  void set3B(String value);
+  String getH();
+  void setH(String value);
 
   String getSB();
   void setSB(String value);
-
-  String getCS();
-  void setCS(String value);
 
   String getBB();
   void setBB(String value);
@@ -92,20 +98,11 @@ public interface Player extends DraggableItem {
   String getKO();
   void setKO(String value);
 
-  String getER();
-  void setER(String value);
-
   String getW();
   void setW(String value);
 
   String getL();
   void setL(String value);
-
-  String getSO();
-  void setSO(String value);
-
-  String getBS();
-  void setBS(String value);
 
   String getPoints();
   void setPoints(String value);
