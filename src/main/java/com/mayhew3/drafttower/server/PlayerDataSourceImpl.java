@@ -85,19 +85,20 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
               if (player.getEligibility().contains("P")) {
                 player.setPoints(Integer.toString(
                     resultSet.getInt("B") * -2 +
-                    parseIntOrZero(player.getBBI()) * -2 +
-                    resultSet.getInt("BS") * -9 +
-                    resultSet.getInt("ER") * -8 +
+                    parseIntOrZero(player.getBBI()) * -3 +
+                    resultSet.getInt("BS") * -15 +
+                    resultSet.getInt("CG") * 4 +
+                    resultSet.getInt("ER") * -7 +
                     parseIntOrZero(player.getHA()) * -2 +
-                    resultSet.getInt("HB") * -2 +
+                    resultSet.getInt("HB") * -3 +
                     parseIntOrZero(player.getINN()) * 12 +
                     resultSet.getInt("IRS") * -1 +
                     parseIntOrZero(player.getK()) * 3 +
                     parseIntOrZero(player.getL()) * -8 +
-                    resultSet.getInt("NH") * 10 +
+                    resultSet.getInt("NH") * 8 +
                     parseIntOrZero(player.getS()) * 29 +
-                    resultSet.getInt("SO") * 5 +
-                    parseIntOrZero(player.getW()) * 9
+                    resultSet.getInt("SO") * 2 +
+                    parseIntOrZero(player.getW()) * 8
                 ));
               } else {
                 player.setPoints(Integer.toString(
@@ -105,7 +106,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                     resultSet.getInt("2B") * 13 +
                     resultSet.getInt("3B") * 18 +
                     parseIntOrZero(player.getAB()) * -1 +
-                    parseIntOrZero(player.getBB()) * 7 +
+                    parseIntOrZero(player.getBB()) * 6 +
                     resultSet.getInt("CS") * -6 +
                     parseIntOrZero(player.getHR()) * 18 +
                     parseIntOrZero(player.getKO()) * -1 +
@@ -214,7 +215,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  0 AS SO,\n" +
             "  0 AS NH,\n" +
             "  0 AS B,\n" +
-            "  ER, W, L, HA, HRA, BBI, HB, IRS, "
+            "  CG, ER, W, L, HA, HRA, BBI, HB, IRS, "
         )) +
         "Rank, Draft, DataSource \n" +
         " FROM projectionspitching)\n" +
@@ -245,6 +246,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  NULL AS B, " +
             "  NULL AS HBP, " +
             "  NULL AS IRS, " +
+            "  NULL AS CG, " +
             "  NULL AS NH, "
         )) +
         "  Rank, Draft, DataSource \n" +
