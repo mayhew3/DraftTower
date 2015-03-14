@@ -596,23 +596,32 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
     } else {
       sql = "select TeamID, " +
-          " sum(p_all.INN) * 9 + " +
+          " sum(p_all.B) * -2 + " +
+          " sum(p_all.BBI) * -3 + " +
+          " sum(p_all.BS) * -15 + " +
+          " sum(p_all.CG) * 4 + " +
+          " sum(p_all.ER) * -6 + " +
+          " sum(p_all.HA) * -2 + " +
+          " sum(p_all.HB) * -3 + " +
+          " sum(p_all.INN) * 12 + " +
+          " sum(p_all.IRS) * -1 + " +
           " sum(p_all.K) * 3 + " +
-          " sum(p_all.ER) * -7 + " +
-          " sum(p_all.S) * 31 + " +
-          " sum(p_all.W) * 6 + " +
-          " sum(p_all.L) * -7 + " +
-          " sum(p_all.SO) * 8 + " +
-          " sum(p_all.BS) * -9 as pitching, " +
+          " sum(p_all.L) * -8 + " +
+          " sum(p_all.NH) * 8 + " +
+          " sum(p_all.S) * 29 + " +
+          " sum(p_all.SO) * 2 + " +
+          " sum(p_all.W) * 8 as pitching, " +
           " sum(p_all.1B) * 8 + " +
           " sum(p_all.2B) * 13 + " +
           " sum(p_all.3B) * 18 + " +
+          " sum(p_all.AB) * -1 + " +
+          " sum(p_all.BB) * 6 + " +
+          " sum(p_all.CS) * -6 + " +
           " sum(p_all.HR) * 18 + " +
+          " sum(p_all.KO) * -1 + " +
+          " sum(p_all.R) * 4 + " +
           " sum(p_all.RBI) * 4 + " +
-          " sum(p_all.SB) * 6 + " +
-          " sum(p_all.CS) * -2 + " +
-          " sum(p_all.BB) * 7 + " +
-          " sum(p_all.KO) * -1 as batting " +
+          " sum(p_all.SB) * 5 as batting " +
           " from ";
       sql = getFromJoins(teamId, sql, null, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
