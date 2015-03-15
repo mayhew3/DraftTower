@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.server;
+package com.mayhew3.drafttower.server.database;
 
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
@@ -19,17 +19,12 @@ import java.util.regex.Pattern;
 public class CbsIdScraper {
 
   private static final Pattern PLAYER_REGEX = Pattern.compile("/players/playerpage/(\\d+)[\"']>([^<]+)</a> <span class=[\"']playerPositionAndTeam[\"']>([^<]+)");
+  private static final Pattern INJURY_REGEX = Pattern.compile("<span title=[\"']([^\"']+)[\"']><a href=[\"']/players/playerpage/\\d+[\"'] subtab=[\"']Injury Report[\"']");
 
   public static void main(String[] args) throws Exception {
     FileWriter fileWriter = new FileWriter("database/cbsIds.csv");
-    for (Entry<String, Integer> entry : getPlayerStringToCbsIdMap().entrySet()) {
-      fileWriter.write("\"" + entry.getKey() + "\",\"" + entry.getValue() + "\"\n");
-    }
-    fileWriter.close();
-  }
-
-  private static Map<String, Integer> getPlayerStringToCbsIdMap() throws IOException {
     final Map<String, Integer> playerStringToCbsId = new HashMap<>();
+    final Map<String, String> playerStringToInjury = new HashMap<>();
     LineProcessor<Object> lineProcessor = new LineProcessor<Object>() {
       @Override
       public boolean processLine(String line) throws IOException {
@@ -38,6 +33,10 @@ public class CbsIdScraper {
           int cbsId = Integer.parseInt(matcher.group(1));
           String playerString = matcher.group(2) + " " + matcher.group(3).replace("| ", "");
           playerStringToCbsId.put(playerString, cbsId);
+          matcher = INJURY_REGEX.matcher(line);
+          if (matcher.find()) {
+            playerStringToInjury.put(playerString, matcher.group(1));
+          }
         }
         return true;
       }
@@ -48,7 +47,15 @@ public class CbsIdScraper {
       }
     };
     Files.readLines(new File("database/cbsBattersDump.txt"), Charset.defaultCharset(), lineProcessor);
-    Files.readLines(new File("database/cbsPitchersDump_M3.txt"), Charset.defaultCharset(), lineProcessor);
-    return playerStringToCbsId;
+    Files.readLines(new File("database/cbsPitchersDump.txt"), Charset.defaultCharset(), lineProcessor);
+    for (Entry<String, Integer> entry : playerStringToCbsId.entrySet()) {
+      fileWriter.write("\"" + entry.getKey() + "\",\"" + entry.getValue() + "\",");
+      if (playerStringToInjury.containsKey(entry.getKey())) {
+        fileWriter.write("\"" + playerStringToInjury.get(entry.getKey()) + "\"");
+      }
+      fileWriter.write("\n");
+    }
+    fileWriter.close();
   }
+
 }
