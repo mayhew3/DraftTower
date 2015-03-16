@@ -210,9 +210,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  NULL AS CS,\n" +
             "  NULL AS BB,\n" +
             "  NULL AS BA,\n" +
-            // TODO(m3): need projections for new stats
-            "  0 AS BS,\n" +
-            "  0 AS SO,\n" +
+            "  BS,\n" +
+            "  SO,\n" +
             "  0 AS NH,\n" +
             "  0 AS B,\n" +
             "  CG, ER, W, L, HA, HRA, BBI, HB, IRS, "
