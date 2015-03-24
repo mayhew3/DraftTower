@@ -431,8 +431,8 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     ginjector.getScheduler().flush();
     String column = Scoring.CATEGORIES ? "13" : "19";
     click("-players-table-0-" + column);
-    assertEquals("1.8", getInnerText("-players-table-1-" + column));
-    assertEquals("1.8", getInnerText("-players-table-2-" + column));
+    assertEquals("0.45", getInnerText("-players-table-1-" + column));
+    assertEquals("0.45", getInnerText("-players-table-2-" + column));
     click("-players-table-0-" + column);
     assertEquals("0.0", getInnerText("-players-table-1-" + column));
     assertEquals("0.0", getInnerText("-players-table-2-" + column));

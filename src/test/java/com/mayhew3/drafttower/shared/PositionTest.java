@@ -43,6 +43,13 @@ public class PositionTest {
   }
 
   @Test
+  public void testApplyDHPlusOtherPositionsPositive() {
+    Player player = beanFactory.createPlayer().as();
+    player.setEligibility("C");
+    Assert.assertTrue(Position.apply(player, EnumSet.of(DH, FB)));
+  }
+
+  @Test
   public void testApplyDHNegative() {
     Player player = beanFactory.createPlayer().as();
     player.setEligibility("P");
