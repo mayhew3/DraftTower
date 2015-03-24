@@ -55,7 +55,6 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
       .put(WL, 50f)
       .put(S, 120f)
       .build();
-  public static final float MAX_POINTS = 2000f;  // TODO better max
 
   private final BarGraphsApi api;
   private final TeamsInfo teamsInfo;
@@ -137,7 +136,7 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
         "Pitching",
         getLabels(),
         values,
-        MAX_POINTS);
+        null);
     barGraph.addStyleName(CSS.graph());
     container.add(barGraph);
     pitchingBarGraph = barGraph;
@@ -149,7 +148,7 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
         "Batting",
         getLabels(),
         values,
-        MAX_POINTS);
+        null);
     barGraph.addStyleName(CSS.graph());
     container.add(barGraph);
     battingBarGraph = barGraph;

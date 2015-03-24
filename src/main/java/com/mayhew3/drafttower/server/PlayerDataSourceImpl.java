@@ -214,7 +214,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  SO,\n" +
             "  0 AS NH,\n" +
             "  0 AS B,\n" +
-            "  CG, ER, W, L, HA, HRA, BBI, HB, IRS, "
+            "  0 AS IRS,\n" +
+            "  0 AS HB,\n" +
+            "  CG, ER, W, L, HA, HRA, BBI, "
         )) +
         "Rank, Draft, DataSource \n" +
         " FROM projectionspitching)\n" +
