@@ -65,7 +65,11 @@ public class PickProbabilityPredictorTest {
     Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
     Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
 
-    Assert.assertEquals(0, pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2)).size());
+    predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
+    Assert.assertEquals(3, predictions.size());
+    Assert.assertEquals(.9f, predictions.get(0l), 0.00001f);
+    Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
+    Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
   }
 
   @Test
@@ -86,7 +90,11 @@ public class PickProbabilityPredictorTest {
     Assert.assertEquals(.8101f, predictions.get(2l), 0.00001f);
     Assert.assertEquals(.7101f, predictions.get(3l), 0.00001f);
 
-    Assert.assertEquals(0, pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(3)).size());
+    predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(3));
+    Assert.assertEquals(3, predictions.size());
+    Assert.assertEquals(.9f, predictions.get(0l), 0.00001f);
+    Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
+    Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
   }
 
   @Test

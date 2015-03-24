@@ -5,6 +5,7 @@ import com.mayhew3.drafttower.client.TestBase;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.Scoring;
 
+import static com.mayhew3.drafttower.shared.Position.C;
 import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
@@ -75,19 +76,66 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     login(1);
     click("-players-All");
     simulateDraftStatus(new Position[][]{
-        {P, P, P, P, P, P, P, P, P, P},
-        {P, P, P, P, P, P, P, P, P, P},
-        {P, P, P, P, P, P, P, P, P, P},
-        {P, P, P, P, P, P, P, P, P, P},
-        {P, P, P, P, P, P, P, P, P, P},
-        {P, P, P, P, P, P, P, P, P, P},
-        {P, P, P, P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
+        {P, P, P, P, P, P, P},
     });
     assertEquals("P", getInnerText("-players-table-1-4"));
     click("-players-Unfilled");
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-Unfilled", true).getClassName());
     assertEquals("C", getInnerText("-players-table-1-4"));
+  }
+
+  public void testUnfilledPositionFilterDHOpen() {
+    login(1);
+    click("-players-All");
+    simulateDraftStatus(new Position[][]{
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P},
+    });
+    assertEquals("P", getInnerText("-players-table-1-4"));
+    click("-players-Unfilled");
+    assertContains("gwt-ToggleButton-down",
+        ensureDebugIdAndGetElement("-players-Unfilled", true).getClassName());
+    assertEquals("C", getInnerText("-players-table-1-4"));
+  }
+
+  public void testUnfilledPositionFilterDHFilled() {
+    login(1);
+    click("-players-All");
+    simulateDraftStatus(new Position[][]{
+        {C, C, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+        {C, P, P, P, P, P, P, P, P},
+    });
+    assertEquals("P", getInnerText("-players-table-1-4"));
+    click("-players-Unfilled");
+    assertContains("gwt-ToggleButton-down",
+        ensureDebugIdAndGetElement("-players-Unfilled", true).getClassName());
+    assertEquals("1B", getInnerText("-players-table-1-4"));
   }
 
   public void testPositionOverrideCheckboxes() {
@@ -111,6 +159,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     assertFalse(isVisible("-players-override-P"));
 
     click("-players-override-C-checkbox");
+    click("-players-override-DH-checkbox");
     assertEquals("1B", getInnerText("-players-table-1-4"));
   }
 

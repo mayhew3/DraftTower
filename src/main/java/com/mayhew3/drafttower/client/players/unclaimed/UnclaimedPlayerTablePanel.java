@@ -267,6 +267,9 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
     }
     buttonPanels.add(dataSetButtonPanel);
 
+    // Disable other data sets for 2015 draft.
+    dataSetButtonPanel.setVisible(false);
+
     HorizontalPanel filterButtons = new HorizontalPanel();
     filterButtons.addStyleName(CSS.headerElement());
     for (final Position position : Position.REAL_POSITIONS) {

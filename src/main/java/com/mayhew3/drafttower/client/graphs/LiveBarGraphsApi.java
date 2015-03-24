@@ -25,7 +25,7 @@ public class LiveBarGraphsApi implements BarGraphsApi {
 
   @Override
   public Widget createBarGraph(
-      String title, String[] labels, Float[] values, float maxValue) {
+      String title, String[] labels, Float[] values, Float maxValue) {
     DataTable data = DataTable.create();
     data.addColumn(ColumnType.STRING);
     for (String label : labels) {
@@ -46,18 +46,18 @@ public class LiveBarGraphsApi implements BarGraphsApi {
     }
   }
 
-  private Options getOptions(String title, float maxValue) {
+  private Options getOptions(String title, Float maxValue) {
     Options options = Options.create();
     options.setType(Type.BARS);
     if (Scoring.CATEGORIES) {
       options.setColors("#aa4643", "#4572a7");
       options.setWidth(400);
       options.setHeight(100);
+      options.set("enableInteractivity", false);
     } else {
       options.setWidth(800);
       options.setHeight(350);
     }
-    options.set("enableInteractivity", false);
     options.setTitle(title);
     TextStyle titleTextStyle = TextStyle.create();
     titleTextStyle.setFontSize(12);
@@ -65,10 +65,16 @@ public class LiveBarGraphsApi implements BarGraphsApi {
     if (Scoring.CATEGORIES) {
       options.setLegend(LegendPosition.NONE);
     }
-    AxisOptions hAxisOptions = AxisOptions.create();
-    hAxisOptions.setMinValue(0);
-    hAxisOptions.setMaxValue(maxValue);
-    options.setHAxisOptions(hAxisOptions);
+    AxisOptions axisOptions = AxisOptions.create();
+    axisOptions.setMinValue(0);
+    if (maxValue != null) {
+      axisOptions.setMaxValue(maxValue);
+    }
+    if (Scoring.CATEGORIES) {
+      options.setHAxisOptions(axisOptions);
+    } else {
+      options.setVAxisOptions(axisOptions);
+    }
     return options;
   }
 }

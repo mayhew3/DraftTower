@@ -10,5 +10,5 @@ public interface BarGraphsApi {
   public void loadVisualizationApi(Runnable callback);
 
   public Widget createBarGraph(
-      String title, String[] labels, Float[] values, float maxValue);
+      String title, String[] labels, Float[] values, Float maxValue);
 }

@@ -393,9 +393,9 @@ public enum PlayerColumn {
           int pointDiff = Integer.parseInt(PTS.get(player)) - Integer.parseInt(PTS.get(prevPlayer));
           double weight;
           if (pickProbabilityPredictions.containsKey(player.getPlayerId())) {
-            weight = pickProbabilityPredictions.get(player.getPlayerId());
+            weight = Math.max(.05f, pickProbabilityPredictions.get(player.getPlayerId()));
           } else {
-            weight = .2f;
+            weight = .05f;
           }
           wizardScore += pointDiff / (stdDev / 3) * weight;
         }

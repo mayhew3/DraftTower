@@ -146,6 +146,9 @@ public class PickProbabilityPredictor {
   }
 
   public Map<Long, Float> getTeamPredictions(TeamDraftOrder teamDraftOrder) {
+    if (predictionsByTeam.get(teamDraftOrder).isEmpty() && !predictionsByTeam.get(new TeamDraftOrder(1)).isEmpty()) {
+      return getTeamPredictions(new TeamDraftOrder(1));
+    }
     return predictionsByTeam.get(teamDraftOrder);
   }
 

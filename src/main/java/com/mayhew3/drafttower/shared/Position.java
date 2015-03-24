@@ -19,7 +19,6 @@ public enum Position {
   RS("RS", "Reserves");
 
   public static final EnumSet<Position> REAL_POSITIONS = EnumSet.of(P, C, FB, SB, TB, SS, OF, DH);
-  public static final EnumSet<Position> BATTING_POSITIONS = EnumSet.of(C, FB, SB, TB, SS, OF, DH);
 
   private final String shortName;
   private final String longName;
@@ -58,6 +57,9 @@ public enum Position {
   public static boolean apply(Player player, EnumSet<Position> positions) {
     if (positions.equals(EnumSet.of(DH))) {
       return !apply(player, EnumSet.of(P));
+    }
+    if (positions.contains(DH) && !apply(player, EnumSet.of(P))) {
+      return true;
     }
     String eligibilities = PlayerColumn.ELIG.get(player);
     if (eligibilities == null) {

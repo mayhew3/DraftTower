@@ -437,6 +437,7 @@ public class DraftControllerImpl implements DraftController {
       status.setSerialId(status.getSerialId() + 1);
       ClientDraftStatus clientStatus = beanFactory.createClientDraftStatus().as();
       clientStatus.setDraftStatus(status);
+      clientStatus.setPickPredictions(Collections.<Long, Float>emptyMap());
       statusPerTeam.put(null, encodeStatus(clientStatus));
       for (Entry<String, TeamDraftOrder> teamToken : teamTokens.entrySet()) {
         clientStatus.setPickPredictions(pickProbabilityPredictor.getTeamPredictions(teamToken.getValue()));
