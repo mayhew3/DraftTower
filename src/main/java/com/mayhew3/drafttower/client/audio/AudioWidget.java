@@ -46,9 +46,13 @@ public class AudioWidget extends Composite implements AudioView {
     itsOver = createAudio("over.mp3");
     container.add(itsOver);
 
-    audioFrame = new Frame();
-    audioFrame.setStyleName(CSS.frame());
-    container.add(audioFrame);
+    if (!supportsClientSideTts()) {
+      audioFrame = new Frame();
+      audioFrame.setStyleName(CSS.frame());
+      container.add(audioFrame);
+    } else {
+      audioFrame = null;
+    }
 
     initWidget(container);
 
@@ -66,7 +70,11 @@ public class AudioWidget extends Composite implements AudioView {
   @Override
   public void play(String msg) {
     stopCurrentAudio();
-    audioFrame.setUrl(ttsUrlPrefix + UriUtils.encode(msg));
+    if (audioFrame != null) {
+      audioFrame.setUrl(ttsUrlPrefix + UriUtils.encode(msg));
+    } else {
+      speak(msg);
+    }
   }
 
   @Override
@@ -83,7 +91,11 @@ public class AudioWidget extends Composite implements AudioView {
     try {
       itsOver.getAudioElement().pause();
       itsOver.getAudioElement().setCurrentTime(0);
-      audioFrame.setUrl("");
+      if (audioFrame != null) {
+        audioFrame.setUrl("");
+      } else {
+        cancelSpeech();
+      }
     } catch (Exception e) {
       // Something happens here sometimes - clearing cache fixes it, so idk
     }
@@ -92,7 +104,40 @@ public class AudioWidget extends Composite implements AudioView {
   @Override
   protected void onEnsureDebugId(String baseID) {
     super.onEnsureDebugId(baseID);
-    audioFrame.ensureDebugId(baseID + "-frame");
+    if (audioFrame != null) {
+      audioFrame.ensureDebugId(baseID + "-frame");
+    }
     itsOver.ensureDebugId(baseID + "-itsover");
   }
+
+  private native static boolean supportsClientSideTts() /*-{
+    var supported = "speechSynthesis" in $wnd;
+    if (supported && !$wnd.ttsVoice) {
+      var setVoice = function() {
+        var voices = $wnd.speechSynthesis.getVoices();
+        $wnd.ttsVoice = voices.filter(function(voice) {
+            return voice.name == "Alex" || voice.name == "Google US English";
+        })[0];
+      };
+      var voices = $wnd.speechSynthesis.getVoices();
+      if (voices.length == 0) {
+        $wnd.speechSynthesis.onvoiceschanged = setVoice;
+      } else {
+        setVoice();
+      }
+    }
+    return supported;
+  }-*/;
+
+  private native static void speak(String msg) /*-{
+    var utterance = new SpeechSynthesisUtterance();
+    utterance.voice = $wnd.ttsVoice;
+    utterance.text = msg;
+    utterance.lang = "en-US";
+    $wnd.speechSynthesis.speak(utterance);
+  }-*/;
+
+  private native static void cancelSpeech() /*-{
+    $wnd.speechSynthesis.cancel();
+  }-*/;
 }
