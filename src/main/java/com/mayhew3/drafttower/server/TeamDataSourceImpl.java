@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -176,19 +175,58 @@ public class TeamDataSourceImpl implements TeamDataSource {
 
   @Override
   public Map<TeamDraftOrder, Integer> getMinClosers() {
-    // TODO(m3): read from DB
-    return new ConcurrentHashMap<>();
+    String sql = "SELECT * FROM teams";
+    final HashMap<TeamDraftOrder, Integer> closers = new HashMap<>();
+    try {
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            TeamDraftOrder teamDraftOrder = getDraftOrderByTeamId(new TeamId(resultSet.getInt("ID")));
+            int minClosers = resultSet.getInt("MinClosers");
+            closers.put(teamDraftOrder, minClosers);
+          }
+        }
+      });
+    } catch (DataSourceException | SQLException e) {
+      logger.log(Level.SEVERE, "Couldn't fetch team selections for minimum closers. Using default of 0, as backup.");
+    }
+    return closers;
   }
 
   @Override
   public Map<TeamDraftOrder, Integer> getMaxClosers() {
-    // TODO(m3): read from DB
-    return new ConcurrentHashMap<>();
+    String sql = "SELECT * FROM teams";
+    final HashMap<TeamDraftOrder, Integer> closers = new HashMap<>();
+    try {
+      executeQuery(sql, new ResultSetCallback() {
+        @Override
+        public void onResultSet(ResultSet resultSet) throws SQLException, DataSourceException {
+          while (resultSet.next()) {
+            TeamDraftOrder teamDraftOrder = getDraftOrderByTeamId(new TeamId(resultSet.getInt("ID")));
+            int maxClosers = resultSet.getInt("MaxClosers");
+            closers.put(teamDraftOrder, maxClosers);
+          }
+        }
+      });
+    } catch (DataSourceException | SQLException e) {
+      logger.log(Level.SEVERE, "Couldn't fetch team selections for maximum closers. Using default of 0, as backup.");
+    }
+    return closers;
   }
 
   @Override
   public void updateCloserLimits(TeamDraftOrder teamDraftOrder, int teamMinClosers, int teamMaxClosers) {
-    // TODO(m3): update DB
+    String sql = "UPDATE teams " +
+        "SET MinClosers = ?," +
+        " MaxClosers = ? " +
+        "WHERE ID = ?";
+
+    try {
+      prepareStatementUpdate(sql, teamMinClosers, teamMaxClosers, getTeamIdByDraftOrder(teamDraftOrder).get());
+    } catch (DataSourceException | SQLException e) {
+      logger.log(Level.SEVERE, "Unable to update closer preference from user input, MinClosers is " + teamMinClosers + ", MaxClosers is " + teamMaxClosers, e);
+    }
   }
 
   private BiMap<TeamId, TeamDraftOrder> getTeamIdDraftOrderMap() throws DataSourceException {

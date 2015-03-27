@@ -15,11 +15,10 @@ public class PopulateKeepers extends DatabaseUtility {
     addKeeper("gus", "Goldschmidt, Paul");
     addKeeper("gus", "Rizzo, Anthony");
     addKeeper("gus", "Rendon, Anthony");
-    addKeeper("kevin", "Cano, Robinson");
-    addKeeper("kevin", "Sale, Chris");
     addKeeper("mayhews", "McCutchen, Andrew");
     addKeeper("mayhews", "Hernandez, Felix");
     addKeeper("laura", "Trout, Mike");
+    addKeeper("laura", "Donaldson, Josh");
     addKeeper("alcides", "Cabrera, Miguel");
     addKeeper("lakshmi", "Kershaw, Clayton");
     addKeeper("lakshmi", "Altuve, Jose");
@@ -29,7 +28,7 @@ public class PopulateKeepers extends DatabaseUtility {
     addKeeper("scott", "Price, David");
     addKeeper("eric", "Stanton, Giancarlo");
     addKeeper("eric", "Abreu, Jose");
-    addKeeper("eric", "Tulowitzki, Troy");
+    addKeeper("eric", "Kluber, Corey");
   }
 
 
