@@ -45,10 +45,10 @@ public enum PlayerColumn {
   HA("HA", "Hits Allowed", "HA", true, true),
   HRA("HR", "Home Runs Allowed", "HRA", true, true),
   PTS("PTS", "Points", "PTS", true, false),
-  RANK("Rank", "Rank", "Rank", true, true),
+  RANK("Rank", "Average of CBS Experts' Top 300 Rankings", "Rank", true, true),
   DRAFT("Draft", "Average Position in CBS Drafts", "Draft", true, true),
   WIZARD("Wizard", "Wizard", "Wizard", true, false),
-  MYRANK("MyRank", "MyRank", "MyRank", true, true);
+  MYRANK("MyRank", "My Rank", "MyRank", true, true);
 
   private final String shortName;
   private final String longName;
