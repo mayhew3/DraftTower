@@ -23,7 +23,9 @@ public class OpenPositionsTest {
   private OpenPositions openPositions;
   private RosterUtil rosterUtil;
   @Captor private ArgumentCaptor<List<DraftPick>> rosterUtilArgCaptor;
+  @Captor private ArgumentCaptor<List<DraftPick>> rosterUtilOptimalArgCaptor;
   private EnumSet<Position> rosterUtilReturnValue;
+  private EnumSet<Position> rosterUtilOptimalReturnValue;
 
   @Before
   public void setUp() throws Exception {
@@ -33,8 +35,11 @@ public class OpenPositionsTest {
     Mockito.when(teamsInfo.getTeam()).thenReturn(4);
     rosterUtil = Mockito.mock(RosterUtil.class);
     rosterUtilReturnValue = EnumSet.of(Position.C, Position.SB, Position.OF);
+    rosterUtilOptimalReturnValue = EnumSet.of(Position.C, Position.SB);
     Mockito.when(rosterUtil.getOpenPositions(rosterUtilArgCaptor.capture()))
         .thenReturn(rosterUtilReturnValue);
+    Mockito.when(rosterUtil.getOptimalOpenPositions(rosterUtilOptimalArgCaptor.capture()))
+        .thenReturn(rosterUtilOptimalReturnValue);
     openPositions = new OpenPositions(teamsInfo, rosterUtil);
   }
 
@@ -55,5 +60,10 @@ public class OpenPositionsTest {
     Assert.assertEquals(4, filteredPicks.get(0).getTeam());
     Assert.assertEquals(4, filteredPicks.get(1).getTeam());
     Assert.assertEquals(rosterUtilReturnValue, openPositions.get());
+    filteredPicks = rosterUtilOptimalArgCaptor.getValue();
+    Assert.assertEquals(2, filteredPicks.size());
+    Assert.assertEquals(4, filteredPicks.get(0).getTeam());
+    Assert.assertEquals(4, filteredPicks.get(1).getTeam());
+    Assert.assertEquals(rosterUtilOptimalReturnValue, openPositions.getOptimal());
   }
 }

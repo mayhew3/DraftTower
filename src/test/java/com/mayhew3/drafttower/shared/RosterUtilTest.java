@@ -298,6 +298,131 @@ public class RosterUtilTest {
   }
 
   @Test
+  public void testAllPositionsOpenOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH, P),
+        new RosterUtil().getOptimalOpenPositions(ImmutableList.<DraftPick>of()));
+  }
+
+  @Test
+  public void testNoPositionsOpenOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.noneOf(Position.class),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, FB),
+            pick(3, SB),
+            pick(4, SS),
+            pick(5, TB),
+            pick(6, OF),
+            pick(7, OF),
+            pick(8, OF),
+            pick(9, OF),
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P))));
+  }
+
+  @Test
+  public void testNoPositionsOpenMultiPositionPlayersOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.noneOf(Position.class),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, C, FB),
+            pick(2, FB),
+            pick(3, SB),
+            pick(4, SS),
+            pick(5, TB, FB, OF),
+            pick(6, OF),
+            pick(7, OF),
+            pick(8, OF, FB),
+            pick(9, FB),
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P))));
+  }
+
+  @Test
+  public void testGetOpenPositionsOneOpenOneReserveOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.of(SB),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, FB),
+            pick(3, TB),
+            pick(4, SS),
+            pick(5, OF),
+            pick(6, OF),
+            pick(7, OF),
+            pick(8, OF, FB),
+            pick(9, TB, OF),
+            pick(10, P),
+            pick(11, P),
+            pick(12, P),
+            pick(13, P),
+            pick(14, P),
+            pick(15, P),
+            pick(16, P))));
+  }
+
+  @Test
+  public void testGetOpenPositionsSingleEligibilityOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.of(FB, SB, SS, OF, DH, P),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, TB))));
+  }
+
+  @Test
+  public void testGetOpenPositionsMultiEligibilityOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.of(FB, SB, TB, OF, DH, P),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, C),
+            pick(2, SB, SS))));
+    Assert.assertEquals(EnumSet.of(C, FB, TB, OF, DH, P),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, SB),
+            pick(2, SB, SS))));
+    Assert.assertEquals(EnumSet.of(C, FB, TB, OF, DH, P),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, SB, SS),
+            pick(2, SB))));
+  }
+
+  @Test
+  public void testGetOpenPositionsMultiSlotPositionOptimal() throws Exception {
+    Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH, P),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, P),
+            pick(2, P),
+            pick(3, P),
+            pick(4, P),
+            pick(5, P),
+            pick(6, P))));
+    Assert.assertEquals(EnumSet.of(C, FB, SB, TB, SS, OF, DH),
+        new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+            pick(1, P),
+            pick(2, P),
+            pick(3, P),
+            pick(4, P),
+            pick(5, P),
+            pick(6, P),
+            pick(7, P))));
+  }
+
+  @Test
+  public void testGetOpenPositionsDHNotOpenOptimal() throws Exception {
+    Assert.assertFalse(new RosterUtil().getOptimalOpenPositions(Lists.newArrayList(
+        pick(1, FB),
+        pick(2, FB)))
+        .contains(DH));
+  }
+
+  @Test
   public void testGetOpenPositionsOFBug() throws Exception {
     Assert.assertFalse(new RosterUtil().getOpenPositions(Lists.newArrayList(
         pick(1, P),

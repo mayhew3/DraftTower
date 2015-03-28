@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static com.mayhew3.drafttower.shared.Position.DH;
 import static com.mayhew3.drafttower.shared.Position.P;
 
 /**
@@ -143,7 +142,6 @@ public class PlayerDataProvider {
       @Override
       public boolean apply(Player player) {
         return openPositions.isEmpty()
-            || hasAllOpenPositions(openPositions)
             || Position.apply(player, openPositions);
       }
     };
@@ -195,7 +193,8 @@ public class PlayerDataProvider {
     Iterable<Player> unselectedPlayers = Iterables.filter(players, unselected);
     if (wizardTable != null) {
       PlayerColumn.calculateWizardScores(unselectedPlayers, pickProbabilityPredictions);
-      unselectedPlayers = Ordering.from(PlayerColumn.getWizardComparator(false, openPositions)).sortedCopy(unselectedPlayers);
+      unselectedPlayers = Ordering.from(PlayerColumn.getWizardComparator(false, openPositions))
+          .sortedCopy(unselectedPlayers);
     }
     Player player = Iterables.getFirst(Iterables.filter(unselectedPlayers, openPosition), null);
     if (player == null) {
@@ -205,11 +204,6 @@ public class PlayerDataProvider {
       }
     }
     return player.getPlayerId();
-  }
-
-  private boolean hasAllOpenPositions(Set<Position> openPositions) {
-    return openPositions.size() == Position.REAL_POSITIONS.size()
-        || (openPositions.contains(DH) && openPositions.contains(P));
   }
 
   public void changePlayerRank(ChangePlayerRankRequest request) throws DataSourceException {

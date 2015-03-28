@@ -103,6 +103,7 @@ public class PlayerListTest {
     players.get(3).setWizardC("50");
     OpenPositions openPositions = Mockito.mock(OpenPositions.class);
     Mockito.when(openPositions.get()).thenReturn(EnumSet.complementOf(EnumSet.of(Position.C)));
+    Mockito.when(openPositions.getOptimal()).thenReturn(EnumSet.complementOf(EnumSet.of(Position.C)));
     Iterator<Player> result = playerList.getPlayers(
         createTableSpec(PlayerColumn.WIZARD, false),
         0, 20, new UnfilledPositionsFilter(openPositions), EnumSet.noneOf(Position.class),

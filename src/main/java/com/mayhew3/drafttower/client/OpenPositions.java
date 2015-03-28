@@ -10,6 +10,7 @@ import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.Position;
 import com.mayhew3.drafttower.shared.RosterUtil;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 /**
@@ -22,6 +23,7 @@ public class OpenPositions {
 
   private final RosterUtil rosterUtil;
   private EnumSet<Position> openPositions = EnumSet.allOf(Position.class);
+  private EnumSet<Position> openPositionsOptimal = EnumSet.allOf(Position.class);
 
   @Inject
   public OpenPositions(TeamsInfo teamsInfo,
@@ -32,17 +34,23 @@ public class OpenPositions {
 
   public void onDraftStatusChanged(DraftStatus status) {
     openPositions.clear();
-    openPositions.addAll(rosterUtil.getOpenPositions(
-        Lists.newArrayList(Iterables.filter(status.getPicks(),
-            new Predicate<DraftPick>() {
-              @Override
-              public boolean apply(DraftPick input) {
-                return input.getTeam() == teamsInfo.getTeam();
-              }
-            }))));
+    openPositionsOptimal.clear();
+    ArrayList<DraftPick> myPicks = Lists.newArrayList(Iterables.filter(status.getPicks(),
+        new Predicate<DraftPick>() {
+          @Override
+          public boolean apply(DraftPick input) {
+            return input.getTeam() == teamsInfo.getTeam();
+          }
+        }));
+    openPositions.addAll(rosterUtil.getOpenPositions(myPicks));
+    openPositionsOptimal.addAll(rosterUtil.getOptimalOpenPositions(myPicks));
   }
 
   public EnumSet<Position> get() {
     return openPositions;
+  }
+
+  public EnumSet<Position> getOptimal() {
+    return openPositionsOptimal;
   }
 }
