@@ -65,18 +65,27 @@ public class PickProbabilityPredictor {
     }
     for (int pickNum = lastPicksSize; pickNum < picks.size(); pickNum++) {
       try {
-        if (pickNum >= 0 && pickNum < picks.size()) {
-          selectedPlayers.add(picks.get(pickNum).getPlayerId());
-        }
         int nextTeam = (pickNum < 0 || picks.isEmpty()) ? 1 : picks.get(pickNum).getTeam() + 1;
         if (nextTeam > 10) {
           nextTeam -= 10;
         }
         int nextPickNum = pickNum + 1;
+        TeamDraftOrder draftOrder = new TeamDraftOrder(nextTeam);
+
+        if (predictionsByTeam.containsKey(draftOrder)) {
+          // Evaluate previous predictions.
+          for (Entry<Long, Float> prediction : predictionsByTeam.get(draftOrder).entrySet()) {
+            logger.info("Prediction: " + prediction.getKey() + "," + prediction.getValue() + "," +
+                (selectedPlayers.contains(prediction.getKey()) ? "1" : "0"));
+          }
+        }
+
         logger.info("Updating predictions for team " + nextTeam);
         Map<Position, Integer[]> numFilled = rosterUtil.getNumFilled(picks, nextPickNum);
 
-        TeamDraftOrder draftOrder = new TeamDraftOrder(nextTeam);
+        if (pickNum >= 0 && pickNum < picks.size()) {
+          selectedPlayers.add(picks.get(pickNum).getPlayerId());
+        }
         ListMultimap<Position, Long> topPlayerIds = getTopPlayers(selectedPlayers, draftOrder, sortCol, ascending);
 
         Map<Long, Float> predictions = predictionsByTeam.get(draftOrder);
