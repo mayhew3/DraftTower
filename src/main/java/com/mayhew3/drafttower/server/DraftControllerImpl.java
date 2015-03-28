@@ -189,17 +189,17 @@ public class DraftControllerImpl implements DraftController {
     try (Lock ignored = lock.lock()) {
       if (playerId == Player.BEST_DRAFT_PICK) {
         try {
+          ArrayList<DraftPick> myPicks = Lists.newArrayList(Iterables.filter(status.getPicks(),
+              new Predicate<DraftPick>() {
+                @Override
+                public boolean apply(DraftPick draftPick) {
+                  return draftPick.getTeam() == teamDraftOrder.get();
+                }
+              }));
           playerId = playerDataProvider.getBestPlayerId(
               teamDraftOrder,
               status.getPicks(),
-              rosterUtil.getOpenPositions(
-                  Lists.newArrayList(Iterables.filter(status.getPicks(),
-                      new Predicate<DraftPick>() {
-                        @Override
-                        public boolean apply(DraftPick draftPick) {
-                          return draftPick.getTeam() == teamDraftOrder.get();
-                        }
-                      }))),
+              rosterUtil.getOptimalOpenPositions(myPicks),
               pickProbabilityPredictor.getTeamPredictions(teamDraftOrder));
         } catch (DataSourceException e) {
           logger.log(SEVERE, "SQL error looking up the best draft pick", e);

@@ -59,7 +59,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             playerColumns.remove(PlayerColumn.NAME);
             PlayerColumn.NAME.set(player, resultSet.getString("LastName") + ", " + resultSet.getString("FirstName"));
             playerColumns.remove(PlayerColumn.WIZARD);
-            playerColumns.remove(PlayerColumn.PTS);
 
             for (PlayerColumn playerColumn : playerColumns) {
               if (playerColumn == PlayerColumn.ELIG) {
@@ -80,42 +79,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                 }
               }
             }
-            if (Scoring.POINTS) {
-              // TODO m3: read points values from DB?
-              if (player.getEligibility().contains("P")) {
-                player.setPoints(Integer.toString(
-                    resultSet.getInt("B") * -2 +
-                    parseIntOrZero(player.getBBI()) * -3 +
-                    resultSet.getInt("BS") * -15 +
-                    resultSet.getInt("CG") * 4 +
-                    resultSet.getInt("ER") * -7 +
-                    parseIntOrZero(player.getHA()) * -2 +
-                    resultSet.getInt("HB") * -3 +
-                    parseIntOrZero(player.getINN()) * 12 +
-                    resultSet.getInt("IRS") * -1 +
-                    parseIntOrZero(player.getK()) * 3 +
-                    parseIntOrZero(player.getL()) * -8 +
-                    resultSet.getInt("NH") * 8 +
-                    parseIntOrZero(player.getS()) * 29 +
-                    resultSet.getInt("SO") * 2 +
-                    parseIntOrZero(player.getW()) * 8
-                ));
-              } else {
-                player.setPoints(Integer.toString(
-                    resultSet.getInt("1B") * 8 +
-                    resultSet.getInt("2B") * 13 +
-                    resultSet.getInt("3B") * 18 +
-                    parseIntOrZero(player.getAB()) * -1 +
-                    parseIntOrZero(player.getBB()) * 6 +
-                    resultSet.getInt("CS") * -6 +
-                    parseIntOrZero(player.getHR()) * 18 +
-                    parseIntOrZero(player.getKO()) * -1 +
-                    parseIntOrZero(player.getR()) * 4 +
-                    parseIntOrZero(player.getRBI()) * 4 +
-                    parseIntOrZero(player.getSB()) * 5
-                ));
-              }
-            }
 
             String injury = resultSet.getString("Injury");
             if (injury != null) {
@@ -130,13 +93,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       throw new DataSourceException("Error getting next element of results.", e);
     }
     return players;
-  }
-
-  private int parseIntOrZero(String value) {
-    if (value == null) {
-      return 0;
-    }
-    return Integer.parseInt(value);
   }
 
   @Override
@@ -201,24 +157,14 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  WL, "
         ) : (
             "  NULL AS H,\n" +
-            "  NULL AS 1B,\n" +
-            "  NULL AS 2B,\n" +
-            "  NULL AS 3B,\n" +
             "  NULL AS R,\n" +
             "  NULL AS KO,\n" +
             "  NULL AS SB,\n" +
-            "  NULL AS CS,\n" +
             "  NULL AS BB,\n" +
             "  NULL AS BA,\n" +
-            "  BS,\n" +
-            "  SO,\n" +
-            "  0 AS NH,\n" +
-            "  0 AS B,\n" +
-            "  0 AS IRS,\n" +
-            "  0 AS HB,\n" +
-            "  CG, ER, W, L, HA, HRA, BBI, "
+            "  W, L, HA, HRA, BBI, "
         )) +
-        "Rank, Draft, DataSource \n" +
+        "  FPTS, Rank, Draft, DataSource \n" +
         " FROM projectionspitching)\n" +
         " UNION\n" +
         " (SELECT PlayerID, 'Batter' AS Role,\n" +
@@ -234,23 +180,15 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "  RHR, SBC,\n" +
             "  NULL AS WL,\n"
         ) : (
-            "  H, 1B, 2B, 3B, R, KO, SB, CS, BB,\n" +
+            "  H, R, KO, SB, BB,\n" +
             "  ROUND(H / AB, 3) AS BA,\n" +
-            "  NULL AS ER," +
             "  NULL AS W," +
             "  NULL AS L," +
             "  NULL AS HA, " +
             "  NULL AS HRA, " +
-            "  NULL AS BBI, " +
-            "  NULL AS BS, " +
-            "  NULL AS SO, " +
-            "  NULL AS B, " +
-            "  NULL AS HBP, " +
-            "  NULL AS IRS, " +
-            "  NULL AS CG, " +
-            "  NULL AS NH, "
+            "  NULL AS BBI, "
         )) +
-        "  Rank, Draft, DataSource \n" +
+        "  FPTS, Rank, Draft, DataSource \n" +
         " FROM projectionsbatting)";
 
     sql +=
@@ -499,11 +437,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
       logger.log(FINE, "Cleared temp table for " + teamID);
 
-      if (sortCol == PlayerColumn.PTS) {
-        insertTempPointsRankings(teamID, tableSpec);
-      } else {
-        insertTempRankings(teamID, tableSpec);
-      }
+      insertTempRankings(teamID, tableSpec);
 
       logger.log(FINE, "Executed big insert for " + teamID);
 
@@ -567,24 +501,6 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     executeUpdate(sql);
   }
 
-  private void insertTempPointsRankings(TeamId teamID, TableSpec tableSpec) throws SQLException, DataSourceException {
-    StringBuilder sql = new StringBuilder("INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
-        " VALUES ");
-
-    List<Player> playersByPts = Ordering.from(PlayerColumn.PTS.getComparator(tableSpec.isAscending()))
-        .sortedCopy(getPlayers(teamID, tableSpec.getPlayerDataSet()));
-    boolean needsComma = false;
-    for (Player player : playersByPts) {
-      if (needsComma) {
-        sql.append(",");
-      }
-      sql.append("(").append(teamID).append(",").append(player.getPlayerId()).append((")"));
-      needsComma = true;
-    }
-
-    executeUpdate(sql.toString());
-  }
-
   private void prepareTmpTable(TeamId teamID) throws SQLException {
     executeUpdate("delete from tmp_rankings where teamID = " + teamID);
   }
@@ -597,32 +513,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       sql = "select * from teamscoringwithzeroes where source = 'CBSSports'";
     } else {
       sql = "select TeamID, " +
-          " sum(p_all.B) * -2 + " +
-          " sum(p_all.BBI) * -3 + " +
-          " sum(p_all.BS) * -15 + " +
-          " sum(p_all.CG) * 4 + " +
-          " sum(p_all.ER) * -7 + " +
-          " sum(p_all.HA) * -2 + " +
-          " sum(p_all.HB) * -3 + " +
-          " sum(p_all.INN) * 12 + " +
-          " sum(p_all.IRS) * -1 + " +
-          " sum(p_all.K) * 3 + " +
-          " sum(p_all.L) * -8 + " +
-          " sum(p_all.NH) * 8 + " +
-          " sum(p_all.S) * 29 + " +
-          " sum(p_all.SO) * 2 + " +
-          " sum(p_all.W) * 8 as pitching, " +
-          " sum(p_all.1B) * 8 + " +
-          " sum(p_all.2B) * 13 + " +
-          " sum(p_all.3B) * 18 + " +
-          " sum(p_all.AB) * -1 + " +
-          " sum(p_all.BB) * 6 + " +
-          " sum(p_all.CS) * -6 + " +
-          " sum(p_all.HR) * 18 + " +
-          " sum(p_all.KO) * -1 + " +
-          " sum(p_all.R) * 4 + " +
-          " sum(p_all.RBI) * 4 + " +
-          " sum(p_all.SB) * 5 as batting " +
+          " sum(case when p_all.Role = 'Pitcher' then p_all.FPTS else 0 end) as pitching, " +
+          " sum(case when p_all.Role = 'Batter' then p_all.FPTS else 0 end) as batting, " +
+          " sum(p_all.FPTS) as total " +
           " from ";
       sql = getFromJoins(teamId, sql, null, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID ";
@@ -661,11 +554,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
               }
             } else {
               String teamId = Integer.toString(teamDataSource.getDraftOrderByTeamId(new TeamId(resultTeam)).get());
-              float pitching = resultSet.getFloat("pitching");
-              float batting = resultSet.getFloat("batting");
-              teamPitchingValues.put(teamId, pitching);
-              teamBattingValues.put(teamId, batting);
-              teamTotals.put(teamId, batting + pitching);
+              teamPitchingValues.put(teamId, resultSet.getFloat("pitching"));
+              teamBattingValues.put(teamId, resultSet.getFloat("batting"));
+              teamTotals.put(teamId, resultSet.getFloat("total"));
             }
           }
         }

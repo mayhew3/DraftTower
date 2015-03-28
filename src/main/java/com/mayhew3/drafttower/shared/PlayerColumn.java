@@ -44,7 +44,7 @@ public enum PlayerColumn {
   BBI("BB", "Walks Issued", "BBI", true, true),
   HA("HA", "Hits Allowed", "HA", true, true),
   HRA("HR", "Home Runs Allowed", "HRA", true, true),
-  PTS("PTS", "Points", "PTS", true, false),
+  PTS("PTS", "Points", "FPTS", true, false),
   RANK("Rank", "Average of CBS Experts' Top 300 Rankings", "Rank", true, true),
   DRAFT("Draft", "Average Position in CBS Drafts", "Draft", true, true),
   WIZARD("Wizard", "Wizard", "Wizard", true, false),

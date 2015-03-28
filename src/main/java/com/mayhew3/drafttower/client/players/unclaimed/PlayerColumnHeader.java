@@ -75,7 +75,8 @@ class PlayerColumnHeader extends Header<SafeHtml> {
       if (positionFilterProvider.get().isPitcherFilter()) {
         return pitcherColumn.getLongName();
       }
-      if (positionFilterProvider.get().isPitchersAndBattersFilter()) {
+      if (positionFilterProvider.get().isPitchersAndBattersFilter() &&
+          !column.getLongName().equals(pitcherColumn.getLongName())) {
         return column.getLongName() + "/" + pitcherColumn.getLongName();
       }
     }

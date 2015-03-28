@@ -61,12 +61,12 @@ public class UnfilledPositionsFilter implements PositionFilter {
 
   @Override
   public Comparator<Player> getWizardComparator(boolean ascending) {
-    return PlayerColumn.getWizardComparator(ascending, getPositions());
+    return PlayerColumn.getWizardComparator(ascending, openPositions.getOptimal());
   }
 
   @Override
   public String getWizard(Player player) {
-    return PlayerColumn.getWizard(player, getPositions());
+    return PlayerColumn.getWizard(player, openPositions.getOptimal());
   }
 
   private EnumSet<Position> getPositions() {

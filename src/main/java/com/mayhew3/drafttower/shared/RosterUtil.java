@@ -96,6 +96,17 @@ public class RosterUtil {
     }
   }
 
+  public EnumSet<Position> getOptimalOpenPositions(List<DraftPick> picks) {
+    final Multimap<Position, DraftPick> roster = constructRoster(picks);
+    Set<Position> openPositions = Sets.filter(REAL_POSITIONS, new Predicate<Position>() {
+      @Override
+      public boolean apply(Position position) {
+        return roster.get(position).size() < POSITIONS_AND_COUNTS.get(position);
+      }
+    });
+    return openPositions.isEmpty() ? EnumSet.noneOf(Position.class) : EnumSet.copyOf(openPositions);
+  }
+
   public EnumSet<Position> getOpenPositions(List<DraftPick> picks) {
     Multimap<Position, DraftPick> optimalRoster = constructRoster(picks);
     optimalRoster.removeAll(RS);
