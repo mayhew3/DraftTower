@@ -7,7 +7,7 @@
   <inherits name="com.google.common.collect.Collect"/>
   <inherits name="com.google.gwt.http.HTTP"/>
   <inherits name="com.google.gwt.inject.Inject"/>
-  <inherits name="com.google.gwt.visualization.Visualization"/>
+  <inherits name="com.googlecode.gwt.charts.Charts"/>
   <inherits name="com.google.web.bindery.autobean.AutoBean"/>
 
   <!-- Specify the paths for translatable code -->
