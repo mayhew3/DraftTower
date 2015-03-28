@@ -229,12 +229,25 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
     } else {
       Map<String, Float> teamPitchingValues = new HashMap<>();
       Map<String, Float> teamBattingValues = new HashMap<>();
+      Map<String, Float> teamTotals = new HashMap<>();
       for (int i = 1; i <= 10; i++) {
         teamPitchingValues.put(Integer.toString(i), teamPitchingPoints.get(i));
         teamBattingValues.put(Integer.toString(i), teamBattingPoints.get(i));
+        if (!teamBattingPoints.containsKey(i)) {
+          if (teamPitchingPoints.containsKey(i)) {
+            teamTotals.put(Integer.toString(i), teamPitchingPoints.get(i));
+          } else {
+            teamTotals.put(Integer.toString(i), null);
+          }
+        } else if (!teamPitchingPoints.containsKey(i)) {
+          teamTotals.put(Integer.toString(i), teamBattingPoints.get(i));
+        } else {
+          teamTotals.put(Integer.toString(i), teamBattingPoints.get(i) + teamPitchingPoints.get(i));
+        }
       }
       graphsData.setTeamPitchingValues(teamPitchingValues);
       graphsData.setTeamBattingValues(teamBattingValues);
+      graphsData.setTeamTotals(teamTotals);
     }
 
     return graphsData;

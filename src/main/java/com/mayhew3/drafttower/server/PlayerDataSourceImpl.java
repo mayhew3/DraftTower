@@ -637,6 +637,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     graphsData.setTeamPitchingValues(teamPitchingValues);
     final Map<String, Float> teamBattingValues = new HashMap<>();
     graphsData.setTeamBattingValues(teamBattingValues);
+    final Map<String, Float> teamTotals = new HashMap<>();
+    graphsData.setTeamTotals(teamTotals);
 
     try {
       executeQuery(sql, new ResultSetCallback() {
@@ -656,10 +658,12 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
                 avgValues.put(graphStat, avgValues.get(graphStat) + (value / numTeams));
               }
             } else {
-              teamPitchingValues.put(Integer.toString(resultTeam),
-                  resultSet.getFloat("pitching"));
-              teamBattingValues.put(Integer.toString(resultTeam),
-                  resultSet.getFloat("batting"));
+              String teamId = Integer.toString(teamDataSource.getDraftOrderByTeamId(new TeamId(resultTeam)).get());
+              float pitching = resultSet.getFloat("pitching");
+              float batting = resultSet.getFloat("batting");
+              teamPitchingValues.put(teamId, pitching);
+              teamBattingValues.put(teamId, batting);
+              teamTotals.put(teamId, batting);
             }
           }
         }

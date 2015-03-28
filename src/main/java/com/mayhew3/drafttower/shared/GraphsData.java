@@ -23,4 +23,7 @@ public interface GraphsData {
 
   Map<String, Float> getTeamBattingValues();
   void setTeamBattingValues(Map<String, Float> teamBattingValues);
+
+  Map<String, Float> getTeamTotals();
+  void setTeamTotals(Map<String, Float> teamTotals);
 }

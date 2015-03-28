@@ -87,6 +87,18 @@ public class BarGraphsPresenterTest {
           .put("9", 950f)
           .put("10", 1050f)
           .build());
+      graphsData.setTeamTotals(new ImmutableMap.Builder<String, Float>()
+          .put("1", 250f)
+          .put("2", 450f)
+          .put("3", 650f)
+          .put("4", 850f)
+          .put("5", 1050f)
+          .put("6", 1250f)
+          .put("7", 1450f)
+          .put("8", 1650f)
+          .put("9", 1850f)
+          .put("10", 2050f)
+          .build());
     }
     return graphsData;
   }
@@ -117,6 +129,8 @@ public class BarGraphsPresenterTest {
           100f, 200f, 300f, 400f, 500f, 600f, 700f, 800f, 900f, 1000f);
       Mockito.verify(view).updateBattingPointsBar(
           150f, 250f, 350f, 450f, 550f, 650f, 750f, 850f, 950f, 1050f);
+      Mockito.verify(view).updateTotalPointsBar(
+          250f, 450f, 650f, 850f, 1050f, 1250f, 1450f, 1650f, 1850f, 2050f);
     }
   }
 
@@ -141,6 +155,8 @@ public class BarGraphsPresenterTest {
           100f, 200f, 300f, 400f, 500f, 600f, 700f, 800f, 900f, 1000f);
       Mockito.verify(view).updateBattingPointsBar(
           150f, 250f, 350f, 450f, 550f, 650f, 750f, 850f, 950f, 1050f);
+      Mockito.verify(view).updateTotalPointsBar(
+          250f, 450f, 650f, 850f, 1050f, 1250f, 1450f, 1650f, 1850f, 2050f);
     }
   }
 }

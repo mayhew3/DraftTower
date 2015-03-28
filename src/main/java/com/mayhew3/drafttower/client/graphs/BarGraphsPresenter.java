@@ -80,6 +80,10 @@ public class BarGraphsPresenter implements DraftStatusChangedEvent.Handler {
             values[i] = graphsData.getTeamBattingValues().get(Integer.toString(i + 1));
           }
           view.updateBattingPointsBar(values);
+          for (int i = 0; i < 10; i++) {
+            values[i] = graphsData.getTeamTotals().get(Integer.toString(i + 1));
+          }
+          view.updateTotalPointsBar(values);
         }
         return null;
       }
