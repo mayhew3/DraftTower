@@ -150,6 +150,20 @@ public class RosterUtilTest {
   }
 
   @Test
+  public void testConstructRosterMultipleEligibilityPriority() throws Exception {
+    assertRoster(
+        Lists.newArrayList(
+            Maps.immutableEntry(C, 1l)),
+        Lists.newArrayList(
+            pick(1, C, FB)));
+    assertRoster(
+        Lists.newArrayList(
+            Maps.immutableEntry(C, 1l)),
+        Lists.newArrayList(
+            pick(1, FB, C)));
+  }
+
+  @Test
   public void testConstructRosterBigPapi() throws Exception {
     assertRoster(
         Lists.newArrayList(
