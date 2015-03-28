@@ -14,7 +14,8 @@ public interface DraftCommand {
     BACK_OUT(true),
     FORCE_PICK(true),
     WAKE_UP(false),
-    RESET_DRAFT(true);
+    RESET_DRAFT(true),
+    CLEAR_CACHES(true);
 
     private final boolean commissionerOnly;
 

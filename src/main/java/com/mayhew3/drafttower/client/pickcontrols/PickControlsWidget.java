@@ -44,6 +44,7 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   @UiField Button forcePick;
   @UiField Button wakeUp;
   @UiField Button reset;
+  @UiField Button clearCaches;
 
   @Inject
   public PickControlsWidget(PickControlsPresenter presenter) {
@@ -81,6 +82,11 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     presenter.resetDraft();
   }
 
+  @UiHandler("clearCaches")
+  public void handleClearCaches(ClickEvent e) {
+    presenter.clearCaches();
+  }
+
   @Override
   public void setSelectedPlayerName(String name) {
     selectedPlayerLabel.setText(name);
@@ -112,6 +118,11 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   }
 
   @Override
+  public void setClearCachesVisible(boolean visible) {
+    clearCaches.setVisible(visible);
+  }
+
+  @Override
   public void setWakeUpVisible(boolean visible) {
     wakeUp.setVisible(visible);
   }
@@ -124,5 +135,6 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     forcePick.ensureDebugId(baseID + "-force");
     wakeUp.ensureDebugId(baseID + "-wakeUp");
     reset.ensureDebugId(baseID + "-reset");
+    clearCaches.ensureDebugId(baseID + "-clearCaches");
   }
 }

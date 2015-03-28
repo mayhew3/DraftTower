@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Stopwatch;
@@ -325,7 +324,6 @@ public class PlayerDataProvider {
         + teamId.get();
   }
 
-  @VisibleForTesting
   public void reset() throws DataSourceException {
     synchronized (cache) {
       cache.clear();
