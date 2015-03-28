@@ -37,10 +37,16 @@ public class InitCustomRankings extends DatabaseUtility {
 
   private static void insertRankingsForTeam(int teamID) {
     String sql = "insert into tmp_rankings (TeamID, PlayerID)\n" +
-        "select ?, PlayerID\n" +
-        "from projectionsView\n" +
-        "where Source = 'CBSSports'\n" +
-        "order by (case when draft is null then 1 else 0 end), draft, rank";
+        "select ?, PlayerID \n" +
+        "FROM \n" +
+        "\t((SELECT pb.PlayerID, pb.FPTS\n" +
+        "\tFROM projectionsBatting pb\n" +
+        "    WHERE DataSource = 1)\n" +
+        "    UNION\n" +
+        "    (SELECT pp.PlayerID, pp.FPTS\n" +
+        "    FROM projectionsPitching pp\n" +
+        "    WHERE DataSource = 1)\n" +
+        "    ORDER BY FPTS DESC) a";
     prepareAndExecuteStatementUpdate(sql, teamID);
 
     sql = "insert into customrankings (TeamID, PlayerID, Rank)\n" +

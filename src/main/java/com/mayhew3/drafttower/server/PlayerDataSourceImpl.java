@@ -601,7 +601,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           " sum(p_all.BBI) * -3 + " +
           " sum(p_all.BS) * -15 + " +
           " sum(p_all.CG) * 4 + " +
-          " sum(p_all.ER) * -6 + " +
+          " sum(p_all.ER) * -7 + " +
           " sum(p_all.HA) * -2 + " +
           " sum(p_all.HB) * -3 + " +
           " sum(p_all.INN) * 12 + " +
@@ -625,7 +625,9 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           " sum(p_all.SB) * 5 as batting " +
           " from ";
       sql = getFromJoins(teamId, sql, null, false);
-      sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID group by draftresults.TeamID";
+      sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID ";
+      sql += " where Source = 'CBSSports' ";
+      sql +=    "group by draftresults.TeamID";
     }
 
     GraphsData graphsData = beanFactory.createGraphsData().as();
@@ -663,7 +665,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
               float batting = resultSet.getFloat("batting");
               teamPitchingValues.put(teamId, pitching);
               teamBattingValues.put(teamId, batting);
-              teamTotals.put(teamId, batting);
+              teamTotals.put(teamId, batting + pitching);
             }
           }
         }
