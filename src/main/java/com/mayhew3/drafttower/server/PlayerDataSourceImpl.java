@@ -626,7 +626,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           " from ";
       sql = getFromJoins(teamId, sql, null, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID ";
-      sql += " where Source = 'CBSSports' ";
+      sql += " where Source = 'CBSSports' and BackedOut = 0 ";
       sql +=    "group by draftresults.TeamID";
     }
 
