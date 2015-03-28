@@ -16,5 +16,7 @@ public interface PickControlsView {
 
   void setResetVisible(boolean visible);
 
+  void setClearCachesVisible(boolean visible);
+
   void setWakeUpVisible(boolean visible);
 }

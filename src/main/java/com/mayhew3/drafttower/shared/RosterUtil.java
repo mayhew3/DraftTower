@@ -25,9 +25,12 @@ public class RosterUtil {
       .put(RS, 6)
       .build();
 
-  private static final List<Position> POSITIONS = Lists.newArrayList(
+  private static final List<Position> POSITIONS = ImmutableList.of(
       C, FB, SB, TB, SS, OF, OF, OF, DH,
       P, P, P, P, P, P, P);
+
+  private static final List<Position> POSITIONS_BY_VALUE = ImmutableList.of(
+      C, SS, SB, TB, FB, OF, DH, P);
 
   public static List<String> splitEligibilities(String eligibility) {
     if (eligibility.isEmpty()) {
@@ -65,8 +68,7 @@ public class RosterUtil {
     } else {
       DraftPick pick = picks.remove(0);
       Multimap<Position, DraftPick> bestRoster = null;
-      for (String positionStr : pick.getEligibilities()) {
-        Position position = Position.fromShortName(positionStr);
+      for (Position position : getPickEligibilitiesSorted(pick)) {
         if (!positions.contains(position)
             && (!positions.contains(DH) || position == P)) {
           continue;
@@ -123,8 +125,7 @@ public class RosterUtil {
     } else {
       DraftPick pick = picks.remove(0);
       boolean foundPosition = false;
-      for (String positionStr : pick.getEligibilities()) {
-        Position position = Position.fromShortName(positionStr);
+      for (Position position : getPickEligibilitiesSorted(pick)) {
         if (!positions.contains(position)) {
           continue;
         }
@@ -184,5 +185,14 @@ public class RosterUtil {
       }
     }
     return numFilled;
+  }
+
+  private static Iterable<Position> getPickEligibilitiesSorted(final DraftPick pick) {
+    return Iterables.filter(POSITIONS_BY_VALUE, new Predicate<Position>() {
+      @Override
+      public boolean apply(Position position) {
+        return pick.getEligibilities().contains(position.getShortName());
+      }
+    });
   }
 }

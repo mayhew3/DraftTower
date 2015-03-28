@@ -170,6 +170,15 @@ public class DraftControllerImpl implements DraftController {
             logger.log(SEVERE, "Failed to reset draft.", e);
             return;
           }
+          break;
+        case CLEAR_CACHES:
+          try {
+            playerDataProvider.reset();
+          } catch (DataSourceException e) {
+            logger.log(SEVERE, "Failed to clear caches.", e);
+            return;
+          }
+          break;
       }
       sendStatusUpdates();
     }

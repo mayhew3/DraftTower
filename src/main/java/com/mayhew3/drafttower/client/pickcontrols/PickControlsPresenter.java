@@ -77,6 +77,7 @@ public class PickControlsPresenter implements
     view.setForcePickEnabled(status != null && status.getCurrentPickDeadline() > 0);
     view.setForcePickVisible(teamsInfo.isCommissionerTeam());
     view.setResetVisible(teamsInfo.isCommissionerTeam());
+    view.setClearCachesVisible(teamsInfo.isCommissionerTeam());
     view.setWakeUpVisible(status != null && status.getRobotTeams().contains(teamsInfo.getTeam()));
   }
 
@@ -101,5 +102,9 @@ public class PickControlsPresenter implements
 
   public void resetDraft() {
     eventBus.fireEvent(new ResetDraftEvent());
+  }
+
+  public void clearCaches() {
+    eventBus.fireEvent(new ClearCachesEvent());
   }
 }
