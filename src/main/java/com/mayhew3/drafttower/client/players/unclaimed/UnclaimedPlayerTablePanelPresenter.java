@@ -47,6 +47,8 @@ public class UnclaimedPlayerTablePanelPresenter implements
   private PlayerDataSet wizardTable;
 
   private UnclaimedPlayerTablePanelView view;
+  private int minClosers;
+  private int maxClosers;
 
   @Inject
   public UnclaimedPlayerTablePanelPresenter(
@@ -74,7 +76,9 @@ public class UnclaimedPlayerTablePanelPresenter implements
     if (wizardTable != null) {
       view.updateDataSetButtons(wizardTable);
     }
-    view.setCloserLimits(loginResponse.getMinClosers(), loginResponse.getMaxClosers());
+    minClosers = loginResponse.getMinClosers();
+    maxClosers = loginResponse.getMaxClosers();
+    view.setCloserLimits(minClosers, maxClosers);
     updateUseForAutoPick();
     updateCopyRanksEnabled(true);
   }
@@ -151,10 +155,13 @@ public class UnclaimedPlayerTablePanelPresenter implements
     try {
       int minClosers = Integer.parseInt(min);
       int maxClosers = Integer.parseInt(max);
-      if (minClosers >= 0 && minClosers <= 7 &&
+      if ((minClosers != this.minClosers || maxClosers != this.maxClosers) &&
+          minClosers >= 0 && minClosers <= 7 &&
           maxClosers >= 0 && maxClosers <= 7 &&
           minClosers <= maxClosers) {
         eventBus.fireEvent(new SetCloserLimitsEvent(minClosers, maxClosers));
+        this.minClosers = minClosers;
+        this.maxClosers = maxClosers;
       }
     } catch (NumberFormatException e) {
       // ignore
