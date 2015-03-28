@@ -6,6 +6,8 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
@@ -222,6 +224,12 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
         presenter.setCloserLimits(event.getValue(), maxClosers.getValue());
       }
     });
+    minClosers.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(KeyUpEvent event) {
+        presenter.setCloserLimits(minClosers.getValue(), maxClosers.getValue());
+      }
+    });
     minClosersPanel.add(minClosers);
     autoPickPopupContents.add(minClosersPanel);
 
@@ -233,6 +241,12 @@ public class UnclaimedPlayerTablePanel extends Composite implements UnclaimedPla
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
         presenter.setCloserLimits(minClosers.getValue(), event.getValue());
+      }
+    });
+    maxClosers.addKeyUpHandler(new KeyUpHandler() {
+      @Override
+      public void onKeyUp(KeyUpEvent event) {
+        presenter.setCloserLimits(minClosers.getValue(), maxClosers.getValue());
       }
     });
     maxClosersPanel.add(maxClosers);

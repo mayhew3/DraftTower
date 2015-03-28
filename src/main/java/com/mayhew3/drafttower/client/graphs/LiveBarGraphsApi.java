@@ -56,7 +56,10 @@ public class LiveBarGraphsApi implements BarGraphsApi {
       options.set("enableInteractivity", false);
     } else {
       options.setWidth(800);
-      options.setHeight(350);
+      options.setHeight(240);
+      TextStyle legendTextStyle = TextStyle.create();
+      legendTextStyle.setFontSize(9);
+      options.setLegendTextStyle(legendTextStyle);
     }
     options.setTitle(title);
     TextStyle titleTextStyle = TextStyle.create();

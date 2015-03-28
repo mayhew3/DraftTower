@@ -63,6 +63,7 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
   private final Map<PlayerColumn, Widget> barGraphs = new HashMap<>();
   private Widget pitchingBarGraph;
   private Widget battingBarGraph;
+  private Widget totalBarGraph;
 
   private boolean apiLoaded;
 
@@ -154,6 +155,18 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
     battingBarGraph = barGraph;
   }
 
+  @Override
+  public void updateTotalPointsBar(Float... values) {
+    Widget barGraph = api.createBarGraph(
+        "Total",
+        getLabels(),
+        values,
+        null);
+    barGraph.addStyleName(CSS.graph());
+    container.add(barGraph);
+    totalBarGraph = barGraph;
+  }
+
   private String[] getLabels() {
     if (Scoring.CATEGORIES) {
       return new String[]{"Me", "Avg"};
@@ -177,6 +190,9 @@ public class BarGraphsWidget extends Composite implements BarGraphsView {
     }
     if (battingBarGraph != null) {
       battingBarGraph.ensureDebugId(baseID + "-batting");
+    }
+    if (totalBarGraph != null) {
+      totalBarGraph.ensureDebugId(baseID + "-total");
     }
   }
 }

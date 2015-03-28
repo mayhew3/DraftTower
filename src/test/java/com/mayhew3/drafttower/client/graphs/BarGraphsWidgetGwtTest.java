@@ -59,6 +59,8 @@ public class BarGraphsWidgetGwtTest extends TestBase {
           getInnerText("-barGraphs-pitching"));
       assertEquals("1=200.0,2=260.0,3=160.0,4=600.0,5=60.0,6=120.0,7=180.0,8=240.0,9=300.0,10=360.0,",
           getInnerText("-barGraphs-batting"));
+      assertEquals("1=200.0,2=280.0,3=160.0,4=600.0,5=60.0,6=120.0,7=180.0,8=240.0,9=300.0,10=360.0,",
+          getInnerText("-barGraphs-total"));
     }
   }
 }
