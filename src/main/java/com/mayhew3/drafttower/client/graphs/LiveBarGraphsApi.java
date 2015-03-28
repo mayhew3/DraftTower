@@ -1,13 +1,18 @@
 package com.mayhew3.drafttower.client.graphs;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.LegendPosition;
-import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.corechart.*;
-import com.google.gwt.visualization.client.visualizations.corechart.CoreChart.Type;
+import com.googlecode.gwt.charts.client.*;
+import com.googlecode.gwt.charts.client.corechart.BarChart;
+import com.googlecode.gwt.charts.client.corechart.BarChartOptions;
+import com.googlecode.gwt.charts.client.corechart.ColumnChart;
+import com.googlecode.gwt.charts.client.corechart.ColumnChartOptions;
+import com.googlecode.gwt.charts.client.options.*;
 import com.mayhew3.drafttower.shared.Scoring;
+
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Live implementation of {@link BarGraphsApi}.
@@ -15,69 +20,91 @@ import com.mayhew3.drafttower.shared.Scoring;
 public class LiveBarGraphsApi implements BarGraphsApi {
   @Override
   public void loadVisualizationApi(final Runnable callback) {
-    VisualizationUtils.loadVisualizationApi(new Runnable() {
-      @Override
-      public void run() {
-        callback.run();
-      }
-    }, CoreChart.PACKAGE);
+    ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
+     chartLoader.loadApi(new Runnable() {
+       @Override
+       public void run() {
+         callback.run();
+       }
+     });
   }
 
   @Override
   public Widget createBarGraph(
-      String title, String[] labels, Float[] values, Float maxValue) {
+      String title, String[] labels, final Float[] values, Float maxValue) {
     DataTable data = DataTable.create();
     data.addColumn(ColumnType.STRING);
     for (String label : labels) {
       data.addColumn(ColumnType.NUMBER, label);
+      data.addColumn(DataColumn.create(ColumnType.NUMBER, RoleType.ANNOTATION));
     }
     data.addRows(1);
     data.setValue(0, 0, "");
+    List<Integer> indices = Lists.newArrayList();
+    for (int i = 0; i < values.length; i++) {
+      indices.add(i);
+    }
+    indices = Ordering.from(new Comparator<Integer>() {
+      @Override
+      public int compare(Integer o1, Integer o2) {
+        return Float.compare(values[o2] == null ? 0 : values[o2],
+            values[o1] == null ? 0 : values[o1]);
+      }
+    }).sortedCopy(indices);
     for (int i = 0; i < values.length; i++) {
       Float value = values[i];
-      data.setValue(0, i + 1, value == null ? 0 : value);
+      data.setValue(0, (i * 2) + 1, value == null ? 0 : value);
+      data.setValue(0, (i * 2) + 2, indices.indexOf(i) + 1);
     }
     if (Scoring.CATEGORIES) {
-      BarChart barChart = new BarChart(data, getOptions(title, maxValue));
+      BarChart barChart = new BarChart();
+      barChart.draw(data, (BarChartOptions) getOptions(title, maxValue));
+//      BarChart barChart = new BarChart(data, getOptions(title, maxValue));
       return barChart;
     } else {
-      ColumnChart columnChart = new ColumnChart(data, getOptions(title, maxValue));
+      ColumnChart columnChart = new ColumnChart();
+      columnChart.draw(data, (ColumnChartOptions) getOptions(title, maxValue));
       return columnChart;
     }
   }
 
   private Options getOptions(String title, Float maxValue) {
-    Options options = Options.create();
-    options.setType(Type.BARS);
+    TextStyle titleTextStyle = TextStyle.create();
+    titleTextStyle.setFontSize(12);
     if (Scoring.CATEGORIES) {
+      BarChartOptions options = BarChartOptions.create();
       options.setColors("#aa4643", "#4572a7");
       options.setWidth(400);
       options.setHeight(100);
-      options.set("enableInteractivity", false);
+      options.setEnableInteractivity(false);
+      options.setTitle(title);
+      options.setTitleTextStyle(titleTextStyle);
+      options.setLegend(Legend.create(LegendPosition.NONE));
+      HAxis hAxis = HAxis.create();
+      hAxis.setMinValue(0);
+      if (maxValue != null) {
+        hAxis.setMaxValue(maxValue);
+      }
+      options.setHAxis(hAxis);
+      return options;
     } else {
+      ColumnChartOptions options = ColumnChartOptions.create();
       options.setWidth(800);
       options.setHeight(240);
+      Legend legend = Legend.create();
       TextStyle legendTextStyle = TextStyle.create();
       legendTextStyle.setFontSize(9);
-      options.setLegendTextStyle(legendTextStyle);
+      legend.setTextStyle(legendTextStyle);
+      options.setLegend(legend);
+      options.setTitle(title);
+      options.setTitleTextStyle(titleTextStyle);
+      VAxis vAxis = VAxis.create();
+      vAxis.setMinValue(0);
+      if (maxValue != null) {
+        vAxis.setMaxValue(maxValue);
+      }
+      options.setVAxis(vAxis);
+      return options;
     }
-    options.setTitle(title);
-    TextStyle titleTextStyle = TextStyle.create();
-    titleTextStyle.setFontSize(12);
-    options.setTitleTextStyle(titleTextStyle);
-    if (Scoring.CATEGORIES) {
-      options.setLegend(LegendPosition.NONE);
-    }
-    AxisOptions axisOptions = AxisOptions.create();
-    axisOptions.setMinValue(0);
-    if (maxValue != null) {
-      axisOptions.setMaxValue(maxValue);
-    }
-    if (Scoring.CATEGORIES) {
-      options.setHAxisOptions(axisOptions);
-    } else {
-      options.setVAxisOptions(axisOptions);
-    }
-    return options;
   }
 }
