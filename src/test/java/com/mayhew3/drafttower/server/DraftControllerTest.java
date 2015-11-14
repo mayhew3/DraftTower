@@ -528,13 +528,6 @@ public class DraftControllerTest {
   }
 
   @Test
-  public void testOnClientConnectedSendsStatus() throws Exception {
-    DraftControllerImpl draftController = createDraftController();
-    draftController.onClientConnected();
-    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
-  }
-
-  @Test
   public void testOnClientDisconnected() throws Exception {
     DraftControllerImpl draftController = createDraftController();
     draftStatus.getConnectedTeams().add(2);

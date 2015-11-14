@@ -39,9 +39,6 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
       openSockets.add(this);
       this.connection = connection;
       connection.setMaxIdleTime(0);
-      for (DraftCommandListener listener : listeners) {
-        listener.onClientConnected();
-      }
     }
 
     public void sendMessage(String message) {

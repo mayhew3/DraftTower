@@ -86,7 +86,6 @@ public class DraftSocketHandler implements
 
   @Override
   public void onOpen() {
-    backoff = INITIAL_BACKOFF_MS;
     eventBus.fireEvent(new SocketConnectEvent());
     sendDraftCommand(IDENTIFY);
     for (int i = 0; i < CLOCK_SYNC_CYCLES; i++) {
@@ -111,6 +110,7 @@ public class DraftSocketHandler implements
     if (msg.startsWith(ServletEndpoints.CLOCK_SYNC)) {
       processClockSync(msg);
     } else {
+      backoff = INITIAL_BACKOFF_MS;
       draftStatus = AutoBeanCodex.decode(beanFactory, ClientDraftStatus.class, msg).as();
       long serialId = draftStatus.getDraftStatus().getSerialId();
       if (latestStatusSerialId < serialId) {

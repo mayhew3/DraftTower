@@ -76,9 +76,6 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
   @Override
   public void open() {
     clientOpened = true;
-    for (DraftCommandListener serverListener : serverListeners) {
-      serverListener.onClientConnected();
-    }
     clientListener.onOpen();
   }
 
