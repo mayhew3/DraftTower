@@ -34,6 +34,7 @@
     </RunnerSettings>
     <RunnerSettings RunnerId="Debug with VisualVM">
       <option name="DEBUG_PORT" value="" />
+      <option name="visualVMId" value="211125735394434" />
       <option name="TRANSPORT" value="0" />
       <option name="LOCAL" value="true" />
     </RunnerSettings>

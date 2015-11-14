@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Jetty 8.1.8.v20121106" type="JettyConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="Jetty 8.1.8.v20121106">
+  <configuration default="false" name="Jetty 8.1.8.v20121106" type="JettyConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="Jetty 8.1.8.v20121106" ALTERNATIVE_JRE_ENABLED="false">
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="COMMON_VM_ARGUMENTS" value="-Djetty.port=8081 -Dws.port=8081 -Xmx512m" />
     <option name="SHOW_DIALOG_ON_UPDATE" value="false" />
@@ -95,6 +95,90 @@
             </JettyConfigFile>
           </list>
         </option>
+        <option name="myConfigFiles">
+          <list>
+            <JettyConfigFile>
+              <option name="active" value="true" />
+              <option name="path" value="etc/jetty-jmx.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-ajp.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-annotations.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-bio-ssl.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-bio.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-contexts.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-debug.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-deploy.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-fileserver.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-ipaccess.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-logging.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-monitor.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-overlay.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="active" value="true" />
+              <option name="path" value="etc/jetty-plus.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-policy.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-proxy.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-requestlog.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-rewrite.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-spdy-proxy.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-spdy.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-ssl.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-stats.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-testrealm.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-webapps.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty-xinetd.xml" />
+            </JettyConfigFile>
+            <JettyConfigFile>
+              <option name="path" value="etc/jetty.xml" />
+            </JettyConfigFile>
+          </list>
+        </option>
       </data>
     </server-settings>
     <predefined_log_file id="Jetty" enabled="true" />
@@ -106,6 +190,7 @@
     </RunnerSettings>
     <RunnerSettings RunnerId="Debug with VisualVM">
       <option name="DEBUG_PORT" value="" />
+      <option name="visualVMId" value="211125742046764" />
       <option name="TRANSPORT" value="0" />
       <option name="LOCAL" value="true" />
     </RunnerSettings>

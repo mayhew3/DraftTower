@@ -101,11 +101,6 @@ public class DraftControllerImpl implements DraftController {
   }
 
   @Override
-  public void onClientConnected() {
-    socketServlet.sendMessage(getStatusEncoder());
-  }
-
-  @Override
   public void onDraftCommand(DraftCommand cmd) throws TerminateSocketException {
     try (Lock ignored = lock.lock()) {
       TeamDraftOrder teamDraftOrder = teamTokens.get(cmd.getTeamToken());
@@ -256,8 +251,8 @@ public class DraftControllerImpl implements DraftController {
     try (Lock ignored = lock.lock()) {
       if (teamTokens.containsKey(teamToken)) {
         status.getConnectedTeams().remove(teamTokens.get(teamToken).get());
+        socketServlet.sendMessage(getStatusEncoder());
       }
-      socketServlet.sendMessage(getStatusEncoder());
     }
   }
 
