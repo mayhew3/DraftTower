@@ -5,7 +5,7 @@
   <ui:with field="style" type="com.mayhew3.drafttower.client.pickcontrols.PickControlsWidget.Resources"/>
 
   <g:HTMLPanel styleName="{style.css.container}">
-    <g:Label ui:field="selectedPlayerLabel">&nbsp;</g:Label>
+    <g:HTML ui:field="selectedPlayerLabel">&nbsp;</g:HTML>
     <div>
       <g:Button ui:field="pick" styleName="{style.css.pickButton}">Pick</g:Button>
       <g:Button ui:field="enqueue" styleName="{style.css.pickButton}">Enqueue</g:Button>

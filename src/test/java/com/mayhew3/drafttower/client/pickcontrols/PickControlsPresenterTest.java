@@ -356,7 +356,7 @@ public class PickControlsPresenterTest {
     draftStatus.setCurrentTeam(MY_TEAM);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 
   @Test
@@ -369,7 +369,7 @@ public class PickControlsPresenterTest {
     draftStatus.setCurrentTeam(MY_TEAM);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view, Mockito.never()).setSelectedPlayerName("");
+    Mockito.verify(view, Mockito.never()).clearSelectedPlayerName();
   }
 
   @Test
@@ -380,7 +380,7 @@ public class PickControlsPresenterTest {
     draftStatus.setCurrentTeam(MY_TEAM);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view, Mockito.never()).setSelectedPlayerName("");
+    Mockito.verify(view, Mockito.never()).clearSelectedPlayerName();
   }
 
   @Test
@@ -388,7 +388,7 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.pick();
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 
   @Test
@@ -396,7 +396,7 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.enqueue();
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 
   @Test
@@ -404,6 +404,6 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.forcePick();
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 }

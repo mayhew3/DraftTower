@@ -6,6 +6,8 @@ package com.mayhew3.drafttower.client.pickcontrols;
 public interface PickControlsView {
   void setSelectedPlayerName(String name);
 
+  void clearSelectedPlayerName();
+
   void setPickEnabled(boolean enabled);
 
   void setEnqueueEnabled(boolean enabled);

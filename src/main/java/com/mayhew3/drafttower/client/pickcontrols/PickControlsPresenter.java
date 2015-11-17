@@ -62,7 +62,7 @@ public class PickControlsPresenter implements
 
   private void clearSelectedPlayer() {
     selectedPlayerId = null;
-    view.setSelectedPlayerName("");
+    view.clearSelectedPlayerName();
     updateButtonsEnabled();
   }
 
