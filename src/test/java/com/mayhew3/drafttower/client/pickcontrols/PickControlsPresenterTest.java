@@ -298,7 +298,7 @@ public class PickControlsPresenterTest {
   public void testForcePickInvisibleOnDraftStatusChangeNotCommish() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setForcePickVisible(false);
+    Mockito.verify(view).setCommishToolsVisible(false);
   }
 
   @Test
@@ -306,38 +306,7 @@ public class PickControlsPresenterTest {
     Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setForcePickVisible(true);
-  }
-
-  @Test
-  public void testResetDraftInvisibleOnDraftStatusChangeNotCommish() {
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setForcePickVisible(false);
-  }
-
-  @Test
-  public void testResetDraftVisibleOnDraftStatusChangeCommish() {
-    Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setResetVisible(true);
-  }
-
-  @Test
-  public void testWakeUpInvisibleOnDraftStatusChangeNotRobot() {
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setWakeUpVisible(false);
-  }
-
-  @Test
-  public void testWakeUpVisibleOnDraftStatusChangeRobot() {
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
-    draftStatus.getRobotTeams().add(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view).setWakeUpVisible(true);
+    Mockito.verify(view).setCommishToolsVisible(true);
   }
 
   @Test
@@ -356,7 +325,7 @@ public class PickControlsPresenterTest {
     draftStatus.setCurrentTeam(MY_TEAM);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 
   @Test
@@ -369,7 +338,7 @@ public class PickControlsPresenterTest {
     draftStatus.setCurrentTeam(MY_TEAM);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view, Mockito.never()).setSelectedPlayerName("");
+    Mockito.verify(view, Mockito.never()).clearSelectedPlayerName();
   }
 
   @Test
@@ -380,7 +349,7 @@ public class PickControlsPresenterTest {
     draftStatus.setCurrentTeam(MY_TEAM);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view, Mockito.never()).setSelectedPlayerName("");
+    Mockito.verify(view, Mockito.never()).clearSelectedPlayerName();
   }
 
   @Test
@@ -388,7 +357,7 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.pick();
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 
   @Test
@@ -396,7 +365,7 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.enqueue();
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 
   @Test
@@ -404,6 +373,6 @@ public class PickControlsPresenterTest {
     presenter.onPlayerSelected(new PlayerSelectedEvent(1, ""));
     Mockito.reset(view);
     presenter.forcePick();
-    Mockito.verify(view).setSelectedPlayerName("");
+    Mockito.verify(view).clearSelectedPlayerName();
   }
 }

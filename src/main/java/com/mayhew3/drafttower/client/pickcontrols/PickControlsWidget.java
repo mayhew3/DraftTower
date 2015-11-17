@@ -1,16 +1,14 @@
 package com.mayhew3.drafttower.client.pickcontrols;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 
 /**
@@ -21,7 +19,9 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
-      String force();
+      String pickButton();
+      String commish();
+      String showCommish();
     }
 
     @Source("PickControlsWidget.css")
@@ -38,13 +38,16 @@ public class PickControlsWidget extends Composite implements PickControlsView {
 
   private final PickControlsPresenter presenter;
 
-  @UiField Label selectedPlayerLabel;
+  @UiField HTML selectedPlayerLabel;
   @UiField Button pick;
   @UiField Button enqueue;
   @UiField Button forcePick;
   @UiField Button wakeUp;
   @UiField Button reset;
   @UiField Button clearCaches;
+  @UiField DivElement commishTools;
+  @UiField DivElement showCommishToolsContainer;
+  @UiField Anchor showCommishTools;
 
   @Inject
   public PickControlsWidget(PickControlsPresenter presenter) {
@@ -52,6 +55,7 @@ public class PickControlsWidget extends Composite implements PickControlsView {
 
     initWidget(uiBinder.createAndBindUi(this));
 
+    UIObject.setVisible(commishTools, false);
     pick.setEnabled(false);
 
     presenter.setView(this);
@@ -87,9 +91,19 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     presenter.clearCaches();
   }
 
+  @UiHandler("showCommishTools")
+  public void toggleCommishTools(ClickEvent e) {
+    UIObject.setVisible(commishTools, !UIObject.isVisible(commishTools));
+  }
+
   @Override
   public void setSelectedPlayerName(String name) {
     selectedPlayerLabel.setText(name);
+  }
+
+  @Override
+  public void clearSelectedPlayerName() {
+    selectedPlayerLabel.setHTML("&nbsp");
   }
 
   @Override
@@ -108,18 +122,8 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   }
 
   @Override
-  public void setForcePickVisible(boolean visible) {
-    forcePick.setVisible(visible);
-  }
-
-  @Override
-  public void setResetVisible(boolean visible) {
-    reset.setVisible(visible);
-  }
-
-  @Override
-  public void setClearCachesVisible(boolean visible) {
-    clearCaches.setVisible(visible);
+  public void setCommishToolsVisible(boolean visible) {
+    UIObject.setVisible(showCommishToolsContainer, visible);
   }
 
   @Override
@@ -132,6 +136,8 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     super.onEnsureDebugId(baseID);
     pick.ensureDebugId(baseID + "-pick");
     enqueue.ensureDebugId(baseID + "-enqueue");
+    UIObject.ensureDebugId(showCommishToolsContainer, baseID + "-showCommishContainer");
+    showCommishTools.ensureDebugId(baseID + "-showCommish");
     forcePick.ensureDebugId(baseID + "-force");
     wakeUp.ensureDebugId(baseID + "-wakeUp");
     reset.ensureDebugId(baseID + "-reset");
