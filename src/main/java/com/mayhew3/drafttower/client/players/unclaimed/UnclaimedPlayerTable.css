@@ -57,6 +57,11 @@ tr:hover .newsCell {
   vertical-align: sub;
 }
 
+.gwt-CellTable-cellTableSelectedRowCell .batterStat,
+.gwt-CellTable-cellTableSelectedRowCell .pitcherStat {
+  color: white;
+}
+
 .gwt-CellTable-cellTableSortedHeaderAscending,
 .gwt-CellTable-cellTableSortedHeaderDescending {
   position: relative;
