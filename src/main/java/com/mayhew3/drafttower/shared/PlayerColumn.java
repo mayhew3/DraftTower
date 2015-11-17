@@ -104,8 +104,8 @@ public enum PlayerColumn {
         int rtn;
         String p1Value = getWizard(p1, positions);
         String p2Value = getWizard(p2, positions);
-        rtn = Float.compare(p1Value == null ? Float.MIN_VALUE : Float.parseFloat(p1Value),
-            p2Value == null ? Float.MIN_VALUE : Float.parseFloat(p2Value));
+        rtn = Float.compare(p1Value == null ? -Float.MAX_VALUE : Float.parseFloat(p1Value),
+            p2Value == null ? -Float.MAX_VALUE : Float.parseFloat(p2Value));
         if (rtn == 0) {
           return PTS.getComparator(ascending).compare(p1, p2);
         }

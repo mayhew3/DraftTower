@@ -87,15 +87,17 @@ public class PlayerListTest {
   @Test
   public void testGetPlayersSortedDescendingByWizardNoPositionFilter() {
     players.get(3).setWizardC("50");
-    Iterator<Player> result = playerList.getPlayers(
+    players.get(4).setWizardC("0");
+    List<Player> result = Lists.newArrayList(playerList.getPlayers(
         createTableSpec(PlayerColumn.WIZARD, false),
         0, 20, new AllPositionFilter(), EnumSet.noneOf(Position.class),
-        false, null).iterator();
-    Assert.assertEquals(players.get(3), result.next());
-    Assert.assertEquals(players.get(19), result.next());
-    Assert.assertEquals(players.get(18), result.next());
-    Assert.assertEquals(players.get(17), result.next());
-    Assert.assertEquals(players.get(16), result.next());
+        false, null));
+    Assert.assertEquals(players.get(3), result.get(0));
+    Assert.assertEquals(players.get(4), result.get(1));
+    Assert.assertEquals(players.get(19), result.get(2));
+    Assert.assertEquals(players.get(18), result.get(3));
+    Assert.assertEquals(players.get(17), result.get(4));
+    Assert.assertEquals(players.get(16), result.get(5));
   }
 
   @Test
