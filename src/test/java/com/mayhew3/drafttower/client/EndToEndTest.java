@@ -8,6 +8,7 @@ public class EndToEndTest extends TestBase {
   public void testForcePickThroughEntireDraft() {
     login(1);
     click("-clock-playPause");
+    click("-pickControls-showCommish");
     while (!getInnerText("-teamOrder-round").equals("It's over!")) {
       click("-pickControls-force");
     }

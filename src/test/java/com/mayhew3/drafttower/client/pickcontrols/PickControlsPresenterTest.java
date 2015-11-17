@@ -298,7 +298,7 @@ public class PickControlsPresenterTest {
   public void testForcePickInvisibleOnDraftStatusChangeNotCommish() {
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setForcePickVisible(false);
+    Mockito.verify(view).setCommishToolsVisible(false);
   }
 
   @Test
@@ -306,38 +306,7 @@ public class PickControlsPresenterTest {
     Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setForcePickVisible(true);
-  }
-
-  @Test
-  public void testResetDraftInvisibleOnDraftStatusChangeNotCommish() {
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setForcePickVisible(false);
-  }
-
-  @Test
-  public void testResetDraftVisibleOnDraftStatusChangeCommish() {
-    Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setResetVisible(true);
-  }
-
-  @Test
-  public void testWakeUpInvisibleOnDraftStatusChangeNotRobot() {
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(new ArrayList<DraftPick>(), beanFactory)));
-    Mockito.verify(view).setWakeUpVisible(false);
-  }
-
-  @Test
-  public void testWakeUpVisibleOnDraftStatusChangeRobot() {
-    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory);
-    draftStatus.getRobotTeams().add(MY_TEAM);
-    presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
-        DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory)));
-    Mockito.verify(view).setWakeUpVisible(true);
+    Mockito.verify(view).setCommishToolsVisible(true);
   }
 
   @Test

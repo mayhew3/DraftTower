@@ -75,9 +75,7 @@ public class PickControlsPresenter implements
         && teamsInfo.getTeam() == status.getCurrentTeam());
     view.setEnqueueEnabled(selectedPlayerId != null && !queueDataProvider.isPlayerQueued(selectedPlayerId));
     view.setForcePickEnabled(status != null && status.getCurrentPickDeadline() > 0);
-    view.setForcePickVisible(teamsInfo.isCommissionerTeam());
-    view.setResetVisible(teamsInfo.isCommissionerTeam());
-    view.setClearCachesVisible(teamsInfo.isCommissionerTeam());
+    view.setCommishToolsVisible(teamsInfo.isCommissionerTeam());
     view.setWakeUpVisible(status != null && status.getRobotTeams().contains(teamsInfo.getTeam()));
   }
 

@@ -59,16 +59,17 @@ public class PickControlsWidgetGwtTest extends TestBase {
     assertFalse(isEnabled("-pickControls-enqueue"));
   }
 
-  public void testForcePickDisabledDraftNotStarted() {
-    login(1);
-    assertTrue(isVisible("-pickControls-force"));
-    assertFalse(isEnabled("-pickControls-force"));
-  }
-
-  public void testForcePickInvisibleNotCommish() {
+  public void testCommishToolsInvisibleNotCommish() {
     login(2);
     simulateDraftStart();
-    assertFalse(isVisible("-pickControls-force"));
+    assertFalse(isVisible("-pickControls-showCommishContainer"));
+  }
+
+  public void testForcePickDisabledDraftNotStarted() {
+    login(1);
+    click("-pickControls-showCommish");
+    assertTrue(isVisible("-pickControls-force"));
+    assertFalse(isEnabled("-pickControls-force"));
   }
 
   public void testForcePick() {
@@ -77,6 +78,7 @@ public class PickControlsWidgetGwtTest extends TestBase {
         Lists.<DraftPick>newArrayList(
             DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
         ginjector.getBeanFactory()));
+    click("-pickControls-showCommish");
     assertTrue(isEnabled("-pickControls-force"));
     click("-pickControls-force");
     assertEquals(2, ginjector.getDraftStatus().getPicks().size());

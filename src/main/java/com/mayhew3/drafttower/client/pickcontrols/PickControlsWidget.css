@@ -33,8 +33,15 @@
   filter: literal("progid:DXImageTransform.Microsoft.gradient( startColorstr='#d9d9ff', endColorstr='#ffffff',GradientType=0 )"); /* IE6-9 */
 }
 
-.force {
+.commish {
   border-color: red;
   color: red;
   font-weight: bold;
+  font-size: small;
+}
+
+.showCommish {
+  color: #15c;
+  font-size: small;
+  cursor: pointer;
 }
