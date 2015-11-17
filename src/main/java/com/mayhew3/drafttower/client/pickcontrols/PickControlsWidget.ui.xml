@@ -7,13 +7,13 @@
   <g:HTMLPanel styleName="{style.css.container}">
     <g:Label ui:field="selectedPlayerLabel">&nbsp;</g:Label>
     <div>
-      <g:Button ui:field="pick">Pick</g:Button>
-      <g:Button ui:field="enqueue">Enqueue</g:Button>
+      <g:Button ui:field="pick" styleName="{style.css.pickButton}">Pick</g:Button>
+      <g:Button ui:field="enqueue" styleName="{style.css.pickButton}">Enqueue</g:Button>
     </div>
     <div>
-      <g:Button ui:field="forcePick" styleName="{style.css.force}">Force pick</g:Button>
-      <g:Button ui:field="reset" styleName="{style.css.force}">Reset draft</g:Button>
-      <g:Button ui:field="clearCaches" styleName="{style.css.force}">Clear caches</g:Button>
+      <g:Button ui:field="forcePick" styleName="{style.css.pickButton} {style.css.force}">Force pick</g:Button>
+      <g:Button ui:field="reset" styleName="{style.css.pickButton} {style.css.force}">Reset draft</g:Button>
+      <g:Button ui:field="clearCaches" styleName="{style.css.pickButton} {style.css.force}">Clear caches</g:Button>
       <g:Button ui:field="wakeUp">Wake up!</g:Button>
     </div>
   </g:HTMLPanel>

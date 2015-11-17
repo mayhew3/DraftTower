@@ -1,10 +1,40 @@
 .container {
   text-align: center;
   margin-top: 30px;
-  line-height: 25px;
+  line-height: 35px;
+}
+
+.pickButton {
+  border: 1px solid #00c;
+  border-radius: 3px;
+  background: white;
+  padding: 4px;
+  color: #00c;
+  font-size: large;
+}
+
+.pickButton:not\(:disabled\) {
+  cursor: pointer;
+}
+
+.pickButton:disabled {
+  border-color: #CCC;
+  color: #CCC;
+}
+
+.pickButton:not\(:disabled\):hover {
+  background: #d9d9ff; /* Old browsers */
+  background: -moz-linear-gradient(top,  #d9d9ff 0%, #ffffff 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d9d9ff), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #d9d9ff 0%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #d9d9ff 0%,#ffffff 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #d9d9ff 0%,#ffffff 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #d9d9ff 0%,#ffffff 100%); /* W3C */
+  filter: literal("progid:DXImageTransform.Microsoft.gradient( startColorstr='#d9d9ff', endColorstr='#ffffff',GradientType=0 )"); /* IE6-9 */
 }
 
 .force {
+  border-color: red;
   color: red;
   font-weight: bold;
 }

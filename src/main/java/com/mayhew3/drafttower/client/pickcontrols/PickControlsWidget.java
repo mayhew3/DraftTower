@@ -21,6 +21,7 @@ public class PickControlsWidget extends Composite implements PickControlsView {
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String container();
+      String pickButton();
       String force();
     }
 
