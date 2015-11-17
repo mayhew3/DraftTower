@@ -119,10 +119,10 @@ public class FilledPositionsChart extends Composite implements FilledPositionsVi
       for (InlineLabel label : barLabels.get(position)) {
         label.setText(numerator + "/" + denominator);
       }
-      bars.get(position).setWidth(((numerator / (float) denominator) * 100) + "px");
+      bars.get(position).setWidth(((numerator / (float) denominator) * 70) + "px");
       bars.get(position).getElement().getStyle().setBackgroundColor(colors[numerator * 10 / denominator]);
       int lastRoundNumerator = counts.getPositionLastRoundCount(position);
-      lastRoundBars.get(position).setWidth(((lastRoundNumerator / (float) denominator) * 100) + "px");
+      lastRoundBars.get(position).setWidth(((lastRoundNumerator / (float) denominator) * 70) + "px");
     }
   }
 
