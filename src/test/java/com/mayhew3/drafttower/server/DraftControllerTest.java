@@ -536,13 +536,6 @@ public class DraftControllerTest {
     Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 
-  @Test
-  public void testOnClientDisconnectedIdempotence() throws Exception {
-    DraftControllerImpl draftController = createDraftController();
-    draftController.onClientDisconnected("3");
-    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
-  }
-
   private List<DraftPick> createPicksList(int numPicks) {
     List<DraftPick> picksList = new ArrayList<>();
     for (int i = 0; i < numPicks; i++) {
