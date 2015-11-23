@@ -14,6 +14,7 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -113,6 +114,19 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
   public void sendMessage(Function<? super String, String> messageForTeamToken) {
     for (DraftTowerWebSocket socket : openSockets) {
       socket.sendMessage(messageForTeamToken.apply(socket.teamToken));
+    }
+  }
+
+  @Override
+  public void forceDisconnect(String teamToken) {
+    Set<DraftTowerWebSocket> toClose = new HashSet<>();
+    for (DraftTowerWebSocket socket : openSockets) {
+      if (teamToken.equals(socket.teamToken)) {
+        toClose.add(socket);
+      }
+    }
+    for (DraftTowerWebSocket socket : toClose) {
+      socket.connection.close(TEAM_ALREADY_CONNECTED.getCloseCode(), TEAM_ALREADY_CONNECTED.getMessage());
     }
   }
 }

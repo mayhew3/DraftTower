@@ -17,9 +17,9 @@ import java.util.Map.Entry;
 public class LoginHandler {
 
   private final TeamDataSource teamDataSource;
-  private final DraftStatus draftStatus;
   private final BeanFactory beanFactory;
   private final TokenGenerator tokenGenerator;
+  private final DraftTowerWebSocket draftTowerWebSocket;
   private final Map<String, TeamDraftOrder> teamTokens;
   private final Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables;
   private final Map<TeamDraftOrder, Integer> minClosers;
@@ -28,17 +28,16 @@ public class LoginHandler {
   @Inject
   public LoginHandler(
       TeamDataSource teamDataSource,
-      DraftStatus draftStatus,
       BeanFactory beanFactory,
       TokenGenerator tokenGenerator,
-      @TeamTokens Map<String, TeamDraftOrder> teamTokens,
+      DraftTowerWebSocket draftTowerWebSocket, @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
       @MinClosers Map<TeamDraftOrder, Integer> minClosers,
       @MaxClosers Map<TeamDraftOrder, Integer> maxClosers) {
     this.teamDataSource = teamDataSource;
-    this.draftStatus = draftStatus;
     this.beanFactory = beanFactory;
     this.tokenGenerator = tokenGenerator;
+    this.draftTowerWebSocket = draftTowerWebSocket;
     this.teamTokens = teamTokens;
     this.autoPickWizardTables = autoPickWizardTables;
     this.minClosers = minClosers;
@@ -55,11 +54,7 @@ public class LoginHandler {
         String teamToken = cookie.getValue();
         if (teamTokens.containsKey(teamToken)) {
           TeamDraftOrder teamDraftOrder = teamTokens.get(teamToken);
-          if (draftStatus.getConnectedTeams().contains(teamDraftOrder.get())) {
-            responseBean = createAlreadyLoggedInResponse();
-          } else {
-            responseBean = createSuccessResponse(teamDraftOrder, teamToken);
-          }
+          responseBean = createSuccessResponse(teamDraftOrder, teamToken);
           break;
         }
       }
@@ -68,13 +63,14 @@ public class LoginHandler {
       TeamDraftOrder teamDraftOrder = teamDataSource.getTeamDraftOrder(
           username, password);
       if (teamDraftOrder != null) {
-        if (draftStatus.getConnectedTeams().contains(teamDraftOrder.get())) {
-          responseBean = createAlreadyLoggedInResponse();
-        } else {
-          String teamToken = tokenGenerator.get();
-          responseBean = createSuccessResponse(teamDraftOrder, teamToken);
-          teamTokens.put(teamToken, teamDraftOrder);
+        for (Entry<String, TeamDraftOrder> entry : teamTokens.entrySet()) {
+          if (entry.getValue().equals(teamDraftOrder)) {
+            draftTowerWebSocket.forceDisconnect(entry.getKey());
+          }
         }
+        String teamToken = tokenGenerator.get();
+        responseBean = createSuccessResponse(teamDraftOrder, teamToken);
+        teamTokens.put(teamToken, teamDraftOrder);
       }
     }
     return responseBean;
@@ -94,13 +90,6 @@ public class LoginHandler {
     response.setTeams(teamDataSource.getTeams());
     response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
     response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port", "8080")));
-    return responseBean;
-  }
-
-  private AutoBean<LoginResponse> createAlreadyLoggedInResponse() {
-    AutoBean<LoginResponse> responseBean = beanFactory.createLoginResponse();
-    LoginResponse response = responseBean.as();
-    response.setAlreadyLoggedIn(true);
     return responseBean;
   }
 }

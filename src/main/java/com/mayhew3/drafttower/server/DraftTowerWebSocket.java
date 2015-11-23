@@ -15,4 +15,6 @@ public interface DraftTowerWebSocket {
   void addListener(DraftCommandListener listener);
 
   void sendMessage(Function<? super String, String> messageForTeamToken);
+
+  void forceDisconnect(String teamToken);
 }

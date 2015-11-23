@@ -119,9 +119,6 @@ public class DraftControllerImpl implements DraftController {
       }
       switch (cmd.getCommandType()) {
         case IDENTIFY:
-          if (status.getConnectedTeams().contains(teamDraftOrder.get())) {
-            throw new TerminateSocketException(SocketTerminationReason.TEAM_ALREADY_CONNECTED);
-          }
           status.getConnectedTeams().add(teamDraftOrder.get());
           status.getRobotTeams().remove(teamDraftOrder.get());
           break;
@@ -250,8 +247,17 @@ public class DraftControllerImpl implements DraftController {
   public void onClientDisconnected(String teamToken) {
     try (Lock ignored = lock.lock()) {
       if (teamTokens.containsKey(teamToken)) {
-        status.getConnectedTeams().remove(teamTokens.get(teamToken).get());
-        socketServlet.sendMessage(getStatusEncoder());
+        TeamDraftOrder teamDraftOrder = teamTokens.get(teamToken);
+        boolean stillConnected = false;
+        for (Entry<String, TeamDraftOrder> entry : teamTokens.entrySet()) {
+          if (entry.getValue().equals(teamDraftOrder) && !entry.getKey().equals(teamToken)) {
+            stillConnected = true;
+          }
+        }
+        if (!stillConnected) {
+          status.getConnectedTeams().remove(teamDraftOrder.get());
+          socketServlet.sendMessage(getStatusEncoder());
+        }
       }
     }
   }
