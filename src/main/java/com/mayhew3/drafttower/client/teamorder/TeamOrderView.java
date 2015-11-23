@@ -19,4 +19,6 @@ public interface TeamOrderView {
   void setKeeper(int teamNum, boolean keeper);
 
   void setStatus(String status);
+
+  void setDisconnectControlsEnabled(boolean enabled);
 }

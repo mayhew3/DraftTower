@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.base.Function;
 import com.mayhew3.drafttower.shared.DraftCommand;
+import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 /**
  * Interface for server side of websocket-based client-server communication.
@@ -15,4 +16,6 @@ public interface DraftTowerWebSocket {
   void addListener(DraftCommandListener listener);
 
   void sendMessage(Function<? super String, String> messageForTeamToken);
+
+  void forceDisconnect(String teamToken, SocketTerminationReason reason);
 }

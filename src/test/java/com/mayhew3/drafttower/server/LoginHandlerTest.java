@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mayhew3.drafttower.shared.SocketTerminationReason.TEAM_ALREADY_CONNECTED;
+
 /**
  * Tests for {@link LoginHandler}.
  */
@@ -20,6 +22,7 @@ public class LoginHandlerTest {
 
   private LoginHandler handler;
   private Map<String, Team> teamsMap;
+  private DraftTowerWebSocket draftTowerWebSocket;
 
   @Before
   public void setUp() throws Exception {
@@ -65,11 +68,13 @@ public class LoginHandlerTest {
     TokenGenerator tokenGenerator = Mockito.mock(TokenGenerator.class);
     Mockito.when(tokenGenerator.get()).thenReturn("token");
 
+    draftTowerWebSocket = Mockito.mock(DraftTowerWebSocket.class);
+
     handler = new LoginHandler(
         teamDataSource,
-        draftStatus,
         beanFactory,
         tokenGenerator,
+        draftTowerWebSocket,
         teamTokens,
         autoPickWizardTables,
         minClosers,
@@ -133,22 +138,8 @@ public class LoginHandlerTest {
   }
 
   @Test
-  public void testAlreadyLoggedInNoCookie() throws DataSourceException {
-    AutoBean<LoginResponse> responseBean = handler.doLogin(new HashMap<String, String>(), "username", "loggedin");
-    Assert.assertNotNull(responseBean);
-    LoginResponse response = responseBean.as();
-    Assert.assertTrue(response.isAlreadyLoggedIn());
-  }
-
-  @Test
-  public void testAlreadyLoggedInAutoLogin() throws DataSourceException {
-    AutoBean<LoginResponse> responseBean = handler.doLogin(
-        ImmutableMap.<String, String>builder()
-            .put(LoginResponse.TEAM_TOKEN_COOKIE, "t5token")
-            .build(),
-        "", "");
-    Assert.assertNotNull(responseBean);
-    LoginResponse response = responseBean.as();
-    Assert.assertTrue(response.isAlreadyLoggedIn());
+  public void testLoginDisconnectsOtherTab() throws DataSourceException {
+    handler.doLogin(new HashMap<String, String>(), "username", "loggedin");
+    Mockito.verify(draftTowerWebSocket).forceDisconnect("t5token", TEAM_ALREADY_CONNECTED);
   }
 }

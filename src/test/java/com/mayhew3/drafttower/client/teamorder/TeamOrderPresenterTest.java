@@ -61,7 +61,20 @@ public class TeamOrderPresenterTest {
       Mockito.verify(view).setTeamName(i, "Team " + i);
       Mockito.verify(view).setMe(i, i == MY_TEAM);
     }
-    Mockito.verifyNoMoreInteractions(view);
+  }
+
+  @Test
+  public void testDisconnectControlsEnabledOnLoginCommissionerTeam() {
+    Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(true);
+    presenter.onLogin(Mockito.mock(LoginEvent.class));
+    Mockito.verify(view).setDisconnectControlsEnabled(true);
+  }
+
+  @Test
+  public void testDisconnectControlsEnabledOnLoginNonCommissionerTeam() {
+    Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(false);
+    presenter.onLogin(Mockito.mock(LoginEvent.class));
+    Mockito.verify(view).setDisconnectControlsEnabled(false);
   }
 
   @Test

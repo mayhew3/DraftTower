@@ -77,12 +77,8 @@ public class LoginPresenter {
         new Function<LoginResponse, Void>() {
           @Override
           public Void apply(LoginResponse loginResponse) {
-            if (loginResponse.isAlreadyLoggedIn()) {
-              failureCallback.apply(SocketTerminationReason.TEAM_ALREADY_CONNECTED);
-            } else {
-              teamsInfo.setLoginResponse(loginResponse);
-              eventBus.fireEvent(new LoginEvent(loginResponse));
-            }
+            teamsInfo.setLoginResponse(loginResponse);
+            eventBus.fireEvent(new LoginEvent(loginResponse));
             return null;
           }
         },

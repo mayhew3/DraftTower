@@ -52,6 +52,11 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
     clientListener.onMessage(messageForTeamToken.apply(teamTokens.keySet().iterator().next()));
   }
 
+  @Override
+  public void forceDisconnect(String teamToken, SocketTerminationReason reason) {
+    // No-op.
+  }
+
   // Client side.
 
   @Override

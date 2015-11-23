@@ -4,16 +4,14 @@ import com.google.common.base.Function;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.CurrentTimeProvider;
-import com.mayhew3.drafttower.shared.DraftCommand;
-import com.mayhew3.drafttower.shared.ServletEndpoints;
+import com.mayhew3.drafttower.shared.*;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -113,6 +111,19 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
   public void sendMessage(Function<? super String, String> messageForTeamToken) {
     for (DraftTowerWebSocket socket : openSockets) {
       socket.sendMessage(messageForTeamToken.apply(socket.teamToken));
+    }
+  }
+
+  @Override
+  public void forceDisconnect(String teamToken, SocketTerminationReason reason) {
+    Set<DraftTowerWebSocket> toClose = new HashSet<>();
+    for (DraftTowerWebSocket socket : openSockets) {
+      if (teamToken.equals(socket.teamToken)) {
+        toClose.add(socket);
+      }
+    }
+    for (DraftTowerWebSocket socket : toClose) {
+      socket.connection.close(reason.getCloseCode(), reason.getMessage());
     }
   }
 }

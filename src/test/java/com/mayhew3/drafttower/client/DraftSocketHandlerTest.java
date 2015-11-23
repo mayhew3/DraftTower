@@ -215,6 +215,15 @@ public class DraftSocketHandlerTest {
   }
 
   @Test
+  public void testOnCloseCommishForced() {
+    InOrder inOrder = Mockito.inOrder(eventBus);
+    handler.onClose(SocketTerminationReason.COMMISH_FORCED);
+    inOrder.verify(eventBus, Mockito.calls(1)).fireEvent(Mockito.isA(SocketDisconnectEvent.class));
+    inOrder.verify(eventBus, Mockito.calls(1)).fireEvent(Mockito.isA(ReloadWindowEvent.class));
+    Mockito.verifyNoMoreInteractions(eventBus, socket);
+  }
+
+  @Test
   public void testOnCloseOtherReason() {
     handler.onClose(SocketTerminationReason.UNKNOWN_REASON);
     Mockito.verify(eventBus).fireEvent(Mockito.isA(SocketDisconnectEvent.class));
@@ -265,7 +274,7 @@ public class DraftSocketHandlerTest {
   @Test
   public void testOnPlayerPicked() {
     handler.onPlayerPicked(new PickPlayerEvent(5));
-    Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.DO_PICK, 5l));
+    Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.DO_PICK, 5L));
   }
 
   @Test
@@ -276,8 +285,8 @@ public class DraftSocketHandlerTest {
 
   @Test
   public void testOnForcePick() {
-    handler.onForcePick(new ForcePickPlayerEvent(5l));
-    Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.FORCE_PICK, 5l));
+    handler.onForcePick(new ForcePickPlayerEvent(5L));
+    Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.FORCE_PICK, 5L));
   }
 
   @Test
@@ -296,6 +305,12 @@ public class DraftSocketHandlerTest {
   public void testOnResetDraft() {
     handler.onResetDraft(new ResetDraftEvent());
     Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.RESET_DRAFT, null));
+  }
+
+  @Test
+  public void testOnDisconnectClient() {
+    handler.onDisconnectClient(new DisconnectClientEvent(2));
+    Mockito.verify(socket).send(getExpectedDraftCommandPayload(Command.DISCONNECT_CLIENT, 2L));
   }
 
   private String getExpectedDraftCommandPayload(Command commandType, Long playerId) {
