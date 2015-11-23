@@ -4,10 +4,7 @@ import com.google.common.base.Function;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
-import com.mayhew3.drafttower.shared.BeanFactory;
-import com.mayhew3.drafttower.shared.CurrentTimeProvider;
-import com.mayhew3.drafttower.shared.DraftCommand;
-import com.mayhew3.drafttower.shared.ServletEndpoints;
+import com.mayhew3.drafttower.shared.*;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
@@ -118,7 +115,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
   }
 
   @Override
-  public void forceDisconnect(String teamToken) {
+  public void forceDisconnect(String teamToken, SocketTerminationReason reason) {
     Set<DraftTowerWebSocket> toClose = new HashSet<>();
     for (DraftTowerWebSocket socket : openSockets) {
       if (teamToken.equals(socket.teamToken)) {
@@ -126,7 +123,7 @@ public class DraftTowerWebSocketServlet extends WebSocketServlet implements Draf
       }
     }
     for (DraftTowerWebSocket socket : toClose) {
-      socket.connection.close(TEAM_ALREADY_CONNECTED.getCloseCode(), TEAM_ALREADY_CONNECTED.getMessage());
+      socket.connection.close(reason.getCloseCode(), reason.getMessage());
     }
   }
 }

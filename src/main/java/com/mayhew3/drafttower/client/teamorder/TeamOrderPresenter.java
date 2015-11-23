@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.client.teamorder;
 
 import com.google.gwt.event.shared.EventBus;
 import com.mayhew3.drafttower.client.TeamsInfo;
+import com.mayhew3.drafttower.client.events.DisconnectClientEvent;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.shared.DraftStatus;
@@ -18,6 +19,7 @@ public class TeamOrderPresenter implements
 
   private final int numTeams;
   private final TeamsInfo teamsInfo;
+  private final EventBus eventBus;
   private TeamOrderView view;
 
   @Inject
@@ -26,6 +28,7 @@ public class TeamOrderPresenter implements
       EventBus eventBus) {
     this.numTeams = numTeams;
     this.teamsInfo = teamsInfo;
+    this.eventBus = eventBus;
 
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
@@ -37,6 +40,7 @@ public class TeamOrderPresenter implements
       view.setTeamName(team, teamsInfo.getShortTeamName(team));
       view.setMe(team, team == teamsInfo.getTeam());
     }
+    view.setDisconnectControlsEnabled(teamsInfo.isCommissionerTeam());
   }
 
   @Override
@@ -68,6 +72,10 @@ public class TeamOrderPresenter implements
     } else {
       view.setStatus("");
     }
+  }
+
+  public void disconnectClient(int team) {
+    eventBus.fireEvent(new DisconnectClientEvent(team));
   }
 
   public void setView(TeamOrderView view) {

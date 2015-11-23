@@ -82,7 +82,7 @@ public class TeamsInfoTest {
   }
 
   @Test
-  public void testIsComissionerTeam() {
+  public void testIsCommissionerTeam() {
     Assert.assertTrue(teamsInfo.isCommissionerTeam());
   }
 

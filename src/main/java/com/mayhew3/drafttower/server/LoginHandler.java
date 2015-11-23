@@ -11,6 +11,8 @@ import com.mayhew3.drafttower.shared.*;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.mayhew3.drafttower.shared.SocketTerminationReason.TEAM_ALREADY_CONNECTED;
+
 /**
  * Handles login requests.
  */
@@ -65,7 +67,7 @@ public class LoginHandler {
       if (teamDraftOrder != null) {
         for (Entry<String, TeamDraftOrder> entry : teamTokens.entrySet()) {
           if (entry.getValue().equals(teamDraftOrder)) {
-            draftTowerWebSocket.forceDisconnect(entry.getKey());
+            draftTowerWebSocket.forceDisconnect(entry.getKey(), TEAM_ALREADY_CONNECTED);
           }
         }
         String teamToken = tokenGenerator.get();

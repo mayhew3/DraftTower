@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import static com.mayhew3.drafttower.shared.SocketTerminationReason.COMMISH_FORCED;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -169,6 +170,14 @@ public class DraftControllerImpl implements DraftController {
           } catch (DataSourceException e) {
             logger.log(SEVERE, "Failed to clear caches.", e);
             return;
+          }
+          break;
+        case DISCONNECT_CLIENT:
+          TeamDraftOrder teamToDisconnect = new TeamDraftOrder((int) (long) cmd.getPlayerId());
+          for (Entry<String, TeamDraftOrder> entry : teamTokens.entrySet()) {
+            if (teamToDisconnect.equals(entry.getValue())) {
+              socketServlet.forceDisconnect(entry.getKey(), COMMISH_FORCED);
+            }
           }
           break;
       }

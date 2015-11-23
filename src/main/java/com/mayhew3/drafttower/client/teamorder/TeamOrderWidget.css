@@ -121,3 +121,14 @@
 .statusMessage {
   padding-top: 10px;
 }
+
+.disconnect {
+  position: absolute;
+  margin-left: 5px;
+  margin-top: -28px;
+  cursor: pointer;
+}
+
+.disconnected + .disconnect {
+  display: none;
+}

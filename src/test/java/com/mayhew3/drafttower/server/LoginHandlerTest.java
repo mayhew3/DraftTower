@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mayhew3.drafttower.shared.SocketTerminationReason.TEAM_ALREADY_CONNECTED;
+
 /**
  * Tests for {@link LoginHandler}.
  */
@@ -138,6 +140,6 @@ public class LoginHandlerTest {
   @Test
   public void testLoginDisconnectsOtherTab() throws DataSourceException {
     handler.doLogin(new HashMap<String, String>(), "username", "loggedin");
-    Mockito.verify(draftTowerWebSocket).forceDisconnect("t5token");
+    Mockito.verify(draftTowerWebSocket).forceDisconnect("t5token", TEAM_ALREADY_CONNECTED);
   }
 }

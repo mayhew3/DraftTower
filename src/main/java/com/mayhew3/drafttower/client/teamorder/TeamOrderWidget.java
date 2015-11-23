@@ -2,10 +2,13 @@ package com.mayhew3.drafttower.client.teamorder;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
@@ -26,6 +29,7 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
       String robot();
       String keeper();
       String statusMessage();
+      String disconnect();
     }
 
     @Source("TeamOrderWidget.css")
@@ -40,11 +44,12 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
 
   private Label roundLabel;
   private Label teamLabels[];
+  private HTML disconnectButtons[];
   private Label statusMessage;
 
   @Inject
   public TeamOrderWidget(@NumTeams int numTeams,
-      TeamOrderPresenter presenter) {
+      final TeamOrderPresenter presenter) {
     FlowPanel container = new FlowPanel();
     container.setStyleName(CSS.container());
 
@@ -52,11 +57,24 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
     roundLabel.addStyleName(CSS.round());
     container.add(roundLabel);
     teamLabels = new Label[numTeams];
+    disconnectButtons = new HTML[numTeams];
     for (int team = 1; team <= numTeams; team++) {
       Label teamLogo = new Label();
       teamLogo.setStyleName(CSS.teamLogo());
       teamLabels[team - 1] = teamLogo;
       container.add(teamLogo);
+      HTML disconnectButton = new HTML("X");
+      disconnectButton.setStyleName(CSS.disconnect());
+      disconnectButton.setVisible(false);
+      final int teamToDisconnect = team;
+      disconnectButton.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent event) {
+          presenter.disconnectClient(teamToDisconnect);
+        }
+      });
+      disconnectButtons[team - 1] = disconnectButton;
+      container.add(disconnectButton);
     }
     statusMessage = new Label();
     statusMessage.setStyleName(CSS.statusMessage());
@@ -105,6 +123,13 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
   @Override
   public void setStatus(String status) {
     statusMessage.setText(status);
+  }
+
+  @Override
+  public void setDisconnectControlsEnabled(boolean enabled) {
+    for (HTML disconnectButton : disconnectButtons) {
+      disconnectButton.setVisible(enabled);
+    }
   }
 
   @Override

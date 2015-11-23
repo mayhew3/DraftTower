@@ -18,6 +18,8 @@ import org.mockito.stubbing.Answer;
 
 import java.util.*;
 
+import static com.mayhew3.drafttower.shared.SocketTerminationReason.COMMISH_FORCED;
+
 /**
  * Tests for {@link DraftControllerImpl}.
  */
@@ -508,6 +510,19 @@ public class DraftControllerTest {
     draftController.onDraftCommand(draftCommand);
     Assert.assertEquals(0, draftStatus.getPicks().size());
     Assert.assertEquals(1, draftStatus.getCurrentTeam());
+    Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
+  }
+
+  @Test
+  public void testOnDraftCommandDisconnectClient() throws Exception {
+    DraftControllerImpl draftController = createDraftController();
+    DraftCommand draftCommand = beanFactory.createDraftCommand().as();
+    draftCommand.setTeamToken("1");
+    draftCommand.setCommandType(Command.DISCONNECT_CLIENT);
+    draftCommand.setPlayerId(2L);
+    draftController.onDraftCommand(draftCommand);
+    Mockito.verify(socketServlet).forceDisconnect("2", COMMISH_FORCED);
+    Assert.assertFalse(draftStatus.getConnectedTeams().contains(2));
     Mockito.verify(socketServlet).sendMessage(Mockito.<Function<String,String>>any());
   }
 

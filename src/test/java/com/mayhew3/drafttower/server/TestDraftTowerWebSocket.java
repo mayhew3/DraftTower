@@ -53,7 +53,7 @@ public class TestDraftTowerWebSocket implements DraftTowerWebSocket, Websocket {
   }
 
   @Override
-  public void forceDisconnect(String teamToken) {
+  public void forceDisconnect(String teamToken, SocketTerminationReason reason) {
     // No-op.
   }
 

@@ -5,7 +5,7 @@ package com.mayhew3.drafttower.shared;
  */
 public interface DraftCommand {
 
-  public enum Command {
+  enum Command {
     IDENTIFY(false),
     START_DRAFT(true),
     DO_PICK(false),
@@ -15,7 +15,8 @@ public interface DraftCommand {
     FORCE_PICK(true),
     WAKE_UP(false),
     RESET_DRAFT(true),
-    CLEAR_CACHES(true);
+    CLEAR_CACHES(true),
+    DISCONNECT_CLIENT(true);
 
     private final boolean commissionerOnly;
 
