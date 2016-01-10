@@ -17,7 +17,7 @@ import java.util.logging.Level;
 
 public class LineupUploader extends DatabaseUtility {
 
-  static enum RosterPlace {ACTIVE("Active"), RESERVE("Reserve"), INJURED("Injured");
+  enum RosterPlace {ACTIVE("Active"), RESERVE("Reserve"), INJURED("Injured");
     private String dbString;
 
     RosterPlace(String dbString) {
@@ -28,7 +28,7 @@ public class LineupUploader extends DatabaseUtility {
       return dbString;
     }
   }
-  static enum PlayerType {BATTER, PITCHER}
+  enum PlayerType {BATTER, PITCHER}
 
   static List<String> battingPositions = Lists.newArrayList(
       "C",

@@ -10,7 +10,7 @@ import com.mayhew3.drafttower.shared.Player;
  */
 public class ShowPlayerPopupEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void showPlayerPopup(ShowPlayerPopupEvent event);
   }
 

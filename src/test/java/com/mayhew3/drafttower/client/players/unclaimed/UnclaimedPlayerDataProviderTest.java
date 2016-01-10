@@ -31,8 +31,6 @@ public class UnclaimedPlayerDataProviderTest {
   private TestPlayerGenerator playerGenerator;
   private ServerRpc serverRpc;
   private TeamsInfo teamsInfo;
-  private EventBus eventBus;
-  private EnumSet<Position> unfilledPositions;
   private TableSpec tableSpec;
   private UnclaimedPlayerDataProvider provider;
   private UnclaimedPlayerTableView view;
@@ -47,7 +45,7 @@ public class UnclaimedPlayerDataProviderTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     OpenPositions openPositions = Mockito.mock(OpenPositions.class);
-    unfilledPositions = EnumSet.of(Position.C, Position.SB, Position.SS, Position.P);
+    EnumSet<Position> unfilledPositions = EnumSet.of(Position.C, Position.SB, Position.SS, Position.P);
     Mockito.when(openPositions.get()).thenReturn(unfilledPositions);
     beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
     playerGenerator = new TestPlayerGenerator(beanFactory);
@@ -55,7 +53,7 @@ public class UnclaimedPlayerDataProviderTest {
     teamsInfo = Mockito.mock(TeamsInfo.class);
     Mockito.when(teamsInfo.isLoggedIn()).thenReturn(true);
     Mockito.when(teamsInfo.getTeamToken()).thenReturn("1");
-    eventBus = Mockito.mock(EventBus.class);
+    EventBus eventBus = Mockito.mock(EventBus.class);
     tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
     tableSpec.setSortCol(PlayerColumn.WIZARD);

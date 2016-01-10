@@ -76,10 +76,10 @@ public class MainPageWidget extends Composite implements
   @UiField(provided = true) final PickHistoryTablePanel pickHistoryTable;
   @UiField(provided = true) final MyRosterTablePanel myRosterTable;
   @UiField(provided = true) final TeamOrderWidget teamOrder;
-  @UiField(provided = true) FilledPositionsChart filledPositionsChart;
-  @UiField(provided = true) UnclaimedPlayerTablePanel unclaimedPlayers;
-  @UiField(provided = true) QueueTable queueTable;
-  @UiField(provided = true) AudioWidget audioWidget;
+  @UiField(provided = true) final FilledPositionsChart filledPositionsChart;
+  @UiField(provided = true) final UnclaimedPlayerTablePanel unclaimedPlayers;
+  @UiField(provided = true) final QueueTable queueTable;
+  @UiField(provided = true) final AudioWidget audioWidget;
 
   @UiField DivElement mainPage;
   @UiField Label showDepthCharts;

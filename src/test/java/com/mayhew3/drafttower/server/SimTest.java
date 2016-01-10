@@ -29,7 +29,7 @@ public abstract class SimTest {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface CommissionerTeam {}
+  public @interface CommissionerTeam {}
 
   private static final int CYCLES_TIMER_EXPIRE = 10;
 

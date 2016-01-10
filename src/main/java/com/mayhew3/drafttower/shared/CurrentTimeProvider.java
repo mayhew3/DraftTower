@@ -8,7 +8,7 @@ import com.google.inject.Singleton;
 public interface CurrentTimeProvider {
   long getCurrentTimeMillis();
 
-  public static class CurrentTimeProviderImpl implements CurrentTimeProvider {
+  class CurrentTimeProviderImpl implements CurrentTimeProvider {
     @Override
     public long getCurrentTimeMillis() {
       return System.currentTimeMillis();
@@ -16,7 +16,7 @@ public interface CurrentTimeProvider {
   }
 
   @Singleton
-  public static class FakeCurrentTimeProvider implements CurrentTimeProvider {
+  class FakeCurrentTimeProvider implements CurrentTimeProvider {
     private long currentTimeMillis;
 
     @Override

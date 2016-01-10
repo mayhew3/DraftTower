@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.SocketConnectEvent.Handler;
  */
 public class SocketConnectEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onConnect(SocketConnectEvent event);
   }
 

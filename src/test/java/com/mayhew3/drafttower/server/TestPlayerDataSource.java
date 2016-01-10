@@ -19,7 +19,6 @@ import static com.mayhew3.drafttower.shared.Position.P;
 public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
-  private final TestPlayerGenerator playerGenerator;
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
@@ -28,7 +27,7 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   public TestPlayerDataSource(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.playerGenerator = new TestPlayerGenerator(beanFactory);
+    TestPlayerGenerator playerGenerator = new TestPlayerGenerator(beanFactory);
     int playerId = 0;
 
     draftPicks = createDraftPicksList();

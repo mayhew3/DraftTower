@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.DequeuePlayerEvent.Handler;
  */
 public class DequeuePlayerEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onPlayerDequeued(DequeuePlayerEvent event);
   }
 

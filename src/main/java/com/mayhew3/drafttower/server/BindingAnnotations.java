@@ -15,35 +15,35 @@ public class BindingAnnotations {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface TeamTokens {}
+  public @interface TeamTokens {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface Keepers {}
+  public @interface Keepers {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface Queues {}
+  public @interface Queues {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface AutoPickWizards {}
+  public @interface AutoPickWizards {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface MinClosers {}
+  public @interface MinClosers {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface MaxClosers {}
+  public @interface MaxClosers {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface DraftTimerListenerList {}
+  public @interface DraftTimerListenerList {}
 }

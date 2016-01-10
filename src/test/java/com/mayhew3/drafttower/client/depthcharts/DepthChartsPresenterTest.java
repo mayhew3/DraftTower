@@ -43,7 +43,7 @@ public class DepthChartsPresenterTest {
   public void testPartialRound() {
     ArrayList<DraftPick> picks = Lists.newArrayList();
     for (int i = 0; i < 5; i++) {
-      picks.add(DraftStatusTestUtil.createDraftPick(i, Integer.toString(i), false, "P", beanFactory));
+      picks.add(DraftStatusTestUtil.createDraftPick(i, Integer.toString(i), "P", beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
@@ -64,7 +64,7 @@ public class DepthChartsPresenterTest {
   public void testFullRound() {
     ArrayList<DraftPick> picks = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
-      picks.add(DraftStatusTestUtil.createDraftPick(i, Integer.toString(i), false, "P", beanFactory));
+      picks.add(DraftStatusTestUtil.createDraftPick(i, Integer.toString(i), "P", beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
@@ -87,7 +87,7 @@ public class DepthChartsPresenterTest {
     for (Position position : new Position[]{Position.P, Position.FB, Position.SB}) {
       for (int i = 0; i < 10; i++) {
         picks.add(DraftStatusTestUtil.createDraftPick(
-            i, Integer.toString(i), false, position.getShortName(), beanFactory));
+            i, Integer.toString(i), position.getShortName(), beanFactory));
       }
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(

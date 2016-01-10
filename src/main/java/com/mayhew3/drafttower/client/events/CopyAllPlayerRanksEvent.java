@@ -11,7 +11,7 @@ import com.mayhew3.drafttower.shared.TableSpec;
 public class CopyAllPlayerRanksEvent extends GwtEvent<Handler> {
 
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onCopyAllPlayerRanks(CopyAllPlayerRanksEvent event);
   }
 

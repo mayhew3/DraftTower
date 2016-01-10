@@ -246,7 +246,7 @@ public abstract class TestBase extends GWTTestCase {
         Position position = positions[team - 1][round];
         if (position != null) {
           picks.add(DraftStatusTestUtil.createAndPostDraftPick(
-              team, "Guy " + round + team, false, position, ginjector.getBeanFactory(),
+              team, "Guy " + round + team, position, ginjector.getBeanFactory(),
               (TestPlayerDataSource) ginjector.getPlayerDataSource()));
         }
       }

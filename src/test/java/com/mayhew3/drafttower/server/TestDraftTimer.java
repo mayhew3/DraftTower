@@ -10,7 +10,7 @@ import java.util.List;
  * Testing version of {@link DraftTimer}, advanced programatically.
  */
 public class TestDraftTimer implements DraftTimer {
-  private List<Listener> listeners;
+  private final List<Listener> listeners;
   private boolean started;
 
   @Inject

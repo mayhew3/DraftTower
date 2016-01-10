@@ -42,10 +42,10 @@ public class TeamOrderWidget extends Composite implements TeamOrderView {
     CSS.ensureInjected();
   }
 
-  private Label roundLabel;
-  private Label teamLabels[];
-  private HTML disconnectButtons[];
-  private Label statusMessage;
+  private final Label roundLabel;
+  private final Label teamLabels[];
+  private final HTML disconnectButtons[];
+  private final Label statusMessage;
 
   @Inject
   public TeamOrderWidget(@NumTeams int numTeams,

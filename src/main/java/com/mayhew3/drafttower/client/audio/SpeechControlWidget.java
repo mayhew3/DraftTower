@@ -32,11 +32,9 @@ public class SpeechControlWidget extends Composite implements SpeechControlView 
     CSS.ensureInjected();
   }
 
-  private final HTML widget;
-
   @Inject
   public SpeechControlWidget(final AudioPresenter presenter) {
-    widget = new HTML();
+    HTML widget = new HTML();
     widget.setStyleName(CSS.control());
     widget.addStyleName(CSS.high());
     initWidget(widget);

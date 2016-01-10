@@ -33,7 +33,7 @@ public class AudioWidget extends Composite implements AudioView {
 
   private final Audio itsOver;
   private final Frame audioFrame;
-  private String ttsUrlPrefix;
+  private final String ttsUrlPrefix;
 
   @Inject
   public AudioWidget(AudioPresenter presenter,
@@ -43,7 +43,7 @@ public class AudioWidget extends Composite implements AudioView {
     FlowPanel container = new FlowPanel();
     container.setSize("0", "0");
 
-    itsOver = createAudio("over.mp3");
+    itsOver = createItsOverAudio();
     container.add(itsOver);
 
     if (!supportsClientSideTts()) {
@@ -59,11 +59,11 @@ public class AudioWidget extends Composite implements AudioView {
     presenter.setAudioView(this);
   }
 
-  private Audio createAudio(String src) {
+  private Audio createItsOverAudio() {
     Audio audio = Audio.createIfSupported();
     audio.setPreload("auto");
     audio.setControls(false);
-    audio.setSrc(src);
+    audio.setSrc("over.mp3");
     return audio;
   }
 

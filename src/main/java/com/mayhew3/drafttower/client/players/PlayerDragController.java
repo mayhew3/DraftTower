@@ -23,7 +23,7 @@ public class PlayerDragController implements MouseMoveHandler, MouseUpHandler {
 
   private DraggableItem draggedItem;
   private HTML dragHelper;
-  private List<PlayerTable<?>> dropTargets = Lists.newArrayList();
+  private final List<PlayerTable<?>> dropTargets = Lists.newArrayList();
   private PlayerTable<?> activeHoverTarget;
   private HandlerRegistration nativePreviewHandler;
 

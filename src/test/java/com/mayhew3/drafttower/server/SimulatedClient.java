@@ -48,7 +48,7 @@ public abstract class SimulatedClient implements WebsocketListener {
   protected int teamDraftOrder;
 
   protected Connection connection;
-  protected List<Exception> exceptions;
+  protected final List<Exception> exceptions;
 
   public SimulatedClient() {
     cookies = new Cookie[1];

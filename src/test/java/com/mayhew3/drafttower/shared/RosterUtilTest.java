@@ -61,22 +61,22 @@ public class RosterUtilTest {
     // Basic: one per position.
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(FB, 1l),
-            Maps.immutableEntry(SB, 2l),
-            Maps.immutableEntry(TB, 3l),
-            Maps.immutableEntry(SS, 4l),
-            Maps.immutableEntry(C, 5l),
-            Maps.immutableEntry(OF, 6l),
-            Maps.immutableEntry(OF, 7l),
-            Maps.immutableEntry(OF, 8l),
-            Maps.immutableEntry(DH, 9l),
-            Maps.immutableEntry(P, 10l),
-            Maps.immutableEntry(P, 11l),
-            Maps.immutableEntry(P, 12l),
-            Maps.immutableEntry(P, 13l),
-            Maps.immutableEntry(P, 14l),
-            Maps.immutableEntry(P, 15l),
-            Maps.immutableEntry(P, 16l)),
+            Maps.immutableEntry(FB, 1L),
+            Maps.immutableEntry(SB, 2L),
+            Maps.immutableEntry(TB, 3L),
+            Maps.immutableEntry(SS, 4L),
+            Maps.immutableEntry(C, 5L),
+            Maps.immutableEntry(OF, 6L),
+            Maps.immutableEntry(OF, 7L),
+            Maps.immutableEntry(OF, 8L),
+            Maps.immutableEntry(DH, 9L),
+            Maps.immutableEntry(P, 10L),
+            Maps.immutableEntry(P, 11L),
+            Maps.immutableEntry(P, 12L),
+            Maps.immutableEntry(P, 13L),
+            Maps.immutableEntry(P, 14L),
+            Maps.immutableEntry(P, 15L),
+            Maps.immutableEntry(P, 16L)),
         Lists.newArrayList(
             pick(1, FB),
             pick(2, SB),
@@ -100,8 +100,8 @@ public class RosterUtilTest {
   public void testConstructRosterDH() throws Exception {
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(FB, 1l),
-            Maps.immutableEntry(DH, 2l)),
+            Maps.immutableEntry(FB, 1L),
+            Maps.immutableEntry(DH, 2L)),
         Lists.newArrayList(
             pick(1, FB),
             pick(2, FB)));
@@ -111,17 +111,17 @@ public class RosterUtilTest {
   public void testConstructRosterReserves() throws Exception {
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(FB, 1l),
-            Maps.immutableEntry(DH, 2l),
-            Maps.immutableEntry(RS, 3l),
-            Maps.immutableEntry(P, 4l),
-            Maps.immutableEntry(P, 5l),
-            Maps.immutableEntry(P, 6l),
-            Maps.immutableEntry(P, 7l),
-            Maps.immutableEntry(P, 8l),
-            Maps.immutableEntry(P, 9l),
-            Maps.immutableEntry(P, 10l),
-            Maps.immutableEntry(RS, 11l)),
+            Maps.immutableEntry(FB, 1L),
+            Maps.immutableEntry(DH, 2L),
+            Maps.immutableEntry(RS, 3L),
+            Maps.immutableEntry(P, 4L),
+            Maps.immutableEntry(P, 5L),
+            Maps.immutableEntry(P, 6L),
+            Maps.immutableEntry(P, 7L),
+            Maps.immutableEntry(P, 8L),
+            Maps.immutableEntry(P, 9L),
+            Maps.immutableEntry(P, 10L),
+            Maps.immutableEntry(RS, 11L)),
         Lists.newArrayList(
             pick(1, FB),
             pick(2, FB),
@@ -140,9 +140,9 @@ public class RosterUtilTest {
   public void testConstructRosterMultipleEligibility() throws Exception {
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(TB, 1l),
-            Maps.immutableEntry(FB, 2l),
-            Maps.immutableEntry(SB, 3l)),
+            Maps.immutableEntry(TB, 1L),
+            Maps.immutableEntry(FB, 2L),
+            Maps.immutableEntry(SB, 3L)),
         Lists.newArrayList(
             pick(1, FB, SB, TB),
             pick(2, FB),
@@ -153,12 +153,12 @@ public class RosterUtilTest {
   public void testConstructRosterMultipleEligibilityPriority() throws Exception {
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(C, 1l)),
+            Maps.immutableEntry(C, 1L)),
         Lists.newArrayList(
             pick(1, C, FB)));
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(C, 1l)),
+            Maps.immutableEntry(C, 1L)),
         Lists.newArrayList(
             pick(1, FB, C)));
   }
@@ -167,7 +167,7 @@ public class RosterUtilTest {
   public void testConstructRosterBigPapi() throws Exception {
     assertRoster(
         Lists.newArrayList(
-            Maps.immutableEntry(DH, 1l)),
+            Maps.immutableEntry(DH, 1L)),
         Lists.newArrayList(
             pick(1, DH)));
   }

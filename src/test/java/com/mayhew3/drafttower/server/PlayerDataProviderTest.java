@@ -107,9 +107,9 @@ public class PlayerDataProviderTest {
 
   @Test
   public void testGetBestPlayerUsesWizardTable() throws Exception {
-    pickProbabilities.put(139l, .9f);
-    pickProbabilities.put(138l, .8f);
-    pickProbabilities.put(137l, .7f);
+    pickProbabilities.put(139L, .9f);
+    pickProbabilities.put(138L, .8f);
+    pickProbabilities.put(137L, .7f);
     autoPickWizards.put(new TeamDraftOrder(1), PlayerDataSet.CBSSPORTS);
     long bestPlayerId = playerDataProvider.getBestPlayerId(new TeamDraftOrder(1),
         new ArrayList<DraftPick>(),

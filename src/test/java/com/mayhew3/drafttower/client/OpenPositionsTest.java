@@ -21,7 +21,6 @@ public class OpenPositionsTest {
 
   private BeanFactory beanFactory;
   private OpenPositions openPositions;
-  private RosterUtil rosterUtil;
   @Captor private ArgumentCaptor<List<DraftPick>> rosterUtilArgCaptor;
   @Captor private ArgumentCaptor<List<DraftPick>> rosterUtilOptimalArgCaptor;
   private EnumSet<Position> rosterUtilReturnValue;
@@ -33,7 +32,7 @@ public class OpenPositionsTest {
     beanFactory = AutoBeanFactorySource.create(BeanFactory.class);
     TeamsInfo teamsInfo = Mockito.mock(TeamsInfo.class);
     Mockito.when(teamsInfo.getTeam()).thenReturn(4);
-    rosterUtil = Mockito.mock(RosterUtil.class);
+    RosterUtil rosterUtil = Mockito.mock(RosterUtil.class);
     rosterUtilReturnValue = EnumSet.of(Position.C, Position.SB, Position.OF);
     rosterUtilOptimalReturnValue = EnumSet.of(Position.C, Position.SB);
     Mockito.when(rosterUtil.getOpenPositions(rosterUtilArgCaptor.capture()))

@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.ReorderPlayerQueueEvent.Handler;
  */
 public class ReorderPlayerQueueEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onQueueReordered(ReorderPlayerQueueEvent event);
   }
 

@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.SocketDisconnectEvent.Handler;
  */
 public class SocketDisconnectEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onDisconnect(SocketDisconnectEvent event);
   }
 

@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * Test for {@link QueueDataProvider}.
  */
+@SuppressWarnings("unchecked")
 public class QueueDataProviderTest {
 
   private BeanFactory beanFactory;

@@ -22,8 +22,8 @@ public class OpenPositions {
   private final TeamsInfo teamsInfo;
 
   private final RosterUtil rosterUtil;
-  private EnumSet<Position> openPositions = EnumSet.allOf(Position.class);
-  private EnumSet<Position> openPositionsOptimal = EnumSet.allOf(Position.class);
+  private final EnumSet<Position> openPositions = EnumSet.allOf(Position.class);
+  private final EnumSet<Position> openPositionsOptimal = EnumSet.allOf(Position.class);
 
   @Inject
   public OpenPositions(TeamsInfo teamsInfo,
