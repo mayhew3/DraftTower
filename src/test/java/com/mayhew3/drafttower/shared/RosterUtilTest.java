@@ -486,4 +486,13 @@ public class RosterUtilTest {
     Assert.assertEquals(0, numFilled.get(OF)[2].intValue());
     Assert.assertEquals(0, numFilled.get(TB)[0].intValue());
   }
+
+  @Test
+  public void testGetHighestValuePosition() {
+    Assert.assertEquals("SS", RosterUtil.getHighestValuePosition(Lists.newArrayList("SS", "3B", "1B")));
+    Assert.assertEquals("3B", RosterUtil.getHighestValuePosition(Lists.newArrayList("3B", "1B", "OF")));
+    Assert.assertEquals("DH", RosterUtil.getHighestValuePosition(Lists.newArrayList("DH")));
+    Assert.assertEquals("P", RosterUtil.getHighestValuePosition(Lists.newArrayList("P")));
+    Assert.assertEquals("SS", RosterUtil.getHighestValuePosition(Lists.newArrayList("SS", "SS", "1B")));
+  }
 }
