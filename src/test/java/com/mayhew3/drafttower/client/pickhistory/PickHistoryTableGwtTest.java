@@ -29,12 +29,15 @@ public class PickHistoryTableGwtTest extends TestBase {
     assertEquals("4:4", getInnerText("-pickHistory-1-0"));
     assertEquals("4", getInnerText("-pickHistory-1-1"));
     assertEquals("Guy 34", getInnerText("-pickHistory-1-2"));
+    assertEquals("1B", getInnerText("-pickHistory-1-3"));
     assertEquals("4:3", getInnerText("-pickHistory-2-0"));
     assertEquals("3", getInnerText("-pickHistory-2-1"));
     assertEquals("Guy 33", getInnerText("-pickHistory-2-2"));
+    assertEquals("OF", getInnerText("-pickHistory-2-3"));
     assertEquals("3:2", getInnerText("-pickHistory-13-0"));
     assertEquals("2", getInnerText("-pickHistory-13-1"));
     assertEquals("Guy 22", getInnerText("-pickHistory-13-2"));
+    assertEquals("3B", getInnerText("-pickHistory-13-3"));
   }
 
   public void testBackOutPick() {

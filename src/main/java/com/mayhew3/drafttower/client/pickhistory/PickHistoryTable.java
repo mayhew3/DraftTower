@@ -40,7 +40,7 @@ public class PickHistoryTable extends CellTable<PickHistoryInfo> {
       public String getValue(PickHistoryInfo pick) {
         return pick.getPickNumber();
       }
-    }, "Pick");
+    }, "");
     addColumn(new TextColumn<PickHistoryInfo>() {
       @Override
       public String getValue(PickHistoryInfo pick) {
@@ -53,6 +53,12 @@ public class PickHistoryTable extends CellTable<PickHistoryInfo> {
         return pick.getPlayerName();
       }
     }, "Player");
+    addColumn(new TextColumn<PickHistoryInfo>() {
+      @Override
+      public String getValue(PickHistoryInfo pick) {
+        return pick.getPrimaryPosition();
+      }
+    }, "");
 
     presenter.addDataDisplay(this);
 

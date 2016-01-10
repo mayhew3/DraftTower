@@ -155,7 +155,7 @@ public class RosterUtil {
           Multimap<Position, DraftPick> expandedRoster = ArrayListMultimap.create(roster);
           expandedRoster.put(DH, pick);
           positions.remove(DH);
-          doGetOpenPositions(picks, positions, openPositions, expandedRoster, allowDH, reservesAllowed);
+          doGetOpenPositions(picks, positions, openPositions, expandedRoster, true, reservesAllowed);
           positions.add(DH);
         } else if (reservesAllowed > 0) {
           doGetOpenPositions(picks, positions, openPositions, roster, allowDH, reservesAllowed - 1);
@@ -196,6 +196,19 @@ public class RosterUtil {
       }
     }
     return numFilled;
+  }
+
+  public static String getHighestValuePosition(Collection<String> positions) {
+    int highestValue = Integer.MAX_VALUE;
+    String highestValuePosition = null;
+    for (String position : positions) {
+      int value = POSITIONS_BY_VALUE.indexOf(Position.fromShortName(position));
+      if (value < highestValue) {
+        highestValue = value;
+        highestValuePosition = position;
+      }
+    }
+    return highestValuePosition;
   }
 
   private static Iterable<Position> getPickEligibilitiesSorted(final DraftPick pick) {

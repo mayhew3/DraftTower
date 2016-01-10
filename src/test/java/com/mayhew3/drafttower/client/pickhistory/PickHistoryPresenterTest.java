@@ -53,7 +53,7 @@ public class PickHistoryPresenterTest {
         String playerName = Integer.toString(round + team);
         picks.add(DraftStatusTestUtil.createDraftPick(team, playerName, keeper, beanFactory));
         expected.add(0, new PickHistoryInfo(
-            round + ":" + team, Integer.toString(team), playerName, keeper));
+            round + ":" + team, Integer.toString(team), playerName, "P", keeper));
       }
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(

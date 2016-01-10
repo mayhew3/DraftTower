@@ -7,6 +7,7 @@ import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.client.pickhistory.PickHistoryPresenter.PickHistoryInfo;
 import com.mayhew3.drafttower.shared.DraftPick;
+import com.mayhew3.drafttower.shared.RosterUtil;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
 import javax.inject.Inject;
@@ -23,15 +24,18 @@ public class PickHistoryPresenter extends ListDataProvider<PickHistoryInfo> impl
     private final String pickNumber;
     private final String teamName;
     private final String playerName;
+    private final String primaryPosition;
     private final boolean isKeeper;
 
     PickHistoryInfo(String pickNumber,
         String teamName,
         String playerName,
+        String primaryPosition,
         boolean keeper) {
       this.pickNumber = pickNumber;
       this.teamName = teamName;
       this.playerName = playerName;
+      this.primaryPosition = primaryPosition;
       isKeeper = keeper;
     }
 
@@ -45,6 +49,10 @@ public class PickHistoryPresenter extends ListDataProvider<PickHistoryInfo> impl
 
     String getPlayerName() {
       return playerName;
+    }
+
+    public String getPrimaryPosition() {
+      return primaryPosition;
     }
 
     boolean isKeeper() {
@@ -61,6 +69,7 @@ public class PickHistoryPresenter extends ListDataProvider<PickHistoryInfo> impl
       if (isKeeper != that.isKeeper) return false;
       if (!pickNumber.equals(that.pickNumber)) return false;
       if (!playerName.equals(that.playerName)) return false;
+      if (!primaryPosition.equals(that.primaryPosition)) return false;
       if (!teamName.equals(that.teamName)) return false;
 
       return true;
@@ -71,6 +80,7 @@ public class PickHistoryPresenter extends ListDataProvider<PickHistoryInfo> impl
       int result = pickNumber.hashCode();
       result = 31 * result + teamName.hashCode();
       result = 31 * result + playerName.hashCode();
+      result = 31 * result + primaryPosition.hashCode();
       result = 31 * result + (isKeeper ? 1 : 0);
       return result;
     }
@@ -97,6 +107,7 @@ public class PickHistoryPresenter extends ListDataProvider<PickHistoryInfo> impl
           getPickNumber(pick, draftPicks),
           teamsInfo.getShortTeamName(pick.getTeam()),
           pick.getPlayerName(),
+          RosterUtil.getHighestValuePosition(pick.getEligibilities()),
           pick.isKeeper()));
     }
     setList(list);
