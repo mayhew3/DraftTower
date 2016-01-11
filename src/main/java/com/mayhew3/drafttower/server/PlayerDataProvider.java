@@ -289,6 +289,33 @@ public class PlayerDataProvider {
     }
   }
 
+  public void addOrRemoveFavorite(AddOrRemoveFavoriteRequest request) throws DataSourceException {
+    final TeamId teamID = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
+    long playerId = request.getPlayerId();
+    if (request.isAdd()) {
+      dataSource.addFavorite(teamID, playerId);
+    } else {
+      dataSource.removeFavorite(teamID, playerId);
+    }
+
+    // Update in caches
+    synchronized (cache) {
+      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
+        List<Player> players = cache.get(getKey(teamID, playerDataSet));
+        if (players != null) {
+          synchronized (players) {
+            for (Player player : players) {
+              if (player.getPlayerId() == playerId) {
+                player.setFavorite(request.isAdd());
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   public GraphsData getGraphsData(TeamDraftOrder teamDraftOrder) throws DataSourceException {
     return dataSource.getGraphsData(teamDraftOrder);
   }

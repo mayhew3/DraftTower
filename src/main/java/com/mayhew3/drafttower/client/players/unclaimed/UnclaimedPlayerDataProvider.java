@@ -33,7 +33,8 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     ChangePlayerRankEvent.Handler,
     SetAutoPickWizardEvent.Handler,
     SetCloserLimitsEvent.Handler,
-    CopyAllPlayerRanksEvent.Handler {
+    CopyAllPlayerRanksEvent.Handler,
+    ToggleFavoritePlayerEvent.Handler {
 
   public static final PlayerDataSet DEFAULT_DATA_SET = PlayerDataSet.CBSSPORTS;
   public static final PlayerColumn DEFAULT_SORT_COL = PlayerColumn.MYRANK;
@@ -78,6 +79,7 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
     eventBus.addHandler(CopyAllPlayerRanksEvent.TYPE, this);
     eventBus.addHandler(DraftStatusChangedEvent.TYPE, this);
     eventBus.addHandler(LoginEvent.TYPE, this);
+    eventBus.addHandler(ToggleFavoritePlayerEvent.TYPE, this);
   }
 
   @Override
@@ -279,6 +281,30 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
   }
 
   @Override
+  public void onToggleFavoritePlayer(ToggleFavoritePlayerEvent event) {
+    if (!teamsInfo.isLoggedIn()) {
+      return;
+    }
+
+    for (PlayerList playerList : playersByDataSet.values()) {
+      playerList.updateFavoritePlayer(event.getPlayerId(), event.isAdd());
+    }
+
+    AutoBean<AddOrRemoveFavoriteRequest> requestBean =
+        beanFactory.createAddOrRemoveFavoriteRequest();
+    AddOrRemoveFavoriteRequest request = requestBean.as();
+    request.setTeamToken(teamsInfo.getTeamToken());
+
+    request.setPlayerId(event.getPlayerId());
+    request.setAdd(event.isAdd());
+
+    serverRpc.sendAddOrRemoveFavoriteRequest(requestBean, new Runnable() {
+      @Override
+      public void run() {}
+    });
+  }
+
+  @Override
   protected Predicate<Player> createPredicate(long playerId) {
     return new PlayerPredicate(playerId);
   }
@@ -296,6 +322,12 @@ public class UnclaimedPlayerDataProvider extends PlayerDataProvider<Player> impl
         player.getPlayerId(),
         targetRank,
         prevRank));
+  }
+
+  public void toggleFavoritePlayer(Player player) {
+    eventBus.fireEvent(new ToggleFavoritePlayerEvent(
+        player.getPlayerId(),
+        !player.isFavorite()));
   }
 
   public void setSort(ColumnSort sort) {

@@ -100,6 +100,16 @@ public class PlayerList {
     clearCachedSort(PlayerColumn.MYRANK, players);
   }
 
+  public void updateFavoritePlayer(long playerId, boolean favorite) {
+    List<Player> players = playersBySort.values().iterator().next();
+    for (Player player : players) {
+      if (player.getPlayerId() == playerId) {
+        player.setFavorite(favorite);
+        break;
+      }
+    }
+  }
+
   public void updateWizardValues(Map<Long, Float> pickProbabilityPredictions) {
     List<Player> players = playersBySort.values().iterator().next();
     PlayerColumn.calculateWizardScores(Iterables.filter(players, new Predicate<Player>() {

@@ -29,6 +29,7 @@ public abstract class SimulatedClient implements WebsocketListener {
   @Inject protected BeanFactory beanFactory;
   @Inject protected DraftTowerWebSocketServlet webSocketServlet;
   protected DraftTowerWebSocketServlet.DraftTowerWebSocket webSocket;
+  @Inject protected AddOrRemoveFavoritePlayerServlet favoritePlayerServlet;
   @Inject protected ChangePlayerRankServlet changePlayerRankServlet;
   @Inject protected CopyAllPlayerRanksServlet copyAllPlayerRanksServlet;
   @Inject protected GraphsServlet graphsServlet;
@@ -66,6 +67,18 @@ public abstract class SimulatedClient implements WebsocketListener {
 
   @Override
   public void onOpen() {
+  }
+
+  protected void addOrRemoveFavoritePlayer(long playerId, boolean add) throws ServletException, IOException {
+    HttpServletRequest req = Mockito.mock(HttpServletRequest.class);
+    AutoBean<AddOrRemoveFavoriteRequest> request = beanFactory.createAddOrRemoveFavoriteRequest();
+    request.as().setTeamToken(teamToken);
+    request.as().setPlayerId(playerId);
+    request.as().setAdd(add);
+    Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
+    HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
+    Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+    favoritePlayerServlet.doPost(req, resp);
   }
 
   protected void changePlayerRank(long playerId, int prevRank, int newRank) throws ServletException, IOException {

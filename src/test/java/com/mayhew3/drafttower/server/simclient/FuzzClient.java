@@ -29,7 +29,7 @@ public class FuzzClient extends SimulatedClient {
       sendDraftCommand(Command.START_DRAFT, null);
     } else {
       try {
-        switch (random.nextInt(40)) {
+        switch (random.nextInt(43)) {
           case 0:
           case 1:
           case 2:
@@ -110,6 +110,10 @@ public class FuzzClient extends SimulatedClient {
           case 39:
             setCloserLimits(random.nextInt(10), random.nextInt(10));
             break;
+          case 40:
+          case 41:
+          case 42:
+            addOrRemoveFavoritePlayer(randomPlayer(), random.nextBoolean());
         }
       } catch (Exception e) {
         exceptions.add(e);

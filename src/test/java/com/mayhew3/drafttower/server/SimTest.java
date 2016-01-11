@@ -38,6 +38,7 @@ public abstract class SimTest {
   @Inject private Provider<FuzzClient> fuzzClientProvider;
 
   @Inject private DraftTowerWebSocketServlet webSocketServlet;
+  @Inject private AddOrRemoveFavoritePlayerServlet favoritePlayerServlet;
   @Inject private ChangePlayerRankServlet changePlayerRankServlet;
   @Inject private CopyAllPlayerRanksServlet copyAllPlayerRanksServlet;
   @Inject private GraphsServlet graphsServlet;

@@ -41,4 +41,7 @@ public interface ServerRpc {
 
   void sendSetCloserLimitsRequest(AutoBean<SetCloserLimitRequest> requestBean,
       Runnable callback);
+
+  void sendAddOrRemoveFavoriteRequest(AutoBean<AddOrRemoveFavoriteRequest> requestBean,
+      Runnable callback);
 }

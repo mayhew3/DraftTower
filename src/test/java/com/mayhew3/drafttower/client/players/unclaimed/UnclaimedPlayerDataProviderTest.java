@@ -37,6 +37,7 @@ public class UnclaimedPlayerDataProviderTest {
 
   @Captor private ArgumentCaptor<AutoBean<UnclaimedPlayerListRequest>> getPlayerListRequestCaptor;
   @Captor private ArgumentCaptor<AutoBean<ChangePlayerRankRequest>> changePlayerRankRequestCaptor;
+  @Captor private ArgumentCaptor<AutoBean<AddOrRemoveFavoriteRequest>> favoriteRequestCaptor;
   @Captor private ArgumentCaptor<AutoBean<CopyAllPlayerRanksRequest>> copyAllPlayerRanksRequestCaptor;
   @Captor private ArgumentCaptor<AutoBean<SetWizardTableRequest>> setWizardTableRequestCaptor;
   @Captor private ArgumentCaptor<List<Player>> playerListCaptor;
@@ -283,6 +284,27 @@ public class UnclaimedPlayerDataProviderTest {
   public void testOnChangePlayerRankNotLoggedIn() {
     Mockito.when(teamsInfo.isLoggedIn()).thenReturn(false);
     provider.onChangePlayerRank(new ChangePlayerRankEvent(1, 1, 2));
+    Mockito.verifyZeroInteractions(serverRpc);
+  }
+
+  @Test
+  public void testOnToggleFavoritePlayer() {
+    PlayerList playerList = Mockito.mock(PlayerList.class);
+    provider.playersByDataSet.put(UnclaimedPlayerDataProvider.DEFAULT_DATA_SET, playerList);
+    provider.onToggleFavoritePlayer(new ToggleFavoritePlayerEvent(1, true));
+    Mockito.verify(playerList).updateFavoritePlayer(1, true);
+    Mockito.verify(serverRpc).sendAddOrRemoveFavoriteRequest(
+        favoriteRequestCaptor.capture(), Mockito.any(Runnable.class));
+    AddOrRemoveFavoriteRequest request = favoriteRequestCaptor.getValue().as();
+    Assert.assertEquals("1", request.getTeamToken());
+    Assert.assertEquals(1, request.getPlayerId());
+    Assert.assertTrue(request.isAdd());
+  }
+
+  @Test
+  public void testOnToggleFavoritePlayerNotLoggedIn() {
+    Mockito.when(teamsInfo.isLoggedIn()).thenReturn(false);
+    provider.onToggleFavoritePlayer(new ToggleFavoritePlayerEvent(1, true));
     Mockito.verifyZeroInteractions(serverRpc);
   }
 

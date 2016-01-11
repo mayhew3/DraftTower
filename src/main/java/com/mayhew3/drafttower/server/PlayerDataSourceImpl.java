@@ -85,6 +85,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
               player.setInjury(injury);
             }
 
+            player.setFavorite(resultSet.getBoolean("Favorite"));
+
             players.add(player);
           }
         }
@@ -191,6 +193,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "ds.name as Source, " +
             "cr.Rank as MyRank, " +
             " p.Injury,\n" +
+            " f.Favorite,\n" +
             " pa.*\n" +
             "FROM (" + subselect + ") pa\n" +
             "INNER JOIN players p\n" +
@@ -199,6 +202,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             " ON pa.DataSource = ds.ID\n" +
             "INNER JOIN customrankings cr\n" +
             " ON cr.PlayerID = pa.PlayerID\n" +
+            "LEFT JOIN favorites f\n" +
+            " ON f.PlayerID = pa.PlayerID AND f.TeamID = " + teamID + "\n" +
             "WHERE cr.TeamID = " + teamID + " \n" +
             playerFilterClause;
 
@@ -275,6 +280,26 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       prepareStatementUpdate(sql, newRank, teamID, playerID);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to change rank for player!", e);
+    }
+  }
+
+  @Override
+  public void addFavorite(TeamId teamID, long playerID) {
+    String sql = "INSERT INTO favorites (TeamID, PlayerID, Favorite) VALUES (?, ?, TRUE)";
+    try {
+      prepareStatementUpdate(sql, teamID, playerID);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to add favorite player!", e);
+    }
+  }
+
+  @Override
+  public void removeFavorite(TeamId teamID, long playerID) {
+    String sql = "DELETE FROM favorites WHERE TeamID = ? AND PlayerID = ?";
+    try {
+      prepareStatementUpdate(sql, teamID, playerID);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to add favorite player!", e);
     }
   }
 

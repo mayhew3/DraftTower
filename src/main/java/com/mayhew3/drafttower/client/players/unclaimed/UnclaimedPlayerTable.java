@@ -17,6 +17,7 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -42,6 +43,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
   interface Resources extends ClientBundle {
     interface Css extends CssResource {
       String injury();
+      String favoriteColumn();
+      String favorite();
       String newsCell();
       String rightAlign();
       String batterStat();
@@ -95,6 +98,16 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
 
     addColumn(new InjuryColumn());
 
+    FavoriteColumn favoriteColumn = new FavoriteColumn();
+    favoriteColumn.setFieldUpdater(new FieldUpdater<Player, Boolean>() {
+      @Override
+      public void update(int index, Player player, Boolean value) {
+        presenter.toggleFavoritePlayer(player);
+        redrawRow(index);
+      }
+    });
+    addColumn(favoriteColumn);
+
     for (int i = 0; i < COLUMNS.length; i++) {
       PlayerColumn column = COLUMNS[i];
       PlayerColumn pitcherColumn = PITCHER_COLUMNS[i];
@@ -145,7 +158,8 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
     });
 
     final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<>();
-    setSelectionModel(selectionModel);
+    setSelectionModel(selectionModel,
+        DefaultSelectionEventManager.<Player>createBlacklistManager(getColumnIndex(favoriteColumn)));
     getSelectionModel().addSelectionChangeHandler(new Handler() {
       @Override
       public void onSelectionChange(SelectionChangeEvent event) {

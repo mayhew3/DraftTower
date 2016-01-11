@@ -85,6 +85,14 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
         .buildString();
   }
 
+  @Provides @AddOrRemoveFavoriteUrl
+  public String getAddOrRemoveFavoriteUrl() {
+    return Window.Location.createUrlBuilder()
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.ADD_OR_REMOVE_FAVORITE_ENDPOINT)
+        .buildString();
+  }
+
   @Provides @QueuesUrl
   public String getQueuesUrl() {
     return Window.Location.createUrlBuilder()

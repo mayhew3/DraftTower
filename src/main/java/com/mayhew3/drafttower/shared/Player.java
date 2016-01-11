@@ -139,4 +139,7 @@ public interface Player extends DraggableItem {
 
   String getMyRank();
   void setMyRank(String value);
+
+  boolean isFavorite();
+  void setFavorite(boolean favorite);
 }

@@ -113,6 +113,26 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
   }
 
   @Override
+  public void addFavorite(TeamId teamID, long playerID) {
+    for (Player player : allPlayers.values()) {
+      if (player.getPlayerId() == playerID) {
+        player.setFavorite(true);
+        break;
+      }
+    }
+  }
+
+  @Override
+  public void removeFavorite(TeamId teamID, long playerID) {
+    for (Player player : allPlayers.values()) {
+      if (player.getPlayerId() == playerID) {
+        player.setFavorite(false);
+        break;
+      }
+    }
+  }
+
+  @Override
   public void resetDraft() {
     availablePlayers.clear();
     availablePlayers.putAll(allPlayers);

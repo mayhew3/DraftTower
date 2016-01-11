@@ -50,6 +50,11 @@ public class GinBindingAnnotations {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
+  public @interface AddOrRemoveFavoriteUrl {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
   public @interface QueuesUrl {}
 
   @BindingAnnotation
