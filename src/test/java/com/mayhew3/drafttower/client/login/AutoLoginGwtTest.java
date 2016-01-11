@@ -26,14 +26,4 @@ public class AutoLoginGwtTest extends TestBase {
     ginjector.getScheduler().flush();
     assertTrue(isFocused("-login-username"));
   }
-
-  public void testDuplicateLogin() {
-    Cookies.setCookie(LoginResponse.TEAM_TOKEN_COOKIE, "asdf");
-    ginjector.getTeamTokens().put("asdf", new TeamDraftOrder(1));
-    ginjector.getDraftStatus().getConnectedTeams().add(1);
-    super.reset();
-    assertTrue(isVisible("-login"));
-    ginjector.getScheduler().flush();
-    assertTrue(isFocused("-login-username"));
-  }
 }
