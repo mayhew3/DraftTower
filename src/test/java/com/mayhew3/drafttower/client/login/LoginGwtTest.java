@@ -5,7 +5,6 @@ import com.google.gwt.user.client.Cookies;
 import com.mayhew3.drafttower.client.TestBase;
 import com.mayhew3.drafttower.server.TeamDraftOrder;
 import com.mayhew3.drafttower.server.TestTeamDataSource;
-import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.LoginResponse;
 
 import java.util.Map;
@@ -15,14 +14,12 @@ import java.util.Map;
  */
 public class LoginGwtTest extends TestBase {
 
-  private DraftStatus draftStatus;
   private Map<String,TeamDraftOrder> teamTokens;
 
   @Override
   public void gwtSetUp() {
     Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
     super.gwtSetUp();
-    draftStatus = ginjector.getDraftStatus();
     teamTokens = ginjector.getTeamTokens();
   }
 
@@ -57,17 +54,6 @@ public class LoginGwtTest extends TestBase {
     assertTrue(isVisible(LOGIN_WIDGET));
     assertTrue(isVisible(INVALID_LOGIN));
     assertFalse(teamTokens.values().contains(new TeamDraftOrder(1)));
-  }
-
-  public void testDuplicateLogin() {
-    draftStatus.getConnectedTeams().add(1);
-
-    type(USERNAME, "1");
-    type(PASSWORD, "1");
-    click(LOGIN_BUTTON);
-
-    assertTrue(isVisible(LOGIN_WIDGET));
-    assertTrue(isVisible(ALREADY_LOGGED_IN));
   }
 
   public void testLogout() {
