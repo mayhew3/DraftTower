@@ -9,36 +9,39 @@ import com.mayhew3.drafttower.shared.*;
  */
 public interface ServerRpc {
 
-  public void sendLoginRequest(String username,
+  void sendLoginRequest(String username,
       String password,
       Function<LoginResponse, Void> successCallback,
       Function<SocketTerminationReason, Void> failureCallback);
 
-  public void sendGetPlayerQueueRequest(AutoBean<GetPlayerQueueRequest> requestBean,
+  void sendGetPlayerQueueRequest(AutoBean<GetPlayerQueueRequest> requestBean,
       Function<GetPlayerQueueResponse, Void> callback);
 
-  public void sendEnqueueOrDequeueRequest(String action,
+  void sendEnqueueOrDequeueRequest(String action,
       AutoBean<EnqueueOrDequeuePlayerRequest> requestBean,
       Runnable callback);
 
-  public void sendReorderQueueRequest(AutoBean<ReorderPlayerQueueRequest> requestBean,
+  void sendReorderQueueRequest(AutoBean<ReorderPlayerQueueRequest> requestBean,
       Runnable callback);
 
-  public void sendGraphsRequest(AutoBean<GetGraphsDataRequest> requestBean,
+  void sendGraphsRequest(AutoBean<GetGraphsDataRequest> requestBean,
       Function<GraphsData, Void> callback);
 
-  public void sendPlayerListRequest(AutoBean<UnclaimedPlayerListRequest> requestBean,
+  void sendPlayerListRequest(AutoBean<UnclaimedPlayerListRequest> requestBean,
       Function<UnclaimedPlayerListResponse, Void> callback);
 
-  public void sendChangePlayerRankRequest(AutoBean<ChangePlayerRankRequest> requestBean,
+  void sendChangePlayerRankRequest(AutoBean<ChangePlayerRankRequest> requestBean,
       Runnable callback);
 
-  public void sendCopyRanksRequest(AutoBean<CopyAllPlayerRanksRequest> requestBean,
+  void sendCopyRanksRequest(AutoBean<CopyAllPlayerRanksRequest> requestBean,
       Runnable callback);
 
-  public void sendSetWizardTableRequest(AutoBean<SetWizardTableRequest> requestBean,
+  void sendSetWizardTableRequest(AutoBean<SetWizardTableRequest> requestBean,
       Runnable callback);
 
-  public void sendSetCloserLimitsRequest(AutoBean<SetCloserLimitRequest> requestBean,
+  void sendSetCloserLimitsRequest(AutoBean<SetCloserLimitRequest> requestBean,
+      Runnable callback);
+
+  void sendAddOrRemoveFavoriteRequest(AutoBean<AddOrRemoveFavoriteRequest> requestBean,
       Runnable callback);
 }

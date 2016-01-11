@@ -17,7 +17,7 @@ public class SharedModule extends AbstractGinModule {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface NumTeams {}
+  public @interface NumTeams {}
 
   @Provides @NumTeams
   public int getNumTeams() {

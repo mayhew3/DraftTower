@@ -27,7 +27,7 @@ public class TeamOrderPresenterTest {
 
   private BeanFactory beanFactory;
   private TeamsInfo teamsInfo;
-  private List<DraftPick> picks = new ArrayList<>();
+  private final List<DraftPick> picks = new ArrayList<>();
   private TeamOrderPresenter presenter;
   private TeamOrderView view;
 

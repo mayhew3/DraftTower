@@ -22,7 +22,7 @@ public class MyRosterPresenterTest {
 
   private BeanFactory beanFactory;
   private MyRosterPresenter presenter;
-  private List<DraftPick> picks = new ArrayList<>();
+  private final List<DraftPick> picks = new ArrayList<>();
 
   @Before
   public void setUp() {
@@ -59,7 +59,7 @@ public class MyRosterPresenterTest {
     picks.add(DraftStatusTestUtil.createDraftPick(1, "", false, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(2, "", false, beanFactory));
     picks.add(DraftStatusTestUtil.createDraftPick(3, "", false, beanFactory));
-    DraftPick myPick = DraftStatusTestUtil.createDraftPick(4, "", false, "SS", beanFactory);
+    DraftPick myPick = DraftStatusTestUtil.createDraftPick(4, "", "SS", beanFactory);
     picks.add(myPick);
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));
@@ -76,7 +76,7 @@ public class MyRosterPresenterTest {
     for (int i = 0; i < 40; i++) {
       int team = (i % 10) + 1;
       if (team == 4) {
-        DraftPick draftPick = DraftStatusTestUtil.createDraftPick(team, "", false, positions[i / 10], beanFactory);
+        DraftPick draftPick = DraftStatusTestUtil.createDraftPick(team, "", positions[i / 10], beanFactory);
         myPicks[i / 10] = draftPick;
         picks.add(draftPick);
       } else {

@@ -162,4 +162,14 @@ public class TestServerRpc implements ServerRpc {
     closerLimitsHandler.setCloserLimits(
         teamTokens.get(request.getTeamToken()), request.getMinClosers(), request.getMaxClosers());
   }
+
+  @Override
+  public void sendAddOrRemoveFavoriteRequest(AutoBean<AddOrRemoveFavoriteRequest> requestBean, Runnable callback) {
+    try {
+      playerDataProvider.addOrRemoveFavorite(requestBean.as());
+      callback.run();
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

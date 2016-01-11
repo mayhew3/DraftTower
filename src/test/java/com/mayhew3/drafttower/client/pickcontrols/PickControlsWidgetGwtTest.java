@@ -75,8 +75,7 @@ public class PickControlsWidgetGwtTest extends TestBase {
   public void testForcePick() {
     login(1);
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(
-            DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
+        Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
         ginjector.getBeanFactory()));
     click("-pickControls-showCommish");
     assertTrue(isEnabled("-pickControls-force"));

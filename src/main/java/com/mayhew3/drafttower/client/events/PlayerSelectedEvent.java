@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.PlayerSelectedEvent.Handler;
  */
 public class PlayerSelectedEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onPlayerSelected(PlayerSelectedEvent event);
   }
 

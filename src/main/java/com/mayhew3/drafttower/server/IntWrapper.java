@@ -4,7 +4,7 @@ package com.mayhew3.drafttower.server;
  * Base class for classes wrapping an integer value.
  */
 public abstract class IntWrapper {
-  private Integer value;
+  private final Integer value;
 
   public IntWrapper(Integer value) {
     this.value = value;

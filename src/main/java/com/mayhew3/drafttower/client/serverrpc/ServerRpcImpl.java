@@ -26,6 +26,7 @@ public class ServerRpcImpl implements ServerRpc {
   private final String copyPlayerRanksUrl;
   private final String setAutoPickWizardUrl;
   private final String setCloserLimitsUrl;
+  private final String addOrRemoveFavoriteUrl;
   private final BeanFactory beanFactory;
 
   @Inject
@@ -37,6 +38,7 @@ public class ServerRpcImpl implements ServerRpc {
       @CopyPlayerRanksUrl String copyPlayerRanksUrl,
       @SetAutoPickWizardUrl String setAutoPickWizardUrl,
       @SetCloserLimitsUrl String setCloserLimitsUrl,
+      @AddOrRemoveFavoriteUrl String addOrRemoveFavoriteUrl,
       BeanFactory beanFactory) {
     this.loginUrl = loginUrl;
     this.queuesUrl = queuesUrl;
@@ -46,6 +48,7 @@ public class ServerRpcImpl implements ServerRpc {
     this.copyPlayerRanksUrl = copyPlayerRanksUrl;
     this.setAutoPickWizardUrl = setAutoPickWizardUrl;
     this.setCloserLimitsUrl = setCloserLimitsUrl;
+    this.addOrRemoveFavoriteUrl = addOrRemoveFavoriteUrl;
     this.beanFactory = beanFactory;
   }
 
@@ -131,6 +134,11 @@ public class ServerRpcImpl implements ServerRpc {
   @Override
   public void sendSetCloserLimitsRequest(AutoBean<SetCloserLimitRequest> requestBean, Runnable callback) {
     sendRequest(setCloserLimitsUrl, requestBean, callback);
+  }
+
+  @Override
+  public void sendAddOrRemoveFavoriteRequest(AutoBean<AddOrRemoveFavoriteRequest> requestBean, Runnable callback) {
+    sendRequest(addOrRemoveFavoriteUrl, requestBean, callback);
   }
 
   private <Q> void sendRequest(String url,

@@ -92,7 +92,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(PlayerDataSet.GURU);
     Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
     Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
-    mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    mockTableSpec();
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.GURU);
     Mockito.verify(view).updateUseForAutoPickCheckbox(false, true);
@@ -108,7 +108,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(PlayerDataSet.GURU);
     Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
     Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
-    mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    mockTableSpec();
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.GURU);
     Mockito.verify(view).updateUseForAutoPickCheckbox(false, false);
@@ -123,7 +123,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.when(loginResponse.getInitialWizardTable()).thenReturn(PlayerDataSet.CBSSPORTS);
     Mockito.when(loginResponse.getMinClosers()).thenReturn(0);
     Mockito.when(loginResponse.getMaxClosers()).thenReturn(7);
-    mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    mockTableSpec();
     presenter.onLogin(new LoginEvent(loginResponse));
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.CBSSPORTS);
     Mockito.verify(view).updateUseForAutoPickCheckbox(true, true);
@@ -172,7 +172,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
 
   @Test
   public void testSetUseForAutoPick() {
-    mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    mockTableSpec();
     presenter.setUseForAutoPick(true);
     ArgumentCaptor<SetAutoPickWizardEvent> eventCaptor = ArgumentCaptor.forClass(SetAutoPickWizardEvent.class);
     Mockito.verify(eventBus).fireEvent(eventCaptor.capture());
@@ -182,7 +182,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
 
   @Test
   public void testSetDontUseForAutoPick() {
-    mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    mockTableSpec();
     presenter.setUseForAutoPick(false);
     ArgumentCaptor<SetAutoPickWizardEvent> eventCaptor = ArgumentCaptor.forClass(SetAutoPickWizardEvent.class);
     Mockito.verify(eventBus).fireEvent(eventCaptor.capture());
@@ -222,7 +222,7 @@ public class UnclaimedPlayerTablePanelPresenterTest {
 
   @Test
   public void testSetPlayerDataSet() {
-    mockTableSpecWithPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    mockTableSpec();
     presenter.setPlayerDataSet(PlayerDataSet.ROTOWIRE);
     Mockito.verify(view).updateDataSetButtons(PlayerDataSet.ROTOWIRE);
     Mockito.verify(tablePresenter).setPlayerDataSet(PlayerDataSet.ROTOWIRE);
@@ -248,9 +248,9 @@ public class UnclaimedPlayerTablePanelPresenterTest {
     Mockito.verify(tablePresenter).setPositionFilter(unfilledPositionFilter, EnumSet.noneOf(Position.class));
   }
 
-  private void mockTableSpecWithPlayerDataSet(PlayerDataSet playerDataSet) {
+  private void mockTableSpec() {
     TableSpec tableSpec = Mockito.mock(TableSpec.class);
-    Mockito.when(tableSpec.getPlayerDataSet()).thenReturn(playerDataSet);
+    Mockito.when(tableSpec.getPlayerDataSet()).thenReturn(PlayerDataSet.CBSSPORTS);
     Mockito.when(tablePresenter.getTableSpec()).thenReturn(tableSpec);
   }
 }

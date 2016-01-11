@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.PlayPauseEvent.Handler;
  */
 public class PlayPauseEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onPlayPause(PlayPauseEvent event);
   }
 

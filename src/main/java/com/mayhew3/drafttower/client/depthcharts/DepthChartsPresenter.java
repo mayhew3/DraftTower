@@ -22,7 +22,7 @@ public class DepthChartsPresenter extends ListDataProvider<Integer> implements
     DraftStatusChangedEvent.Handler {
 
   private final RosterUtil rosterUtil;
-  private Map<Integer, Multimap<Position, DraftPick>> rosters = new HashMap<>();
+  private final Map<Integer, Multimap<Position, DraftPick>> rosters = new HashMap<>();
 
   @Inject
   public DepthChartsPresenter(EventBus eventBus,

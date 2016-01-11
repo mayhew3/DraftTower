@@ -28,7 +28,6 @@ public class PickControlsPresenterTest {
   private PickControlsPresenter presenter;
   private PickControlsView view;
   private TeamsInfo teamsInfo;
-  private QueueDataProvider queueDataProvider;
 
   @Before
   public void setUp() {
@@ -37,7 +36,7 @@ public class PickControlsPresenterTest {
     Mockito.when(teamsInfo.isLoggedIn()).thenReturn(true);
     Mockito.when(teamsInfo.getTeam()).thenReturn(MY_TEAM);
     Mockito.when(teamsInfo.isCommissionerTeam()).thenReturn(false);
-    queueDataProvider = Mockito.mock(QueueDataProvider.class);
+    QueueDataProvider queueDataProvider = Mockito.mock(QueueDataProvider.class);
     Mockito.when(queueDataProvider.isPlayerQueued(Mockito.anyLong())).thenReturn(false);
     Mockito.when(queueDataProvider.isPlayerQueued(2)).thenReturn(true);
     presenter = new PickControlsPresenter(

@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.ChangePlayerRankEvent.Handler;
  */
 public class ChangePlayerRankEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onChangePlayerRank(ChangePlayerRankEvent event);
   }
 

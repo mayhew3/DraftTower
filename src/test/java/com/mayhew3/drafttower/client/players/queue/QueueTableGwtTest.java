@@ -136,7 +136,7 @@ public class QueueTableGwtTest extends TestBase {
     startDrag("-players-table-2");
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
         Lists.newArrayList(DraftStatusTestUtil.createAndPostDraftPick(
-            1, "0000000000", false, Position.P, ginjector.getBeanFactory(),
+            1, "0000000000", Position.P, ginjector.getBeanFactory(),
             (TestPlayerDataSource) ginjector.getPlayerDataSource())),
         ginjector.getBeanFactory()));
     finishDragToBottom("-players-table-1", "-queue-1");
@@ -148,7 +148,7 @@ public class QueueTableGwtTest extends TestBase {
     startDrag("-players-table-1");
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
         Lists.newArrayList(DraftStatusTestUtil.createAndPostDraftPick(
-            1, "0000000000", false, Position.P, ginjector.getBeanFactory(),
+            1, "0000000000", Position.P, ginjector.getBeanFactory(),
             (TestPlayerDataSource) ginjector.getPlayerDataSource())),
         ginjector.getBeanFactory()));
     finishDragToBottom("-players-table-1", "-queue-1");

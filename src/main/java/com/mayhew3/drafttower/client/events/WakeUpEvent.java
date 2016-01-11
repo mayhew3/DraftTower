@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.WakeUpEvent.Handler;
  */
 public class WakeUpEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onWakeUp(WakeUpEvent event);
   }
 

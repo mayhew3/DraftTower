@@ -164,7 +164,7 @@ public abstract class PlayerTable<T extends DraggableItem> extends CellTable<T>
           Element cellElement = cell.getFirstChildElement();
           if (cellElement.getChildCount() > 0) {
             Element cellChild = cellElement.getFirstChildElement();
-            if (cellChild != null && cellChild.getTagName().equalsIgnoreCase("button")) {
+            if (cellChild != null) {
               UIObject.ensureDebugId(cellChild, baseID + "-" + row + "-" + col + "-button");
             }
           }

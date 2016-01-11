@@ -19,7 +19,6 @@ import static com.mayhew3.drafttower.shared.Position.P;
 public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   private final BeanFactory beanFactory;
-  private final TestPlayerGenerator playerGenerator;
 
   private final Map<Long, Player> allPlayers = new HashMap<>();
   private final Map<Long, Player> availablePlayers;
@@ -28,7 +27,7 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
 
   public TestPlayerDataSource(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.playerGenerator = new TestPlayerGenerator(beanFactory);
+    TestPlayerGenerator playerGenerator = new TestPlayerGenerator(beanFactory);
     int playerId = 0;
 
     draftPicks = createDraftPicksList();
@@ -108,6 +107,26 @@ public abstract class TestPlayerDataSource implements PlayerDataSource {
     for (Player player : allPlayers.values()) {
       if (player.getPlayerId() == playerID) {
         player.setMyRank(Integer.toString(newRank));
+        break;
+      }
+    }
+  }
+
+  @Override
+  public void addFavorite(TeamId teamID, long playerID) {
+    for (Player player : allPlayers.values()) {
+      if (player.getPlayerId() == playerID) {
+        player.setFavorite(true);
+        break;
+      }
+    }
+  }
+
+  @Override
+  public void removeFavorite(TeamId teamID, long playerID) {
+    for (Player player : allPlayers.values()) {
+      if (player.getPlayerId() == playerID) {
+        player.setFavorite(false);
         break;
       }
     }

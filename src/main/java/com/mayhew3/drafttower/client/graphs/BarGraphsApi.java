@@ -7,8 +7,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public interface BarGraphsApi {
 
-  public void loadVisualizationApi(Runnable callback);
+  void loadVisualizationApi(Runnable callback);
 
-  public Widget createBarGraph(
+  Widget createBarGraph(
       String title, String[] labels, Float[] values, Float maxValue);
 }

@@ -45,13 +45,13 @@ public class DraftStatusTestUtil {
     return createDraftPick(team, name, isKeeper, "P", (long) lastPlayerId++, beanFactory);
   }
 
-  public static DraftPick createDraftPick(int team, String name, boolean isKeeper, String position, BeanFactory beanFactory) {
-    return createDraftPick(team, name, isKeeper, position, (long) lastPlayerId++, beanFactory);
+  public static DraftPick createDraftPick(int team, String name, String position, BeanFactory beanFactory) {
+    return createDraftPick(team, name, false, position, (long) lastPlayerId++, beanFactory);
   }
 
   public static DraftPick createAndPostDraftPick(
-      int team, String name, boolean isKeeper, Position position, BeanFactory beanFactory, TestPlayerDataSource playerDataSource) {
-    DraftPick draftPick = createDraftPick(team, name, isKeeper, position.getShortName(), playerDataSource.getNextUnclaimedPlayer(position), beanFactory);
+      int team, String name, Position position, BeanFactory beanFactory, TestPlayerDataSource playerDataSource) {
+    DraftPick draftPick = createDraftPick(team, name, false, position.getShortName(), playerDataSource.getNextUnclaimedPlayer(position), beanFactory);
     playerDataSource.postDraftPick(draftPick, null);
     return draftPick;
   }

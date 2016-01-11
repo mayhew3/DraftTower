@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.ClearCachesEvent.Handler;
  */
 public class ClearCachesEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onClearCaches(ClearCachesEvent event);
   }
 

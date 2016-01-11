@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.SetCloserLimitsEvent.Handler;
  */
 public class SetCloserLimitsEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onSetCloserLimits(SetCloserLimitsEvent event);
   }
 

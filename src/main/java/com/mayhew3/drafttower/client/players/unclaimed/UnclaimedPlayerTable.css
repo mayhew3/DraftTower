@@ -1,3 +1,16 @@
+.favoriteColumn {
+  color: #CCC;
+  cursor: pointer;
+}
+
+.favoriteColumn .favorite {
+  color: #000;
+}
+
+.gwt-CellTable-cellTableSelectedRowCell.favoriteColumn .favorite {
+  color: #FFF;
+}
+
 .injury {
   color: red;
 }

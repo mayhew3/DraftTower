@@ -15,60 +15,65 @@ public class GinBindingAnnotations {
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface LoginUrl {}
+  public @interface LoginUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface DraftSocketUrl {}
+  public @interface DraftSocketUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface UnclaimedPlayerInfoUrl {}
+  public @interface UnclaimedPlayerInfoUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface ChangePlayerRankUrl {}
+  public @interface ChangePlayerRankUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface CopyPlayerRanksUrl {}
+  public @interface CopyPlayerRanksUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface SetAutoPickWizardUrl {}
+  public @interface SetAutoPickWizardUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface SetCloserLimitsUrl {}
+  public @interface SetCloserLimitsUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface QueuesUrl {}
+  public @interface AddOrRemoveFavoriteUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface GraphsUrl {}
+  public @interface QueuesUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface CurrentTime {}
+  public @interface GraphsUrl {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface TtsUrlPrefix {}
+  public @interface CurrentTime {}
 
   @BindingAnnotation
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
-  public static @interface PlayerPopupUrlPrefix {}
+  public @interface TtsUrlPrefix {}
+
+  @BindingAnnotation
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public @interface PlayerPopupUrlPrefix {}
 }

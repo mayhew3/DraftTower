@@ -10,7 +10,7 @@ import com.mayhew3.drafttower.shared.LoginResponse;
  */
 public class LoginEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onLogin(LoginEvent event);
   }
 

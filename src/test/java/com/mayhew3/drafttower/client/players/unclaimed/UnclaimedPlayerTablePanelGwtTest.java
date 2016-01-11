@@ -28,7 +28,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-2B", true).getClassName());
     for (int i = 1; i < 16; i++) {
-      assertEquals("2B", getInnerText("-players-table-" + i + "-4"));
+      assertEquals("2B", getInnerText("-players-table-" + i + "-5"));
     }
   }
 
@@ -38,8 +38,8 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-SP", true).getClassName());
     for (int i = 1; i < 16; i++) {
-      assertEquals("P", getInnerText("-players-table-" + i + "-4"));
-      assertEquals("0", getInnerText("-players-table-" + i + "-16"));
+      assertEquals("P", getInnerText("-players-table-" + i + "-5"));
+      assertEquals("0", getInnerText("-players-table-" + i + "-17"));
     }
   }
 
@@ -49,8 +49,8 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-RP", true).getClassName());
     for (int i = 1; i < 16; i++) {
-      assertEquals("P", getInnerText("-players-table-" + i + "-4"));
-      assertFalse("0".equals(getInnerText("-players-table-" + i + "-16")));
+      assertEquals("P", getInnerText("-players-table-" + i + "-5"));
+      assertFalse("0".equals(getInnerText("-players-table-" + i + "-17")));
     }
   }
 
@@ -65,11 +65,11 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         {P, P, P, P, P, P, P, P, P, P},
         {P, P, P, P, P, P, P, P, P, P},
     });
-    assertEquals("C", getInnerText("-players-table-1-4"));
+    assertEquals("C", getInnerText("-players-table-1-5"));
     click("-players-All");
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-All", true).getClassName());
-    assertEquals("P", getInnerText("-players-table-1-4"));
+    assertEquals("P", getInnerText("-players-table-1-5"));
   }
 
   public void testUnfilledPositionFilter() {
@@ -87,11 +87,11 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         {P, P, P, P, P, P, P},
         {P, P, P, P, P, P, P},
     });
-    assertEquals("P", getInnerText("-players-table-1-4"));
+    assertEquals("P", getInnerText("-players-table-1-5"));
     click("-players-Unfilled");
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-Unfilled", true).getClassName());
-    assertEquals("C", getInnerText("-players-table-1-4"));
+    assertEquals("C", getInnerText("-players-table-1-5"));
   }
 
   public void testUnfilledPositionFilterDHOpen() {
@@ -109,11 +109,11 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         {C, P, P, P, P, P, P, P},
         {C, P, P, P, P, P, P, P},
     });
-    assertEquals("P", getInnerText("-players-table-1-4"));
+    assertEquals("P", getInnerText("-players-table-1-5"));
     click("-players-Unfilled");
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-Unfilled", true).getClassName());
-    assertEquals("C", getInnerText("-players-table-1-4"));
+    assertEquals("C", getInnerText("-players-table-1-5"));
   }
 
   public void testUnfilledPositionFilterDHFilled() {
@@ -131,17 +131,17 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
         {C, P, P, P, P, P, P, P, P},
         {C, P, P, P, P, P, P, P, P},
     });
-    assertEquals("P", getInnerText("-players-table-1-4"));
+    assertEquals("P", getInnerText("-players-table-1-5"));
     click("-players-Unfilled");
     assertContains("gwt-ToggleButton-down",
         ensureDebugIdAndGetElement("-players-Unfilled", true).getClassName());
-    assertEquals("1B", getInnerText("-players-table-1-4"));
+    assertEquals("1B", getInnerText("-players-table-1-5"));
   }
 
   public void testPositionOverrideCheckboxes() {
     login(1);
     click("-players-override-P-checkbox");
-    assertEquals("C", getInnerText("-players-table-1-4"));
+    assertEquals("C", getInnerText("-players-table-1-5"));
 
     click("-players-All");
     assertFalse(isVisible("-players-override-P"));
@@ -160,7 +160,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
 
     click("-players-override-C-checkbox");
     click("-players-override-DH-checkbox");
-    assertEquals("1B", getInnerText("-players-table-1-4"));
+    assertEquals("1B", getInnerText("-players-table-1-5"));
   }
 
   public void testNameSearch() {
@@ -168,17 +168,17 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     assertFalse(isVisible("-players-clear"));
     type("-players-search", "1");
     for (int i = 1; i < 40; i++) {
-      assertContains("1", getInnerText("-players-table-" + i + "-1"));
+      assertContains("1", getInnerText("-players-table-" + i + "-2"));
     }
     assertTrue(isVisible("-players-clear"));
     type("-players-search", "11");
     for (int i = 1; i < 23; i++) {
-      assertContains("11", getInnerText("-players-table-" + i + "-1"));
+      assertContains("11", getInnerText("-players-table-" + i + "-2"));
     }
     click("-players-clear");
     assertEquals("",
         InputElement.as(ensureDebugIdAndGetElement("-players-search", true)).getValue());
-    assertEquals("0000000000", getInnerText("-players-table-1-1"));
+    assertEquals("0000000000", getInnerText("-players-table-1-2"));
     assertFalse(isVisible("-players-clear"));
   }
 
@@ -197,7 +197,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     click("-players-autopickSettings");
     click("-players-copyRanks");
     for (int i = 1; i < 40; i++) {
-      assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + (Scoring.CATEGORIES ? "-15" : "-21")));
+      assertEquals(Integer.toString(i), getInnerText("-players-table-" + i + (Scoring.CATEGORIES ? "-16" : "-22")));
     }
   }
 
@@ -226,19 +226,19 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
 
   public void testHideInjuriesCheckbox() {
     login(1);
-    assertEquals("5555555555", getInnerText("-players-table-6-1"));
+    assertEquals("5555555555", getInnerText("-players-table-6-2"));
     click("-players-hideInjuries");
-    assertEquals("6666666666", getInnerText("-players-table-6-1"));
+    assertEquals("6666666666", getInnerText("-players-table-6-2"));
   }
 
   public void testPageControls() {
     login(1);
 
     click("-players-nextPage");
-    assertEquals("40404040404040404040", getInnerText("-players-table-1-1"));
+    assertEquals("40404040404040404040", getInnerText("-players-table-1-2"));
 
     click("-players-prevPage");
-    assertEquals("0000000000", getInnerText("-players-table-1-1"));
+    assertEquals("0000000000", getInnerText("-players-table-1-2"));
 
     click("-players-nextPage");
     click("-players-nextPage");
@@ -246,6 +246,6 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
     click("-players-nextPage");
     click("-players-nextPage");
     click("-players-firstPage");
-    assertEquals("0000000000", getInnerText("-players-table-1-1"));
+    assertEquals("0000000000", getInnerText("-players-table-1-2"));
   }
 }

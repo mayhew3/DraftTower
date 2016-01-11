@@ -249,6 +249,19 @@ public class PlayerListTest {
         new SortSpec(PlayerColumn.MYRANK, true)));
   }
 
+  @Test
+  public void testToggleFavoriteOn() {
+    playerList.updateFavoritePlayer(3, true);
+    Assert.assertTrue(players.get(3).isFavorite());
+  }
+
+  @Test
+  public void testToggleFavoriteOff() {
+    players.get(3).setFavorite(true);
+    playerList.updateFavoritePlayer(3, false);
+    Assert.assertFalse(players.get(3).isFavorite());
+  }
+
   private TableSpec createTableSpec(PlayerColumn playerColumn, boolean ascending) {
     TableSpec tableSpec = beanFactory.createTableSpec().as();
     tableSpec.setSortCol(playerColumn);

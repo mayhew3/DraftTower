@@ -32,5 +32,9 @@ public interface PlayerDataSource {
 
   void updatePlayerRank(TeamId teamID, int newRank, long playerID);
 
+  void addFavorite(TeamId teamID, long playerID);
+
+  void removeFavorite(TeamId teamID, long playerID);
+
   void resetDraft() throws DataSourceException;
 }

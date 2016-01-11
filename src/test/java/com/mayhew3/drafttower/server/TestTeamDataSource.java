@@ -19,9 +19,9 @@ public class TestTeamDataSource implements TeamDataSource {
 
   @Inject BeanFactory beanFactory;
   @Inject @NumTeams int numTeams;
-  private HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
-  private HashMap<TeamDraftOrder, Integer> minClosers = new HashMap<>();
-  private HashMap<TeamDraftOrder, Integer> maxClosers = new HashMap<>();
+  private final HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
+  private final HashMap<TeamDraftOrder, Integer> minClosers = new HashMap<>();
+  private final HashMap<TeamDraftOrder, Integer> maxClosers = new HashMap<>();
 
   @Override
   public TeamDraftOrder getTeamDraftOrder(String username, String password) {

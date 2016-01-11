@@ -75,7 +75,7 @@ public class FilledPositionsPresenterTest {
         .build();
     for (int i = 0; i < pickPositions.length; i++) {
       picks.add(DraftStatusTestUtil.createDraftPick(
-          (i % 10) + 1, "", false, pickPositions[i], beanFactory));
+          (i % 10) + 1, "", pickPositions[i], beanFactory));
     }
     presenter.onDraftStatusChanged(new DraftStatusChangedEvent(
         DraftStatusTestUtil.createClientDraftStatus(picks, beanFactory)));

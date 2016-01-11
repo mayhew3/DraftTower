@@ -85,6 +85,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
               player.setInjury(injury);
             }
 
+            player.setFavorite(resultSet.getBoolean("Favorite"));
+
             players.add(player);
           }
         }
@@ -124,7 +126,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       throws SQLException, DataSourceException {
 
     String sql = "select * from ";
-    sql = getFromJoins(teamID, sql, null, true);
+    sql = getFromJoins(teamID, sql, true);
 
     sql = addFilters(sql, playerDataSet);
 
@@ -134,14 +136,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
 
   // Unclaimed Player utility methods
 
-  @SuppressWarnings("ConstantConditions")
-  private String getFromJoins(TeamId teamID, String sql, String positionFilterString, boolean filterKeepers) {
+  private String getFromJoins(TeamId teamID, String sql, boolean filterKeepers) {
     String playerFilterClause = "";
-
-    if (positionFilterString != null) {
-      playerFilterClause = " and pa.PlayerID IN (SELECT PlayerID FROM eligibilities WHERE Position " + positionFilterString + ") ";
-    }
-
 
     String subselect = "(SELECT PlayerID, 'Pitcher' AS Role,\n" +
         " APP as G, NULL AS AB, \n" +
@@ -197,6 +193,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             "ds.name as Source, " +
             "cr.Rank as MyRank, " +
             " p.Injury,\n" +
+            " f.Favorite,\n" +
             " pa.*\n" +
             "FROM (" + subselect + ") pa\n" +
             "INNER JOIN players p\n" +
@@ -205,6 +202,8 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             " ON pa.DataSource = ds.ID\n" +
             "INNER JOIN customrankings cr\n" +
             " ON cr.PlayerID = pa.PlayerID\n" +
+            "LEFT JOIN favorites f\n" +
+            " ON f.PlayerID = pa.PlayerID AND f.TeamID = " + teamID + "\n" +
             "WHERE cr.TeamID = " + teamID + " \n" +
             playerFilterClause;
 
@@ -281,6 +280,26 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
       prepareStatementUpdate(sql, newRank, teamID, playerID);
     } catch (SQLException e) {
       logger.log(SEVERE, "Unable to change rank for player!", e);
+    }
+  }
+
+  @Override
+  public void addFavorite(TeamId teamID, long playerID) {
+    String sql = "INSERT INTO favorites (TeamID, PlayerID, Favorite) VALUES (?, ?, TRUE)";
+    try {
+      prepareStatementUpdate(sql, teamID, playerID);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to add favorite player!", e);
+    }
+  }
+
+  @Override
+  public void removeFavorite(TeamId teamID, long playerID) {
+    String sql = "DELETE FROM favorites WHERE TeamID = ? AND PlayerID = ?";
+    try {
+      prepareStatementUpdate(sql, teamID, playerID);
+    } catch (SQLException e) {
+      logger.log(SEVERE, "Unable to add favorite player!", e);
     }
   }
 
@@ -487,7 +506,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
     String sql = "INSERT INTO tmp_rankings (TeamID, PlayerID) \n" +
         " SELECT " + teamID + ", PlayerID \n" +
         " FROM ";
-    sql = getFromJoins(teamID, sql, null, false);
+    sql = getFromJoins(teamID, sql, false);
 
     List<String> filters = new ArrayList<>();
     addDataSetFilter(filters, tableSpec.getPlayerDataSet());
@@ -517,7 +536,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
           " sum(case when p_all.Role = 'Batter' then p_all.FPTS else 0 end) as batting, " +
           " sum(p_all.FPTS) as total " +
           " from ";
-      sql = getFromJoins(teamId, sql, null, false);
+      sql = getFromJoins(teamId, sql, false);
       sql += " inner join draftresults on p_all.PlayerID = draftresults.PlayerID ";
       sql += " where Source = 'CBSSports' and BackedOut = 0 AND DraftPos <> 'RS' ";
       sql +=    "group by draftresults.TeamID";

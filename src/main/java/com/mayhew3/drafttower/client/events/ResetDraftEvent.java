@@ -9,7 +9,7 @@ import com.mayhew3.drafttower.client.events.ResetDraftEvent.Handler;
  */
 public class ResetDraftEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onResetDraft(ResetDraftEvent event);
   }
 

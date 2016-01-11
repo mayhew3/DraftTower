@@ -10,7 +10,7 @@ import com.mayhew3.drafttower.shared.PlayerDataSet;
  */
 public class SetAutoPickWizardEvent extends GwtEvent<Handler> {
 
-  public static interface Handler extends EventHandler {
+  public interface Handler extends EventHandler {
     void onSetAutoPickWizard(SetAutoPickWizardEvent event);
   }
 

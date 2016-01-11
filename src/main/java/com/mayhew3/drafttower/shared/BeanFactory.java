@@ -15,6 +15,7 @@ public interface BeanFactory extends AutoBeanFactory {
   AutoBean<UnclaimedPlayerListResponse> createUnclaimedPlayerListResponse();
   AutoBean<Player> createPlayer();
   AutoBean<LoginResponse> createLoginResponse();
+  AutoBean<AddOrRemoveFavoriteRequest> createAddOrRemoveFavoriteRequest();
   AutoBean<ChangePlayerRankRequest> createChangePlayerRankRequest();
   AutoBean<CopyAllPlayerRanksRequest> createCopyAllPlayerRanksRequest();
   AutoBean<QueueEntry> createQueueEntry();

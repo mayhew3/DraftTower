@@ -61,15 +61,15 @@ public class PickProbabilityPredictorTest {
         DraftStatusTestUtil.createDraftStatus(new ArrayList<DraftPick>(), beanFactory));
     Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(1));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9f, predictions.get(0l), 0.00001f);
-    Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
+    Assert.assertEquals(.9f, predictions.get(0L), 0.00001f);
+    Assert.assertEquals(.8f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.7f, predictions.get(2L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9f, predictions.get(0l), 0.00001f);
-    Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
+    Assert.assertEquals(.9f, predictions.get(0L), 0.00001f);
+    Assert.assertEquals(.8f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.7f, predictions.get(2L), 0.00001f);
   }
 
   @Test
@@ -80,21 +80,21 @@ public class PickProbabilityPredictorTest {
             beanFactory));
     Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(1));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9f, predictions.get(0l), 0.00001f);
-    Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
+    Assert.assertEquals(.9f, predictions.get(0L), 0.00001f);
+    Assert.assertEquals(.8f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.7f, predictions.get(2L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9101f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.8101f, predictions.get(2l), 0.00001f);
-    Assert.assertEquals(.7101f, predictions.get(3l), 0.00001f);
+    Assert.assertEquals(.9101f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.8101f, predictions.get(2L), 0.00001f);
+    Assert.assertEquals(.7101f, predictions.get(3L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(3));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9f, predictions.get(0l), 0.00001f);
-    Assert.assertEquals(.8f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.7f, predictions.get(2l), 0.00001f);
+    Assert.assertEquals(.9f, predictions.get(0L), 0.00001f);
+    Assert.assertEquals(.8f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.7f, predictions.get(2L), 0.00001f);
   }
 
   @Test
@@ -115,63 +115,63 @@ public class PickProbabilityPredictorTest {
             beanFactory));
     Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(1));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(1.001f, predictions.get(10l), 0.00001f);
-    Assert.assertEquals(.901f, predictions.get(11l), 0.00001f);
-    Assert.assertEquals(.801f, predictions.get(12l), 0.00001f);
+    Assert.assertEquals(1.001f, predictions.get(10L), 0.00001f);
+    Assert.assertEquals(.901f, predictions.get(11L), 0.00001f);
+    Assert.assertEquals(.801f, predictions.get(12L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9101f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.8101f, predictions.get(2l), 0.00001f);
-    Assert.assertEquals(.7101f, predictions.get(3l), 0.00001f);
+    Assert.assertEquals(.9101f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.8101f, predictions.get(2L), 0.00001f);
+    Assert.assertEquals(.7101f, predictions.get(3L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(3));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9202f, predictions.get(2l), 0.00001f);
-    Assert.assertEquals(.8202f, predictions.get(3l), 0.00001f);
-    Assert.assertEquals(.7202f, predictions.get(4l), 0.00001f);
+    Assert.assertEquals(.9202f, predictions.get(2L), 0.00001f);
+    Assert.assertEquals(.8202f, predictions.get(3L), 0.00001f);
+    Assert.assertEquals(.7202f, predictions.get(4L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(4));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9303f, predictions.get(3l), 0.00001f);
-    Assert.assertEquals(.8303f, predictions.get(4l), 0.00001f);
-    Assert.assertEquals(.7303f, predictions.get(5l), 0.00001f);
+    Assert.assertEquals(.9303f, predictions.get(3L), 0.00001f);
+    Assert.assertEquals(.8303f, predictions.get(4L), 0.00001f);
+    Assert.assertEquals(.7303f, predictions.get(5L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(5));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9404f, predictions.get(4l), 0.00001f);
-    Assert.assertEquals(.8404f, predictions.get(5l), 0.00001f);
-    Assert.assertEquals(.7404f, predictions.get(6l), 0.00001f);
+    Assert.assertEquals(.9404f, predictions.get(4L), 0.00001f);
+    Assert.assertEquals(.8404f, predictions.get(5L), 0.00001f);
+    Assert.assertEquals(.7404f, predictions.get(6L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(6));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9505f, predictions.get(5l), 0.00001f);
-    Assert.assertEquals(.8505f, predictions.get(6l), 0.00001f);
-    Assert.assertEquals(.7505f, predictions.get(7l), 0.00001f);
+    Assert.assertEquals(.9505f, predictions.get(5L), 0.00001f);
+    Assert.assertEquals(.8505f, predictions.get(6L), 0.00001f);
+    Assert.assertEquals(.7505f, predictions.get(7L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(7));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9606f, predictions.get(6l), 0.00001f);
-    Assert.assertEquals(.8606f, predictions.get(7l), 0.00001f);
-    Assert.assertEquals(.7606f, predictions.get(8l), 0.00001f);
+    Assert.assertEquals(.9606f, predictions.get(6L), 0.00001f);
+    Assert.assertEquals(.8606f, predictions.get(7L), 0.00001f);
+    Assert.assertEquals(.7606f, predictions.get(8L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(8));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9707f, predictions.get(7l), 0.00001f);
-    Assert.assertEquals(.8707f, predictions.get(8l), 0.00001f);
-    Assert.assertEquals(.7707f, predictions.get(9l), 0.00001f);
+    Assert.assertEquals(.9707f, predictions.get(7L), 0.00001f);
+    Assert.assertEquals(.8707f, predictions.get(8L), 0.00001f);
+    Assert.assertEquals(.7707f, predictions.get(9L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(9));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9808f, predictions.get(8l), 0.00001f);
-    Assert.assertEquals(.8808f, predictions.get(9l), 0.00001f);
-    Assert.assertEquals(.7808f, predictions.get(10l), 0.00001f);
+    Assert.assertEquals(.9808f, predictions.get(8L), 0.00001f);
+    Assert.assertEquals(.8808f, predictions.get(9L), 0.00001f);
+    Assert.assertEquals(.7808f, predictions.get(10L), 0.00001f);
 
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(10));
     Assert.assertEquals(3, predictions.size());
-    Assert.assertEquals(.9909f, predictions.get(9l), 0.00001f);
-    Assert.assertEquals(.8909f, predictions.get(10l), 0.00001f);
-    Assert.assertEquals(.7909f, predictions.get(11l), 0.00001f);
+    Assert.assertEquals(.9909f, predictions.get(9L), 0.00001f);
+    Assert.assertEquals(.8909f, predictions.get(10L), 0.00001f);
+    Assert.assertEquals(.7909f, predictions.get(11L), 0.00001f);
   }
 
   @Test
@@ -195,18 +195,18 @@ public class PickProbabilityPredictorTest {
         DraftStatusTestUtil.createDraftStatus(picks, beanFactory));
     Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
     Assert.assertEquals(6, predictions.size());
-    Assert.assertEquals(.9001f, predictions.get(20l), 0.00001f);
-    Assert.assertEquals(.8001f, predictions.get(21l), 0.00001f);
-    Assert.assertEquals(.7001f, predictions.get(22l), 0.00001f);
+    Assert.assertEquals(.9001f, predictions.get(20L), 0.00001f);
+    Assert.assertEquals(.8001f, predictions.get(21L), 0.00001f);
+    Assert.assertEquals(.7001f, predictions.get(22L), 0.00001f);
 
     picks.add(DraftStatusTestUtil.createDraftPick(1, "", false, "1B", 20, beanFactory));
     pickProbabilityPredictor.onDraftStatusChanged(
         DraftStatusTestUtil.createDraftStatus(picks, beanFactory));
     predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
     Assert.assertEquals(6, predictions.size());
-    Assert.assertEquals(.9111f, predictions.get(21l), 0.00001f);
-    Assert.assertEquals(.8111f, predictions.get(22l), 0.00001f);
-    Assert.assertEquals(.7111f, predictions.get(23l), 0.00001f);
+    Assert.assertEquals(.9111f, predictions.get(21L), 0.00001f);
+    Assert.assertEquals(.8111f, predictions.get(22L), 0.00001f);
+    Assert.assertEquals(.7111f, predictions.get(23L), 0.00001f);
   }
 
   @Test
@@ -224,9 +224,9 @@ public class PickProbabilityPredictorTest {
     pickProbabilityPredictor.onDraftStatusChanged(
         DraftStatusTestUtil.createDraftStatus(picks, beanFactory));
     Map<Long, Float> predictions = pickProbabilityPredictor.getTeamPredictions(new TeamDraftOrder(2));
-    Assert.assertFalse(predictions.containsKey(0l));
-    Assert.assertEquals(.9101f, predictions.get(1l), 0.00001f);
-    Assert.assertEquals(.8101f, predictions.get(2l), 0.00001f);
-    Assert.assertEquals(.7101f, predictions.get(3l), 0.00001f);
+    Assert.assertFalse(predictions.containsKey(0L));
+    Assert.assertEquals(.9101f, predictions.get(1L), 0.00001f);
+    Assert.assertEquals(.8101f, predictions.get(2L), 0.00001f);
+    Assert.assertEquals(.7101f, predictions.get(3L), 0.00001f);
   }
 }
