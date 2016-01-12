@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
- <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
+ <Header copyright="Copyright (c) 2016 kprevas" description="Generalized Linear Regression Model">
   <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2015-02-11 22:21:13</Timestamp>
+  <Timestamp>2016-01-11 20:13:04</Timestamp>
  </Header>
  <DataDictionary numberOfFields="8">
   <DataField name="pickedWizardP2" optype="continuous" dataType="double"/>
@@ -59,14 +59,14 @@
    <PPCell value="1" predictorName="startPick" parameterName="p7"/>
   </PPMatrix>
   <ParamMatrix>
-   <PCell parameterName="p0" df="1" beta="0.470901624281842"/>
-   <PCell parameterName="p1" df="1" beta="0.0282802004960352"/>
-   <PCell parameterName="p2" df="1" beta="-0.153821572434439"/>
-   <PCell parameterName="p3" df="1" beta="0.174808388555482"/>
-   <PCell parameterName="p4" df="1" beta="-0.0467423235565895"/>
-   <PCell parameterName="p5" df="1" beta="-0.0993905077341385"/>
-   <PCell parameterName="p6" df="1" beta="0.0334945033188942"/>
-   <PCell parameterName="p7" df="1" beta="0.00193895347638244"/>
+   <PCell parameterName="p0" df="1" beta="0.530025933686877"/>
+   <PCell parameterName="p1" df="1" beta="0.0100870175610667"/>
+   <PCell parameterName="p2" df="1" beta="-0.113861469566708"/>
+   <PCell parameterName="p3" df="1" beta="0.166781036746066"/>
+   <PCell parameterName="p4" df="1" beta="-0.0817336491498323"/>
+   <PCell parameterName="p5" df="1" beta="-0.0304834290451759"/>
+   <PCell parameterName="p6" df="1" beta="-0.0129345059315875"/>
+   <PCell parameterName="p7" df="1" beta="0.00120485796729833"/>
   </ParamMatrix>
  </GeneralRegressionModel>
 </PMML>
