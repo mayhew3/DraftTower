@@ -40,6 +40,7 @@ public class DraftSocketHandler implements
 
   private static final int INITIAL_BACKOFF_MS = 5;
   private static final int MAX_BACKOFF_MS = 5000;
+  private static final int SUSPICIOUS_PICK_LENGTH = 45000;
 
   private final BeanFactory beanFactory;
   private final Websocket socket;
@@ -51,6 +52,7 @@ public class DraftSocketHandler implements
 
   private ClientDraftStatus draftStatus;
   private long latestStatusSerialId = -1;
+  private int lastNumPicks;
 
   private final List<Integer> serverClockDiffs = new ArrayList<>();
   private int serverClockDiff;
@@ -90,6 +92,18 @@ public class DraftSocketHandler implements
   public void onOpen() {
     eventBus.fireEvent(new SocketConnectEvent());
     sendDraftCommand(IDENTIFY);
+    doClockSync();
+    for (String queuedMsg : queuedMsgs) {
+      if (socket.getState() != 1) {
+        throw new RuntimeException("Socket died while sending queued messages on open");
+      }
+      sendMessage(queuedMsg);
+    }
+    queuedMsgs.clear();
+  }
+
+  private void doClockSync() {
+    serverClockDiffs.clear();
     for (int i = 0; i < CLOCK_SYNC_CYCLES; i++) {
       scheduler.schedule(new Runnable() {
         @Override
@@ -98,13 +112,6 @@ public class DraftSocketHandler implements
         }
       }, i * 2000);
     }
-    for (String queuedMsg : queuedMsgs) {
-      if (socket.getState() != 1) {
-        throw new RuntimeException("Socket died while sending queued messages on open");
-      }
-      sendMessage(queuedMsg);
-    }
-    queuedMsgs.clear();
   }
 
   @Override
@@ -116,11 +123,24 @@ public class DraftSocketHandler implements
       draftStatus = AutoBeanCodex.decode(beanFactory, ClientDraftStatus.class, msg).as();
       long serialId = draftStatus.getDraftStatus().getSerialId();
       if (latestStatusSerialId < serialId) {
+        maybeScheduleNewClockSync(draftStatus);
         openPositions.onDraftStatusChanged(draftStatus.getDraftStatus());
         eventBus.fireEvent(new DraftStatusChangedEvent(draftStatus));
         latestStatusSerialId = serialId;
       }
     }
+  }
+
+  private void maybeScheduleNewClockSync(ClientDraftStatus draftStatus) {
+    int numPicks = draftStatus.getDraftStatus().getPicks().size();
+    long pickDeadline = draftStatus.getDraftStatus().getCurrentPickDeadline();
+    if (numPicks > lastNumPicks) {
+      // New pick, sanity check pick deadline.
+      if (pickDeadline - currentTimeProvider.get() + serverClockDiff < SUSPICIOUS_PICK_LENGTH) {
+        doClockSync();
+      }
+    }
+    lastNumPicks = numPicks;
   }
 
   @Override
@@ -248,6 +268,13 @@ public class DraftSocketHandler implements
         }
       }
       serverClockDiff = total / denom;
+
+      scheduler.schedule(new Runnable() {
+        @Override
+        public void run() {
+          doClockSync();
+        }
+      }, 600000 /* 10 minutes */);
     }
   }
 }
