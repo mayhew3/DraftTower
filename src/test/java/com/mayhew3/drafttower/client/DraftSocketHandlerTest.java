@@ -197,6 +197,38 @@ public class DraftSocketHandlerTest {
   }
 
   @Test
+  public void testRetryClockSync() {
+    currentTime = 0;
+    handler.onMessage("sync0.0-40");
+    handler.onMessage("sync0.0-40");
+    handler.onMessage("sync0.0-40");
+    handler.onMessage("sync0.0-40");
+    handler.onMessage("sync0.0-40");
+    // Retry after 10 min
+    Mockito.verify(socket, Mockito.times(5)).send(Mockito.startsWith("sync"));
+    // Retry after suspicious new pick deadline
+    DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
+        Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "name", false, beanFactory)),
+        beanFactory);
+    draftStatus.setCurrentPickDeadline(37000);
+    draftStatus.setSerialId(2);
+    ClientDraftStatus clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
+    Mockito.verify(socket, Mockito.times(10)).send(Mockito.startsWith("sync"));
+    // No retry after normal pick deadline
+    draftStatus = DraftStatusTestUtil.createDraftStatus(
+        Lists.newArrayList(
+            DraftStatusTestUtil.createDraftPick(1, "name", false, beanFactory),
+            DraftStatusTestUtil.createDraftPick(2, "name", false, beanFactory)),
+        beanFactory);
+    draftStatus.setCurrentPickDeadline(115000);
+    draftStatus.setSerialId(3);
+    clientDraftStatus = DraftStatusTestUtil.createClientDraftStatus(draftStatus, beanFactory);
+    handler.onMessage(AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(clientDraftStatus)).getPayload());
+    Mockito.verify(socket, Mockito.times(10)).send(Mockito.startsWith("sync"));
+  }
+
+  @Test
   public void testOnCloseBadTeamToken() {
     InOrder inOrder = Mockito.inOrder(eventBus);
     handler.onClose(SocketTerminationReason.BAD_TEAM_TOKEN);

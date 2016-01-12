@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_2 http://www.dmg.org/v4-2/pmml-4-2.xsd">
- <Header copyright="Copyright (c) 2015 kprevas" description="Generalized Linear Regression Model">
+ <Header copyright="Copyright (c) 2016 kprevas" description="Generalized Linear Regression Model">
   <Extension name="user" value="kprevas" extender="Rattle/PMML"/>
   <Application name="Rattle/PMML" version="1.4"/>
-  <Timestamp>2015-02-11 22:21:13</Timestamp>
+  <Timestamp>2016-01-11 20:13:04</Timestamp>
  </Header>
  <DataDictionary numberOfFields="3">
   <DataField name="pickedWizardSS3" optype="continuous" dataType="double"/>
@@ -34,9 +34,9 @@
    <PPCell value="1" predictorName="startPick" parameterName="p2"/>
   </PPMatrix>
   <ParamMatrix>
-   <PCell parameterName="p0" df="1" beta="0.105135363941952"/>
-   <PCell parameterName="p1" df="1" beta="-0.00428518319119445"/>
-   <PCell parameterName="p2" df="1" beta="-0.000252847324768646"/>
+   <PCell parameterName="p0" df="1" beta="0.146277678106788"/>
+   <PCell parameterName="p1" df="1" beta="-0.0131519203945114"/>
+   <PCell parameterName="p2" df="1" beta="-7.2299508877247e-05"/>
   </ParamMatrix>
  </GeneralRegressionModel>
 </PMML>
