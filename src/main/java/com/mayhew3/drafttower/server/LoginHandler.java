@@ -91,7 +91,7 @@ public class LoginHandler {
     response.setMaxClosers(teamMaxClosers == null ? RosterUtil.POSITIONS_AND_COUNTS.get(Position.P) : teamMaxClosers);
     response.setTeams(teamDataSource.getTeams());
     response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
-    response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port", "8080")));
+    response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port.ext", "8080")));
     return responseBean;
   }
 }
