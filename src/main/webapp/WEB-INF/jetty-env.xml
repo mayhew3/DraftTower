@@ -10,9 +10,9 @@
     <Arg>
       <New class="org.apache.commons.dbcp.BasicDataSource">
         <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
-        <Set name="url">jdbc:mysql://localhost:3306/uncharted</Set>
-        <Set name="username">root</Set>
-        <Set name="password"></Set>
+        <Set name="url"><SystemProperty name="jdbc.url"/></Set>
+        <Set name="username"><SystemProperty name="jdbc.user"/></Set>
+        <Set name="password"><SystemProperty name="jdbc.pass"/></Set>
       </New>
     </Arg>
   </New>

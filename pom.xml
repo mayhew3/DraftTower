@@ -19,6 +19,22 @@
         <jetty.port>${env.OPENSHIFT_DIY_PORT}</jetty.port>
         <jetty.host>${env.OPENSHIFT_DIY_IP}</jetty.host>
         <ws.port>8000</ws.port>
+        <ws.port.ext>8000</ws.port.ext>
+        <jdbc.url>jdbc:mysql://localhost:3306/uncharted</jdbc.url>
+        <jdbc.user>root</jdbc.user>
+        <jdbc.pass></jdbc.pass>
+      </properties>
+    </profile>
+    <profile>
+      <id>eb</id>
+      <properties>
+        <jetty.port>5000</jetty.port>
+        <jetty.host>0.0.0.0</jetty.host>
+        <ws.port>5000</ws.port>
+        <ws.port.ext>80</ws.port.ext>
+        <jdbc.url>jdbc:mysql://${env.RDS_HOSTNAME}:${env.RDS_PORT}/uncharted</jdbc.url>
+        <jdbc.user>${env.RDS_USERNAME}</jdbc.user>
+        <jdbc.pass>${env.RDS_PASSWORD}</jdbc.pass>
       </properties>
     </profile>
     <profile>
@@ -30,6 +46,10 @@
         <jetty.port>8080</jetty.port>
         <jetty.host>0.0.0.0</jetty.host>
         <ws.port>8080</ws.port>
+        <ws.port.ext>8080</ws.port.ext>
+        <jdbc.url>jdbc:mysql://localhost:3306/uncharted</jdbc.url>
+        <jdbc.user>root</jdbc.user>
+        <jdbc.pass></jdbc.pass>
       </properties>
     </profile>
   </profiles>
@@ -37,10 +57,19 @@
   <properties>
     <!-- Convenience property to set the GWT version -->
     <gwtVersion>2.7.0</gwtVersion>
-    <!-- GWT needs at least java 1.5 -->
     <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jetty-server.version>8.1.8.v20121106</jetty-server.version>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+
+    <beanstalk.applicationName>${project.artifactId}</beanstalk.applicationName>
+    <beanstalk.environmentName>${project.artifactId}</beanstalk.environmentName>
+    <beanstalk.cnamePrefix>${project.artifactId}</beanstalk.cnamePrefix>
+    <beanstalk.environmentRef>${project.artifactId}.elasticbeanstalk.com</beanstalk.environmentRef>
+    <beanstalk.versionLabel>${maven.build.timestamp}</beanstalk.versionLabel>
+    <beanstalk.solutionStack>64bit Amazon Linux 2015.09 v2.0.7 running Java 8</beanstalk.solutionStack>
+    <beanstalk.environmentType>SingleInstance</beanstalk.environmentType>
+    <beanstalk.instanceType>t2.micro</beanstalk.instanceType>
   </properties>
 
   <repositories>
@@ -169,9 +198,9 @@
       <version>1.10.19</version>
     </dependency>
     <dependency>
-        <groupId>org.jpmml</groupId>
-        <artifactId>pmml-evaluator</artifactId>
-        <version>1.1.15</version>
+      <groupId>org.jpmml</groupId>
+      <artifactId>pmml-evaluator</artifactId>
+      <version>1.1.15</version>
     </dependency>
   </dependencies>
   <build>
@@ -272,6 +301,22 @@
               <name>ws.port</name>
               <value>${ws.port}</value>
             </systemProperty>
+            <systemProperty>
+              <name>ws.port.ext</name>
+              <value>${ws.port.ext}</value>
+            </systemProperty>
+            <systemProperty>
+              <name>jdbc.url</name>
+              <value>${jdbc.url}</value>
+            </systemProperty>
+            <systemProperty>
+              <name>jdbc.user</name>
+              <value>${jdbc.user}</value>
+            </systemProperty>
+            <systemProperty>
+              <name>jdbc.pass</name>
+              <value>${jdbc.pass}</value>
+            </systemProperty>
           </systemProperties>
           <webApp>
             <contextPath>/</contextPath>
@@ -297,6 +342,52 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assembly/eb-source-bundle.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>br.com.ingenieux</groupId>
+        <artifactId>beanstalk-maven-plugin</artifactId>
+        <version>1.4.2</version>
+        <configuration>
+          <s3Bucket>draft-tower</s3Bucket>
+          <s3Key>${project.artifactId}/${project.build.finalName}-${maven.build.timestamp}.zip</s3Key>
+          <artifactFile>${project.build.directory}/${project.build.finalName}-eb.zip</artifactFile>
+        </configuration>
+        <executions>
+          <execution>
+            <id>deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>upload-source-bundle</goal>
+              <goal>create-application-version</goal>
+              <goal>put-environment</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
