@@ -86,7 +86,9 @@ public class PlayerDataProvider {
     Stopwatch stopwatch = Stopwatch.createStarted();
     UnclaimedPlayerListResponse response = beanFactory.createUnclaimedPlayerListResponse().as();
 
-    TeamId teamId = teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
+    TeamId teamId = request.getTeamToken() == null
+        ? null
+        : teamDataSource.getTeamIdByDraftOrder(teamTokens.get(request.getTeamToken()));
     TableSpec tableSpec = request.getTableSpec();
     List<Player> players = getPlayers(teamId, tableSpec);
 
@@ -342,7 +344,7 @@ public class PlayerDataProvider {
 
   private static String getKey(TeamId teamId, PlayerDataSet playerDataSet) {
     return playerDataSet.ordinal() + ""
-        + teamId.get();
+        + (teamId == null ? ServletEndpoints.LOGIN_GUEST : teamId.get());
   }
 
   public void reset() throws DataSourceException {

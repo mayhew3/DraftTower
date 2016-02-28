@@ -68,6 +68,10 @@ public class QueueDataProvider extends PlayerDataProvider<QueueEntry> implements
     if (!teamsInfo.isLoggedIn()) {
       return;
     }
+    if (teamsInfo.isGuest()) {
+      display.setRowCount(0);
+      return;
+    }
     AutoBean<GetPlayerQueueRequest> requestBean =
         beanFactory.createPlayerQueueRequest();
     GetPlayerQueueRequest request = requestBean.as();

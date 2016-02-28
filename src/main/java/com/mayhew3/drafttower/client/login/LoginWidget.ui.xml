@@ -19,6 +19,11 @@
       <div class="{style.css.loginButton}">
         <g:Button text="Login" ui:field="login"/>
       </div>
+      <div class="{style.css.guestLink}">
+        <g:Anchor ui:field="guestLogin">
+          Connect as guest
+        </g:Anchor>
+      </div>
     </div>
   </g:HTMLPanel>
 </ui:UiBinder>

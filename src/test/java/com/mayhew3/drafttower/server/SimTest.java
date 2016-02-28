@@ -1,11 +1,9 @@
 package com.mayhew3.drafttower.server;
 
+import com.google.common.base.Strings;
 import com.google.common.testing.TearDownAccepter;
 import com.google.inject.BindingAnnotation;
-import com.mayhew3.drafttower.server.simclient.BadLoginClient;
-import com.mayhew3.drafttower.server.simclient.FlakyClient;
-import com.mayhew3.drafttower.server.simclient.FuzzClient;
-import com.mayhew3.drafttower.server.simclient.PickNextPlayerClient;
+import com.mayhew3.drafttower.server.simclient.*;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import org.junit.After;
@@ -36,6 +34,7 @@ public abstract class SimTest {
   @Inject private Provider<PickNextPlayerClient> pickNextPlayerClientProvider;
   @Inject private Provider<BadLoginClient> badLoginClientProvider;
   @Inject private Provider<FuzzClient> fuzzClientProvider;
+  @Inject private Provider<WatcherClient> watcherClientProvider;
 
   @Inject private DraftTowerWebSocketServlet webSocketServlet;
   @Inject private AddOrRemoveFavoritePlayerServlet favoritePlayerServlet;
@@ -74,6 +73,19 @@ public abstract class SimTest {
       PickNextPlayerClient client = pickNextPlayerClientProvider.get();
       client.setUsername(Integer.toString(i));
       clients.add(client);
+    }
+    run();
+  }
+
+  @Test
+  public void allPickNextPlayerPlusWatchers() {
+    for (int i = 1; i <= 10; i++) {
+      PickNextPlayerClient client = pickNextPlayerClientProvider.get();
+      client.setUsername(Integer.toString(i));
+      clients.add(client);
+    }
+    for (int i = 0; i < 20; i++) {
+      clients.add(watcherClientProvider.get());
     }
     run();
   }
@@ -129,7 +141,7 @@ public abstract class SimTest {
     List<Thread> threads = new ArrayList<>();
     try {
       for (final SimulatedClient client : clients) {
-        Thread clientThread = new Thread(client.getUsername()) {
+        Thread clientThread = new Thread(Strings.nullToEmpty(client.getUsername())) {
           @Override
           public void run() {
             Random random = new Random();

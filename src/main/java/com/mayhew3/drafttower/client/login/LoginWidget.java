@@ -29,6 +29,7 @@ public class LoginWidget extends Composite implements LoginView {
       String fieldLabel();
       String field();
       String loginButton();
+      String guestLink();
     }
 
     @Source("LoginWidget.css")
@@ -50,6 +51,7 @@ public class LoginWidget extends Composite implements LoginView {
   @UiField Button login;
   @UiField DivElement invalidLogin;
   @UiField DivElement alreadyLoggedIn;
+  @UiField Anchor guestLogin;
 
   @Inject
   public LoginWidget(LoginPresenter presenter) {
@@ -75,10 +77,21 @@ public class LoginWidget extends Composite implements LoginView {
     doLogin();
   }
 
+  @UiHandler("guestLogin")
+  public void handleGuestLogin(ClickEvent event) {
+    doGuestLogin();
+  }
+
   void doLogin() {
     UIObject.setVisible(invalidLogin, false);
     UIObject.setVisible(alreadyLoggedIn, false);
     presenter.doLogin(username.getValue(), password.getValue());
+  }
+
+  void doGuestLogin() {
+    UIObject.setVisible(invalidLogin, false);
+    UIObject.setVisible(alreadyLoggedIn, false);
+    presenter.doGuestLogin();
   }
 
   @Override

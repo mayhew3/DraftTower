@@ -55,6 +55,10 @@ public class TeamsInfo {
     return loginResponse != null;
   }
 
+  public boolean isGuest() {
+    return loginResponse.getTeam() == -1;
+  }
+
   public boolean isMyPick(DraftStatus status) {
     return status.getCurrentTeam() == getTeam();
   }

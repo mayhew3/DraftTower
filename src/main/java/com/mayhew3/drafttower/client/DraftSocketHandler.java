@@ -91,7 +91,9 @@ public class DraftSocketHandler implements
   @Override
   public void onOpen() {
     eventBus.fireEvent(new SocketConnectEvent());
-    sendDraftCommand(IDENTIFY);
+    if (!teamsInfo.isGuest()) {
+      sendDraftCommand(IDENTIFY);
+    }
     doClockSync();
     for (String queuedMsg : queuedMsgs) {
       if (socket.getState() != 1) {

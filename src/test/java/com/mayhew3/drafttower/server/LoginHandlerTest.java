@@ -142,4 +142,13 @@ public class LoginHandlerTest {
     handler.doLogin(new HashMap<String, String>(), "username", "loggedin");
     Mockito.verify(draftTowerWebSocket).forceDisconnect("t5token", TEAM_ALREADY_CONNECTED);
   }
+
+  @Test
+  public void testGuestLogin() throws DataSourceException {
+    AutoBean<LoginResponse> responseBean = handler.doLogin(
+        new HashMap<String, String>(), ServletEndpoints.LOGIN_GUEST, "");
+    Assert.assertNotNull(responseBean);
+    LoginResponse response = responseBean.as();
+    Assert.assertEquals(teamsMap, response.getTeams());
+  }
 }

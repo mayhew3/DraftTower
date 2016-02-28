@@ -62,17 +62,21 @@ public class LoginHandler {
       }
     }
     if (responseBean == null) {
-      TeamDraftOrder teamDraftOrder = teamDataSource.getTeamDraftOrder(
-          username, password);
-      if (teamDraftOrder != null) {
-        for (Entry<String, TeamDraftOrder> entry : teamTokens.entrySet()) {
-          if (entry.getValue().equals(teamDraftOrder)) {
-            draftTowerWebSocket.forceDisconnect(entry.getKey(), TEAM_ALREADY_CONNECTED);
+      if (ServletEndpoints.LOGIN_GUEST.equals(username)) {
+        responseBean = createGuestResponse();
+      } else {
+        TeamDraftOrder teamDraftOrder = teamDataSource.getTeamDraftOrder(
+            username, password);
+        if (teamDraftOrder != null) {
+          for (Entry<String, TeamDraftOrder> entry : teamTokens.entrySet()) {
+            if (entry.getValue().equals(teamDraftOrder)) {
+              draftTowerWebSocket.forceDisconnect(entry.getKey(), TEAM_ALREADY_CONNECTED);
+            }
           }
+          String teamToken = tokenGenerator.get();
+          responseBean = createSuccessResponse(teamDraftOrder, teamToken);
+          teamTokens.put(teamToken, teamDraftOrder);
         }
-        String teamToken = tokenGenerator.get();
-        responseBean = createSuccessResponse(teamDraftOrder, teamToken);
-        teamTokens.put(teamToken, teamDraftOrder);
       }
     }
     return responseBean;
@@ -91,6 +95,15 @@ public class LoginHandler {
     response.setMaxClosers(teamMaxClosers == null ? RosterUtil.POSITIONS_AND_COUNTS.get(Position.P) : teamMaxClosers);
     response.setTeams(teamDataSource.getTeams());
     response.setCommissionerTeam(teamDataSource.isCommissionerTeam(teamDraftOrder));
+    response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port.ext", "8080")));
+    return responseBean;
+  }
+
+  private AutoBean<LoginResponse> createGuestResponse() throws DataSourceException {
+    AutoBean<LoginResponse> responseBean = beanFactory.createLoginResponse();
+    LoginResponse response = responseBean.as();
+    response.setTeam(-1);
+    response.setTeams(teamDataSource.getTeams());
     response.setWebSocketPort(Integer.parseInt(System.getProperty("ws.port.ext", "8080")));
     return responseBean;
   }
