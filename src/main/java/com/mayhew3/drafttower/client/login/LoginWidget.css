@@ -38,3 +38,9 @@
 .loginButton {
   padding-left: 250px;
 }
+
+.guestLink {
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+}

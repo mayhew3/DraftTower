@@ -56,6 +56,8 @@ public class PickControlsWidget extends Composite implements PickControlsView {
     initWidget(uiBinder.createAndBindUi(this));
 
     UIObject.setVisible(commishTools, false);
+    UIObject.setVisible(showCommishToolsContainer, false);
+    wakeUp.setVisible(false);
     pick.setEnabled(false);
 
     presenter.setView(this);

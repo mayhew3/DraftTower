@@ -150,6 +150,22 @@ public abstract class SimulatedClient implements WebsocketListener {
       return;
     }
 
+    connect();
+
+    sendDraftCommand(Command.IDENTIFY, null);
+
+    TableSpec tableSpec = beanFactory.createTableSpec().as();
+    tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
+    tableSpec.setSortCol(PlayerColumn.MYRANK);
+    tableSpec.setAscending(true);
+    try {
+      players = playerDataProvider.getPlayers(new TeamId(1), tableSpec);
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  protected void connect() throws IOException {
     webSocket = (DraftTowerWebSocketServlet.DraftTowerWebSocket)
         webSocketServlet.doWebSocketConnect(null, null);
     connection = Mockito.mock(Connection.class, Mockito.withSettings().stubOnly());
@@ -174,18 +190,6 @@ public abstract class SimulatedClient implements WebsocketListener {
       }
     }).when(connection).close(Mockito.anyInt(), Mockito.anyString());
     webSocket.onOpen(connection);
-
-    sendDraftCommand(Command.IDENTIFY, null);
-
-    TableSpec tableSpec = beanFactory.createTableSpec().as();
-    tableSpec.setPlayerDataSet(PlayerDataSet.CBSSPORTS);
-    tableSpec.setSortCol(PlayerColumn.MYRANK);
-    tableSpec.setAscending(true);
-    try {
-      players = playerDataProvider.getPlayers(new TeamId(1), tableSpec);
-    } catch (DataSourceException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   protected void getPlayerQueue() throws ServletException, IOException {

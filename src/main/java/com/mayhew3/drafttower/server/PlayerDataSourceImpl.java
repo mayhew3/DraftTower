@@ -191,21 +191,27 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
         "(SELECT p.PlayerString as Player, p.CBS_ID, p.FirstName, p.LastName, p.MLBTeam, p.Eligibility, \n" +
             " CASE Eligibility WHEN '' THEN 'DH' WHEN NULL THEN 'DH' ELSE Eligibility END as Position, \n" +
             "ds.name as Source, " +
-            "cr.Rank as MyRank, " +
+            (teamID != null
+                ? "cr.Rank as MyRank, " +
+                    " f.Favorite,\n"
+                : "Rank as MyRank, " +
+                    " FALSE as Favorite,\n") +
             " p.Injury,\n" +
-            " f.Favorite,\n" +
             " pa.*\n" +
             "FROM (" + subselect + ") pa\n" +
             "INNER JOIN players p\n" +
             " ON pa.PlayerID = p.ID\n" +
             "INNER JOIN data_sources ds\n" +
-            " ON pa.DataSource = ds.ID\n" +
-            "INNER JOIN customrankings cr\n" +
-            " ON cr.PlayerID = pa.PlayerID\n" +
-            "LEFT JOIN favorites f\n" +
-            " ON f.PlayerID = pa.PlayerID AND f.TeamID = " + teamID + "\n" +
-            "WHERE cr.TeamID = " + teamID + " \n" +
-            playerFilterClause;
+            " ON pa.DataSource = ds.ID\n";
+    if (teamID != null) {
+      sql +=
+          "INNER JOIN customrankings cr\n" +
+              " ON cr.PlayerID = pa.PlayerID\n" +
+              "LEFT JOIN favorites f\n" +
+              " ON f.PlayerID = pa.PlayerID AND f.TeamID = " + teamID + "\n" +
+              "WHERE cr.TeamID = " + teamID + " \n" +
+              playerFilterClause;
+    }
 
     if (filterKeepers) {
       sql += " AND pa.PlayerID NOT IN (SELECT PlayerID FROM keepers) ";

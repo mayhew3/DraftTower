@@ -22,4 +22,6 @@ public interface ServletEndpoints {
   String QUEUE_ADD = "add";
   String QUEUE_REMOVE = "remove";
   String QUEUE_REORDER = "reorder";
+
+  String LOGIN_GUEST = "_guest";
 }

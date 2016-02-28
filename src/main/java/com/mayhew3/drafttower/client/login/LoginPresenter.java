@@ -9,6 +9,7 @@ import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.LoginEvent;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.LoginResponse;
+import com.mayhew3.drafttower.shared.ServletEndpoints;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 import javax.inject.Inject;
@@ -57,6 +58,10 @@ public class LoginPresenter {
             return null;
           }
         });
+  }
+
+  void doGuestLogin() {
+    doLogin(ServletEndpoints.LOGIN_GUEST, "");
   }
 
   private void doAutoLogin() {
