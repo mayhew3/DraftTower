@@ -4,29 +4,31 @@ import com.google.common.collect.Lists;
 import org.joda.time.DateMidnight;
 import org.joda.time.Interval;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 
-public class DailyPlayersUploader extends DatabaseUtility {
+public class DailyPlayersUploader {
 
   private enum PlayerType {BATTER, PITCHER}
 
+  private static DatabaseConnection _utility;
+
   public static void main(String[] args) throws IOException, ParseException, SQLException {
-    DatabaseUtility utility = new DailyPlayersUploader();
+    _utility = new DatabaseConnection();
 
-    DailyBatter.prepareStatement(utility);
-    DailyPitcher.prepareStatement(utility);
+    DailyBatter.prepareStatement(_utility);
+    DailyPitcher.prepareStatement(_utility);
 
-    DateMidnight start = new DateMidnight(2013, 9, 30);
-    DateMidnight end = new DateMidnight(2013, 10, 1);
+    DateMidnight start = new DateMidnight(2015, 4, 5);
+    DateMidnight end = new DateMidnight(2015, 4, 7);
 
     Interval interval = new Interval(start, end);
 
@@ -36,36 +38,40 @@ public class DailyPlayersUploader extends DatabaseUtility {
       SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
       String dateFormatted = simpleDateFormat.format(iteratorDay.toDate());
 
-      logger.log(Level.INFO, "Downloading Batters on " + dateFormatted);
+      debug("Downloading Batters on " + dateFormatted);
 
       List<DailyPlayer> dailyPlayers = new ArrayList<>();
 
       // save BATTERS
       for (int i = 1; i < 5; i++) {
-        File file = new File("resources/Dailies/Batters_" + dateFormatted + "_Stats" + i + ".csv");
+        URL url = new URL("http://uncharted.baseball.cbssports.com/print/csv/stats/stats-main/all:C:1B:2B:3B:SS:OF:DH/select:p:" + dateFormatted + ":" + dateFormatted + "/AllNonCalculated1");
+        InputStream in = url.openStream();
+        InputStreamReader in1 = new InputStreamReader(in);
+        BufferedReader bufferedReader = new BufferedReader(in1);
 
-        pullBattersIntoList(file, iteratorDay, dailyPlayers);
+        pullBattersIntoList(bufferedReader, iteratorDay, dailyPlayers);
       }
 
       for (DailyPlayer dailyPlayer : dailyPlayers) {
-        dailyPlayer.updateDatabase(utility);
+        dailyPlayer.updateDatabase(_utility);
       }
 
 
-      logger.log(Level.INFO, "Downloading Pitchers on " + simpleDateFormat.format(iteratorDay.toDate()));
+      System.out.println("Downloading Pitchers on " + simpleDateFormat.format(iteratorDay.toDate()));
 
       dailyPlayers = new ArrayList<>();
 
       // save PITCHERS
       for (int i = 1; i < 4; i++) {
-        File file = new File("resources/Dailies/Pitchers_" + dateFormatted + "_Stats" + i + ".csv");
+        URL url = new URL("http://uncharted.baseball.cbssports.com/print/csv/stats/stats-main/all:P/select:p:" + dateFormatted + ":" + dateFormatted + "/AllNonCalculated1");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
 
-        pullPitchersIntoList(file, iteratorDay, dailyPlayers);
+        pullPitchersIntoList(bufferedReader, iteratorDay, dailyPlayers);
       }
 
 
       for (DailyPlayer dailyPlayer : dailyPlayers) {
-        dailyPlayer.updateDatabase(utility);
+        dailyPlayer.updateDatabase(_utility);
       }
 
 
@@ -75,18 +81,20 @@ public class DailyPlayersUploader extends DatabaseUtility {
   }
 
 
-  private static void pullBattersIntoList(File file, DateMidnight statDate, List<DailyPlayer> batters) throws IOException, ParseException, SQLException {
-    pullPlayersIntoList(file, statDate, batters, PlayerType.BATTER);
+  protected static void debug(Object object) {
+    System.out.println(object);
   }
 
-  private static void pullPitchersIntoList(File file, DateMidnight statDate, List<DailyPlayer> batters) throws IOException, ParseException, SQLException {
-    pullPlayersIntoList(file, statDate, batters, PlayerType.PITCHER);
+
+  private static void pullBattersIntoList(BufferedReader bufferedReader, DateMidnight statDate, List<DailyPlayer> batters) throws IOException, ParseException, SQLException {
+    pullPlayersIntoList(bufferedReader, statDate, batters, PlayerType.BATTER);
   }
 
-  private static void pullPlayersIntoList(File file, DateMidnight statDate, List<DailyPlayer> batters, PlayerType type) throws IOException {
-    FileReader fileReader = new FileReader(file);
-    BufferedReader bufferedReader = new BufferedReader(fileReader);
+  private static void pullPitchersIntoList(BufferedReader bufferedReader, DateMidnight statDate, List<DailyPlayer> batters) throws IOException, ParseException, SQLException {
+    pullPlayersIntoList(bufferedReader, statDate, batters, PlayerType.PITCHER);
+  }
 
+  private static void pullPlayersIntoList(BufferedReader bufferedReader, DateMidnight statDate, List<DailyPlayer> batters, PlayerType type) throws IOException {
     List<String> fieldNames = null;
 
     String line;
@@ -128,5 +136,88 @@ public class DailyPlayersUploader extends DatabaseUtility {
     return null;
   }
 
+  private static List<PlayerField> combineListsIntoMap(List<String> fieldNames, List<String> values) {
+    List<PlayerField> fields = new ArrayList<>();
+    int i = 0;
+    for (String fieldName : fieldNames) {
+      String value = values.get(i);
+
+      value = value.replace("\"", "");
+
+      PlayerField playerField = null;
+      Integer integerValue = getIntegerValue(value);
+      if (integerValue != null) {
+        playerField = new PlayerField(fieldName, integerValue);
+      } else {
+
+        playerField = new PlayerField(fieldName, value);
+      }
+      fields.add(playerField);
+
+      i++;
+    }
+    return fields;
+  }
+
+  private static Integer getIntegerValue(String value) {
+    try {
+      Integer integer = Integer.valueOf(value);
+      return integer;
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private static void updateDatabase(List<PlayerField> fields, Date statDate,
+                                     PreparedStatement selectPrepared,
+                                     PreparedStatement updatePrepared,
+                                     PreparedStatement insertPrepared) throws SQLException {
+    String playerString = (String) getValueForField(fields, "Player");
+
+    ResultSet resultSet = _utility.executePreparedStatementWithParams(selectPrepared, playerString, statDate);
+    _utility.hasMoreElements(resultSet);
+    Integer existingRows = resultSet.getInt("ExistingRows");
+
+
+    if (existingRows == 0) {
+      List<Object> values = getValuesList(fields);
+      _utility.executePreparedUpdateWithParamsWithoutClose(insertPrepared, values);
+    } else {
+      removeFieldWithName(fields, "StatDate");
+      List<Object> values = getValuesList(fields);
+      values.add(playerString);
+      values.add(statDate);
+      _utility.executePreparedUpdateWithParamsWithoutClose(updatePrepared, values);
+    }
+  }
+
+  private static Object getValueForField(List<PlayerField> fields, String fieldName) {
+    for (PlayerField field : fields) {
+      if (field.fieldName.equals(fieldName)) {
+        return field.fieldValue;
+      }
+    }
+    return null;
+  }
+
+
+  private static void removeFieldWithName(List<PlayerField> fields, String fieldName) {
+    for (PlayerField field : fields) {
+      if (field.fieldName.equals(fieldName)) {
+        fields.remove(field);
+        return;
+      }
+    }
+  }
+
+
+
+  private static List<Object> getValuesList(List<PlayerField> fields) {
+    List<Object> objects = new ArrayList<>();
+    for (PlayerField field : fields) {
+      objects.add(field.fieldValue);
+    }
+    return objects;
+  }
 
 }

@@ -65,7 +65,7 @@ public class DailyBatter extends DailyPlayer {
     super(statDate);
   }
 
-  public static void prepareStatement(DatabaseUtility utility) {
+  public static void prepareStatement(DatabaseConnection utility) {
 
     List<String> questionMarks = new ArrayList<>();
 

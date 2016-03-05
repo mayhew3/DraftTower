@@ -60,7 +60,7 @@ public class DailyPitcher extends DailyPlayer {
   }
 
 
-  public static void prepareStatement(DatabaseUtility utility) {
+  public static void prepareStatement(DatabaseConnection utility) {
 
     List<String> questionMarks = new ArrayList<>();
 

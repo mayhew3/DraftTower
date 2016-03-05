@@ -70,7 +70,7 @@ public abstract class DailyPlayer {
     return fields.get(fieldName);
   }
 
-  public void updateDatabase(DatabaseUtility utility) throws SQLException {
+  public void updateDatabase(DatabaseConnection utility) throws SQLException {
     List<Object> values = getValuesList();
     List<String> specificFieldNames = getSpecificFieldNames();
 
