@@ -4,6 +4,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,9 +40,11 @@ public class DailyPlayersUploader {
       for (int i = 1; i < 5; i++) {
         String urlString = "http://uncharted.baseball.cbssports.com/print/csv/stats/stats-main/all:C:1B:2B:3B:SS:OF:DH/select:p:" + dateFormatted + ":" + dateFormatted + "/AllNonCalculated1";
 
-        RemotePlayerList remotePlayerList = new RemotePlayerList(urlString, PlayerType.BATTER);
-        remotePlayerList.pullPlayersIntoList(iteratorDay);
-        dailyPlayers = remotePlayerList.getPlayers();
+        InputStream inputStream = new URL(urlString).openStream();
+
+        PlayerListParser playerListParser = new PlayerListParser(PlayerType.BATTER, new InputStreamReader(inputStream));
+        playerListParser.pullPlayersIntoList(iteratorDay);
+        dailyPlayers = playerListParser.getPlayers();
       }
 
       for (DailyPlayer dailyPlayer : dailyPlayers) {
@@ -55,9 +60,11 @@ public class DailyPlayersUploader {
       for (int i = 1; i < 4; i++) {
         String urlString = "http://uncharted.baseball.cbssports.com/print/csv/stats/stats-main/all:P/select:p:" + dateFormatted + ":" + dateFormatted + "/AllNonCalculated1";
 
-        RemotePlayerList remotePlayerList = new RemotePlayerList(urlString, PlayerType.PITCHER);
-        remotePlayerList.pullPlayersIntoList(iteratorDay);
-        dailyPlayers = remotePlayerList.getPlayers();
+        InputStream inputStream = new URL(urlString).openStream();
+
+        PlayerListParser playerListParser = new PlayerListParser(PlayerType.PITCHER, new InputStreamReader(inputStream));
+        playerListParser.pullPlayersIntoList(iteratorDay);
+        dailyPlayers = playerListParser.getPlayers();
       }
 
 

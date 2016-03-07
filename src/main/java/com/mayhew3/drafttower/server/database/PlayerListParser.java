@@ -5,21 +5,19 @@ import org.joda.time.DateTime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RemotePlayerList {
-  private String url;
+public class PlayerListParser {
   private PlayerType playerType;
+  private Reader reader;
 
   private List<DailyPlayer> players;
 
-  public RemotePlayerList(String url, PlayerType playerType) {
-    this.url = url;
+  public PlayerListParser(PlayerType playerType, Reader reader) {
     this.playerType = playerType;
+    this.reader = reader;
     this.players = new ArrayList<>();
   }
 
@@ -28,9 +26,7 @@ public class RemotePlayerList {
   }
 
   public void pullPlayersIntoList(DateTime statDate) throws IOException {
-    InputStream in = new URL(url).openStream();
-    InputStreamReader in1 = new InputStreamReader(in);
-    BufferedReader bufferedReader = new BufferedReader(in1);
+    BufferedReader bufferedReader = new BufferedReader(reader);
 
     List<String> fieldNames = null;
 
