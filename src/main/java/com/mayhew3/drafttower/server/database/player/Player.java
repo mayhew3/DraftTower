@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mayhew3.drafttower.server.database.SQLConnection;
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -134,6 +135,16 @@ public abstract class Player {
     for (FieldValue changedField : changedFields) {
       changedField.updateInternal();
     }
+  }
+
+  @Nullable
+  public FieldValue getFieldWithName(@NotNull String fieldName) {
+    for (FieldValue fieldValue : allFieldValues) {
+      if (fieldName.equals(fieldValue.getFieldName())) {
+        return fieldValue;
+      }
+    }
+    return null;
   }
 
   private void updateDatabase(SQLConnection connection, List<FieldValue> fieldValues) throws SQLException {

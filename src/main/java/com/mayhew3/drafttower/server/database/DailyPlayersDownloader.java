@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DailyPlayersUploader {
+public class DailyPlayersDownloader {
 
   public static void main(String... args) throws IOException, ParseException, SQLException {
     DatabaseConnection connection = new DatabaseConnection();
@@ -29,7 +29,7 @@ public class DailyPlayersUploader {
     DateTime iteratorDay = start;
 
     while (interval.contains(iteratorDay)) {
-      SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+     /* SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
       String dateFormatted = simpleDateFormat.format(iteratorDay.toDate());
 
       debug("Downloading Batters on " + dateFormatted);
@@ -72,7 +72,7 @@ public class DailyPlayersUploader {
         dailyPlayer.updateDatabase(connection);
       }
 
-
+*/
       iteratorDay = iteratorDay.plusDays(1);
     }
 
