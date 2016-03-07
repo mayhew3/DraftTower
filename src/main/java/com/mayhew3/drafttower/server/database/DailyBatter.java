@@ -2,7 +2,7 @@ package com.mayhew3.drafttower.server.database;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class DailyBatter extends DailyPlayer {
       "TPT"
   };
 
-  public DailyBatter(DateMidnight statDate) {
+  public DailyBatter(DateTime statDate) {
     super(statDate);
   }
 

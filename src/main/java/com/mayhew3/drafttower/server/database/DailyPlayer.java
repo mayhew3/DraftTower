@@ -1,7 +1,7 @@
 package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
-import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ public abstract class DailyPlayer {
   };
   Map<String, Object> fields;
 
-  public DailyPlayer(DateMidnight statDate) {
+  public DailyPlayer(DateTime statDate) {
     fields = new HashMap<>();
     fields.put("StatDate", statDate.toDate());
   }
