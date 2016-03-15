@@ -4,9 +4,11 @@ import com.google.common.collect.Lists;
 import org.joda.time.LocalDate;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class ProjectionsUploader {
@@ -26,17 +28,46 @@ public class ProjectionsUploader {
       "CS"
   );
 
+  public static List<String> pitcherColumns = Lists.newArrayList(
+      "APP",
+      "BBI",
+      "BS",
+      "CG",
+      "ER",
+      "GS",
+      "HA",
+      "HRA",
+      "K",
+      "L",
+      "QS",
+      "OUTS",
+      "S",
+      "SO",
+      "W"
+  );
+
   public ProjectionsUploader(SQLConnection connection) {
     this.connection = connection;
   }
 
   public void updateDatabase() throws IOException, SQLException {
-    File file = new File("database/2016/batterProjections0306.csv");
-    FileReader fileReader = new FileReader(file);
-
     LocalDate localDate = new LocalDate(2016, 3, 6);
 
-    PlayerListParser playerListParser = new PlayerListParser(PlayerType.BATTER, fileReader, localDate, batterColumns);
+    updatePlayers(PlayerType.BATTER, localDate);
+    updatePlayers(PlayerType.PITCHER, localDate);
+  }
+
+  private void updatePlayers(PlayerType playerType, LocalDate localDate) throws IOException, SQLException {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMdd");
+
+    String pathname = "database/" + localDate.getYear() + "/" + playerType.name + "Projections" + simpleDateFormat.format(localDate.toDate()) + ".csv";
+
+    File file = new File(pathname);
+    FileReader fileReader = new FileReader(file);
+
+    List<String> columns = playerType == PlayerType.BATTER ? batterColumns : pitcherColumns;
+
+    PlayerListParser playerListParser = new PlayerListParser(playerType, fileReader, localDate, columns);
     playerListParser.uploadPlayersToDatabase(connection);
   }
 }

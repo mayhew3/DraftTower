@@ -2,10 +2,7 @@ package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mayhew3.drafttower.server.database.player.FieldValue;
-import com.mayhew3.drafttower.server.database.player.Player;
-import com.mayhew3.drafttower.server.database.player.TmpProjectionBatter;
-import com.mayhew3.drafttower.server.database.player.TmpProjectionPlayer;
+import com.mayhew3.drafttower.server.database.player.*;
 import org.joda.time.LocalDate;
 
 import java.io.BufferedReader;
@@ -52,11 +49,7 @@ public class PlayerListParser {
 
       if (fieldValues.size() > 1) {
 
-        TmpProjectionPlayer player = (playerType == PlayerType.BATTER) ? new TmpProjectionBatter() : null;
-
-        if (player == null) {
-          throw new RuntimeException("Pitchers not supported yet.");
-        }
+        TmpProjectionPlayer player = (playerType == PlayerType.BATTER) ? new TmpProjectionBatter() : new TmpProjectionPitcher();
 
         player.initializeForInsert();
 
