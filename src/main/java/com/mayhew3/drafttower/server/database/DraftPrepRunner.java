@@ -6,12 +6,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
-public class ProjectionsUploaderRunner {
-
-  public static void main(String... args) throws URISyntaxException, SQLException, IOException {
-    LocalDate statsDate = new LocalDate(2016, 3, 6);
+public class DraftPrepRunner {
+  public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
+    LocalDate statsDate = new LocalDate(2016, 3, 6);
+
+    // insert CBS projections into temp tables
     ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
     projectionsUploader.updateDatabase();
+
+    // update mapping of CBS IDs to Player Strings.
+    CbsIdScraper cbsIdScraper = new CbsIdScraper(connection, statsDate);
+    cbsIdScraper.updateDatabase();
   }
 }

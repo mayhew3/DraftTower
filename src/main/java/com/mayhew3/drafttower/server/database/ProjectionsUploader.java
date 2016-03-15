@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import org.joda.time.LocalDate;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -13,6 +12,7 @@ import java.util.List;
 
 public class ProjectionsUploader {
   private SQLConnection connection;
+  private LocalDate statsDate;
 
   public static List<String> batterColumns = Lists.newArrayList(
       "AB",
@@ -27,7 +27,6 @@ public class ProjectionsUploader {
       "SB",
       "CS"
   );
-
   public static List<String> pitcherColumns = Lists.newArrayList(
       "APP",
       "BBI",
@@ -46,28 +45,27 @@ public class ProjectionsUploader {
       "W"
   );
 
-  public ProjectionsUploader(SQLConnection connection) {
+  public ProjectionsUploader(SQLConnection connection, LocalDate statsDate) {
     this.connection = connection;
+    this.statsDate = statsDate;
   }
 
   public void updateDatabase() throws IOException, SQLException {
-    LocalDate localDate = new LocalDate(2016, 3, 6);
-
-    updatePlayers(PlayerType.BATTER, localDate);
-    updatePlayers(PlayerType.PITCHER, localDate);
+    updatePlayers(PlayerType.BATTER, statsDate);
+    updatePlayers(PlayerType.PITCHER, statsDate);
   }
 
-  private void updatePlayers(PlayerType playerType, LocalDate localDate) throws IOException, SQLException {
+  private void updatePlayers(PlayerType playerType, LocalDate statsDate) throws IOException, SQLException {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMdd");
 
-    String pathname = "database/" + localDate.getYear() + "/" + playerType.name + "Projections" + simpleDateFormat.format(localDate.toDate()) + ".csv";
+    String pathname = "database/" + statsDate.getYear() + "/" + playerType.name + "Projections" + simpleDateFormat.format(statsDate.toDate()) + ".csv";
 
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
     List<String> columns = playerType == PlayerType.BATTER ? batterColumns : pitcherColumns;
 
-    PlayerListParser playerListParser = new PlayerListParser(playerType, fileReader, localDate, columns);
+    PlayerListParser playerListParser = new PlayerListParser(playerType, fileReader, statsDate, columns);
     playerListParser.uploadPlayersToDatabase(connection);
   }
 }
