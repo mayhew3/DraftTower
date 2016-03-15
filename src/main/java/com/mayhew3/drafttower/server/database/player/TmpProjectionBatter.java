@@ -1,11 +1,7 @@
 package com.mayhew3.drafttower.server.database.player;
 
-public class TmpProjectionBatter extends Player {
+public class TmpProjectionBatter extends TmpProjectionPlayer {
 
-  public FieldValueString player = registerStringField("Player");
-
-  public FieldValueInteger playerID = registerIntegerField("PlayerID");
-  public FieldValueInteger rank = registerIntegerField("Rank");
   public FieldValueInteger _1B = registerIntegerField("1B");
   public FieldValueInteger _2B = registerIntegerField("2B");
   public FieldValueInteger _3B = registerIntegerField("3B");
@@ -18,7 +14,6 @@ public class TmpProjectionBatter extends Player {
   public FieldValueInteger r = registerIntegerField("R");
   public FieldValueInteger rbi = registerIntegerField("RBI");
   public FieldValueInteger sb = registerIntegerField("SB");
-  public FieldValueInteger fpts = registerIntegerField("FPTS");
 
   @Override
   protected String getTableName() {

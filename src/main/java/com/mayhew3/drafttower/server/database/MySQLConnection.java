@@ -132,7 +132,7 @@ public class MySQLConnection implements SQLConnection {
       throw new RuntimeException("No rows in ResultSet from Inserted object!");
     }
 
-    int id = generatedKeys.getInt("ID");
+    int id = generatedKeys.getInt(1);
     preparedStatement.close();
     return id;
   }

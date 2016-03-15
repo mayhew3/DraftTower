@@ -151,7 +151,7 @@ public abstract class Player {
     List<String> fieldNames = Lists.newArrayList();
 
     for (FieldValue fieldValue : fieldValues) {
-      fieldNames.add("\"" + fieldValue.getFieldName() + "\" = ?");
+      fieldNames.add("`" + fieldValue.getFieldName() + "` = ?");
     }
 
     fieldValues.add(id);
@@ -169,7 +169,7 @@ public abstract class Player {
     List<String> questionMarks = Lists.newArrayList();
 
     for (FieldValue fieldValue : fieldValues) {
-      fieldNames.add("\"" + fieldValue.getFieldName() + "\"");
+      fieldNames.add("`" + fieldValue.getFieldName() + "`");
       questionMarks.add("?");
     }
 
@@ -197,10 +197,10 @@ public abstract class Player {
     return fieldBooleanValue;
   }
 
-  protected final FieldValueTimestamp registerTimestampField(String fieldName) {
-    FieldValueTimestamp fieldTimestampValue = new FieldValueTimestamp(fieldName, new FieldConversionTimestamp());
-    allFieldValues.add(fieldTimestampValue);
-    return fieldTimestampValue;
+  protected final FieldValueDate registerDateField(String fieldName) {
+    FieldValueDate fieldDateValue = new FieldValueDate(fieldName, new FieldConversionDate());
+    allFieldValues.add(fieldDateValue);
+    return fieldDateValue;
   }
 
   protected final FieldValueInteger registerIntegerField(String fieldName) {
