@@ -15,11 +15,15 @@ public class DraftPrepRunner {
     ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
     projectionsUploader.updateDatabase();
 
+    // insert CBS eligibilities into temp table
+    EligibilityUploader eligibilityUploader = new EligibilityUploader(connection, statsDate);
+    eligibilityUploader.updateDatabase();
+
     // update mapping of CBS IDs to Player Strings.
     CbsIdScraper cbsIdScraper = new CbsIdScraper(connection, statsDate);
     cbsIdScraper.updateDatabase();
 
-    // update player table based on new Player Strings.
+    // update player table based on new CBS IDs and changed Player Strings.
     PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(connection);
     playerStringSplitter.updateDatabase();
   }
