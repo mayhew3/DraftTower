@@ -13,13 +13,13 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ExistingPlayerUpdater {
+public class PlayerStringSplitter {
 
   private SQLConnection connection;
 
-  private static final Logger logger = Logger.getLogger(ExistingPlayerUpdater.class.getName());
+  private static final Logger logger = Logger.getLogger(PlayerStringSplitter.class.getName());
 
-  public ExistingPlayerUpdater(SQLConnection connection) {
+  public PlayerStringSplitter(SQLConnection connection) {
     this.connection = connection;
   }
 

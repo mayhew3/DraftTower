@@ -20,7 +20,7 @@ public class DraftPrepRunner {
     cbsIdScraper.updateDatabase();
 
     // update player table based on new Player Strings.
-    ExistingPlayerUpdater existingPlayerUpdater = new ExistingPlayerUpdater(connection);
-    existingPlayerUpdater.updateDatabase();
+    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(connection);
+    playerStringSplitter.updateDatabase();
   }
 }
