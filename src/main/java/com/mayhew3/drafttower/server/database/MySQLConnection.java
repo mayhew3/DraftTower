@@ -1,7 +1,7 @@
 package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
-import com.mayhew3.drafttower.server.database.player.FieldValue;
+import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
 import com.sun.istack.internal.NotNull;
 
 import java.math.BigDecimal;
@@ -33,6 +33,13 @@ public class MySQLConnection implements SQLConnection {
 
     statement.executeUpdate(sql);
     return statement;
+  }
+
+  @Override
+  public Integer executeUpdateNumberAffectedRows(String sql) throws SQLException {
+    Statement statement = _connection.createStatement();
+
+    return statement.executeUpdate(sql);
   }
 
   @Override

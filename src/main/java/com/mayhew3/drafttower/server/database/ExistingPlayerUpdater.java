@@ -14,36 +14,44 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UpdateExistingPlayers extends DatabaseUtility {
+public class ExistingPlayerUpdater {
 
-  private static final Logger logger = Logger.getLogger(UpdateExistingPlayers.class.getName());
+  private SQLConnection connection;
 
-  public static void main(String[] args) {
-    initConnection();
+  private static final Logger logger = Logger.getLogger(ExistingPlayerUpdater.class.getName());
 
+  public ExistingPlayerUpdater(SQLConnection connection) {
+    this.connection = connection;
+  }
+
+  public void updateDatabase() throws SQLException {
+    splitNames();
+  }
+
+  private void splitNames() throws SQLException {
     logger.log(Level.INFO, "Splitting names.");
 
     String sql = "SELECT * FROM Players " +
         " WHERE NewPlayerString <> PlayerString" +
         " OR LastName IS NULL";
 
-    ResultSet resultSet = prepareAndExecuteStatementFetch(sql);
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql);
 
     List<Integer> failures = Lists.newArrayList();
     List<FailedPlayer> failedPlayers = Lists.newArrayList();
 
     int i = 1;
-    while (hasMoreElements(resultSet)) {
+    while (resultSet.next()) {
       try {
         int id = resultSet.getInt("ID");
         String newPlayerString = resultSet.getString("NewPlayerString");
         String oldPlayerString = resultSet.getString("PlayerString");
 
         PlayerInfo existingPlayer = new PlayerInfo();
-        existingPlayer.firstName = getString(resultSet, "FirstName");
-        existingPlayer.lastName = getString(resultSet, "LastName");
-        existingPlayer.MLBTeam = getString(resultSet, "MLBTeam");
-        existingPlayer.Position = getString(resultSet, "Position");
+        existingPlayer.firstName = resultSet.getString("FirstName");
+        existingPlayer.lastName = resultSet.getString("LastName");
+        existingPlayer.MLBTeam = resultSet.getString("MLBTeam");
+        existingPlayer.Position = resultSet.getString("Position");
 
         logger.log(Level.INFO, "Running on player '" + newPlayerString + "' (" + id + ")...");
         updatePlayerFields(id, oldPlayerString, newPlayerString, existingPlayer);
@@ -70,7 +78,7 @@ public class UpdateExistingPlayers extends DatabaseUtility {
   }
 
 
-  private static void updatePlayerFields(int id, String oldPlayerString, String newPlayerString, PlayerInfo existingPlayer) throws FailedPlayer {
+  private void updatePlayerFields(int id, String oldPlayerString, String newPlayerString, PlayerInfo existingPlayer) throws FailedPlayer, SQLException {
     PlayerInfo changedPlayer = parseFromString(id, newPlayerString, existingPlayer);
 
     if (existingPlayer.lastName == null) {
@@ -79,7 +87,7 @@ public class UpdateExistingPlayers extends DatabaseUtility {
 
       String sql = "UPDATE Players SET FirstName = ?, LastName = ?, MLBTeam = ?, Position = ?, UpdateTime = NOW() " +
                     "WHERE ID = ?";
-      prepareAndExecuteStatementUpdate(sql, changedPlayer.firstName, changedPlayer.lastName, changedPlayer.MLBTeam, changedPlayer.Position, id);
+      connection.prepareAndExecuteStatementUpdate(sql, changedPlayer.firstName, changedPlayer.lastName, changedPlayer.MLBTeam, changedPlayer.Position, id);
 
       logger.log(Level.INFO, "Updated. " + changedPlayer);
 
@@ -140,7 +148,7 @@ public class UpdateExistingPlayers extends DatabaseUtility {
       objects.add(id);
 
       try {
-        prepareAndExecuteStatementUpdateWithException(updateSQL, objects);
+       connection.prepareAndExecuteStatementUpdate(updateSQL, objects);
       } catch (SQLException e) {
         throw new FailedPlayer(id, "Error updating player: " + changedPlayer);
       }

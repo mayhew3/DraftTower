@@ -18,5 +18,9 @@ public class DraftPrepRunner {
     // update mapping of CBS IDs to Player Strings.
     CbsIdScraper cbsIdScraper = new CbsIdScraper(connection, statsDate);
     cbsIdScraper.updateDatabase();
+
+    // update player table based on new Player Strings.
+    ExistingPlayerUpdater existingPlayerUpdater = new ExistingPlayerUpdater(connection);
+    existingPlayerUpdater.updateDatabase();
   }
 }

@@ -1,10 +1,10 @@
-package com.mayhew3.drafttower.server.database.player;
+package com.mayhew3.drafttower.server.database.dataobject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class FieldValueShort extends FieldValue<Short> {
-  public FieldValueShort(String fieldName, FieldConversion<Short> converter) {
+public class FieldValueDouble extends FieldValue<Double> {
+  public FieldValueDouble(String fieldName, FieldConversion<Double> converter) {
     super(fieldName, converter);
   }
 
@@ -16,14 +16,5 @@ public class FieldValueShort extends FieldValue<Short> {
   @Override
   public void updatePreparedStatement(PreparedStatement preparedStatement, int currentIndex) {
     throw new IllegalStateException("Cannot update Postgres DB with Mongo value.");
-  }
-
-  public void increment(Short numberToAdd) {
-    Short value = getValue();
-    if (value == null) {
-      value = 0;
-    }
-    value = (short) (value + numberToAdd);
-    changeValue(value);
   }
 }

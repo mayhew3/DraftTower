@@ -2,7 +2,7 @@ package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mayhew3.drafttower.server.database.player.*;
+import com.mayhew3.drafttower.server.database.dataobject.*;
 import org.joda.time.LocalDate;
 
 import java.io.BufferedReader;

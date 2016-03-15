@@ -1,4 +1,4 @@
-package com.mayhew3.drafttower.server.database.player;
+package com.mayhew3.drafttower.server.database.dataobject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,6 +1,6 @@
 package com.mayhew3.drafttower.server.database;
 
-import com.mayhew3.drafttower.server.database.player.FieldValue;
+import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
 import com.sun.istack.internal.NotNull;
 
 import java.sql.PreparedStatement;
@@ -19,6 +19,9 @@ public interface SQLConnection {
 
   @NotNull
   Statement executeUpdate(String sql) throws SQLException;
+
+  @NotNull
+  Integer executeUpdateNumberAffectedRows(String sql) throws SQLException;
 
   void closeConnection() throws SQLException;
 

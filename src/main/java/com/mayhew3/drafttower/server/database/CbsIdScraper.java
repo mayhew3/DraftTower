@@ -2,20 +2,16 @@ package com.mayhew3.drafttower.server.database;
 
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
-import com.mayhew3.drafttower.server.database.player.CbsID;
-import com.mayhew3.drafttower.server.database.player.PlayerNameHistory;
+import com.mayhew3.drafttower.server.database.dataobject.CbsID;
+import com.mayhew3.drafttower.server.database.dataobject.PlayerNameHistory;
 import org.joda.time.LocalDate;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
