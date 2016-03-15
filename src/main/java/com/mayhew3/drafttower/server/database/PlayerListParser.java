@@ -72,18 +72,18 @@ public class PlayerListParser {
     return fieldValues.get(playerNameIndex).replace("\"", "").trim();
   }
 
-  private void populateValues(List<String> fieldValues, Player player) {
-    populateValue(fieldValues, player, playerHeader);
+  private void populateValues(List<String> fieldValues, DataObject dataObject) {
+    populateValue(fieldValues, dataObject, playerHeader);
     for (String columnName : statColumns) {
-      populateValue(fieldValues, player, columnName);
+      populateValue(fieldValues, dataObject, columnName);
     }
   }
 
-  private void populateValue(List<String> fieldValues, Player player, String columnName) {
+  private void populateValue(List<String> fieldValues, DataObject dataObject, String columnName) {
     Integer columnNumber = columnNumbers.get(columnName);
     String statValue = fieldValues.get(columnNumber);
 
-    FieldValue fieldValue = player.getFieldWithName(columnName);
+    FieldValue fieldValue = dataObject.getFieldWithName(columnName);
     fieldValue.changeValueFromString(statValue);
   }
 

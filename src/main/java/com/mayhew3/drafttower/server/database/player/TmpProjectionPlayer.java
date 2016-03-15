@@ -1,6 +1,6 @@
 package com.mayhew3.drafttower.server.database.player;
 
-public abstract class TmpProjectionPlayer extends Player {
+public abstract class TmpProjectionPlayer extends DataObject {
 
   public FieldValueString player = registerStringField("Player");
   public FieldValueInteger playerID = registerIntegerField("PlayerID");

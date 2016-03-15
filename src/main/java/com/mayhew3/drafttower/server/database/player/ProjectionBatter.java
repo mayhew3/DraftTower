@@ -1,6 +1,6 @@
 package com.mayhew3.drafttower.server.database.player;
 
-public class ProjectionBatter extends Player {
+public class ProjectionBatter extends DataObject {
 
   public FieldValueInteger dataSource = registerIntegerField("DataSource");
   public FieldValueInteger playerID = registerIntegerField("PlayerID");
