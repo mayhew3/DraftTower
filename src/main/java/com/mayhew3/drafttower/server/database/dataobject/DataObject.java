@@ -132,6 +132,10 @@ public abstract class DataObject {
   }
 
   public Boolean hasChanged() {
+    return !isForInsert() && !getChangedFields().isEmpty();
+  }
+
+  public List<FieldValue> getChangedFields() {
     List<FieldValue> changedFields = new ArrayList<>();
 
     for (FieldValue fieldValue : allFieldValues) {
@@ -139,9 +143,15 @@ public abstract class DataObject {
         changedFields.add(fieldValue);
       }
     }
-
-    return !changedFields.isEmpty();
+    return changedFields;
   }
+
+  public void discardAllChanges() {
+    for (FieldValue fieldValue : getChangedFields()) {
+      fieldValue.discardChange();
+    }
+  }
+
 
   private void updateObjects(List<FieldValue> changedFields) {
     for (FieldValue changedField : changedFields) {

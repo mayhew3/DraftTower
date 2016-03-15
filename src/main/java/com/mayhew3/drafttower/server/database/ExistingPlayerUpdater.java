@@ -4,13 +4,14 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mayhew3.drafttower.server.database.dataobject.CbsID;
+import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
+import com.mayhew3.drafttower.server.database.dataobject.Player;
+import com.mayhew3.drafttower.server.database.dataobject.TmpProjectionBatter;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,9 +32,13 @@ public class ExistingPlayerUpdater {
   private void splitNames() throws SQLException {
     logger.log(Level.INFO, "Splitting names.");
 
-    String sql = "SELECT * FROM Players " +
-        " WHERE NewPlayerString <> PlayerString" +
-        " OR LastName IS NULL";
+    String sql = "SELECT p.* " +
+        "FROM Players p " +
+        "INNER JOIN cbsids cbs " +
+        " ON p.cbs_id = cbs.cbs_id " +
+        "WHERE p.PlayerString <> cbs.PlayerString " +
+        "OR p.NewPlayerString IS NOT NULL " +
+        "OR p.LastName IS NULL;";
 
     ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql);
 
@@ -43,20 +48,11 @@ public class ExistingPlayerUpdater {
     int i = 1;
     while (resultSet.next()) {
       try {
-        int id = resultSet.getInt("ID");
-        String newPlayerString = resultSet.getString("NewPlayerString");
-        String oldPlayerString = resultSet.getString("PlayerString");
+        Player player = new Player();
+        player.initializeFromDBObject(resultSet);
 
-        PlayerInfo existingPlayer = new PlayerInfo();
-        existingPlayer.firstName = resultSet.getString("FirstName");
-        existingPlayer.lastName = resultSet.getString("LastName");
-        existingPlayer.MLBTeam = resultSet.getString("MLBTeam");
-        existingPlayer.Position = resultSet.getString("Position");
-
-        logger.log(Level.INFO, "Running on player '" + newPlayerString + "' (" + id + ")...");
-        updatePlayerFields(id, oldPlayerString, newPlayerString, existingPlayer);
-      } catch (SQLException e) {
-        failures.add(i);
+        logger.log(Level.INFO, "Running on player '" + player + "' (" + player.id.getValue() + ")...");
+        updatePlayerFields(player);
       } catch (FailedPlayer fp) {
         failedPlayers.add(fp);
       } finally {
@@ -78,85 +74,58 @@ public class ExistingPlayerUpdater {
   }
 
 
-  private void updatePlayerFields(int id, String oldPlayerString, String newPlayerString, PlayerInfo existingPlayer) throws FailedPlayer, SQLException {
-    PlayerInfo changedPlayer = parseFromString(id, newPlayerString, existingPlayer);
+  private void updatePlayerFields(Player player) throws FailedPlayer, SQLException {
+    String sql = "SELECT * FROM cbsids WHERE cbs_id = ?";
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, player.cbs_id.getValue());
 
-    if (existingPlayer.lastName == null) {
+    resultSet.next();
 
-      logger.log(Level.INFO, "Splitting '" + newPlayerString + "' into parts.");
+    CbsID cbsID = new CbsID();
+    cbsID.initializeFromDBObject(resultSet);
 
-      String sql = "UPDATE Players SET FirstName = ?, LastName = ?, MLBTeam = ?, Position = ?, UpdateTime = NOW() " +
-                    "WHERE ID = ?";
-      connection.prepareAndExecuteStatementUpdate(sql, changedPlayer.firstName, changedPlayer.lastName, changedPlayer.MLBTeam, changedPlayer.Position, id);
+    Integer id = cbsID.cbs_id.getValue();
 
-      logger.log(Level.INFO, "Updated. " + changedPlayer);
+    String newPlayerString = cbsID.playerString.getValue();
+    String oldPlayerString = player.playerString.getValue();
 
-    } else {
+    PlayerInfo changedPlayer = parseFromString(id, newPlayerString, player.lastName.getValue());
 
-      logger.log(Level.INFO, "Updating '" + oldPlayerString + "' (" + existingPlayer + ") to '" + newPlayerString + "'");
+    player.firstName.changeValue(changedPlayer.firstName);
+    player.lastName.changeValue(changedPlayer.lastName);
+    player.mlbTeam.changeValue(changedPlayer.MLBTeam);
+    player.position.changeValue(changedPlayer.Position);
 
-      Map<String, String> changedFields = Maps.newHashMap();
+    logger.log(Level.INFO, "Updating '" + oldPlayerString + "' (" + player + ") to '" + newPlayerString + "'");
 
-      if (!existingPlayer.firstName.equals(changedPlayer.firstName)) {
-        changedFields.put("FirstName", changedPlayer.firstName);
-      }
-      if (!existingPlayer.lastName.equals(changedPlayer.lastName)) {
-        changedFields.put("LastName", changedPlayer.lastName);
-      }
-      if (!existingPlayer.MLBTeam.equals(changedPlayer.MLBTeam)) {
-        changedFields.put("MLBTeam", changedPlayer.MLBTeam);
-      }
-      if (!existingPlayer.Position.equals(changedPlayer.Position)) {
-        changedFields.put("Position", changedPlayer.Position);
-      }
-      if (!oldPlayerString.equals(newPlayerString)) {
-        changedFields.put("PlayerString", newPlayerString);
-      }
+    List<FieldValue> changedFields = player.getChangedFields();
 
-      int numChanged = changedFields.keySet().size();
-      if (changedFields.keySet().contains("Position") && areCompatible(existingPlayer.Position, changedPlayer.Position)) {
-        numChanged--;
-      }
-
-      if ((changedFields.keySet().contains("FirstName") ||
-          changedFields.keySet().contains("LastName")) && numChanged > 2) {
-        Integer choice = new Integer(InputGetter.grabInput("PlayerID " + id + " changed name. Confirm overwrite? (0 for no, 1 for yes.)"));
-        if (choice < 0 || choice > 1) {
-          throw new IllegalArgumentException("Choice must be 0 or 1.");
-        } else if (choice == 0) {
-          throw new FailedPlayer(id, "User chose not to change player name from " + existingPlayer + " (" + oldPlayerString + ") to " + changedPlayer);
-        }
-      }
-
-      if (changedFields.isEmpty()) {
-        throw new FailedPlayer(id, "Shouldn't have entered update method because player already matches: " + changedPlayer);
-      }
-
-      String updateSQL = "UPDATE Players SET ";
-
-      List<String> clauses = Lists.newArrayList();
-      List<Object> objects = Lists.newArrayList();
-      for (String columnName : changedFields.keySet()) {
-        clauses.add(columnName + " = ?");
-        objects.add(changedFields.get(columnName));
-      }
-
-      updateSQL += Joiner.on(", ").join(clauses);
-      updateSQL += ", UpdateTime = NOW()";
-      updateSQL += " WHERE ID = ?";
-
-      objects.add(id);
-
-      try {
-       connection.prepareAndExecuteStatementUpdate(updateSQL, objects);
-      } catch (SQLException e) {
-        throw new FailedPlayer(id, "Error updating player: " + changedPlayer);
-      }
-
-
-      logger.log(Level.INFO, "UPDATED: " + Joiner.on(", ").join(changedFields.keySet()));
+    int numChanged = changedFields.size();
+    if (player.position.isChanged() && areCompatible(player.position.getChangedValue(), player.position.getOriginalValue())) {
+      numChanged--;
     }
 
+    if ((player.firstName.isChanged() || player.lastName.isChanged()) && numChanged > 2) {
+      if (player.matchPending.getValue() == 0 && player.newPlayerString.getValue() != null) {
+        player.newPlayerString.nullValue();
+        logger.log(Level.INFO, "Match approved: " + oldPlayerString + " -> " + newPlayerString);
+      } else {
+        player.discardAllChanges();
+
+        player.newPlayerString.changeValue(newPlayerString);
+        player.matchPending.changeValue(1);
+
+        player.commit(connection);
+        throw new FailedPlayer(id, "Too many differences for " + oldPlayerString + " -> " + newPlayerString);
+      }
+    }
+
+    player.playerString.changeValue(newPlayerString);
+
+    if (player.hasChanged()) {
+      player.updateTime.changeValue(new Date());
+    }
+
+    player.commit(connection);
   }
 
   private static boolean areCompatible(String position1, String position2) {
@@ -172,7 +141,7 @@ public class ExistingPlayerUpdater {
     return position1.equals(position2);
   }
 
-  private static PlayerInfo parseFromString(int id, String playerString, PlayerInfo existingPlayer) throws FailedPlayer {
+  private static PlayerInfo parseFromString(int id, String playerString, String previousLastName) throws FailedPlayer {
     PlayerInfo playerInfo = new PlayerInfo();
 
     List<String> parts = Lists.newArrayList(playerString.split(" "));
@@ -211,7 +180,7 @@ public class ExistingPlayerUpdater {
         List<String> firstNameStrings = parts.subList(0, firstNameSize);
         String potentialFirstName = joiner.join(firstNameStrings);
 
-        if (Objects.equals(existingPlayer.lastName, potentialLastName)) {
+        if (Objects.equals(previousLastName, potentialLastName)) {
 
           playerInfo.firstName = potentialFirstName;
           playerInfo.lastName = potentialLastName;
@@ -228,7 +197,7 @@ public class ExistingPlayerUpdater {
         displayOptions.add(i+1 + ") '" + potentialLastNames.get(i) + "'");
       }
       Joiner commaJoiner = Joiner.on(", ");
-      String selectedOption = InputGetter.grabInput("Potential last names: " + commaJoiner.join(displayOptions) + ", 0) None of these. ");
+      String selectedOption = InputGetter.grabInput("'" + playerString + "'  Potential last names: " + commaJoiner.join(displayOptions) + ", 0) None of these. ");
       Integer selectedIndex = Integer.valueOf(selectedOption);
 
       if (selectedIndex == null || selectedIndex == 0) {
