@@ -1,6 +1,9 @@
 package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
+import com.mayhew3.drafttower.server.database.dataobject.TmpProjectionBatterFactory;
+import com.mayhew3.drafttower.server.database.dataobject.TmpProjectionPitcherFactory;
+import com.mayhew3.drafttower.server.database.dataobject.TmpStatTableFactory;
 import org.joda.time.LocalDate;
 
 import java.io.File;
@@ -51,21 +54,19 @@ public class ProjectionsUploader {
   }
 
   public void updateDatabase() throws IOException, SQLException {
-    updatePlayers(PlayerType.BATTER, statsDate);
-    updatePlayers(PlayerType.PITCHER, statsDate);
+    updatePlayers("batter", statsDate, batterColumns, new TmpProjectionBatterFactory());
+    updatePlayers("pitcher", statsDate, pitcherColumns, new TmpProjectionPitcherFactory());
   }
 
-  private void updatePlayers(PlayerType playerType, LocalDate statsDate) throws IOException, SQLException {
+  private void updatePlayers(String playerType, LocalDate statsDate, List<String> batterColumns, TmpStatTableFactory tmpStatTableFactory) throws IOException, SQLException {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMdd");
 
-    String pathname = "database/" + statsDate.getYear() + "/" + playerType.name + "Projections" + simpleDateFormat.format(statsDate.toDate()) + ".csv";
+    String pathname = "database/" + statsDate.getYear() + "/" + playerType + "Projections" + simpleDateFormat.format(statsDate.toDate()) + ".csv";
 
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
-    List<String> columns = playerType == PlayerType.BATTER ? batterColumns : pitcherColumns;
-
-    PlayerListParser playerListParser = new PlayerListParser(playerType, fileReader, statsDate, columns);
+    PlayerListParser playerListParser = new PlayerListParser(fileReader, tmpStatTableFactory, statsDate, batterColumns);
     playerListParser.uploadPlayersToDatabase(connection);
   }
 }

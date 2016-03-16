@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PlayerListParser {
-  private PlayerType playerType;
   private Reader reader;
+  private TmpStatTableFactory factory;
 
   private LocalDate statDate;
 
@@ -27,49 +27,37 @@ public class PlayerListParser {
 
   private static final Logger logger = Logger.getLogger(PlayerListParser.class.getName());
 
-  public PlayerListParser(PlayerType playerType, Reader reader, LocalDate statDate, List<String> statColumns) {
-    this.playerType = playerType;
+  public PlayerListParser(Reader reader, TmpStatTableFactory factory, LocalDate statDate, List<String> statColumns) {
     this.reader = reader;
+    this.factory = factory;
     this.statDate = statDate;
     this.statColumns = statColumns;
   }
 
   public void uploadPlayersToDatabase(SQLConnection connection) throws IOException, SQLException {
     BufferedReader bufferedReader = new BufferedReader(reader);
-
     findHeaderRow(bufferedReader);
 
     String line;
-
     int i = 1;
 
     while ((line = bufferedReader.readLine()) != null) {
-
       List<String> fieldValues = splitRowIntoColumns(line);
 
       if (fieldValues.size() > 1) {
-
-        TmpProjectionPlayer player = (playerType == PlayerType.BATTER) ? new TmpProjectionBatter() : new TmpProjectionPitcher();
-
+        TmpStatTable player = factory.createTmpStatTable();
         player.initializeForInsert();
 
         populateValues(fieldValues, player);
         player.statDate.changeValue(statDate.toDate());
 
         player.commit(connection);
-
         logger.log(Level.INFO, "- Player " + i + " '" + player.player.getValue() + "' uploaded.");
-
         i++;
       } else {
         logger.log(Level.INFO, "Row skipped: " + line);
       }
     }
-  }
-
-  private String getPlayerName(List<String> fieldValues) {
-    Integer playerNameIndex = columnNumbers.get(playerHeader);
-    return fieldValues.get(playerNameIndex).replace("\"", "").trim();
   }
 
   private void populateValues(List<String> fieldValues, DataObject dataObject) {
@@ -83,8 +71,21 @@ public class PlayerListParser {
     Integer columnNumber = columnNumbers.get(columnName);
     String statValue = fieldValues.get(columnNumber);
 
+    String modifiedValue = transformSpecialValue(columnName, statValue);
+    modifiedValue = modifiedValue.trim();
+
     FieldValue fieldValue = dataObject.getFieldWithName(columnName);
-    fieldValue.changeValueFromString(statValue);
+    fieldValue.changeValueFromString(modifiedValue);
+  }
+
+  private String transformSpecialValue(String columnName, String statValue) {
+    if ("Eligible".equals(columnName)) {
+      return statValue.replace("\"", "");
+    } else if (playerHeader.equals(columnName)) {
+      return statValue.replace(" | ", " ");
+    } else {
+      return statValue;
+    }
   }
 
   private BufferedReader findHeaderRow(BufferedReader bufferedReader) throws IOException {

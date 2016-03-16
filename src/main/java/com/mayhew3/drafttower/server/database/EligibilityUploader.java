@@ -1,6 +1,7 @@
 package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
+import com.mayhew3.drafttower.server.database.dataobject.TmpEligibilityFactory;
 import org.joda.time.LocalDate;
 
 import java.io.File;
@@ -26,8 +27,8 @@ public class EligibilityUploader {
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
-    EligibilityParser eligibilityParser = new EligibilityParser(fileReader, statsDate, Lists.newArrayList("Eligible"));
-    eligibilityParser.uploadPlayersToDatabase(connection);
+    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpEligibilityFactory(), statsDate, Lists.newArrayList("Eligible"));
+    playerListParser.uploadPlayersToDatabase(connection);
   }
 
 }
