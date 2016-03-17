@@ -1,19 +1,32 @@
 package com.mayhew3.drafttower.server.database;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ConnectPlayerTable {
   private SQLConnection connection;
+  private Integer scoringSystemYear;
 
   public ConnectPlayerTable(SQLConnection connection) {
     this.connection = connection;
+
+    // only needs to be updated when scoring system changes, and new row is added to 'scoringbatting' and 'scoringpitching'.
+    this.scoringSystemYear = 2015;
+  }
+
+  public static void main(String... args) throws URISyntaxException, SQLException, IOException {
+    SQLConnection connection = new MySQLConnectionFactory().createConnection();
+    ConnectPlayerTable connectPlayerTable = new ConnectPlayerTable(connection);
+    connectPlayerTable.updateDatabase();
   }
 
   public void updateDatabase() throws SQLException {
     updateBattingProjections();
     updatePitchingProjections();
+    updateFPTS();
   }
 
   private void updateBattingProjections() throws SQLException {
@@ -22,7 +35,6 @@ public class ConnectPlayerTable {
     Date statDate = getLatestStatDate(tmp_cbsbatting);
 
 //    updatePlayerIDs(tmp_cbsbatting, statDate);
-
     updateBatterEligibilityColumn(statDate);
 
     deletePartialProjections("projectionsBatting");
@@ -33,7 +45,6 @@ public class ConnectPlayerTable {
     updateBatterCalculatedStats();
 
     redoBattingAveragesTable();
-
     redoBattingAveragesProjectionRows();
   }
 
@@ -42,7 +53,7 @@ public class ConnectPlayerTable {
 
     Date statDate = getLatestStatDate(tmp_cbspitching);
 
-    updatePlayerIDs(tmp_cbspitching, statDate);
+//    updatePlayerIDs(tmp_cbspitching, statDate);
     updatePitcherEligibilityColumn();
 
     deletePartialProjections("projectionsPitching");
@@ -50,7 +61,6 @@ public class ConnectPlayerTable {
     checkNumProjectionsReasonable(tmp_cbspitching, 1700, 3000, statDate);
 
     insertProjectionsPitching(statDate);
-
     updatePitcherCalculatedStats(15, 20);
 
     redoPitchingAveragesTable();
@@ -76,19 +86,58 @@ public class ConnectPlayerTable {
   }
 
   private void updatePitcherCalculatedStats(final int gamesStarted, final int saves) throws SQLException {
-    connection.prepareAndExecuteStatementUpdate("update projectionsPitching\n" +
+    connection.prepareAndExecuteStatementUpdate(
+        "update projectionsPitching\n" +
         "set WL = (W-L),\n" +
         "    INN = OUTS/3,\n" +
         "    ERA = ER/OUTS*27,\n" +
         "    WHIP = (HA+BBI)/(OUTS/3),\n" +
         "    TeamERA = (ER+467)/(OUTS/3+1038)*9,\n" +
         "    TeamWHIP = ((HA+1023)+(BBI+329)) / (OUTS/3+1038)");
-    connection.prepareAndExecuteStatementUpdate("UPDATE projectionsPitching\n" +
+    connection.prepareAndExecuteStatementUpdate(
+        "UPDATE projectionsPitching\n" +
         "SET Role = ?\n" +
         "WHERE GS > ?", "Starter", gamesStarted);
-    connection.prepareAndExecuteStatementUpdate("UPDATE projectionsPitching\n" +
+    connection.prepareAndExecuteStatementUpdate(
+        "UPDATE projectionsPitching\n" +
         "SET Role = ?\n" +
         "WHERE S > ?", "Closer", saves);
+  }
+
+  private void updateFPTS() throws SQLException {
+
+    connection.prepareAndExecuteStatementUpdate("UPDATE projectionsBatting\n" +
+        "SET FPTS = (SELECT (\n" +
+        " projectionsBatting.`1B` * sb.`1B` +\n" +
+        " projectionsBatting.`2B` * sb.`2B` +\n" +
+        " projectionsBatting.`3B` * sb.`3B` +\n" +
+        " projectionsBatting.`AB` * sb.`AB` +\n" +
+        " projectionsBatting.`BB` * sb.`BB` +\n" +
+        " projectionsBatting.`CS` * sb.`CS` +\n" +
+        " projectionsBatting.`HR` * sb.`HR` +\n" +
+        " projectionsBatting.`KO` * sb.`KO` +\n" +
+        " projectionsBatting.`R` * sb.`R` +\n" +
+        " projectionsBatting.`RBI` * sb.`RBI` +\n" +
+        " projectionsBatting.`SB` * sb.`SB` \n" +
+        " ) FROM scoringBatting sb\n" +
+        "   WHERE Year = ?)", scoringSystemYear);
+
+    connection.prepareAndExecuteStatementUpdate(
+        "UPDATE projectionsPitching\n" +
+            "SET FPTS = (SELECT (\n" +
+            " projectionsPitching.`BBI` * sp.`BBI` +\n" +
+            " projectionsPitching.`BS` * sp.`BS` +\n" +
+            " projectionsPitching.`ER` * sp.`ER` +\n" +
+            " projectionsPitching.CG * sp.CG +\n" +
+            " projectionsPitching.`HA` * sp.`HA` +\n" +
+            " (projectionsPitching.`OUTS` /3) * sp.`INN` +\n" +
+            " projectionsPitching.`K` * sp.`K` +\n" +
+            " projectionsPitching.`L` * sp.`L` +\n" +
+            " projectionsPitching.`S` * sp.`S` +\n" +
+            " projectionsPitching.`SO` * sp.`SO` +\n" +
+            " projectionsPitching.`W` * sp.`W`\n" +
+            " ) FROM scoringPitching sp\n" +
+            "   WHERE Year = ?)", scoringSystemYear);
   }
 
   private void insertProjectionsPitching(Date statDate) throws SQLException {

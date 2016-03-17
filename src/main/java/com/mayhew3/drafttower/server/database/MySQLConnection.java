@@ -66,6 +66,7 @@ public class MySQLConnection implements SQLConnection {
   @Override
   public ResultSet prepareAndExecuteStatementFetch(String sql, List<Object> params) throws SQLException {
     PreparedStatement preparedStatement = prepareStatementWithParams(sql, params);
+    logger.log(Level.INFO, preparedStatement.toString());
     return preparedStatement.executeQuery();
   }
 

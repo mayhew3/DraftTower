@@ -30,5 +30,9 @@ public class DraftPrepRunner {
     // insert rows from temp tables into projection tables
     ConnectPlayerTable connectPlayerTable = new ConnectPlayerTable(connection);
     connectPlayerTable.updateDatabase();
+
+    // add custom rankings for each team based on averages
+    InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
+    initCustomRankings.updateDatabase();
   }
 }
