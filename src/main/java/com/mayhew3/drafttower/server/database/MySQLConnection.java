@@ -3,12 +3,18 @@ package com.mayhew3.drafttower.server.database;
 import com.google.common.collect.Lists;
 import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
 import com.sun.istack.internal.NotNull;
+import com.sun.org.apache.xml.internal.resolver.helpers.Debug;
+import sun.util.logging.PlatformLogger;
 
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MySQLConnection implements SQLConnection {
+
+  private Logger logger = Logger.getLogger(MySQLConnection.class.getName());
 
   private Connection _connection;
 
@@ -72,7 +78,7 @@ public class MySQLConnection implements SQLConnection {
   @Override
   public void prepareAndExecuteStatementUpdate(String sql, List<Object> params) throws SQLException {
     PreparedStatement preparedStatement = prepareStatementWithParams(sql, params);
-
+    logger.log(Level.INFO, preparedStatement.toString());
     preparedStatement.executeUpdate();
     preparedStatement.close();
   }
@@ -182,8 +188,8 @@ public class MySQLConnection implements SQLConnection {
         preparedStatement.setBigDecimal(i, (BigDecimal) param);
       } else if (param instanceof Double) {
         preparedStatement.setDouble(i, (Double) param);
-      } else if (param instanceof Timestamp) {
-        preparedStatement.setTimestamp(i, (Timestamp) param);
+      } else if (param instanceof Date) {
+        preparedStatement.setDate(i, (Date) param);
       } else if (param instanceof Boolean) {
         preparedStatement.setBoolean(i, (Boolean) param);
       } else {

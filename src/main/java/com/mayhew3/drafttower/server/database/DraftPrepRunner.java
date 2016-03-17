@@ -26,5 +26,9 @@ public class DraftPrepRunner {
     // update player table based on new CBS IDs and changed Player Strings.
     PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(connection);
     playerStringSplitter.updateDatabase();
+
+    // insert rows from temp tables into projection tables
+    ConnectPlayerTable connectPlayerTable = new ConnectPlayerTable(connection);
+    connectPlayerTable.updateDatabase();
   }
 }
