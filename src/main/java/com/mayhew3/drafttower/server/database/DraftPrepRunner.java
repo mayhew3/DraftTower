@@ -34,5 +34,8 @@ public class DraftPrepRunner {
     // add custom rankings for each team based on averages
     InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
     initCustomRankings.updateDatabase();
+
+    DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
+    draftResultsClearer.updateDatabase();
   }
 }
