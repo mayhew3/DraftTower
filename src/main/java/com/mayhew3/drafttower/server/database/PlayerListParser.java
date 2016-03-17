@@ -82,7 +82,10 @@ public class PlayerListParser {
     if ("Eligible".equals(columnName)) {
       return statValue.replace("\"", "");
     } else if (playerHeader.equals(columnName)) {
-      return statValue.replace(" | ", " ");
+      return statValue
+          .replace("\"", "")
+          .replace(" | ", " ")
+          .replace("*", "");
     } else {
       return statValue;
     }
