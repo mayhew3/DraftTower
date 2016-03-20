@@ -48,6 +48,11 @@ public class DraftPrepRunner {
     InjuryUpdater injuryUpdater = new InjuryUpdater(connection);
     injuryUpdater.updateDatabase();
 
+    // Get rid of DH noise in the Player eligibility strings
+    TrimEligibilities trimEligibilities = new TrimEligibilities(connection);
+    trimEligibilities.updateDatabase();
+
+
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
     draftResultsClearer.updateDatabase();
   }
