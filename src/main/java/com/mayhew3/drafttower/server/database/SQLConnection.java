@@ -93,6 +93,16 @@ public interface SQLConnection {
 
   /**
    * - Create PreparedStatement using SQL.
+   *
+   * @param sql SQL query that should be run
+   * @return PreparedStatement object
+   * @throws SQLException
+   */
+  @NotNull
+  PreparedStatement prepareStatementNoParams(String sql) throws SQLException;
+
+  /**
+   * - Create PreparedStatement using SQL.
    * - Plug given parameters into PreparedStatement.
    *
    * @param sql SQL query that should be run
@@ -126,6 +136,26 @@ public interface SQLConnection {
    */
   @NotNull
   ResultSet executePreparedStatementWithParams(PreparedStatement preparedStatement, List<Object> params) throws SQLException;
+
+  /**
+   * - Plug given parameters into given PreparedStatement.
+   * - Execute PreparedStatement. (NOTE: doesn't close PreparedStatement. Be sure to close it when done.)
+   *
+   * @param preparedStatement that will be parameterized and executed.
+   * @param params vararg of parameters that will be plugged in.
+   * @throws SQLException
+   */
+  void executePreparedUpdateWithParams(PreparedStatement preparedStatement, Object... params) throws SQLException;
+
+  /**
+   * - Plug given parameters into given PreparedStatement.
+   * - Execute PreparedStatement. (NOTE: doesn't close PreparedStatement. Be sure to close it when done.)
+   *
+   * @param preparedStatement that will be parameterized and executed.
+   * @param params list of parameters that will be plugged in.
+   * @throws SQLException
+   */
+  void executePreparedUpdateWithParams(PreparedStatement preparedStatement, List<Object> params) throws SQLException;
 
 
 
@@ -180,4 +210,5 @@ public interface SQLConnection {
    */
   @NotNull
   void executePreparedUpdateWithFields(PreparedStatement preparedStatement, List<FieldValue> fieldValues) throws SQLException;
+
 }

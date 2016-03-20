@@ -40,6 +40,10 @@ public class DraftPrepRunner {
     PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(connection, new Date(statsDate.toDate().getTime()));
     populateDraftAverages.updateDatabase();
 
+    // Clear and populate the Eligibilities table
+    PopulateEligibilities populateEligibilities = new PopulateEligibilities(connection);
+    populateEligibilities.updateDatabase();
+
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
     draftResultsClearer.updateDatabase();
   }
