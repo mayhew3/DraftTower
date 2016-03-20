@@ -44,6 +44,10 @@ public class DraftPrepRunner {
     PopulateEligibilities populateEligibilities = new PopulateEligibilities(connection);
     populateEligibilities.updateDatabase();
 
+    // Update player injury column
+    InjuryUpdater injuryUpdater = new InjuryUpdater(connection);
+    injuryUpdater.updateDatabase();
+
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
     draftResultsClearer.updateDatabase();
   }
