@@ -4,6 +4,7 @@ import org.joda.time.LocalDate;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Date;
 import java.sql.SQLException;
 
 public class DraftPrepRunner {
@@ -34,6 +35,23 @@ public class DraftPrepRunner {
     // add custom rankings for each team based on averages
     InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
     initCustomRankings.updateDatabase();
+
+    // Copy ranks from Draft Averages into projection tables
+    PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(connection, new Date(statsDate.toDate().getTime()));
+    populateDraftAverages.updateDatabase();
+
+    // Clear and populate the Eligibilities table
+    PopulateEligibilities populateEligibilities = new PopulateEligibilities(connection);
+    populateEligibilities.updateDatabase();
+
+    // Update player injury column
+    InjuryUpdater injuryUpdater = new InjuryUpdater(connection);
+    injuryUpdater.updateDatabase();
+
+    // Get rid of DH noise in the Player eligibility strings
+    TrimEligibilities trimEligibilities = new TrimEligibilities(connection);
+    trimEligibilities.updateDatabase();
+
 
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
     draftResultsClearer.updateDatabase();

@@ -84,11 +84,12 @@ public class MySQLConnection implements SQLConnection {
     preparedStatement.close();
   }
 
-
-
-
-
   // Operations with user handle on PreparedStatement
+
+  @Override
+  public PreparedStatement prepareStatementNoParams(String sql) throws SQLException {
+    return _connection.prepareStatement(sql);
+  }
 
   @Override
   public PreparedStatement prepareStatementWithParams(String sql, List<Object> params) throws SQLException {
@@ -109,6 +110,13 @@ public class MySQLConnection implements SQLConnection {
     return statementWithParams.executeQuery();
   }
 
+  @Override
+  public void executePreparedUpdateWithParams(PreparedStatement preparedStatement, Object... paramList) throws SQLException {
+    executePreparedUpdateWithParams(preparedStatement, Lists.newArrayList(paramList));
+  }
+
+
+  @Override
   public void executePreparedUpdateWithParams(PreparedStatement preparedStatement, List<Object> paramList) throws SQLException {
     PreparedStatement statementWithParams = plugParamsIntoStatement(preparedStatement, paramList);
     statementWithParams.executeUpdate();
