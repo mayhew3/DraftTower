@@ -27,7 +27,10 @@ public class MySQLConnectionFactory extends ConnectionFactory {
     }
 
     try {
-      return DriverManager.getConnection("jdbc:mysql://localhost:3306/uncharted", "root", "m3mysql");
+      String dbhost = System.getenv("dbhost");
+      String dbuser = System.getenv("dbuser");
+      String dbpassword = System.getenv("dbpassword");
+      return DriverManager.getConnection(dbhost, dbuser, dbpassword);
     } catch (SQLException e) {
       System.out.println("Cannot connect to database. Exiting.");
       throw new RuntimeException(e.getLocalizedMessage());

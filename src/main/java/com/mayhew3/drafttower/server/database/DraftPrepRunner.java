@@ -4,6 +4,7 @@ import org.joda.time.LocalDate;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Date;
 import java.sql.SQLException;
 
 public class DraftPrepRunner {
@@ -34,6 +35,10 @@ public class DraftPrepRunner {
     // add custom rankings for each team based on averages
     InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
     initCustomRankings.updateDatabase();
+
+    // Copy ranks from Draft Averages into projection tables
+    PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(connection, new Date(statsDate.toDate().getTime()));
+    populateDraftAverages.updateDatabase();
 
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
     draftResultsClearer.updateDatabase();
