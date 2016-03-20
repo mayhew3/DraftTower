@@ -14,10 +14,11 @@ public class UpdateCBSProjections extends DatabaseUtility {
   public static void main(String[] args) throws SQLException {
     initConnection();
 
-    updateAllPlayersInTable("tmp_cbsbatting");
-    updateAllPlayersInTable("tmp_cbspitching");
-    updateAllPlayersInTable("tmpeligibility");
-    updateAllPlayersInTable("cbs_draftaverages");
+//    updateAllPlayersInTable("tmp_cbsbatting");
+//    updateAllPlayersInTable("tmp_cbspitching");
+//    updateAllPlayersInTable("tmp_cbspitchers_adv");
+    updateAllPlayersInTable("tmp_eligibility");
+//    updateAllPlayersInTable("cbs_draftaverages");
   }
 
   private static void updateAllPlayersInTable(String tableName) throws SQLException {

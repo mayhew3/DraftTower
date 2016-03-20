@@ -2,7 +2,7 @@ package com.mayhew3.drafttower.server.database;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -55,12 +55,12 @@ public class DailyPitcher extends DailyPlayer {
       "WP"
   };
 
-  public DailyPitcher(DateMidnight statDate) {
+  public DailyPitcher(DateTime statDate) {
     super(statDate);
   }
 
 
-  public static void prepareStatement(DatabaseUtility utility) {
+  public static void prepareStatement(DatabaseConnection utility) {
 
     List<String> questionMarks = new ArrayList<>();
 

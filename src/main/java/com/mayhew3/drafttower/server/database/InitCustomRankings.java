@@ -1,19 +1,37 @@
 package com.mayhew3.drafttower.server.database;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Logger;
 
-public class InitCustomRankings extends DatabaseUtility {
+public class InitCustomRankings {
 
-  public static void main(String[] args) {
-    initConnection();
+  private Logger logger = Logger.getLogger(InitCustomRankings.class.getName());
 
+  private SQLConnection connection;
+
+  public static void main(String... args) throws URISyntaxException, SQLException, IOException {
+    SQLConnection connection = new MySQLConnectionFactory().createConnection();
+    InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
+    initCustomRankings.updateDatabase();
+  }
+
+  public InitCustomRankings(SQLConnection connection) {
+    this.connection = connection;
+  }
+
+  public void updateDatabase() throws SQLException {
     logger.info("Initializing Custom Rankings.");
 
-    String sql = "select id from teams";
-    ResultSet resultSet = executeQuery(sql);
+    connection.prepareAndExecuteStatementUpdate("truncate table customrankings");
 
-    while (hasMoreElements(resultSet)) {
-      int teamID = getInt(resultSet, "id");
+    String sql = "select id from teams";
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql);
+
+    while (resultSet.next()) {
+      int teamID = resultSet.getInt("ID");
       verifyRankingsDontExist(teamID);
       prepareTmpTable();
       insertRankingsForTeam(teamID);
@@ -21,21 +39,21 @@ public class InitCustomRankings extends DatabaseUtility {
 
   }
 
-  private static void prepareTmpTable() {
-    executeUpdate("truncate table tmp_rankings");
-    executeUpdate("alter table tmp_rankings auto_increment = 1");
+  private void prepareTmpTable() throws SQLException {
+    connection.prepareAndExecuteStatementUpdate("truncate table tmp_rankings");
+    connection.prepareAndExecuteStatementUpdate("alter table tmp_rankings auto_increment = 1");
   }
 
-  private static void verifyRankingsDontExist(int teamID) {
+  private void verifyRankingsDontExist(int teamID) throws SQLException {
     String sql = "select count(1) as existingRanks from customrankings where teamid = ?";
-    ResultSet resultSet = prepareAndExecuteStatementFetch(sql, teamID);
-    hasMoreElements(resultSet);
-    if (getInt(resultSet, "existingRanks") > 0) {
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, teamID);
+    resultSet.next();
+    if (resultSet.getInt("existingRanks") > 0) {
       throw new RuntimeException("Cannot overwrite existing rankings for team id " + teamID);
     }
   }
 
-  private static void insertRankingsForTeam(int teamID) {
+  private void insertRankingsForTeam(int teamID) throws SQLException {
     String sql = "insert into tmp_rankings (TeamID, PlayerID)\n" +
         "select ?, PlayerID \n" +
         "FROM \n" +
@@ -47,11 +65,11 @@ public class InitCustomRankings extends DatabaseUtility {
         "    FROM projectionsPitching pp\n" +
         "    WHERE DataSource = 1)\n" +
         "    ORDER BY FPTS DESC) a";
-    prepareAndExecuteStatementUpdate(sql, teamID);
+    connection.prepareAndExecuteStatementUpdate(sql, teamID);
 
     sql = "insert into customrankings (TeamID, PlayerID, Rank)\n" +
         "select TeamID, PlayerID, Rank\n" +
         "from tmp_rankings";
-    executeUpdate(sql);
+    connection.prepareAndExecuteStatementUpdate(sql);
   }
 }
