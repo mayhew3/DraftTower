@@ -157,6 +157,16 @@ public class UnclaimedPlayerTable extends PlayerTable<Player>
       }
     });
 
+    setRowStyles(new RowStyles<Player>() {
+      @Override
+      public String getStyleNames(Player player, int rowIndex) {
+        if (player.isFavorite()) {
+          return CSS.favorite();
+        }
+        return null;
+      }
+    });
+
     final SingleSelectionModel<Player> selectionModel = new SingleSelectionModel<>();
     setSelectionModel(selectionModel,
         DefaultSelectionEventManager.<Player>createBlacklistManager(getColumnIndex(favoriteColumn)));

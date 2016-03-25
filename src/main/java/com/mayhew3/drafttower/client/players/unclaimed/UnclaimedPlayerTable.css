@@ -3,12 +3,16 @@
   cursor: pointer;
 }
 
-.favoriteColumn .favorite {
+.favorite .favoriteColumn {
   color: #000;
 }
 
-.gwt-CellTable-cellTableSelectedRowCell.favoriteColumn .favorite {
+.favorite .gwt-CellTable-cellTableSelectedRowCell.favoriteColumn {
   color: #FFF;
+}
+
+.favorite {
+  background: #ddf;
 }
 
 .injury {

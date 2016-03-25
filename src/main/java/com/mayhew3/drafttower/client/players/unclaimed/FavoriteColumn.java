@@ -21,8 +21,8 @@ import static com.google.gwt.dom.client.BrowserEvents.CLICK;
 public class FavoriteColumn extends Column<Player, Boolean> {
 
   public interface Templates extends SafeHtmlTemplates {
-    @Template("<span class=\"{0}\">{1}</span>")
-    SafeHtml favorite(String className, SafeHtml starEntity);
+    @Template("<span>{0}</span>")
+    SafeHtml favorite(SafeHtml starEntity);
   }
   private static final Templates TEMPLATES = GWT.create(Templates.class);
 
@@ -39,9 +39,9 @@ public class FavoriteColumn extends Column<Player, Boolean> {
     @Override
     public SafeHtml render(Boolean value) {
       if (value) {
-        return TEMPLATES.favorite(UnclaimedPlayerTable.CSS.favorite(), filledStar);
+        return TEMPLATES.favorite(filledStar);
       } else {
-        return TEMPLATES.favorite("", emptyStar);
+        return TEMPLATES.favorite(emptyStar);
       }
     }
   }
