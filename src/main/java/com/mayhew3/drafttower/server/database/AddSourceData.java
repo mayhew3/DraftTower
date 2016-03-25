@@ -79,7 +79,7 @@ public class AddSourceData extends DatabaseUtility {
 
       PreparedStatement updateStatement = getPreparedStatement("UPDATE " + tableName + " SET PlayerID = ? WHERE " + idCol + " = ?");
 
-      String conditionClause = "FROM Players WHERE FirstName = ? AND LastName = ? AND MLBTeam = ? AND Position = ?";
+      String conditionClause = "FROM players WHERE FirstName = ? AND LastName = ? AND MLBTeam = ? AND Position = ?";
       PreparedStatement matchingCountStatement = getPreparedStatement("SELECT COUNT(*) AS numMatching " + conditionClause);
 
       PreparedStatement allPlayersStatement = getPreparedStatement("SELECT * FROM " + tableName + " WHERE PlayerID IS NULL ORDER BY ? " + rankOrder);
@@ -169,7 +169,7 @@ public class AddSourceData extends DatabaseUtility {
     private int findSmartMapMatch(SourcePlayer sourcePlayer) throws FailedPlayer {
       String sql = "SELECT p.ID AS PlayerID " +
           " FROM playeridmap pim " +
-          " INNER JOIN Players p " +
+          " INNER JOIN players p " +
           "   ON p.CBS_ID = pim.CBSID " +
           " WHERE pim.FIRSTNAME = ? AND pim.LASTNAME = ? AND pim.TEAM = ? ";
       List<Object> params = Lists.newArrayList((Object)sourcePlayer.firstName, sourcePlayer.lastName, sourcePlayer.mlbTeam);
@@ -205,7 +205,7 @@ public class AddSourceData extends DatabaseUtility {
 
     private int findGusScrapeMatch(SourcePlayer sourcePlayer) throws FailedPlayer {
       String sql = "SELECT p.ID AS PlayerID " +
-          "FROM Players p " +
+          "FROM players p " +
           "INNER JOIN cbsids_2013 cbs " +
           "  ON p.CBS_ID = cbs.CBS_ID " +
           "WHERE cbs.PlayerString = ?";
@@ -307,7 +307,7 @@ public class AddSourceData extends DatabaseUtility {
     public void fixTeamNames() {
       List<String> systemTeamNames = Lists.newArrayList();
 
-      ResultSet systemTeamResults = executeQuery("SELECT MLBTeam FROM Players GROUP BY MLBTeam ORDER BY MLBTeam");
+      ResultSet systemTeamResults = executeQuery("SELECT MLBTeam FROM players GROUP BY MLBTeam ORDER BY MLBTeam");
       while (hasMoreElements(systemTeamResults)) {
         systemTeamNames.add(getString(systemTeamResults, "MLBTeam"));
       }
@@ -380,12 +380,12 @@ public class AddSourceData extends DatabaseUtility {
       }
 
       private ResultSet getMatchesOnNameOnly() {
-        return prepareAndExecuteStatementFetch("SELECT * FROM Players WHERE FirstName = ? AND LastName = ? AND " + getDuplicateClause(),
+        return prepareAndExecuteStatementFetch("SELECT * FROM players WHERE FirstName = ? AND LastName = ? AND " + getDuplicateClause(),
             Lists.newArrayList((Object) firstName, lastName));
       }
 
       private ResultSet getAlreadyPairedPlayersWithName() {
-        return prepareAndExecuteStatementFetch("SELECT * FROM Players WHERE FirstName = ? AND LastName = ? AND ID IN (SELECT PlayerID FROM " + tableName + " WHERE PlayerID IS NOT NULL)",
+        return prepareAndExecuteStatementFetch("SELECT * FROM players WHERE FirstName = ? AND LastName = ? AND ID IN (SELECT PlayerID FROM " + tableName + " WHERE PlayerID IS NOT NULL)",
             Lists.newArrayList((Object) firstName, lastName));
       }
 
@@ -397,7 +397,7 @@ public class AddSourceData extends DatabaseUtility {
           return null;
         }
 
-        String sql = "SELECT * FROM Players WHERE FirstName = ? AND LastName = ?";
+        String sql = "SELECT * FROM players WHERE FirstName = ? AND LastName = ?";
         PreparedStatement preparedStatement = addClausesToNameOnlyQuery(sql);
 
         return executePreparedStatementAlreadyHavingParameters(preparedStatement);

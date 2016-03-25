@@ -7,12 +7,20 @@ import org.joda.time.LocalDate;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 public class EligibilityUploader {
   private SQLConnection connection;
   private LocalDate statsDate;
+
+  public static void main(String... args) throws URISyntaxException, SQLException, IOException {
+    LocalDate statsDate = new LocalDate(2016, 3, 24);
+    SQLConnection connection = new MySQLConnectionFactory().createConnection();
+    EligibilityUploader eligibilityUploader = new EligibilityUploader(connection, statsDate);
+    eligibilityUploader.updateDatabase();
+  }
 
   public EligibilityUploader(SQLConnection connection, LocalDate statsDate) {
     this.connection = connection;

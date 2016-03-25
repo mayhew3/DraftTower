@@ -30,6 +30,12 @@ public class CbsIdScraper {
   private SQLConnection connection;
   private LocalDate localDate;
 
+  public static void main(String... args) throws Exception {
+    LocalDate localDate = new LocalDate(2016, 3, 24);
+    CbsIdScraper cbsIdScraper = new CbsIdScraper(new MySQLConnectionFactory().createConnection(), localDate);
+    cbsIdScraper.updateDatabase();
+  }
+
   public CbsIdScraper(SQLConnection connection, LocalDate localDate) {
     this.connection = connection;
     this.localDate = localDate;
@@ -100,6 +106,7 @@ public class CbsIdScraper {
     playerNameHistory.cbs_id.changeValue(cbsID.cbs_id.getValue());
     playerNameHistory.playerString.changeValue(cbsID.playerString.getOriginalValue());
     playerNameHistory.lastUpdated.changeValue(cbsID.dateModified.getOriginalValue());
+    playerNameHistory.dateChanged.changeValue(localDate.toDate());
 
     playerNameHistory.commit(connection);
   }

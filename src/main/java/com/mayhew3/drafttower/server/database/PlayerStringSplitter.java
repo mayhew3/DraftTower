@@ -7,6 +7,7 @@ import com.mayhew3.drafttower.server.database.dataobject.CbsID;
 import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
 import com.mayhew3.drafttower.server.database.dataobject.Player;
 
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -19,6 +20,11 @@ public class PlayerStringSplitter {
 
   private static final Logger logger = Logger.getLogger(PlayerStringSplitter.class.getName());
 
+  public static void main(String... args) throws URISyntaxException, SQLException {
+    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(new MySQLConnectionFactory().createConnection());
+    playerStringSplitter.updateDatabase();
+  }
+
   public PlayerStringSplitter(SQLConnection connection) {
     this.connection = connection;
   }
@@ -29,10 +35,10 @@ public class PlayerStringSplitter {
   }
 
   private void insertNewPlayers() throws SQLException {
-    String sql = "INSERT INTO Players (PlayerString, CBS_ID, CreateTime, UpdateTime) " +
+    String sql = "INSERT INTO players (PlayerString, CBS_ID, CreateTime, UpdateTime) " +
         "SELECT cbs.PlayerString, cbs.CBS_ID, NOW(), NOW() " +
         "FROM cbsids cbs " +
-        "LEFT OUTER JOIN Players p " +
+        "LEFT OUTER JOIN players p " +
         "  ON cbs.CBS_ID = p.CBS_ID " +
         "WHERE p.CBS_ID IS NULL;";
     connection.prepareAndExecuteStatementUpdate(sql);
@@ -44,7 +50,7 @@ public class PlayerStringSplitter {
     logger.log(Level.INFO, "Splitting names.");
 
     String sql = "SELECT p.* " +
-        "FROM Players p " +
+        "FROM players p " +
         "INNER JOIN cbsids cbs " +
         " ON p.cbs_id = cbs.cbs_id " +
         "WHERE p.PlayerString <> cbs.PlayerString " +

@@ -18,7 +18,7 @@ public class SplitPlayerNames extends DatabaseUtility {
 
     System.out.println("Splitting names.");
 
-//    tableName = "Players";
+//    tableName = "players";
 //    tableName = "cbsids";
 //    tableName = "cbs_draftaverages";
     tableName = "tmp_cbsbatting";

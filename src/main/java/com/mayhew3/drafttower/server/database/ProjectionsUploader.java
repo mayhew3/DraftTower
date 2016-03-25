@@ -9,6 +9,7 @@ import org.joda.time.LocalDate;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -47,6 +48,13 @@ public class ProjectionsUploader {
       "SO",
       "W"
   );
+
+  public static void main(String... args) throws URISyntaxException, SQLException, IOException {
+    LocalDate statsDate = new LocalDate(2016, 3, 24);
+    SQLConnection connection = new MySQLConnectionFactory().createConnection();
+    ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
+    projectionsUploader.updateDatabase();
+  }
 
   public ProjectionsUploader(SQLConnection connection, LocalDate statsDate) {
     this.connection = connection;

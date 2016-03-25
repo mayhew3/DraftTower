@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class DraftPrepRunner {
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
-    LocalDate statsDate = new LocalDate(2016, 3, 6);
+    LocalDate statsDate = new LocalDate(2016, 3, 24);
 
     // insert CBS projections into temp tables
     ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
