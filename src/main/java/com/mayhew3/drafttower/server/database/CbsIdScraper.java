@@ -31,7 +31,7 @@ public class CbsIdScraper {
   private LocalDate localDate;
 
   public static void main(String... args) throws Exception {
-    LocalDate localDate = new LocalDate(2016, 3, 24);
+    LocalDate localDate = DraftPrepRunner.statsDate;
     CbsIdScraper cbsIdScraper = new CbsIdScraper(new MySQLConnectionFactory().createConnection(), localDate);
     cbsIdScraper.updateDatabase();
   }
@@ -62,6 +62,8 @@ public class CbsIdScraper {
             if (matcher.find()) {
               String injuryNote = matcher.group(1);
               cbsID.injuryNote.changeValue(injuryNote);
+            } else {
+              cbsID.injuryNote.nullValue();
             }
 
             if (cbsID.isForInsert()) {

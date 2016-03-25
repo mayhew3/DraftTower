@@ -50,7 +50,7 @@ public class ProjectionsUploader {
   );
 
   public static void main(String... args) throws URISyntaxException, SQLException, IOException {
-    LocalDate statsDate = new LocalDate(2016, 3, 24);
+    LocalDate statsDate = DraftPrepRunner.statsDate;
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
     ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
     projectionsUploader.updateDatabase();

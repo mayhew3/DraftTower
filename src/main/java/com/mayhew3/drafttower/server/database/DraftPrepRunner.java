@@ -8,9 +8,10 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 public class DraftPrepRunner {
+  static LocalDate statsDate = new LocalDate(2016, 3, 24);
+
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
-    LocalDate statsDate = new LocalDate(2016, 3, 24);
 
     // insert CBS projections into temp tables
     ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
@@ -51,6 +52,10 @@ public class DraftPrepRunner {
     // Get rid of DH noise in the Player eligibility strings
     TrimEligibilities trimEligibilities = new TrimEligibilities(connection);
     trimEligibilities.updateDatabase();
+
+    // Update keepers
+    PopulateKeepers populateKeepers = new PopulateKeepers(connection);
+    populateKeepers.updateDatabase();
 
 
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);

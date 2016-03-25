@@ -16,7 +16,7 @@ public class EligibilityUploader {
   private LocalDate statsDate;
 
   public static void main(String... args) throws URISyntaxException, SQLException, IOException {
-    LocalDate statsDate = new LocalDate(2016, 3, 24);
+    LocalDate statsDate = DraftPrepRunner.statsDate;
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
     EligibilityUploader eligibilityUploader = new EligibilityUploader(connection, statsDate);
     eligibilityUploader.updateDatabase();

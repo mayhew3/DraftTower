@@ -17,7 +17,7 @@ public class AvgDraftPosUploader {
   private LocalDate statsDate;
 
   public static void main(String... args) throws URISyntaxException, SQLException, IOException {
-    LocalDate statsDate = new LocalDate(2016, 3, 24);
+    LocalDate statsDate = DraftPrepRunner.statsDate;
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
     AvgDraftPosUploader avgDraftPosUploader = new AvgDraftPosUploader(connection, statsDate);
     avgDraftPosUploader.updateDatabase();
