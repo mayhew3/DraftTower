@@ -21,7 +21,7 @@ public class PopulatePlayerTable extends DatabaseUtility {
     List<String> tableNames = Lists.newArrayList("tmp_cbsbatting", "tmp_cbspitching");
     List<FailedPlayer> failedPlayers = Lists.newArrayList();
 
-    PreparedStatement exactMatchSQL = getPreparedStatement("SELECT COUNT(1) AS NumMatches FROM Players " +
+    PreparedStatement exactMatchSQL = getPreparedStatement("SELECT COUNT(1) AS NumMatches FROM players " +
                 "WHERE FirstName = ? AND LastName = ? AND MLBTeam = ? AND Position = ? AND PlayerString = ?");
 
     for (String tableName : tableNames) {
@@ -50,7 +50,7 @@ public class PopulatePlayerTable extends DatabaseUtility {
 
           // if exact match found, no update required
           if (getInt(exactMatches, "NumMatches") < 1) {
-            String nameMatchSQL = "SELECT COUNT(1) AS NumMatches FROM Players WHERE FirstName = ? AND LastName = ?";
+            String nameMatchSQL = "SELECT COUNT(1) AS NumMatches FROM players WHERE FirstName = ? AND LastName = ?";
             ResultSet nameMatches = prepareAndExecuteStatementFetch(nameMatchSQL, playerInfo.firstName, playerInfo.lastName);
             hasMoreElements(nameMatches);
 
@@ -89,7 +89,7 @@ public class PopulatePlayerTable extends DatabaseUtility {
   private static boolean userSaysYes(PlayerInfo playerInfo) {
     System.out.println("Existing Players with same Last Name as " + playerInfo + ":");
 
-    String sql = "SELECT PlayerString FROM Players WHERE LastName = ?";
+    String sql = "SELECT PlayerString FROM players WHERE LastName = ?";
     ResultSet resultSet = prepareAndExecuteStatementFetch(sql, playerInfo.lastName);
 
     boolean hasElements = false;
@@ -109,7 +109,7 @@ public class PopulatePlayerTable extends DatabaseUtility {
   private static void addPlayer(PlayerInfo playerInfo, String playerString) throws FailedPlayer {
     logger.log(Level.INFO, "Adding Player: " + playerInfo);
 
-    String sql = "INSERT INTO Players (FirstName, LastName, MLBTeam, Position, PlayerString) " +
+    String sql = "INSERT INTO players (FirstName, LastName, MLBTeam, Position, PlayerString) " +
                 "VALUES (?, ?, ?, ?, ?)";
     prepareAndExecuteStatementUpdate(sql, playerInfo.firstName, playerInfo.lastName, playerInfo.MLBTeam, playerInfo.Position, playerString);
 
@@ -120,7 +120,7 @@ public class PopulatePlayerTable extends DatabaseUtility {
 
     logger.log(Level.INFO, "Updating fields on Player: " + playerInfo);
 
-    String sql = "SELECT ID, MLBTeam, Position, PlayerString FROM Players WHERE FirstName = ? AND LastName = ?";
+    String sql = "SELECT ID, MLBTeam, Position, PlayerString FROM players WHERE FirstName = ? AND LastName = ?";
     ResultSet singleRow = prepareAndExecuteStatementFetch(sql, playerInfo.firstName, playerInfo.lastName);
 
     if (!hasMoreElements(singleRow)) {
@@ -148,7 +148,7 @@ public class PopulatePlayerTable extends DatabaseUtility {
       throw new FailedPlayer(id, "Shouldn't have entered update method because single player match already has same MLBTeam and Position: " + playerInfo);
     }
 
-    String updateSQL = "UPDATE Players SET ";
+    String updateSQL = "UPDATE players SET ";
 
     List<String> clauses = Lists.newArrayList();
     List<Object> objects = Lists.newArrayList();

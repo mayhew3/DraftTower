@@ -34,7 +34,7 @@ public class ConnectPlayerTable {
 
     Date statDate = getLatestStatDate(tmp_cbsbatting);
 
-//    updatePlayerIDs(tmp_cbsbatting, statDate);
+    updatePlayerIDs(tmp_cbsbatting, statDate);
     updateBatterEligibilityColumn(statDate);
 
     deletePartialProjections("projectionsBatting");
@@ -53,7 +53,7 @@ public class ConnectPlayerTable {
 
     Date statDate = getLatestStatDate(tmp_cbspitching);
 
-//    updatePlayerIDs(tmp_cbspitching, statDate);
+    updatePlayerIDs(tmp_cbspitching, statDate);
     updatePitcherEligibilityColumn();
 
     deletePartialProjections("projectionsPitching");
@@ -220,13 +220,13 @@ public class ConnectPlayerTable {
   private void updatePlayerIDs(final String tableName, Date statDate) throws SQLException {
     connection.prepareAndExecuteStatementUpdate(
         "UPDATE " + tableName + " cbs " +
-            "SET cbs.PlayerID = (SELECT p.ID FROM Players p WHERE cbs.Player = p.PlayerString) " +
+            "SET cbs.PlayerID = (SELECT p.ID FROM players p WHERE cbs.Player = p.PlayerString) " +
             "WHERE cbs.StatDate = ?", statDate);
   }
 
   private void updateBatterEligibilityColumn(Date statDate) throws SQLException {
     connection.prepareAndExecuteStatementUpdate(
-        "UPDATE Players p " +
+        "UPDATE players p " +
             "SET p.Eligibility = (SELECT e.Eligible " +
             "FROM tmp_eligibility e " +
             "WHERE e.Player = p.PlayerString " +
@@ -235,7 +235,7 @@ public class ConnectPlayerTable {
   }
   private void updatePitcherEligibilityColumn() throws SQLException {
     connection.prepareAndExecuteStatementUpdate(
-        "UPDATE Players p " +
+        "UPDATE players p " +
             "SET p.Eligibility = ? " +
             "WHERE p.Position IN (?, ?, ?) " +
             "AND p.Eligibility IS NULL", "P", "P", "SP", "RP"

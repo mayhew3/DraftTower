@@ -36,7 +36,7 @@ public class PopulateKeepers {
   }
 
   private int getPlayerIDFromFirstAndLastName(String firstName, String lastName) throws SQLException {
-    ResultSet resultSet = connection.prepareAndExecuteStatementFetch("SELECT ID FROM Players WHERE FirstName = ? AND LastName = ?", firstName, lastName);
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch("SELECT ID FROM players WHERE FirstName = ? AND LastName = ?", firstName, lastName);
     if (resultSet.next()) {
       int playerID = resultSet.getInt("ID");
       if (resultSet.next()) {
