@@ -21,6 +21,10 @@ public class DraftPrepRunner {
     EligibilityUploader eligibilityUploader = new EligibilityUploader(connection, statsDate);
     eligibilityUploader.updateDatabase();
 
+    // insert CBS draft averages into temp table
+    AvgDraftPosUploader avgDraftPosUploader = new AvgDraftPosUploader(connection, statsDate);
+    avgDraftPosUploader.updateDatabase();
+
     // update mapping of CBS IDs to Player Strings.
     CbsIdScraper cbsIdScraper = new CbsIdScraper(connection, statsDate);
     cbsIdScraper.updateDatabase();
