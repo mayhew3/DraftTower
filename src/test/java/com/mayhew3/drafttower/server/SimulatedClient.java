@@ -197,7 +197,7 @@ public abstract class SimulatedClient implements WebsocketListener {
     AutoBean<GetPlayerQueueRequest> request = beanFactory.createPlayerQueueRequest();
     request.as().setTeamToken(teamToken);
     Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
-    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_GET);
+    Mockito.when(req.getServletPath()).thenReturn(ServletEndpoints.QUEUE_GET);
     HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
     Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
     queueServlet.doPost(req, resp);
@@ -210,7 +210,7 @@ public abstract class SimulatedClient implements WebsocketListener {
     request.as().setPlayerId(playerId);
     request.as().setPosition(position);
     Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
-    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_ADD);
+    Mockito.when(req.getServletPath()).thenReturn(ServletEndpoints.QUEUE_ADD);
     HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
     Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
     queueServlet.doPost(req, resp);
@@ -222,7 +222,7 @@ public abstract class SimulatedClient implements WebsocketListener {
     request.as().setTeamToken(teamToken);
     request.as().setPlayerId(playerId);
     Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
-    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_REMOVE);
+    Mockito.when(req.getServletPath()).thenReturn(ServletEndpoints.QUEUE_REMOVE);
     HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
     Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
     queueServlet.doPost(req, resp);
@@ -235,7 +235,7 @@ public abstract class SimulatedClient implements WebsocketListener {
     request.as().setPlayerId(playerId);
     request.as().setNewPosition(newPosition);
     Mockito.when(req.getReader()).thenReturn(new BufferedReader(new StringReader(AutoBeanCodex.encode(request).getPayload())));
-    Mockito.when(req.getPathInfo()).thenReturn(ServletEndpoints.QUEUE_REORDER);
+    Mockito.when(req.getServletPath()).thenReturn(ServletEndpoints.QUEUE_REORDER);
     HttpServletResponse resp = Mockito.mock(HttpServletResponse.class);
     Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
     queueServlet.doPost(req, resp);

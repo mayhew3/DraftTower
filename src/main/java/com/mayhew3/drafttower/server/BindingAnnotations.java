@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.inject.BindingAnnotation;
-
+import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -12,37 +11,37 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Annotations for dependency binding.
  */
 public class BindingAnnotations {
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface TeamTokens {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface Keepers {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface Queues {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface AutoPickWizards {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface MinClosers {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface MaxClosers {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface DraftTimerListenerList {}

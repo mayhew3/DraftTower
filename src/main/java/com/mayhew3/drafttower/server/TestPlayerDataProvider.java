@@ -25,7 +25,7 @@ public class TestPlayerDataProvider extends PlayerDataProvider {
       @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
       @MinClosers Map<TeamDraftOrder, Integer> minClosers,
       @MaxClosers Map<TeamDraftOrder, Integer> maxClosers,
-      @TeamTokens Map<String, TeamDraftOrder> teamTokens) throws DataSourceException {
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     super(dataSource, beanFactory, teamDataSource, autoPickWizardTables, minClosers, maxClosers, teamTokens);
   }
 

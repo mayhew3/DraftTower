@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.inject.BindingAnnotation;
-
+import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -12,67 +11,67 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Gin binding annotations for client-side dependency bindings.
  */
 public class GinBindingAnnotations {
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface LoginUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface DraftSocketUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface UnclaimedPlayerInfoUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface ChangePlayerRankUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface CopyPlayerRanksUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface SetAutoPickWizardUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface SetCloserLimitsUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface AddOrRemoveFavoriteUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface QueuesUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface GraphsUrl {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface CurrentTime {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface TtsUrlPrefix {}
 
-  @BindingAnnotation
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface PlayerPopupUrlPrefix {}

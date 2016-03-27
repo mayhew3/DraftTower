@@ -1,10 +1,11 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.LoginResponse;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Info about teams, including this client's team.  Holds a {@link LoginResponse}.

@@ -14,14 +14,14 @@ public class ConnectivityIndicatorGwtTest extends TestBase {
 
   public void testConnectivityIndicatorRedAfterDisconnect() {
     login(1);
-    ginjector.getWebSocket().close();
+    testComponent.webSocket().close();
     assertFalse(hasStyle(CONNECTIVITY_INDICATOR, ConnectivityIndicator.CSS.connected()));
   }
 
   public void testConnectivityIndicatorGreenAfterDisconnectAndAutoReconnect() {
     login(1);
-    ginjector.getWebSocket().close();
-    ginjector.getScheduler().flush();
+    testComponent.webSocket().close();
+    testComponent.scheduler().flush();
     assertTrue(hasStyle(CONNECTIVITY_INDICATOR, ConnectivityIndicator.CSS.connected()));
   }
 }

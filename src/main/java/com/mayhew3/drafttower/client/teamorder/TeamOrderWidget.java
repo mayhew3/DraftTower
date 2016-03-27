@@ -10,8 +10,9 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
+
+import javax.inject.Inject;
 
 /**
  * Widget showing the order of upcoming picks.

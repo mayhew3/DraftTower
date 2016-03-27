@@ -2,60 +2,72 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.BindingAnnotations.*;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.QueueEntry;
+import dagger.Module;
+import dagger.Provides;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Dependency bindings which can be used as-is in tests.
  */
-public class ServerTestSafeModule extends AbstractGinModule {
+@Module
+public class ServerTestSafeModule {
+
+  public static class EagerSingletons {
+    @Inject DraftController draftController;
+    @Inject public EagerSingletons() {}
+  }
+
 
   @Provides @Singleton @Keepers
-  public ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataProvider playerDataProvider) throws DataSourceException {
-    return playerDataProvider.getAllKeepers();
+  public static ListMultimap<TeamDraftOrder, Integer> getKeepers(PlayerDataProvider playerDataProvider) {
+    try {
+      return playerDataProvider.getAllKeepers();
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Provides @Singleton @Queues
-  public ListMultimap<TeamDraftOrder, QueueEntry> getQueues() {
+  public static ListMultimap<TeamDraftOrder, QueueEntry> getQueues() {
     return ArrayListMultimap.create();
   }
 
   @Provides @Singleton @AutoPickWizards
-  public Map<TeamDraftOrder, PlayerDataSet> getAutoPickWizardTables(TeamDataSource teamDataSource) {
+  public static Map<TeamDraftOrder, PlayerDataSet> getAutoPickWizardTables(TeamDataSource teamDataSource) {
     return teamDataSource.getAutoPickWizards();
   }
 
   @Provides @Singleton @MinClosers
-  public Map<TeamDraftOrder, Integer> getMinClosers(TeamDataSource teamDataSource) {
+  public static Map<TeamDraftOrder, Integer> getMinClosers(TeamDataSource teamDataSource) {
     return teamDataSource.getMinClosers();
   }
 
   @Provides @Singleton @MaxClosers
-  public Map<TeamDraftOrder, Integer> getMaxClosers(TeamDataSource teamDataSource) {
+  public static Map<TeamDraftOrder, Integer> getMaxClosers(TeamDataSource teamDataSource) {
     return teamDataSource.getMaxClosers();
   }
 
   @Provides @Singleton
-  public DraftStatus getDraftStatus(BeanFactory beanFactory) {
+  public static DraftStatus getDraftStatus(BeanFactory beanFactory) {
     return beanFactory.createDraftStatus().as();
   }
 
   @Provides @Singleton @TeamTokens
-  public Map<String, TeamDraftOrder> getTeamTokens() {
+  public static Map<String, TeamDraftOrder> getTeamTokens() {
     return new ConcurrentHashMap<>();
   }
 
-  @Override
-  protected void configure() {
-    bind(DraftController.class).to(DraftControllerImpl.class).asEagerSingleton();
+  @Provides @Singleton
+  public static DraftController getDraftController(DraftControllerImpl impl) {
+    return impl;
   }
 }

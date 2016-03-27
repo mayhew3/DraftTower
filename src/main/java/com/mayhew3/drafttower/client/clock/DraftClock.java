@@ -10,8 +10,9 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.SchedulerWrapper;
+
+import javax.inject.Inject;
 
 /**
  * Widget for displaying the draft clock.

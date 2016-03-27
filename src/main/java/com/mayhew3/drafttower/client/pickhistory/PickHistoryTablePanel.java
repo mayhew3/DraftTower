@@ -10,10 +10,11 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.BackOutPickEvent;
 import com.mayhew3.drafttower.client.events.LoginEvent;
+
+import javax.inject.Inject;
 
 /**
  * Widget containing pick history table and commissioner back-out control.

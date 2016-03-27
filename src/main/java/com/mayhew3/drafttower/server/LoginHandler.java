@@ -1,6 +1,5 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.MaxClosers;
@@ -8,6 +7,7 @@ import com.mayhew3.drafttower.server.BindingAnnotations.MinClosers;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
+import javax.inject.Inject;
 import java.util.Map;
 import java.util.Map.Entry;
 

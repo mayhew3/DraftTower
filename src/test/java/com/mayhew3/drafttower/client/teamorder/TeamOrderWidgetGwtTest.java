@@ -65,7 +65,7 @@ public class TeamOrderWidgetGwtTest extends TestBase {
   public void testTeamStatuses() {
     login(1);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setConnectedTeams(Sets.newHashSet(1, 3, 5, 6));
     draftStatus.setRobotTeams(Sets.newHashSet(3, 5));
     draftStatus.setNextPickKeeperTeams(Sets.newHashSet(4, 5, 6));
@@ -101,7 +101,7 @@ public class TeamOrderWidgetGwtTest extends TestBase {
   public void testItsOver() {
     login(1);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setOver(true);
     simulateDraftStatus(draftStatus);
     assertEquals("It's over!", getInnerText("-teamOrder-round"));

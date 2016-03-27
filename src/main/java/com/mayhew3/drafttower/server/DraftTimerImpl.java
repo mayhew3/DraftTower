@@ -2,6 +2,7 @@ package com.mayhew3.drafttower.server;
 
 import com.google.common.collect.Lists;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -16,6 +17,9 @@ public class DraftTimerImpl implements DraftTimer {
 
   private final ScheduledThreadPoolExecutor pickTimer = new ScheduledThreadPoolExecutor(1);
   private ScheduledFuture<?> currentPickTimer;
+
+  @Inject
+  public DraftTimerImpl() {}
 
   @Override
   public void addListener(Listener listener) {

@@ -185,7 +185,7 @@ public class UnclaimedPlayerTablePanelGwtTest extends TestBase {
   @SuppressWarnings("ConstantConditions")
   public void testCopyRanksCheckbox() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click(Scoring.CATEGORIES ? "-players-table-0-13" : "-players-table-0-19");
     click("-players-autopickSettings");
     assertFalse(isEnabled("-players-copyRanks"));

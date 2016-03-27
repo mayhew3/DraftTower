@@ -11,8 +11,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.PlayerPopupUrlPrefix;
 import com.mayhew3.drafttower.client.audio.AudioWidget;
 import com.mayhew3.drafttower.client.audio.SpeechControlWidget;
@@ -33,6 +31,9 @@ import com.mayhew3.drafttower.client.players.unclaimed.UnclaimedPlayerTablePanel
 import com.mayhew3.drafttower.client.teamorder.TeamOrderWidget;
 import com.mayhew3.drafttower.client.websocket.ConnectivityIndicator;
 import com.mayhew3.drafttower.shared.Player;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Widget containing the entire UI.

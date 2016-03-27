@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.view.client.HasData;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DequeuePlayerEvent;
@@ -20,6 +18,8 @@ import com.mayhew3.drafttower.client.players.PlayerTableView;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
 /**

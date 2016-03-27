@@ -9,11 +9,11 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.Scoring;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;

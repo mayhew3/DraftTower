@@ -1,7 +1,8 @@
 package com.mayhew3.drafttower.shared;
 
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
+
+import javax.inject.Inject;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.*;
 import static com.mayhew3.drafttower.shared.Position.P;

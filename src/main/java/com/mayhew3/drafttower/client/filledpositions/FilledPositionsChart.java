@@ -10,9 +10,9 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.Position;
 
+import javax.inject.Inject;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;

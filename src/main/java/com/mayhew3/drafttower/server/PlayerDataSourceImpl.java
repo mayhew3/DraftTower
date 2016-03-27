@@ -3,11 +3,11 @@ package com.mayhew3.drafttower.server;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;

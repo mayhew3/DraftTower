@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server;
 
+import javax.inject.Inject;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -9,6 +10,7 @@ public class LockImpl implements Lock {
 
   private final ReentrantLock lock;
 
+  @Inject
   public LockImpl() {
     lock = new ReentrantLock();
   }

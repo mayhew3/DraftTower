@@ -11,6 +11,7 @@ import com.googlecode.gwt.charts.client.corechart.ColumnChartOptions;
 import com.googlecode.gwt.charts.client.options.*;
 import com.mayhew3.drafttower.shared.Scoring;
 
+import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
 
@@ -18,6 +19,10 @@ import java.util.List;
  * Live implementation of {@link BarGraphsApi}.
  */
 public class LiveBarGraphsApi implements BarGraphsApi {
+
+  @Inject
+  public LiveBarGraphsApi() {}
+
   @Override
   public void loadVisualizationApi(final Runnable callback) {
     ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);

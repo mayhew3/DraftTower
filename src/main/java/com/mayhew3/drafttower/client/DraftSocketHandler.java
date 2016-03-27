@@ -2,9 +2,6 @@ package com.mayhew3.drafttower.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gwt.event.shared.EventBus;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.CurrentTime;
@@ -14,6 +11,9 @@ import com.mayhew3.drafttower.client.websocket.WebsocketListener;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.DraftCommand.Command;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

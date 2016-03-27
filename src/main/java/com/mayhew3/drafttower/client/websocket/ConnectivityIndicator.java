@@ -6,9 +6,10 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.events.SocketConnectEvent;
 import com.mayhew3.drafttower.client.events.SocketDisconnectEvent;
+
+import javax.inject.Inject;
 
 /**
  * Indicator light showing connectivity to the server.

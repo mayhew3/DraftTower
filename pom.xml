@@ -136,19 +136,20 @@
       <version>18.0</version>
     </dependency>
     <dependency>
-      <groupId>com.google.gwt.inject</groupId>
-      <artifactId>gin</artifactId>
-      <version>2.1.2</version>
+      <groupId>com.google.dagger</groupId>
+      <artifactId>dagger</artifactId>
+      <version>2.1</version>
     </dependency>
     <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>3.0</version>
+      <groupId>com.google.dagger</groupId>
+      <artifactId>dagger-compiler</artifactId>
+      <version>2.1</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.google.inject.extensions</groupId>
-      <artifactId>guice-servlet</artifactId>
-      <version>3.0</version>
+      <groupId>com.google.dagger</groupId>
+      <artifactId>dagger-gwt</artifactId>
+      <version>2.1</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>
@@ -188,11 +189,6 @@
       <version>0.9.10</version>
     </dependency>
     <dependency>
-      <groupId>com.google.guiceberry</groupId>
-      <artifactId>guiceberry</artifactId>
-      <version>3.1.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.10.19</version>
@@ -201,6 +197,11 @@
       <groupId>org.jpmml</groupId>
       <artifactId>pmml-evaluator</artifactId>
       <version>1.1.15</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.3.3</version>
     </dependency>
   </dependencies>
   <build>

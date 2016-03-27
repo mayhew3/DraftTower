@@ -6,9 +6,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.view.client.HasData;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.*;
@@ -19,6 +16,9 @@ import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.client.serverrpc.ServerRpc;
 import com.mayhew3.drafttower.shared.*;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.util.*;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.NAME;

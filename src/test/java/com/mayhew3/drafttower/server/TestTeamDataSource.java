@@ -1,11 +1,11 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 import com.mayhew3.drafttower.shared.Team;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +22,9 @@ public class TestTeamDataSource implements TeamDataSource {
   private final HashMap<TeamDraftOrder, PlayerDataSet> autoPickWizards = new HashMap<>();
   private final HashMap<TeamDraftOrder, Integer> minClosers = new HashMap<>();
   private final HashMap<TeamDraftOrder, Integer> maxClosers = new HashMap<>();
+
+  @Inject
+  public TestTeamDataSource() {}
 
   @Override
   public TeamDraftOrder getTeamDraftOrder(String username, String password) {

@@ -1,12 +1,12 @@
 package com.mayhew3.drafttower.client.audio;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**

@@ -1,10 +1,11 @@
 package com.mayhew3.drafttower.client.players.unclaimed;
 
 import com.google.gwt.cell.client.Cell;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.PlayerColumn;
+
+import javax.inject.Provider;
 
 /**
  * Player table column for scoring stat.

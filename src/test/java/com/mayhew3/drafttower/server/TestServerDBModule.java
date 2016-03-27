@@ -1,10 +1,10 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.inject.Provides;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider.FakeCurrentTimeProvider;
 import com.mysql.jdbc.Driver;
+import dagger.Module;
+import dagger.Provides;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -19,7 +19,8 @@ import java.sql.SQLException;
 /**
  * Test versions of dependencies, but with live in-memory database.
  */
-public class TestServerDBModule extends AbstractGinModule {
+@Module
+public class TestServerDBModule {
 
   public static final String URL = "jdbc:mysql:mxj:///test";
   public static final String RESET_USERS =
@@ -35,12 +36,16 @@ public class TestServerDBModule extends AbstractGinModule {
       "";
 
   @Provides @Singleton
-  public DataSource getDatabase() throws SQLException {
+  public static DataSource getDatabase() {
     String driverClassName = Driver.class.getName();
     BasicDataSource dataSource = new BasicDataSource();
     dataSource.setDriverClassName(driverClassName);
     dataSource.setUrl(URL);
-    initDB(dataSource);
+    try {
+      initDB(dataSource);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
     return dataSource;
   }
 
@@ -59,12 +64,28 @@ public class TestServerDBModule extends AbstractGinModule {
     }
   }
 
-  @Override
-  protected void configure() {
-    bind(CurrentTimeProvider.class).to(FakeCurrentTimeProvider.class);
-    bind(DraftTimer.class).to(TestDraftTimer.class).in(Singleton.class);
-    bind(PredictionModel.class).to(TestPredictionModel.class);
-    bind(PlayerDataSource.class).to(PlayerDataSourceImpl.class).in(Singleton.class);
-    bind(TeamDataSource.class).to(TeamDataSourceImpl.class).in(Singleton.class);
+  @Provides
+  public static CurrentTimeProvider getCurrentTimeProvider(FakeCurrentTimeProvider impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static DraftTimer getDraftTimer(TestDraftTimer impl) {
+    return impl;
+  }
+
+  @Provides
+  public static PredictionModel getPredictionModel(TestPredictionModel impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static PlayerDataSource getPlayerDataSource(PlayerDataSourceImpl impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static TeamDataSource getTeamDataSource(TeamDataSourceImpl impl) {
+    return impl;
   }
 }

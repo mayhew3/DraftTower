@@ -9,7 +9,6 @@ import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
 import com.mayhew3.drafttower.shared.ClientDraftStatus;
 import com.mayhew3.drafttower.shared.DraftPick;
 
-import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -23,7 +22,6 @@ public abstract class PlayerDataProvider<T> implements
   private PlayerTableView<T> view;
   protected ClientDraftStatus lastStatus;
 
-  @Inject
   public PlayerDataProvider(EventBus eventBus) {
     this.delegate = new AsyncDataProvider<T>() {
       @Override

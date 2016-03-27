@@ -3,6 +3,7 @@ package com.mayhew3.drafttower.shared;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -31,6 +32,9 @@ public class RosterUtil {
 
   private static final List<Position> POSITIONS_BY_VALUE = ImmutableList.of(
       C, SS, SB, TB, FB, OF, DH, P);
+
+  @Inject
+  public RosterUtil() {}
 
   public static List<String> splitEligibilities(String eligibility) {
     if (eligibility.isEmpty()) {
