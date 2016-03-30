@@ -25,6 +25,10 @@ public class DraftPrepRunner {
     AvgDraftPosUploader avgDraftPosUploader = new AvgDraftPosUploader(connection, statsDate);
     avgDraftPosUploader.updateDatabase();
 
+    // insert CBS expert rankings into temp table
+    Top300Uploader top300Uploader = new Top300Uploader(connection, statsDate);
+    top300Uploader.updateDatabase();
+
     // update mapping of CBS IDs to Player Strings.
     CbsIdScraper cbsIdScraper = new CbsIdScraper(connection, statsDate);
     cbsIdScraper.updateDatabase();
@@ -48,6 +52,10 @@ public class DraftPrepRunner {
     // Clear and populate the Eligibilities table
     PopulateEligibilities populateEligibilities = new PopulateEligibilities(connection);
     populateEligibilities.updateDatabase();
+
+    // Update projectionsbatting and projectionspitching Rank column based on average rank in temp table
+    PopulateExpertRankings populateExpertRankings = new PopulateExpertRankings(connection, new Date(statsDate.toDate().getTime()));
+    populateExpertRankings.updateDatabase();
 
     // Update player injury column
     InjuryUpdater injuryUpdater = new InjuryUpdater(connection);
