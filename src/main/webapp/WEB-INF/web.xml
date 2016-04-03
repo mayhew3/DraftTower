@@ -7,19 +7,13 @@
 
   <!-- Filters -->
   <filter>
-    <filter-name>guiceFilter</filter-name>
-    <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+      <filter-name>Dagger Filter</filter-name>
+      <filter-class>com.mayhew3.drafttower.server.ServletFilter</filter-class>
   </filter>
-
   <filter-mapping>
-    <filter-name>guiceFilter</filter-name>
-    <url-pattern>/*</url-pattern>
+      <filter-name>Dagger Filter</filter-name>
+      <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <!-- Listeners -->
-  <listener>
-    <listener-class>com.mayhew3.drafttower.server.ServletConfig</listener-class>
-  </listener>
 
   <!-- Default page to serve -->
   <welcome-file-list>

@@ -1,9 +1,6 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.user.client.Window;
-import com.google.inject.Provider;
-import com.google.inject.Provides;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.*;
 import com.mayhew3.drafttower.client.graphs.BarGraphsApi;
 import com.mayhew3.drafttower.client.graphs.LiveBarGraphsApi;
@@ -14,16 +11,19 @@ import com.mayhew3.drafttower.client.websocket.WebsocketImpl;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider.CurrentTimeProviderImpl;
 import com.mayhew3.drafttower.shared.ServletEndpoints;
+import dagger.Module;
+import dagger.Provides;
 
 import javax.inject.Singleton;
 
 /**
  * Dependency injection module for live client-side dependencies.
  */
-public class DraftTowerLiveGinModule extends AbstractGinModule {
+@Module
+public class DraftTowerClientLiveModule {
 
   @Provides @LoginUrl
-  public String getLoginUrl() {
+  public static String getLoginUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.LOGIN_ENDPOINT)
@@ -31,22 +31,17 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @DraftSocketUrl
-  public Provider<String> getDraftSocketUrl(final TeamsInfo teamsInfo) {
-    return new Provider<String>() {
-      @Override
-      public String get() {
-        return Window.Location.createUrlBuilder()
-            .setProtocol("ws")
-            .setPort(teamsInfo.getWebSocketPort())
-            .setPath(Window.Location.getPath()
-                + ServletEndpoints.DRAFT_SOCKET_ENDPOINT)
-            .buildString();
-      }
-    };
+  public static String getDraftSocketUrl(final TeamsInfo teamsInfo) {
+    return Window.Location.createUrlBuilder()
+        .setProtocol("ws")
+        .setPort(teamsInfo.getWebSocketPort())
+        .setPath(Window.Location.getPath()
+            + ServletEndpoints.DRAFT_SOCKET_ENDPOINT)
+        .buildString();
   }
 
   @Provides @UnclaimedPlayerInfoUrl
-  public String getUnclaimedPlayerInfoUrl() {
+  public static String getUnclaimedPlayerInfoUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.UNCLAIMED_PLAYERS_ENDPOINT)
@@ -54,7 +49,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @ChangePlayerRankUrl
-  public String getChangePlayerRankUrl() {
+  public static String getChangePlayerRankUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.CHANGE_PLAYER_RANK_ENDPOINT)
@@ -62,7 +57,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @CopyPlayerRanksUrl
-  public String getUpdateAllPlayerRanksUrl() {
+  public static String getUpdateAllPlayerRanksUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.COPY_ALL_PLAYER_RANKS_ENDPOINT)
@@ -70,7 +65,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @SetAutoPickWizardUrl
-  public String getSetAutoPickWizardTableUrl() {
+  public static String getSetAutoPickWizardTableUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.SET_AUTOPICK_WIZARD_ENDPOINT)
@@ -78,7 +73,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @SetCloserLimitsUrl
-  public String getSetCloserLimitsUrl() {
+  public static String getSetCloserLimitsUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.SET_CLOSER_LIMITS_ENDPOINT)
@@ -86,7 +81,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @AddOrRemoveFavoriteUrl
-  public String getAddOrRemoveFavoriteUrl() {
+  public static String getAddOrRemoveFavoriteUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.ADD_OR_REMOVE_FAVORITE_ENDPOINT)
@@ -94,7 +89,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @QueuesUrl
-  public String getQueuesUrl() {
+  public static String getQueuesUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.QUEUE_ENDPOINT)
@@ -102,7 +97,7 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @GraphsUrl
-  public String getGraphsUrl() {
+  public static String getGraphsUrl() {
     return Window.Location.createUrlBuilder()
         .setPath(Window.Location.getPath()
             + ServletEndpoints.GRAPHS_ENDPOINT)
@@ -110,21 +105,37 @@ public class DraftTowerLiveGinModule extends AbstractGinModule {
   }
 
   @Provides @TtsUrlPrefix
-  public String getTtsUrlPrefix() {
+  public static String getTtsUrlPrefix() {
     return "http://translate.google.com/translate_tts?tl=en&q=";
   }
 
   @Provides @PlayerPopupUrlPrefix
-  public String getPlayerPopupUrlPrefix() {
+  public static String getPlayerPopupUrlPrefix() {
     return "http://uncharted.baseball.cbssports.com/players/playerpage/";
   }
 
-  @Override
-  protected void configure() {
-    bind(BarGraphsApi.class).to(LiveBarGraphsApi.class);
-    bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
-    bind(SchedulerWrapper.class).to(LiveScheduler.class);
-    bind(ServerRpc.class).to(ServerRpcImpl.class).in(Singleton.class);
-    bind(Websocket.class).to(WebsocketImpl.class);
+  @Provides
+  public static BarGraphsApi getBarGraphsApi(LiveBarGraphsApi impl) {
+    return impl;
+  }
+
+  @Provides
+  public static CurrentTimeProvider getCurrentTimeProvider(CurrentTimeProviderImpl impl) {
+    return impl;
+  }
+
+  @Provides
+  public static SchedulerWrapper getSchedulerWrapper(LiveScheduler impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static ServerRpc getServerRpc(ServerRpcImpl impl) {
+    return impl;
+  }
+
+  @Provides
+  public static Websocket getWebsocket(WebsocketImpl impl) {
+    return impl;
   }
 }

@@ -92,7 +92,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testNotDroppableWhenNotSortedByRank() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-1");
     assertEquals("0000000000", getInnerText("-players-table-1-2"));
     assertEquals("100100100100100100100100100100", getInnerText("-players-table-2-2"));
@@ -103,7 +103,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByName() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-1");
     assertEquals("0000000000", getInnerText("-players-table-1-2"));
     assertEquals("100100100100100100100100100100", getInnerText("-players-table-2-2"));
@@ -114,7 +114,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByTeam() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-3");
     assertEquals("XXX0", getInnerText("-players-table-1-4"));
     assertEquals("XXX0", getInnerText("-players-table-2-4"));
@@ -125,7 +125,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByElig() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-4");
     assertEquals("1B", getInnerText("-players-table-1-5"));
     assertEquals("1B", getInnerText("-players-table-2-5"));
@@ -139,7 +139,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-5");
     assertEquals("880", getInnerText("-players-table-1-6"));
     assertEquals("860", getInnerText("-players-table-2-6"));
@@ -153,7 +153,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-5");
     assertEquals("132", getInnerText("-players-table-1-6"));
     assertEquals("129", getInnerText("-players-table-2-6"));
@@ -167,7 +167,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-6");
     assertEquals("44", getInnerText("-players-table-1-7"));
     assertEquals("43", getInnerText("-players-table-2-7"));
@@ -181,7 +181,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-6");
     assertEquals("880", getInnerText("-players-table-1-7"));
     assertEquals("860", getInnerText("-players-table-2-7"));
@@ -195,7 +195,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-7");
     assertEquals("132", getInnerText("-players-table-1-8"));
     assertEquals("129", getInnerText("-players-table-2-8"));
@@ -209,7 +209,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-7");
     assertEquals("0.64", getInnerText("-players-table-1-8"));
     assertEquals("0.63", getInnerText("-players-table-2-8"));
@@ -223,7 +223,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-8");
     assertEquals("0.69", getInnerText("-players-table-1-9"));
     assertEquals("0.68", getInnerText("-players-table-2-9"));
@@ -237,7 +237,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-8");
     assertEquals("0.69", getInnerText("-players-table-1-9"));
     assertEquals("0.68", getInnerText("-players-table-2-9"));
@@ -251,7 +251,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-9");
     assertEquals("1.28", getInnerText("-players-table-1-10"));
     assertEquals("1.26", getInnerText("-players-table-2-10"));
@@ -265,7 +265,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-9");
     assertEquals("1.28", getInnerText("-players-table-1-10"));
     assertEquals("1.26", getInnerText("-players-table-2-10"));
@@ -279,7 +279,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-10");
     assertEquals("132", getInnerText("-players-table-1-11"));
     assertEquals("129", getInnerText("-players-table-2-11"));
@@ -293,7 +293,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-10");
     assertEquals("220", getInnerText("-players-table-1-11"));
     assertEquals("215", getInnerText("-players-table-2-11"));
@@ -307,7 +307,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-11");
     assertEquals("44", getInnerText("-players-table-1-12"));
     assertEquals("43", getInnerText("-players-table-2-12"));
@@ -321,7 +321,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-11");
     assertEquals("44", getInnerText("-players-table-1-12"));
     assertEquals("43", getInnerText("-players-table-2-12"));
@@ -335,7 +335,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-12");
     assertEquals("132", getInnerText("-players-table-1-13"));
     assertEquals("129", getInnerText("-players-table-2-13"));
@@ -349,7 +349,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-13");
     assertEquals("132", getInnerText("-players-table-1-14"));
     assertEquals("129", getInnerText("-players-table-2-14"));
@@ -363,7 +363,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-14");
     assertEquals("88", getInnerText("-players-table-1-15"));
     assertEquals("86", getInnerText("-players-table-2-15"));
@@ -377,7 +377,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-15");
     assertEquals("5", getInnerText("-players-table-1-16"));
     assertEquals("5", getInnerText("-players-table-2-16"));
@@ -391,7 +391,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-16");
     assertEquals("44", getInnerText("-players-table-1-17"));
     assertEquals("43", getInnerText("-players-table-2-17"));
@@ -405,7 +405,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
       return;
     }
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     click("-players-table-0-17");
     assertEquals("2780", getInnerText("-players-table-1-18"));
     assertEquals("2760", getInnerText("-players-table-2-18"));
@@ -416,7 +416,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByRank() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     String headerColumn = Scoring.CATEGORIES ? "12" : "18";
     String column = Scoring.CATEGORIES ? "13" : "19";
     click("-players-table-0-" + headerColumn);
@@ -429,7 +429,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByWizard() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     String headerColumn = Scoring.CATEGORIES ? "13" : "19";
     String column = Scoring.CATEGORIES ? "14" : "20";
     click("-players-table-0-" + headerColumn);
@@ -442,7 +442,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByDraft() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     String headerColumn = Scoring.CATEGORIES ? "14" : "20";
     String column = Scoring.CATEGORIES ? "15" : "21";
     click("-players-table-0-" + headerColumn);
@@ -455,7 +455,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testSortByMyRank() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     String headerColumn = Scoring.CATEGORIES ? "15" : "21";
     String column = Scoring.CATEGORIES ? "16" : "22";
     assertEquals("1", getInnerText("-players-table-1-" + column));
@@ -467,7 +467,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
 
   public void testPositionFiltersUpdateColumnNames() {
     login(1);
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     if (Scoring.CATEGORIES) {
       assertEquals("AB/G", getInnerText("-players-table-0-5"));
     } else {
@@ -475,7 +475,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     }
 
     click("-players-P");
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     if (Scoring.CATEGORIES) {
       assertEquals("G", getInnerText("-players-table-0-5"));
     } else {
@@ -483,7 +483,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
     }
 
     click("-players-SS");
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     if (Scoring.CATEGORIES) {
       assertEquals("AB", getInnerText("-players-table-0-5"));
     } else {
@@ -500,7 +500,7 @@ public class UnclaimedPlayerTableGwtTest extends TestBase {
         {P, P, P, P, P, P, P, P, P, P},
     });
     click("-players-Unfilled");
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     if (Scoring.CATEGORIES) {
       assertEquals("AB", getInnerText("-players-table-0-5"));
     } else {

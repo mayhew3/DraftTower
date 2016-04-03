@@ -4,10 +4,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.server.BindingAnnotations.Queues;
 import com.mayhew3.drafttower.shared.*;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 

@@ -2,7 +2,6 @@ package com.mayhew3.drafttower.client;
 
 import com.google.common.collect.Lists;
 import com.google.gwt.event.shared.EventBus;
-import com.google.inject.Provider;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
@@ -20,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 
 /**

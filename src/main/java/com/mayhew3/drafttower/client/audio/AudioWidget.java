@@ -9,8 +9,9 @@ import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Frame;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.TtsUrlPrefix;
+
+import javax.inject.Inject;
 
 /**
  * Controls audio clips.

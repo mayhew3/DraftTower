@@ -17,8 +17,8 @@ public class AudioGwtTest extends TestBase {
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
             Lists.newArrayList(
-                DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
-            ginjector.getBeanFactory()));
+                DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory())),
+            testComponent.beanFactory()));
     IFrameElement audioFrame = IFrameElement.as(
         ensureDebugIdAndGetElement("-audio-frame", true));
     assertContains(UriUtils.encode("selects"), audioFrame.getSrc());
@@ -30,17 +30,17 @@ public class AudioGwtTest extends TestBase {
     simulateDraftStart();
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
-            Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
-            ginjector.getBeanFactory()));
+            Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory())),
+            testComponent.beanFactory()));
     IFrameElement audioFrame = IFrameElement.as(
         ensureDebugIdAndGetElement("-audio-frame", true));
     assertContains(UriUtils.encode("you're on deck"), audioFrame.getSrc());
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
             Lists.newArrayList(
-                DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory()),
-                DraftStatusTestUtil.createDraftPick(2, "", false, ginjector.getBeanFactory())),
-            ginjector.getBeanFactory()));
+                DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory()),
+                DraftStatusTestUtil.createDraftPick(2, "", false, testComponent.beanFactory())),
+            testComponent.beanFactory()));
     assertDoesNotContain(UriUtils.encode("you're on deck"), audioFrame.getSrc());
     assertContains(UriUtils.encode("you're on the clock"), audioFrame.getSrc());
   }
@@ -52,8 +52,8 @@ public class AudioGwtTest extends TestBase {
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
             Lists.newArrayList(
-                DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
-            ginjector.getBeanFactory()));
+                DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory())),
+            testComponent.beanFactory()));
     IFrameElement audioFrame = IFrameElement.as(
         ensureDebugIdAndGetElement("-audio-frame", true));
     assertDoesNotContain(UriUtils.encode("selects"), audioFrame.getSrc());
@@ -68,8 +68,8 @@ public class AudioGwtTest extends TestBase {
     simulateDraftStatus(
         DraftStatusTestUtil.createDraftStatus(
             Lists.newArrayList(
-                DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
-            ginjector.getBeanFactory()));
+                DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory())),
+            testComponent.beanFactory()));
     IFrameElement audioFrame = IFrameElement.as(
         ensureDebugIdAndGetElement("-audio-frame", true));
     assertDoesNotContain(UriUtils.encode("selects"), audioFrame.getSrc());

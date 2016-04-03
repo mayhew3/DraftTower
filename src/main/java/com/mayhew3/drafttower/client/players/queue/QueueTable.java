@@ -17,12 +17,13 @@ import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.players.PlayerDragController;
 import com.mayhew3.drafttower.client.players.PlayerTable;
 import com.mayhew3.drafttower.shared.DraggableItem;
 import com.mayhew3.drafttower.shared.Player;
 import com.mayhew3.drafttower.shared.QueueEntry;
+
+import javax.inject.Inject;
 
 /**
  * Table displaying players queue.

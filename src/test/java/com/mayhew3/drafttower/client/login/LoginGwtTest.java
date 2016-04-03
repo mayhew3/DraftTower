@@ -20,11 +20,11 @@ public class LoginGwtTest extends TestBase {
   public void gwtSetUp() {
     Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
     super.gwtSetUp();
-    teamTokens = ginjector.getTeamTokens();
+    teamTokens = testComponent.teamTokens();
   }
 
   public void testUsernameFocused() {
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
     assertTrue(isFocused(USERNAME));
   }
 

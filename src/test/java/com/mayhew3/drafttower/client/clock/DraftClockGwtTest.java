@@ -13,23 +13,23 @@ public class DraftClockGwtTest extends TestBase {
 
   public void testScheduledTaskAdvancesClock() {
     login(1);
-    ginjector.getCurrentTimeProvider().setCurrentTimeMillis(0);
+    testComponent.currentTimeProvider().setCurrentTimeMillis(0);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setCurrentPickDeadline(60000);
     simulateDraftStatus(draftStatus);
     assertEquals("1:00", getInnerText("-clock-display"));
 
-    ginjector.getCurrentTimeProvider().setCurrentTimeMillis(1000);
-    ginjector.getScheduler().runRepeating();
+    testComponent.currentTimeProvider().setCurrentTimeMillis(1000);
+    testComponent.scheduler().runRepeating();
     assertEquals("0:59", getInnerText("-clock-display"));
   }
 
   public void testClockClearedOnEndOfDraft() {
     login(1);
-    ginjector.getCurrentTimeProvider().setCurrentTimeMillis(0);
+    testComponent.currentTimeProvider().setCurrentTimeMillis(0);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setCurrentPickDeadline(60000);
     simulateDraftStatus(draftStatus);
     assertEquals("1:00", getInnerText("-clock-display"));
@@ -41,14 +41,14 @@ public class DraftClockGwtTest extends TestBase {
 
   public void testClockClearedOnDisconnect() {
     login(1);
-    ginjector.getCurrentTimeProvider().setCurrentTimeMillis(0);
+    testComponent.currentTimeProvider().setCurrentTimeMillis(0);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setCurrentPickDeadline(60000);
     simulateDraftStatus(draftStatus);
     assertEquals("1:00", getInnerText("-clock-display"));
 
-    ginjector.getWebSocket().close();
+    testComponent.webSocket().close();
     assertTrue(getInnerText("-clock-display").trim().isEmpty());
   }
 
@@ -69,34 +69,34 @@ public class DraftClockGwtTest extends TestBase {
     click("-clock-playPause");
     assertEquals("1:15", getInnerText("-clock-display"));
     assertEquals("❙❙", getInnerText("-clock-playPause"));
-    assertFalse(ginjector.getDraftStatus().isPaused());
+    assertFalse(testComponent.draftStatus().isPaused());
   }
 
   public void testPauseButton() {
     login(1);
-    ginjector.getCurrentTimeProvider().setCurrentTimeMillis(0);
+    testComponent.currentTimeProvider().setCurrentTimeMillis(0);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setCurrentPickDeadline(60000);
     simulateDraftStatus(draftStatus);
     assertEquals("❙❙", getInnerText("-clock-playPause"));
     click("-clock-playPause");
-    assertTrue(ginjector.getDraftStatus().isPaused());
+    assertTrue(testComponent.draftStatus().isPaused());
     assertEquals("▸", getInnerText("-clock-playPause"));
   }
 
   public void testPlayButtonToResume() {
     login(1);
     // Current time used to set deadline on resume, so it can't be zero.
-    ginjector.getCurrentTimeProvider().setCurrentTimeMillis(1000);
+    testComponent.currentTimeProvider().setCurrentTimeMillis(1000);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setCurrentPickDeadline(60000);
     draftStatus.setPaused(true);
     simulateDraftStatus(draftStatus);
     assertEquals("▸", getInnerText("-clock-playPause"));
     click("-clock-playPause");
-    assertFalse(ginjector.getDraftStatus().isPaused());
+    assertFalse(testComponent.draftStatus().isPaused());
     assertEquals("❙❙", getInnerText("-clock-playPause"));
   }
 }

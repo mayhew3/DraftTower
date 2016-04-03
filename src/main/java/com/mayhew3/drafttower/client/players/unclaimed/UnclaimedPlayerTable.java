@@ -21,13 +21,13 @@ import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PlayerDragController;
 import com.mayhew3.drafttower.client.players.PlayerTable;
 import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.*;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.EnumMap;
 import java.util.Map;
 

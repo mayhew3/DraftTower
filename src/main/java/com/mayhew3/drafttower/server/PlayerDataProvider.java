@@ -6,14 +6,14 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.MaxClosers;
 import com.mayhew3.drafttower.server.BindingAnnotations.MinClosers;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +53,7 @@ public class PlayerDataProvider {
       @AutoPickWizards Map<TeamDraftOrder, PlayerDataSet> autoPickWizardTables,
       @MinClosers Map<TeamDraftOrder, Integer> minClosers,
       @MaxClosers Map<TeamDraftOrder, Integer> maxClosers,
-      @TeamTokens Map<String, TeamDraftOrder> teamTokens) throws DataSourceException {
+      @TeamTokens Map<String, TeamDraftOrder> teamTokens) {
     this.dataSource = dataSource;
     this.beanFactory = beanFactory;
     this.teamDataSource = teamDataSource;
@@ -62,7 +62,11 @@ public class PlayerDataProvider {
     this.maxClosers = maxClosers;
     this.teamTokens = teamTokens;
 
-    warmCaches();
+    try {
+      warmCaches();
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected void warmCaches() throws DataSourceException {

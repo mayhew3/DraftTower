@@ -1,8 +1,6 @@
 package com.mayhew3.drafttower.server;
 
 import com.google.common.io.CharStreams;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.mayhew3.drafttower.server.BindingAnnotations.AutoPickWizards;
 import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
@@ -10,6 +8,8 @@ import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.SetWizardTableRequest;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

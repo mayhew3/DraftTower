@@ -1,9 +1,9 @@
 package com.mayhew3.drafttower.shared;
 
-import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.inject.BindingAnnotation;
-import com.google.inject.Provides;
+import dagger.Module;
+import dagger.Provides;
 
+import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -13,18 +13,15 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * Dependency bindings shared between client and server.
  */
-public class SharedModule extends AbstractGinModule {
-  @BindingAnnotation
+@Module
+public class SharedModule {
+  @Qualifier
   @Target({FIELD, PARAMETER, METHOD})
   @Retention(RUNTIME)
   public @interface NumTeams {}
 
   @Provides @NumTeams
-  public int getNumTeams() {
+  public static int getNumTeams() {
     return 10;
-  }
-
-  @Override
-  protected void configure() {
   }
 }

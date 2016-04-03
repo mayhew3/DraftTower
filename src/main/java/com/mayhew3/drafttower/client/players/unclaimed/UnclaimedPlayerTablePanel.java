@@ -17,12 +17,12 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.Handler;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.HasRows;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.Position;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;

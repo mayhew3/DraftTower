@@ -7,8 +7,9 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.audio.AudioPresenter.Level;
+
+import javax.inject.Inject;
 
 /**
  * Widget for changing amount of TTS.

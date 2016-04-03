@@ -1,10 +1,10 @@
 package com.mayhew3.drafttower.client.websocket;
 
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.GinBindingAnnotations.DraftSocketUrl;
 import com.mayhew3.drafttower.shared.SocketTerminationReason;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.HashSet;
 import java.util.Set;
 

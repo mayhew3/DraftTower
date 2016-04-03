@@ -44,7 +44,7 @@ public class PickHistoryTableGwtTest extends TestBase {
     login(1);
     simulateDraftStatus(POSITIONS);
     click("-pickHistory-backOut");
-    assertEquals(33, ginjector.getDraftStatus().getPicks().size());
+    assertEquals(33, testComponent.draftStatus().getPicks().size());
   }
 
   public void testBackOutPickInvisibleNonCommish() {

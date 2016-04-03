@@ -12,6 +12,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.mayhew3.drafttower.shared.DraggableItem;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
@@ -19,6 +21,7 @@ import static com.google.gwt.dom.client.Style.Unit.PX;
 /**
  * Handles drag and drop between/within {@link PlayerTable}s.
  */
+@Singleton
 public class PlayerDragController implements MouseMoveHandler, MouseUpHandler {
 
   private DraggableItem draggedItem;
@@ -26,6 +29,9 @@ public class PlayerDragController implements MouseMoveHandler, MouseUpHandler {
   private final List<PlayerTable<?>> dropTargets = Lists.newArrayList();
   private PlayerTable<?> activeHoverTarget;
   private HandlerRegistration nativePreviewHandler;
+
+  @Inject
+  public PlayerDragController() {}
 
   private void init() {
     dragHelper = new HTML();

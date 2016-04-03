@@ -6,6 +6,7 @@ import com.mayhew3.drafttower.shared.PlayerColumn;
 import com.mayhew3.drafttower.shared.PlayerDataSet;
 import com.mayhew3.drafttower.shared.TableSpec;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.Random;
@@ -16,6 +17,9 @@ import java.util.Random;
 public class FuzzClient extends SimulatedClient {
 
   private final Random random = new Random();
+
+  @Inject
+  public FuzzClient() {}
 
   @Override
   public void performAction() {

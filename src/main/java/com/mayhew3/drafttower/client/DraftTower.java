@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -9,14 +8,14 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class DraftTower implements EntryPoint {
 
-  private final DraftTowerGinjector injector = GWT.create(DraftTowerGinjector.class);
-
   /**
    * This is the entry point method.
    */
   @Override
   public void onModuleLoad() {
     RootPanel root = RootPanel.get("root");
-    root.add(injector.getMainPageWidget());
+    DraftTowerClientComponent clientComponent = DaggerDraftTowerClientComponent.create();
+    clientComponent.injectEager();
+    root.add(clientComponent.mainPageWidget());
   }
 }

@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client;
 
 import com.google.common.collect.Lists;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.junit.client.GWTTestCase;
@@ -9,6 +8,7 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+import com.mayhew3.drafttower.server.DraftControllerImpl;
 import com.mayhew3.drafttower.server.TestPlayerDataSource;
 import com.mayhew3.drafttower.shared.*;
 
@@ -34,7 +34,7 @@ public abstract class TestBase extends GWTTestCase {
 
   protected static final String CONNECTIVITY_INDICATOR = "-conn";
 
-  protected DraftTowerTestGinjector ginjector;
+  protected DraftTowerTestComponent testComponent;
   protected MainPageWidget mainPageWidget;
 
   @Override
@@ -45,17 +45,18 @@ public abstract class TestBase extends GWTTestCase {
   @Override
   protected void gwtSetUp() {
     Cookies.removeCookie(LoginResponse.TEAM_TOKEN_COOKIE);
-    ginjector = GWT.create(DraftTowerTestGinjector.class);
-    ((TestSchedulerImpl) Scheduler.get()).setScheduler(ginjector.getScheduler());
+    testComponent = DaggerDraftTowerTestComponent.create();
+    testComponent.injectEager();
+    ((TestSchedulerImpl) Scheduler.get()).setScheduler(testComponent.scheduler());
     reset();
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
   }
 
   protected void reset() {
     if (mainPageWidget != null) {
       RootPanel.get().remove(mainPageWidget);
     }
-    mainPageWidget = ginjector.getMainPageWidget();
+    mainPageWidget = testComponent.mainPageWidget();
     mainPageWidget.queueArea.getStyle().setPosition(Style.Position.STATIC);
     RootPanel.get().add(mainPageWidget);
   }
@@ -102,7 +103,7 @@ public abstract class TestBase extends GWTTestCase {
   protected void selectTableRow(String tableDebugId, int rowNum) {
     click(tableDebugId + "-" + rowNum + "-0");
     // Selection model schedules firing the event, so we need to flush.
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
   }
 
   protected void dragToTop(String sourceDebugId, String targetDebugId) {
@@ -154,7 +155,7 @@ public abstract class TestBase extends GWTTestCase {
         Document.get().createMouseUpEvent(
             0, targetX, targetY, targetX, targetY, false, false, false, false, NativeEvent.BUTTON_LEFT));
 
-    ginjector.getScheduler().flush();
+    testComponent.scheduler().flush();
   }
 
   protected boolean isVisible(String debugId) {
@@ -215,7 +216,7 @@ public abstract class TestBase extends GWTTestCase {
   }
 
   protected void simulateDraftStatus(DraftStatus newStatus) {
-    DraftStatus status = ginjector.getDraftStatus();
+    DraftStatus status = testComponent.draftStatus();
     status.setConnectedTeams(newStatus.getConnectedTeams());
     status.setCurrentPickDeadline(newStatus.getCurrentPickDeadline());
     status.setCurrentTeam(newStatus.getCurrentTeam());
@@ -235,8 +236,8 @@ public abstract class TestBase extends GWTTestCase {
 
     status.setSerialId(oldSerialId + 1);
 
-    ((TestPlayerDataSource) ginjector.getPlayerDataSource()).setDraftPicks(status.getPicks());
-    ginjector.getDraftController().sendStatusUpdates();
+    ((TestPlayerDataSource) testComponent.playerDataSource()).setDraftPicks(status.getPicks());
+    ((DraftControllerImpl) testComponent.draftController()).sendStatusUpdates();
   }
 
   protected void simulateDraftStatus(Position[][] positions) {
@@ -246,18 +247,18 @@ public abstract class TestBase extends GWTTestCase {
         Position position = positions[team - 1][round];
         if (position != null) {
           picks.add(DraftStatusTestUtil.createAndPostDraftPick(
-              team, "Guy " + round + team, position, ginjector.getBeanFactory(),
-              (TestPlayerDataSource) ginjector.getPlayerDataSource()));
+              team, "Guy " + round + team, position, testComponent.beanFactory(),
+              (TestPlayerDataSource) testComponent.playerDataSource()));
         }
       }
     }
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
-        picks, ginjector.getBeanFactory()));
+        picks, testComponent.beanFactory()));
   }
 
   protected void simulateDraftStart() {
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory()));
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory()));
   }
 
   protected void assertContains(String expected, String actual) {

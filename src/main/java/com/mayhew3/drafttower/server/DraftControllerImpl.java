@@ -7,8 +7,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.mayhew3.drafttower.server.BindingAnnotations.Keepers;
@@ -17,6 +15,8 @@ import com.mayhew3.drafttower.server.BindingAnnotations.TeamTokens;
 import com.mayhew3.drafttower.shared.*;
 import com.mayhew3.drafttower.shared.SharedModule.NumTeams;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
@@ -67,7 +67,7 @@ public class DraftControllerImpl implements DraftController {
       @TeamTokens Map<String, TeamDraftOrder> teamTokens,
       @Keepers ListMultimap<TeamDraftOrder, Integer> keepers,
       @Queues ListMultimap<TeamDraftOrder, QueueEntry> queues,
-      @NumTeams int numTeams) throws DataSourceException {
+      @NumTeams int numTeams) {
     this.socketServlet = socketServlet;
     this.beanFactory = beanFactory;
     this.playerDataProvider = playerDataProvider;
@@ -86,7 +86,11 @@ public class DraftControllerImpl implements DraftController {
     status.setConnectedTeams(new HashSet<Integer>());
     status.setRobotTeams(new HashSet<Integer>());
     status.setPicks(new ArrayList<DraftPick>());
-    playerDataProvider.populateDraftStatus(status);
+    try {
+      playerDataProvider.populateDraftStatus(status);
+    } catch (DataSourceException e) {
+      throw new RuntimeException(e);
+    }
     int round = status.getPicks().size() / numTeams;
     int currentTeam = status.getPicks().isEmpty()
         ? 1

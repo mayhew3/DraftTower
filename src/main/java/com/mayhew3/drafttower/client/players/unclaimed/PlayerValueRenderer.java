@@ -5,9 +5,10 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.Position;
+
+import javax.inject.Provider;
 
 import static com.mayhew3.drafttower.shared.PlayerColumn.ELIG;
 

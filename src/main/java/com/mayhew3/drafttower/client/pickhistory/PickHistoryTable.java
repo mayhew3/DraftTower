@@ -8,8 +8,9 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.UIObject;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.pickhistory.PickHistoryPresenter.PickHistoryInfo;
+
+import javax.inject.Inject;
 
 /**
  * Table displaying picks so far.

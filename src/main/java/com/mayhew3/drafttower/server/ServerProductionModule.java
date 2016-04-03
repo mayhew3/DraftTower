@@ -1,11 +1,11 @@
 package com.mayhew3.drafttower.server;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.mayhew3.drafttower.shared.BeanFactory;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider.CurrentTimeProviderImpl;
+import dagger.Module;
+import dagger.Provides;
 
 import javax.inject.Singleton;
 import javax.naming.Context;
@@ -16,28 +16,62 @@ import javax.sql.DataSource;
 /**
  * Live dependency bindings.
  */
-public class ServerProductionModule extends AbstractModule {
+@Module
+public class ServerProductionModule {
   @Provides
-  public DataSource getDatabase() throws NamingException {
-    Context initCtx = new InitialContext();
-    Context envCtx = (Context) initCtx.lookup("java:comp/env");
-    return (DataSource) envCtx.lookup("jdbc/MySQL");
+  public static DataSource getDatabase() {
+    Context initCtx = null;
+    try {
+      initCtx = new InitialContext();
+      Context envCtx = (Context) initCtx.lookup("java:comp/env");
+      return (DataSource) envCtx.lookup("jdbc/MySQL");
+    } catch (NamingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Provides @Singleton
-  public BeanFactory getBeanFactory() {
+  public static BeanFactory getBeanFactory() {
     return AutoBeanFactorySource.create(BeanFactory.class);
   }
 
-  @Override
-  protected void configure() {
-    bind(CurrentTimeProvider.class).to(CurrentTimeProviderImpl.class);
-    bind(DraftTimer.class).to(DraftTimerImpl.class).in(Singleton.class);
-    bind(DraftTowerWebSocket.class).to(DraftTowerWebSocketServlet.class).in(Singleton.class);
-    bind(Lock.class).to(LockImpl.class).in(Singleton.class);
-    bind(PlayerDataSource.class).to(PlayerDataSourceImpl.class);
-    bind(PredictionModel.class).to(PredictionModelImpl.class).in(Singleton.class);
-    bind(TeamDataSource.class).to(TeamDataSourceImpl.class);
-    bind(TokenGenerator.class).to(TokenGeneratorImpl.class);
+  @Provides
+  public static CurrentTimeProvider getCurrentTimeProvider(CurrentTimeProviderImpl impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static DraftTimer getDraftTimer(DraftTimerImpl impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static DraftTowerWebSocket getDraftTowerWebSocket(DraftTowerWebSocketServlet impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static Lock getLock(LockImpl impl) {
+    return impl;
+  }
+
+  @Provides
+  public static PlayerDataSource getPlayerDataSource(PlayerDataSourceImpl impl) {
+    return impl;
+  }
+
+  @Provides @Singleton
+  public static PredictionModel getPredictionModel(PredictionModelImpl impl) {
+    return impl;
+  }
+
+  @Provides
+  public static TeamDataSource getTeamDataSource(TeamDataSourceImpl impl) {
+    return impl;
+  }
+
+  @Provides
+  public static TokenGenerator getTokenGenerator(TokenGeneratorImpl impl) {
+    return impl;
   }
 }

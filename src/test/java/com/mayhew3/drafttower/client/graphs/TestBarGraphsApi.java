@@ -3,10 +3,16 @@ package com.mayhew3.drafttower.client.graphs;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import javax.inject.Inject;
+
 /**
  * Test version of {@link BarGraphsApi} which creates simple labels instead of bar graphs.
  */
 public class TestBarGraphsApi implements BarGraphsApi {
+
+  @Inject
+  public TestBarGraphsApi() {}
+
   @Override
   public void loadVisualizationApi(Runnable callback) {
     callback.run();

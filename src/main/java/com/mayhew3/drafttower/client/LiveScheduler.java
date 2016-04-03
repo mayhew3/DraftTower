@@ -4,10 +4,16 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
+import javax.inject.Inject;
+
 /**
  * Interface wrapping {@link Scheduler} that can be mocked for tests.
  */
 public class LiveScheduler implements SchedulerWrapper {
+
+  @Inject
+  public LiveScheduler() {}
+
   @Override
   public void schedule(final Runnable runnable, int delayMs) {
     Scheduler.get().scheduleFixedDelay(new RepeatingCommand() {

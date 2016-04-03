@@ -1,7 +1,7 @@
 package com.mayhew3.drafttower.client;
 
-import com.google.inject.Singleton;
-
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,14 +11,21 @@ import java.util.List;
 @Singleton
 public class TestScheduler implements SchedulerWrapper {
 
+  private static final int DELAY_THRESHOLD_MS = 60000;
+
   private final List<Runnable> immediateTasks = new ArrayList<>();
   private final List<Runnable> finallyTasks = new ArrayList<>();
   private final List<Runnable> tasks = new ArrayList<>();
   private final List<Runnable> repeatingTasks = new ArrayList<>();
 
+  @Inject
+  public TestScheduler() {}
+
   @Override
   public void schedule(Runnable runnable, int delayMs) {
-    tasks.add(runnable);
+    if (delayMs < DELAY_THRESHOLD_MS) {
+      tasks.add(runnable);
+    }
   }
 
   @Override

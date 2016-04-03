@@ -2,8 +2,9 @@ package com.mayhew3.drafttower.client.myroster;
 
 import com.google.common.base.Joiner;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.myroster.MyRosterPresenter.PickAndPosition;
+
+import javax.inject.Inject;
 
 /**
  * Table displaying user's roster so far.

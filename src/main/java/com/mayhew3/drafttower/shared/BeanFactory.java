@@ -3,9 +3,12 @@ package com.mayhew3.drafttower.shared;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 
+import javax.inject.Singleton;
+
 /**
  * Factory interface for creating {@link AutoBean}s.
  */
+@Singleton
 public interface BeanFactory extends AutoBeanFactory {
   AutoBean<DraftStatus> createDraftStatus();
   AutoBean<ClientDraftStatus> createClientDraftStatus();

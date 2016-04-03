@@ -27,8 +27,8 @@ public class PickControlsWidgetGwtTest extends TestBase {
     login(1);
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
         Lists.newArrayList(
-            DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
-        ginjector.getBeanFactory()));
+            DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory())),
+        testComponent.beanFactory()));
     assertFalse(isEnabled("-pickControls-pick"));
   }
 
@@ -38,8 +38,8 @@ public class PickControlsWidgetGwtTest extends TestBase {
     selectTableRow("-players-table", 1);
     assertTrue(isEnabled("-pickControls-pick"));
     click("-pickControls-pick");
-    assertEquals(1, ginjector.getDraftStatus().getPicks().size());
-    assertEquals(0, ginjector.getDraftStatus().getPicks().get(0).getPlayerId());
+    assertEquals(1, testComponent.draftStatus().getPicks().size());
+    assertEquals(0, testComponent.draftStatus().getPicks().get(0).getPlayerId());
   }
 
   public void testEnqueueDisabledNoPlayerSelected() {
@@ -75,12 +75,12 @@ public class PickControlsWidgetGwtTest extends TestBase {
   public void testForcePick() {
     login(1);
     simulateDraftStatus(DraftStatusTestUtil.createDraftStatus(
-        Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, ginjector.getBeanFactory())),
-        ginjector.getBeanFactory()));
+        Lists.newArrayList(DraftStatusTestUtil.createDraftPick(1, "", false, testComponent.beanFactory())),
+        testComponent.beanFactory()));
     click("-pickControls-showCommish");
     assertTrue(isEnabled("-pickControls-force"));
     click("-pickControls-force");
-    assertEquals(2, ginjector.getDraftStatus().getPicks().size());
+    assertEquals(2, testComponent.draftStatus().getPicks().size());
   }
 
   public void testWakeUpInvisibleNotRobot() {
@@ -91,11 +91,11 @@ public class PickControlsWidgetGwtTest extends TestBase {
   public void testWakeUp() {
     login(1);
     DraftStatus draftStatus = DraftStatusTestUtil.createDraftStatus(
-        Lists.<DraftPick>newArrayList(), ginjector.getBeanFactory());
+        Lists.<DraftPick>newArrayList(), testComponent.beanFactory());
     draftStatus.setRobotTeams(Sets.newHashSet(1));
     simulateDraftStatus(draftStatus);
     assertTrue(isEnabled("-pickControls-wakeUp"));
     click("-pickControls-wakeUp");
-    assertFalse(ginjector.getDraftStatus().getRobotTeams().contains(1));
+    assertFalse(testComponent.draftStatus().getRobotTeams().contains(1));
   }
 }

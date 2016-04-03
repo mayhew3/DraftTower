@@ -1,7 +1,6 @@
 package com.mayhew3.drafttower.client.clock;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.client.DraftSocketHandler;
 import com.mayhew3.drafttower.client.TeamsInfo;
 import com.mayhew3.drafttower.client.events.DraftStatusChangedEvent;
@@ -10,6 +9,8 @@ import com.mayhew3.drafttower.client.events.PlayPauseEvent;
 import com.mayhew3.drafttower.client.events.SocketDisconnectEvent;
 import com.mayhew3.drafttower.shared.CurrentTimeProvider;
 import com.mayhew3.drafttower.shared.DraftStatus;
+
+import javax.inject.Inject;
 
 /**
  * Presenter for draft clock.

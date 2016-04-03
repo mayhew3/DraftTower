@@ -12,8 +12,9 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.*;
-import com.google.inject.Inject;
 import com.mayhew3.drafttower.shared.LoginResponse;
+
+import javax.inject.Inject;
 
 /**
  * Login form.

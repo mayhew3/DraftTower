@@ -6,9 +6,10 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PositionFilter;
 import com.mayhew3.drafttower.shared.PlayerColumn;
+
+import javax.inject.Provider;
 
 /**
 * Class description...

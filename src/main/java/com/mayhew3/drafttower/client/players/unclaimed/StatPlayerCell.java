@@ -3,8 +3,9 @@ package com.mayhew3.drafttower.client.players.unclaimed;
 import com.google.gwt.cell.client.AbstractSafeHtmlCell;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.inject.Provider;
 import com.mayhew3.drafttower.client.players.PositionFilter;
+
+import javax.inject.Provider;
 
 /**
  * Table cell for a scoring stat.
