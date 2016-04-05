@@ -1,5 +1,6 @@
 package com.mayhew3.drafttower.server.database;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mayhew3.drafttower.server.database.dataobject.*;
@@ -82,10 +83,18 @@ public class PlayerListParser {
     if ("Eligible".equals(columnName)) {
       return statValue.replace("\"", "");
     } else if (playerHeader.equals(columnName)) {
-      return statValue
+      String replaced = statValue
           .replace("\"", "")
           .replace(" | ", " ")
           .replace("*", "");
+      List<String> split = Lists.newArrayList(replaced.split(" "));
+      String lastBit = split.get(split.size() - 1);
+      if (lastBit.startsWith("$")) {
+        split.remove(lastBit);
+        return Joiner.on(" ").join(split).trim();
+      } else {
+        return replaced;
+      }
     } else {
       return statValue;
     }

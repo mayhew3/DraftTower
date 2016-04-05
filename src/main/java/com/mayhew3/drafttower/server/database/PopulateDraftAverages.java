@@ -17,7 +17,7 @@ public class PopulateDraftAverages {
   }
 
   public static void main(String... args) throws URISyntaxException, SQLException {
-    LocalDate localDate = new LocalDate(2016, 3, 6);
+    LocalDate localDate = DraftPrepRunner.statsDate;
     Date sqlDate = new Date(localDate.toDate().getTime());
 
     PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(new MySQLConnectionFactory().createConnection(), sqlDate);
