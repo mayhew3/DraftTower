@@ -37,7 +37,7 @@ public class PopulateKeepers {
     addKeeper("lakshmi", "Harper", "Bryce");
     addKeeper("lakshmi", "Bregman", "Alex");
 
-    addKeeper("hunter", "Blackmon", "Charlie");
+    addKeeper("hunter", "Martinez", "J.D.");
 
     addKeeper("gus", "DeGrom", "Jacob");
 
