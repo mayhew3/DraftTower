@@ -16,7 +16,7 @@ public class Player extends DataObject {
   public FieldValueInteger matchPending = registerIntegerField("MatchPending");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "players";
   }
 }

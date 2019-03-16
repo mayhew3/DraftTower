@@ -16,7 +16,7 @@ public class TmpProjectionBatter extends TmpProjectionPlayer {
   public FieldValueInteger sb = registerIntegerField("SB");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "tmp_cbsbatting";
   }
 }

@@ -6,7 +6,7 @@ public class TmpTop300 extends TmpStatTable {
   public FieldValueInteger expert = registerIntegerField("Expert");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "tmp_top300";
   }
 }

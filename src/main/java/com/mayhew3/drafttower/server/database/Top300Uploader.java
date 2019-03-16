@@ -36,8 +36,8 @@ public class Top300Uploader {
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
-    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpTop300Factory(), statsDate, Lists.newArrayList("Rank", "Expert"));
-    playerListParser.uploadPlayersToDatabase(connection);
+    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpTop300Factory(), statsDate, Lists.newArrayList("Rank", "Expert"), connection);
+    playerListParser.uploadPlayersToDatabase();
   }
 
 }

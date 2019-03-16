@@ -178,7 +178,8 @@ public class PlayerStringSplitter {
         "RF",
         "SP",
         "RP",
-        "P"
+        "P",
+        "DH"
     );
 
     PlayerInfo playerInfo = new PlayerInfo();

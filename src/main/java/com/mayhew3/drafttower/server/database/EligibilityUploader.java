@@ -35,8 +35,8 @@ public class EligibilityUploader {
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
-    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpEligibilityFactory(), statsDate, Lists.newArrayList("Eligible"));
-    playerListParser.uploadPlayersToDatabase(connection);
+    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpEligibilityFactory(), statsDate, Lists.newArrayList("Eligible"), connection);
+    playerListParser.uploadPlayersToDatabase();
   }
 
 }

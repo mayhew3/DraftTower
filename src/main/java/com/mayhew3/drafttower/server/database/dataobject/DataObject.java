@@ -204,7 +204,7 @@ public abstract class DataObject {
     return connection.prepareAndExecuteStatementInsertReturnId(sql, fieldValues);
   }
 
-  protected abstract String getTableName();
+  public abstract String getTableName();
 
 
   protected final FieldValueBoolean registerBooleanField(String fieldName) {

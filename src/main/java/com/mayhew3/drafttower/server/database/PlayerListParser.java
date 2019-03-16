@@ -10,13 +10,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PlayerListParser {
+class PlayerListParser {
   private Reader reader;
   private TmpStatTableFactory factory;
 
@@ -26,16 +27,29 @@ public class PlayerListParser {
   private List<String> statColumns;
   private Map<String, Integer> columnNumbers;
 
+  private SQLConnection connection;
+
   private static final Logger logger = Logger.getLogger(PlayerListParser.class.getName());
 
-  public PlayerListParser(Reader reader, TmpStatTableFactory factory, LocalDate statDate, List<String> statColumns) {
+  PlayerListParser(Reader reader, TmpStatTableFactory factory, LocalDate statDate, List<String> statColumns, SQLConnection connection) {
     this.reader = reader;
     this.factory = factory;
     this.statDate = statDate;
     this.statColumns = statColumns;
+    this.connection = connection;
   }
 
-  public void uploadPlayersToDatabase(SQLConnection connection) throws IOException, SQLException {
+  private void deleteExistingStatsForDate() throws SQLException {
+    TmpStatTable tmpStatTable = factory.createTmpStatTable();
+    String sql = "DELETE FROM " + tmpStatTable.getTableName() + " " +
+        "WHERE StatDate = ? ";
+
+    connection.prepareAndExecuteStatementUpdate(sql, new java.sql.Date(statDate.toDate().getTime()));
+  }
+
+  void uploadPlayersToDatabase() throws IOException, SQLException {
+    deleteExistingStatsForDate();
+
     BufferedReader bufferedReader = new BufferedReader(reader);
     findHeaderRow(bufferedReader);
 
@@ -100,7 +114,7 @@ public class PlayerListParser {
     }
   }
 
-  private BufferedReader findHeaderRow(BufferedReader bufferedReader) throws IOException {
+  private void findHeaderRow(BufferedReader bufferedReader) throws IOException {
     List<String> bestHeaders = new ArrayList<>();
 
     String line;
@@ -109,7 +123,7 @@ public class PlayerListParser {
 
       if (hasAllStats(allFields)) {
         initializeColumnNumbers(allFields);
-        return bufferedReader;
+        return;
       }
 
       if (allFields.size() > bestHeaders.size()) {
@@ -117,7 +131,7 @@ public class PlayerListParser {
       }
     }
 
-    throw new RuntimeException("No header row found. Closest match: '" + bestHeaders + "'");
+    throw new RuntimeException("No header row found. Closest match: '" + bestHeaders + "'. Looking for '" + statColumns + "'");
   }
 
   private void initializeColumnNumbers(List<String> allFields) {

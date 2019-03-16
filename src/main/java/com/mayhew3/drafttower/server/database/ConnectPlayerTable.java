@@ -27,6 +27,7 @@ public class ConnectPlayerTable {
     updateBattingProjections();
     updatePitchingProjections();
     updateFPTS();
+    updateTop300();
   }
 
   private void updateBattingProjections() throws SQLException {
@@ -65,6 +66,15 @@ public class ConnectPlayerTable {
 
     redoPitchingAveragesTable();
     redoPitchingAveragesProjectionRows();
+  }
+
+  private void updateTop300() throws SQLException {
+    final String tmp_top300 = "tmp_top300";
+
+    Date statDate = getLatestStatDate(tmp_top300);
+
+    updatePlayerIDs(tmp_top300, statDate);
+    checkPlayerIDs(tmp_top300, statDate);
   }
 
   private void redoPitchingAveragesProjectionRows() throws SQLException {

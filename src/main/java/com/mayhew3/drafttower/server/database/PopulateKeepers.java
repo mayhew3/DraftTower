@@ -1,5 +1,7 @@
 package com.mayhew3.drafttower.server.database;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -11,21 +13,48 @@ public class PopulateKeepers {
     this.connection = connection;
   }
 
+  public static void main(String... args) throws URISyntaxException, SQLException, IOException {
+    SQLConnection connection = new MySQLConnectionFactory().createConnection();
+    PopulateKeepers populateKeepers = new PopulateKeepers(connection);
+    populateKeepers.updateDatabase();
+  }
+
   @SuppressWarnings("SpellCheckingInspection")
   public void updateDatabase() throws SQLException {
     System.out.println("Adding keepers.");
 
     removeExistingKeepers();
 
-    addKeeper("gus", "Harper", "Bryce");
-    addKeeper("gus", "Rizzo", "Anthony");
-    addKeeper("gus", "Betts", "Mookie");
+    addKeeper("laura", "Betts", "Mookie");
+    addKeeper("laura", "Verlander", "Justin");
+    addKeeper("laura", "Goldschmidt", "Paul");
+
+    addKeeper("mayhews", "Kluber", "Corey");
+    addKeeper("mayhews", "Judge", "Aaron");
+
+    addKeeper("kevin", 17298); // Jose Ramirez (entered by ID because there are two.)
+
+    addKeeper("lakshmi", "Harper", "Bryce");
+    addKeeper("lakshmi", "Bregman", "Alex");
+
+    addKeeper("hunter", "Blackmon", "Charlie");
+
+    addKeeper("gus", "DeGrom", "Jacob");
+
+    addKeeper("scott", "Sale", "Chris");
+    addKeeper("scott", "Scherzer", "Max");
+    addKeeper("scott", "Yelich", "Christian");
+
   }
 
 
   private void addKeeper(String ownerName, String lastName, String firstName) throws SQLException {
+    addKeeper(ownerName, getPlayerIDFromFirstAndLastName(firstName, lastName));
+  }
+
+  private void addKeeper(String ownerName, Integer playerID) throws SQLException {
     connection.prepareAndExecuteStatementUpdate("INSERT INTO Keepers (TeamID, PlayerID) VALUES (?, ?)",
-        getTeamID(ownerName), getPlayerIDFromFirstAndLastName(firstName, lastName));
+        getTeamID(ownerName), playerID);
   }
 
   private Integer getTeamID(String ownerName) throws SQLException {

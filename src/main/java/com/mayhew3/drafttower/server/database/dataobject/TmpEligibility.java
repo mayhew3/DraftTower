@@ -5,7 +5,7 @@ public class TmpEligibility extends TmpStatTable {
   public FieldValueString eligible = registerStringField("Eligible");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "tmp_eligibility";
   }
 }

@@ -55,7 +55,7 @@ public class SimTestModule {
     return impl;
   }
 
-  @Provides @Nullable
+  @Provides
   public static DataSource dataSourceUnused() {
     return null;
   }

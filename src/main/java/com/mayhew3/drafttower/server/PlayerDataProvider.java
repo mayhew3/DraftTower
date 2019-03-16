@@ -76,6 +76,7 @@ public class PlayerDataProvider {
     for (int i = 1; i <= 10; i++) {
       logger.info("Warming caches: " + i + "/10");
       TeamId team = new TeamId(i);
+      // todo: auto-detect presence of other data sources
       // Disable other data sets for 2015 draft.
 //      for (PlayerDataSet playerDataSet : PlayerDataSet.values()) {
 //        tableSpec.setPlayerDataSet(playerDataSet);

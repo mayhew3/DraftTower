@@ -9,7 +9,7 @@ public class CbsID extends DataObject {
   public FieldValueDate dateModified = registerDateField("DateModified");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "cbsids";
   }
 }

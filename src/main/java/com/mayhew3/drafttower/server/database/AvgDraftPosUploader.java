@@ -36,8 +36,8 @@ public class AvgDraftPosUploader {
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
-    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpDraftAveragesFactory(), statsDate, Lists.newArrayList("Rank", "Avg Pick", "HI/LO", "% Drafted"));
-    playerListParser.uploadPlayersToDatabase(connection);
+    PlayerListParser playerListParser = new PlayerListParser(fileReader, new TmpDraftAveragesFactory(), statsDate, Lists.newArrayList("Rank", "Avg Pick", "HI/LO", "% Drafted"), connection);
+    playerListParser.uploadPlayersToDatabase();
   }
 
 }

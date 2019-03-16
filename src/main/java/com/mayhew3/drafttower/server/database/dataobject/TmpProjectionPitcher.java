@@ -19,7 +19,7 @@ public class TmpProjectionPitcher extends TmpProjectionPlayer {
   public FieldValueInteger w = registerIntegerField("W");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "tmp_cbspitching";
   }
 }

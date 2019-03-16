@@ -15,6 +15,8 @@ public class PopulateExpertRankings {
   private SQLConnection connection;
   private Date statDate;
 
+  private Integer numberOfExperts = 2;
+
   private Logger logger = Logger.getLogger(PopulateExpertRankings.class.getName());
 
   public PopulateExpertRankings(SQLConnection connection, Date statDate) {
@@ -55,14 +57,15 @@ public class PopulateExpertRankings {
   }
 
   private Integer getAdjustedRank(Integer rankings, @NotNull Integer averageRank) {
-    if (rankings == 3) {
-      return averageRank;
-    } else if (rankings == 2) {
-      return ((averageRank * 2) + 301) / 3;
-    } else if (rankings == 1) {
-      return (averageRank + 602) / 3;
+
+    Integer unrankedExperts = numberOfExperts - rankings;
+
+    if (unrankedExperts > 0) {
+      Integer maximumScores = unrankedExperts * 300;
+      Integer rankingsScores = averageRank * rankings;
+      return (rankingsScores + maximumScores) / numberOfExperts;
     } else {
-      throw new IllegalStateException("Unexpected number of rankings.");
+      return averageRank;
     }
   }
 
