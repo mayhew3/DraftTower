@@ -1,0 +1,901 @@
+Rank,Player,Expert
+1,Mike Trout CF | LAA  $48 ,1
+2,Mookie Betts RF | BOS  $45 ,1
+3,Jose Altuve 2B | HOU  $45 ,1
+4,Nolan Arenado 3B | COL  $43 ,1
+5,Paul Goldschmidt 1B | ARI  $43 ,1
+6,Kris Bryant 3B | CHC  $42 ,1
+7,Josh Donaldson 3B | TOR  $41 ,1
+8,Manny Machado 3B | BAL  $41 ,1
+9,Anthony Rizzo 1B | CHC  $40 ,1
+10,Bryce Harper RF | WAS  $39 ,1
+11,Clayton Kershaw SP | LAD  $39 ,1
+12,Corey Seager SS | LAD  $36 ,1
+13,Charlie Blackmon CF | COL  $36 ,1
+14,Miguel Cabrera 1B | DET  $36 ,1
+15,Carlos Correa SS | HOU  $36 ,1
+16,Max Scherzer SP | WAS  $36 ,1
+17,Joey Votto 1B | CIN  $34 ,1
+18,Edwin Encarnacion DH | CLE  $34 ,1
+19,Madison Bumgarner SP | SF  $33 ,1
+20,* Trea Turner CF | WAS  $33 ,1
+21,Daniel Murphy 2B | WAS  $31 ,1
+22,Chris Sale SP | BOS  $31 ,1
+23,Corey Kluber SP | CLE  $31 ,1
+24,Justin Verlander SP | DET  $31 ,1
+25,Robinson Cano 2B | SEA  $31 ,1
+26,Jon Lester SP | CHC  $30 ,1
+27,Brian Dozier 2B | MIN  $30 ,1
+28,Noah Syndergaard SP | NYM  $30 ,1
+29,Matt Carpenter 3B | STL  $30 ,1
+30,George Springer RF | HOU  $30 ,1
+31,Xander Bogaerts SS | BOS  $30 ,1
+32,Francisco Lindor SS | CLE  $30 ,1
+33,Jake Arrieta SP | CHC  $30 ,1
+34,Buster Posey C | SF  $29 ,1
+35,Johnny Cueto SP | SF  $29 ,1
+36,Freddie Freeman 1B | ATL  $29 ,1
+37,A.J. Pollock CF | ARI  $28 ,1
+38,Yu Darvish SP | TEX  $28 ,1
+39,Ryan Braun LF | MIL  $28 ,1
+40,Nelson Cruz DH | SEA  $28 ,1
+41,Jacob deGrom SP | NYM  $27 ,1
+42,Stephen Strasburg SP | WAS  $26 ,1
+43,Giancarlo Stanton RF | MIA  $25 ,1
+44,Jean Segura 2B | SEA  $25 ,1
+45,Kyle Seager 3B | SEA  $24 ,1
+46,Chris Archer SP | TB  $24 ,1
+47,Carlos Carrasco SP | CLE  $24 ,1
+48,David Price SP | BOS  $24 ,1
+49,Cole Hamels SP | TEX  $23 ,1
+50,Jonathan Villar SS | MIL  $23 ,1
+51,Rougned Odor 2B | TEX  $23 ,1
+52,Wil Myers 1B | SD  $23 ,1
+53,Alex Bregman 3B | HOU  $23 ,1
+54,Adrian Beltre 3B | TEX  $23 ,1
+55,Jonathan Lucroy C | TEX  $23 ,1
+56,Andrew McCutchen CF | PIT  $22 ,1
+57,Gary Sanchez C | NYY  $22 ,1
+58,Rick Porcello SP | BOS  $22 ,1
+59,Kyle Hendricks SP | CHC  $22 ,1
+60,Trevor Story SS | COL  $22 ,1
+61,Jose Abreu 1B | CHW  $21 ,1
+62,Zack Greinke SP | ARI  $21 ,1
+63,Yoenis Cespedes LF | NYM  $21 ,1
+64,Starling Marte LF | PIT  $21 ,1
+65,Dallas Keuchel SP | HOU  $21 ,1
+66,Danny Duffy SP | KC  $21 ,1
+67,Carlos Gonzalez RF | COL  $21 ,1
+68,* Aledmys Diaz SS | STL  $21 ,1
+69,Gregory Polanco RF | PIT  $21 ,1
+70,Jose Quintana SP | CHW  $21 ,1
+71,Masahiro Tanaka SP | NYY  $21 ,1
+72,Christian Yelich LF | MIA  $21 ,1
+73,Chris Davis 1B | BAL  $19 ,1
+74,Carlos Santana DH | CLE  $18 ,1
+75,Kenley Jansen RP | LAD  $17 ,1
+76,Jose Bautista RF | TOR  $17 ,1
+77,Mark Trumbo RF | BAL  $17 ,1
+78,Ian Kinsler 2B | DET  $17 ,1
+79,Hanley Ramirez 1B | BOS  $17 ,1
+80,Julio Teheran SP | ATL  $17 ,1
+81,Aroldis Chapman RP | NYY  $17 ,1
+82,Zach Britton RP | BAL  $16 ,1
+83,Carlos Martinez SP | STL  $16 ,1
+84,Adam Jones CF | BAL  $16 ,1
+85,* Evan Gattis DH | HOU  $16 ,1
+86,DJ LeMahieu 2B | COL  $15 ,1
+87,Gerrit Cole SP | PIT  $15 ,1
+88,Aaron Sanchez SP | TOR  $15 ,1
+89,Todd Frazier 3B | CHW  $15 ,1
+90,Evan Longoria 3B | TB  $15 ,1
+91,Rich Hill SP | LAD  $14 ,1
+92,Kenta Maeda SP | LAD  $14 ,1
+93,* James Paxton SP | SEA  $14 ,1
+94,Danny Salazar SP | CLE  $14 ,1
+95,J.D. Martinez RF | DET  $14 ,1
+96,Marcus Stroman SP | TOR  $14 ,1
+97,Michael Fulmer SP | DET  $13 ,1
+98,Matt Kemp RF | ATL  $13 ,1
+99,Justin Turner 3B | LAD  $13 ,1
+100,Khris Davis LF | OAK  $13 ,1
+101,Anthony Rendon 3B | WAS  $13 ,1
+102,Dustin Pedroia 2B | BOS  $13 ,1
+103,Ben Zobrist 2B | CHC  $13 ,1
+104,Jose Ramirez 3B | CLE  $13 ,1
+105,* Kyle Schwarber LF | CHC  $13 ,1
+106,Ian Desmond CF | COL  $13 ,1
+107,Dee Gordon 2B | MIA  $13 ,1
+108,* Michael Brantley LF | CLE  $12 ,1
+109,Jackie Bradley CF | BOS  $12 ,1
+110,Stephen Piscotty RF | STL  $12 ,1
+111,Justin Upton LF | DET  $12 ,1
+112,* Addison Russell SS | CHC  $11 ,1
+113,Steven Matz SP | NYM  $10 ,1
+114,* Willson Contreras C | CHC  $10 ,1
+115,John Lackey SP | CHC  $10 ,1
+116,Felix Hernandez SP | SEA  $10 ,1
+117,Troy Tulowitzki SS | TOR  $9 ,1
+118,Eduardo Nunez 3B | SF  $9 ,1
+119,Aaron Nola SP | PHI  $9 ,1
+120,Mark Melancon RP | SF  $9 ,1
+121,Lorenzo Cain CF | KC  $8 ,1
+122,Craig Kimbrel RP | BOS  $8 ,1
+123,* Sean Manaea SP | OAK  $8 ,1
+124,Wade Davis RP | CHC  $8 ,1
+125,Seung-Hwan Oh RP | STL  $8 ,1
+126,* David Dahl LF | COL  $8 ,1
+127,Carlos Rodon SP | CHW  $8 ,1
+128,Dylan Bundy RP | BAL  $8 ,1
+129,Jon Gray SP | COL  $8 ,1
+130,Lance McCullers SP | HOU  $8 ,1
+131,Matt Harvey SP | NYM  $7 ,1
+132,* Robbie Ray SP | ARI  $7 ,1
+133,J.A. Happ SP | TOR  $7 ,1
+134,Tanner Roark SP | WAS  $7 ,1
+135,Eric Hosmer 1B | KC  $7 ,1
+136,* Miguel Sano 3B | MIN  $7 ,1
+137,Maikel Franco 3B | PHI  $7 ,1
+138,* Edwin Diaz RP | SEA  $6 ,1
+139,Roberto Osuna RP | TOR  $6 ,1
+140,Alex Colome RP | TB  $6 ,1
+141,* Kelvin Herrera RP | KC  $6 ,1
+142,* Ken Giles RP | HOU  $6 ,1
+143,Jeurys Familia RP | NYM  $6 ,1
+144,Cody Allen RP | CLE  $6 ,1
+145,Albert Pujols DH | LAA  $6 ,1
+146,* Billy Hamilton CF | CIN  $6 ,1
+147,Adam Eaton RF | WAS  $5 ,1
+148,Dexter Fowler CF | STL  $5 ,1
+149,* Andrew Benintendi LF | BOS  $5 ,1
+150,Kevin Gausman SP | BAL  $5 ,1
+151,Matt Moore SP | SF  $5 ,1
+152,Jay Bruce RF | NYM  $5 ,1
+153,Kole Calhoun RF | LAA  $4 ,1
+154,Marco Estrada SP | TOR  $3 ,1
+155,Taijuan Walker SP | ARI  $3 ,1
+156,* Vince Velasquez SP | PHI  $3 ,1
+157,Jeff Samardzija SP | SF  $3 ,1
+158,Jameson Taillon SP | PIT  $3 ,1
+159,* Russell Martin C | TOR  $3 ,1
+160,David Robertson RP | CHW  $3 ,1
+161,Salvador Perez C | KC  $3 ,1
+162,* Julio Urias SP | LAD  $3 ,1
+163,* A.J. Ramos RP | MIA  $3 ,1
+164,Francisco Rodriguez RP | DET  $3 ,1
+165,Yasmani Grandal C | LAD  $3 ,1
+166,* Jose Peraza SS | CIN  $3 ,1
+167,Matt Shoemaker SP | LAA  $3 ,1
+168,J.T. Realmuto C | MIA  $3 ,1
+169,* Kendrys Morales DH | TOR  $3 ,1
+170,* Victor Martinez DH | DET  $3 ,1
+171,Brian McCann C | HOU  $3 ,1
+172,* Mike Napoli 1B | TEX  $3 ,1
+173,Adrian Gonzalez 1B | LAD  $3 ,1
+174,Ian Kennedy SP | KC  $3 ,1
+175,* Cam Bedrosian RP | LAA  $2 ,1
+176,Jake Lamb 3B | ARI  $2 ,1
+177,* Jim Johnson RP | ATL  $2 ,1
+178,* Sam Dyson RP | TEX  $2 ,1
+179,Tony Watson RP | PIT  $2 ,1
+180,Joe Ross SP | WAS  $2 ,1
+181,* Dansby Swanson SS | ATL  $2 ,1
+182,* Byron Buxton CF | MIN  $2 ,1
+183,* Robert Gsellman SP | NYM  $2 ,1
+184,Brandon Belt 1B | SF  $1 ,1
+185,* Lance Lynn SP | STL  $1 ,1
+186,Michael Pineda SP | NYY  $1 ,1
+187,* Blake Snell SP | TB  $1 ,1
+188,* Garrett Richards SP | LAA  $1 ,1
+189,* Eduardo Rodriguez SP | BOS  $1 ,1
+190,Jake Odorizzi SP | TB  $1 ,1
+191,* Joc Pederson CF | LAD  $1 ,1
+192,Odubel Herrera CF | PHI  $1 ,1
+193,* Yasiel Puig RF | LAD  $1 ,1
+194,* Greg Bird 1B | NYY  $1 ,1
+195,Logan Forsythe 2B | LAD  $1 ,1
+196,Jason Kipnis 2B | CLE  $1 ,1
+197,Adam Duvall LF | CIN  $1 ,1
+198,Carlos Beltran DH | HOU  $1 ,1
+199,* Greg Holland RP | COL  $1 ,1
+200,Hunter Pence RF | SF  $1 ,1
+201,Francisco Liriano SP | TOR  $1 ,1
+202,Yadier Molina C | STL  $1 ,1
+203,* Kevin Kiermaier CF | TB  $1 ,1
+204,* Keon Broxton CF | MIL  $1 ,1
+205,Steven Wright SP | BOS  $1 ,1
+206,Jerad Eickhoff SP | PHI  $1 ,1
+207,* Michael Wacha SP | STL  $1 ,1
+208,Andrew Miller RP | CLE  $1 ,1
+209,* Patrick Corbin SP | ARI  $1 ,1
+210,* Alex Cobb SP | TB  $1 ,1
+211,Sonny Gray SP | OAK  $1 ,1
+212,* Mitch Haniger CF | SEA  $1 ,1
+213,Adam Wainwright SP | STL  $1 ,1
+214,Jordan Zimmermann SP | DET  $1 ,1
+215,Ivan Nova SP | PIT  $1 ,1
+216,Ervin Santana SP | MIN  $1 ,1
+217,Drew Pomeranz SP | BOS  $1 ,1
+218,* Nomar Mazara RF | TEX  $1 ,1
+219,Melky Cabrera LF | CHW  $1 ,1
+220,Brandon Finnegan SP | CIN  $1 ,1
+221,Collin McHugh SP | HOU  $1 ,1
+222,Jason Hammel SP | KC  $1 ,1
+223,Carlos Gomez CF | TEX  $1 ,1
+224,* Yangervis Solarte 3B | SD  $1 ,1
+225,* Elvis Andrus SS | TEX  $1 ,1
+226,Joe Panik 2B | SF  $1 ,1
+227,* Ryon Healy 3B | OAK  $1 ,1
+228,* Devon Travis 2B | TOR  $1 ,1
+229,* Hunter Renfroe RF | SD  $1 ,1
+230,Shin-Soo Choo RF | TEX  $1 ,1
+231,* Joe Musgrove SP | HOU  $1 ,1
+232,Brad Miller SS | TB  $1 ,1
+233,* Tyler Skaggs SP | LAA  $1 ,1
+234,* Andrew Triggs RP | OAK  $1 ,1
+235,* Jason Heyward RF | CHC  $1 ,1
+236,Jose Reyes 3B | NYM  $1 ,1
+237,* Brandon Drury LF | ARI  $1 ,1
+238,* Yoan Moncada 3B | CHW  $1 ,1
+239,Dellin Betances RP | NYY  $1 ,1
+240,* Josh Bell 1B | PIT  $1 ,1
+241,* Orlando Arcia SS | MIL  $1 ,1
+242,Trevor Bauer SP | CLE  $1 ,1
+243,* Zach Davies SP | MIL  $1 ,1
+244,* Stephen Vogt C | OAK  $1 ,1
+245,* Jeremy Hellickson SP | PHI  $1 ,1
+246,* Asdrubal Cabrera SS | NYM  $1 ,1
+247,Hisashi Iwakuma SP | SEA  $1 ,1
+248,* Ender Inciarte CF | ATL  $1 ,1
+249,* Neftali Feliz RP | MIL  $1 ,1
+250,Curtis Granderson RF | NYM  $1 ,1
+251,* Yasmany Tomas RF | ARI  $1 ,1
+252,* Brandon Maurer RP | SD  $1 ,1
+253,* Jonathan Schoop 2B | BAL  ,1
+254,* Mike Foltynewicz SP | ATL  ,1
+255,* Drew Smyly SP | SEA  ,1
+256,Raisel Iglesias RP | CIN  ,1
+257,Neil Walker 2B | NYM  ,1
+258,* Shawn Kelley RP | WAS  ,1
+259,* Addison Reed RP | NYM  ,1
+260,Marcell Ozuna CF | MIA  ,1
+261,Marcus Semien SS | OAK  ,1
+262,* Mike Moustakas 3B | KC  ,1
+263,Nick Castellanos 3B | DET  ,1
+264,* Jung Ho Kang 3B | PIT  ,1
+265,Brandon Crawford SS | SF  ,1
+266,* C.J. Cron 1B | LAA  ,1
+267,* Carter Capps RP | SD  ,1
+268,Daniel Norris SP | DET ,1
+269,Adam Conley SP | MIA  ,1
+270,* Jharel Cotton SP | OAK  ,1
+271,Gio Gonzalez SP | WAS  ,1
+272,Chris Tillman SP | BAL  ,1
+273,* Tyler Glasnow SP | PIT  ,1
+274,* Shelby Miller SP | ARI  ,1
+275,Matt Wieters C | WAS  ,1
+276,* Junior Guerra SP | MIL  ,1
+277,* Mike Montgomery RP | CHC  ,1
+278,* Travis d'Arnaud C | NYM  ,1
+279,* Yuli Gurriel 3B | HOU  ,1
+280,Ryan Zimmerman 1B | WAS  ,1
+281,* Martin Prado 3B | MIA  ,1
+282,* Brandon Phillips 2B | ATL  ,1
+283,* Fernando Rodney RP | ARI  ,1
+284,* Eric Thames LF | MIL  ,1
+285,Matt Holliday LF | NYY  ,1
+286,Max Kepler RF | MIN  ,1
+287,* Jorge Soler LF | KC  ,1
+288,* Randal Grichuk CF | STL  ,1
+289,Josh Reddick RF | HOU  ,1
+290,* Cameron Rupp C | PHI  ,1
+291,Starlin Castro 2B | NYY  ,1
+292,* Alex Gordon LF | KC  ,1
+293,Brett Gardner LF | NYY  ,1
+294,* Javier Baez 3B | CHC  ,1
+295,* Manuel Margot CF | SD  ,1
+296,* Nick Markakis RF | ATL  ,1
+297,Jayson Werth LF | WAS  ,1
+298,* Tommy Joseph 1B | PHI  ,1
+299,* Travis Shaw 3B | MIL  ,1
+300,* Rajai Davis CF | OAK,1
+1,Mike Trout CF | LAA  $45 ,2
+2,Jose Altuve 2B | HOU  $45 ,2
+3,Mookie Betts RF | BOS  $44 ,2
+4,Nolan Arenado 3B | COL  $43 ,2
+5,Kris Bryant 3B | CHC  $43 ,2
+6,Josh Donaldson 3B | TOR  $43 ,2
+7,Manny Machado 3B | BAL  $42 ,2
+8,Anthony Rizzo 1B | CHC  $39 ,2
+9,Paul Goldschmidt 1B | ARI  $39 ,2
+10,Clayton Kershaw SP | LAD  $36 ,2
+11,Bryce Harper RF | WAS  $35 ,2
+12,Joey Votto 1B | CIN  $35 ,2
+13,Charlie Blackmon CF | COL  $35 ,2
+14,Carlos Correa SS | HOU  $36 ,2
+15,Max Scherzer SP | WAS  $29 ,2
+16,Madison Bumgarner SP | SF  $33 ,2
+17,Chris Sale SP | BOS  $29 ,2
+18,Corey Seager SS | LAD  $36 ,2
+19,Miguel Cabrera 1B | DET  $35 ,2
+20,Edwin Encarnacion DH | CLE  $28 ,2
+21,Jake Arrieta SP | CHC  $27 ,2
+22,Corey Kluber SP | CLE  $27 ,2
+23,Daniel Murphy 2B | WAS  $28 ,2
+24,A.J. Pollock CF | ARI  $26 ,2
+25,Noah Syndergaard SP | NYM  $25 ,2
+26,* Trea Turner CF | WAS  $25 ,2
+27,George Springer RF | HOU  $26 ,2
+28,Xander Bogaerts SS | BOS  $23 ,2
+29,Francisco Lindor SS | CLE  $23 ,2
+30,Johnny Cueto SP | SF  $23 ,2
+31,Jon Lester SP | CHC  $23 ,2
+32,Nelson Cruz DH | SEA  $21 ,2
+33,Ryan Braun LF | MIL  $25 ,2
+34,Starling Marte LF | PIT  $25 ,2
+35,Justin Verlander SP | DET  $19 ,2
+36,Jacob deGrom SP | NYM  $17 ,2
+37,Andrew McCutchen CF | PIT  $21 ,2
+38,Yu Darvish SP | TEX  $19 ,2
+39,Cole Hamels SP | TEX  $17 ,2
+40,Matt Carpenter 3B | STL  $25 ,2
+41,Freddie Freeman 1B | ATL  $17 ,2
+42,Brian Dozier 2B | MIN  $21 ,2
+43,Stephen Strasburg SP | WAS  $17 ,2
+44,Chris Archer SP | TB  $17 ,2
+45,Giancarlo Stanton RF | MIA  $21 ,2
+46,Buster Posey C | SF  $22 ,2
+47,Jonathan Lucroy C | TEX  $21 ,2
+48,Carlos Gonzalez RF | COL  $17 ,2
+49,Yoenis Cespedes LF | NYM  $20 ,2
+50,Carlos Martinez SP | STL  $17 ,2
+51,Carlos Carrasco SP | CLE  $17 ,2
+52,David Price SP | BOS  $25 ,2
+53,Gerrit Cole SP | PIT  $16 ,2
+54,Jose Bautista RF | TOR  $16 ,2
+55,Christian Yelich LF | MIA  $16 ,2
+56,Gregory Polanco RF | PIT  $16 ,2
+57,Robinson Cano 2B | SEA  $16 ,2
+58,Anthony Rendon 3B | WAS  $16 ,2
+59,Kyle Seager 3B | SEA  $16 ,2
+60,Carlos Santana DH | CLE  $16 ,2
+61,Chris Davis 1B | BAL  $16 ,2
+62,Danny Duffy SP | KC  $15 ,2
+63,Gary Sanchez C | NYY  $16 ,2
+64,Danny Salazar SP | CLE  $16 ,2
+65,Stephen Piscotty RF | STL  $16 ,2
+66,Masahiro Tanaka SP | NYY  $16 ,2
+67,Jose Quintana SP | CHW  $16 ,2
+68,Wil Myers 1B | SD  $16 ,2
+69,Kenta Maeda SP | LAD  $15 ,2
+70,Mark Trumbo RF | BAL  $15 ,2
+71,* Aledmys Diaz SS | STL  $15 ,2
+72,Trevor Story SS | COL  $15 ,2
+73,Zack Greinke SP | ARI  $17 ,2
+74,Adam Jones CF | BAL  $16 ,2
+75,Jose Abreu 1B | CHW  $15 ,2
+76,Jackie Bradley CF | BOS  $16 ,2
+77,* Kyle Schwarber LF | CHC  $16 ,2
+78,Dexter Fowler CF | STL  $15 ,2
+79,Justin Upton LF | DET  $15 ,2
+80,Matt Kemp RF | ATL  $15 ,2
+81,Lorenzo Cain CF | KC  $15 ,2
+82,Felix Hernandez SP | SEA  $15 ,2
+83,Julio Teheran SP | ATL  $15 ,2
+84,Aaron Nola SP | PHI  $15 ,2
+85,Wade Davis RP | CHC  $15 ,2
+86,Aroldis Chapman RP | NYY  $14 ,2
+87,Kenley Jansen RP | LAD  $14 ,2
+88,Zach Britton RP | BAL  $14 ,2
+89,* Andrew Benintendi LF | BOS  $12 ,2
+90,DJ LeMahieu 2B | COL  $14 ,2
+91,Ben Zobrist 2B | CHC  $12 ,2
+92,Rougned Odor 2B | TEX  $14 ,2
+93,Alex Bregman 3B | HOU  $13 ,2
+94,Kyle Hendricks SP | CHC  $12 ,2
+95,* Kendrys Morales DH | TOR  $12 ,2
+96,Hanley Ramirez 1B | BOS  $12 ,2
+97,* Willson Contreras C | CHC  $12 ,2
+98,Lance McCullers SP | HOU  $12 ,2
+99,Marcus Stroman SP | TOR  $11 ,2
+100,Rick Porcello SP | BOS  $12 ,2
+101,Steven Matz SP | NYM  $12 ,2
+102,* James Paxton SP | SEA  $11 ,2
+103,Carlos Rodon SP | CHW  $12 ,2
+104,Odubel Herrera CF | PHI  $11 ,2
+105,* Michael Brantley LF | CLE  $2 ,2
+106,Jon Gray SP | COL  $12 ,2
+107,Justin Turner 3B | LAD  $12 ,2
+108,Craig Kimbrel RP | BOS  $12 ,2
+109,Dee Gordon 2B | MIA  $11 ,2
+110,Rich Hill SP | LAD  $11 ,2
+111,Adrian Beltre 3B | TEX  $11 ,2
+112,Ian Desmond CF | COL  $21 ,2
+113,J.D. Martinez RF | DET  $21 ,2
+114,Khris Davis LF | OAK  $11 ,2
+115,Roberto Osuna RP | TOR  $11 ,2
+116,Adam Eaton RF | WAS  $12 ,2
+117,* Vince Velasquez SP | PHI  $11 ,2
+118,Seung-Hwan Oh RP | STL  $11 ,2
+119,* Edwin Diaz RP | SEA  $11 ,2
+120,* Kelvin Herrera RP | KC  $11 ,2
+121,Tanner Roark SP | WAS  $11 ,2
+122,Dallas Keuchel SP | HOU  $11 ,2
+123,Hunter Pence RF | SF  $11 ,2
+124,Brandon Crawford SS | SF  $11 ,2
+125,Jonathan Villar SS | MIL  $11 ,2
+126,Jean Segura 2B | SEA  $11 ,2
+127,Salvador Perez C | KC  $13 ,2
+128,* Evan Gattis DH | HOU  $12 ,2
+129,Ian Kinsler 2B | DET  $11 ,2
+130,Jose Ramirez 3B | CLE  $8 ,2
+131,Marcell Ozuna CF | MIA  $11 ,2
+132,Eric Hosmer 1B | KC  $11 ,2
+133,Evan Longoria 3B | TB  $11 ,2
+134,Mark Melancon RP | SF  $11 ,2
+135,Maikel Franco 3B | PHI  $11 ,2
+136,Todd Frazier 3B | CHW  $11 ,2
+137,* Addison Russell SS | CHC  $11 ,2
+138,Michael Fulmer SP | DET  $9 ,2
+139,Aaron Sanchez SP | TOR  $11 ,2
+140,Taijuan Walker SP | ARI  $10 ,2
+141,* Yangervis Solarte 3B | SD  $11 ,2
+142,* Ken Giles RP | HOU  $10 ,2
+143,Cody Allen RP | CLE  $9 ,2
+144,Matt Harvey SP | NYM  $11 ,2
+145,Troy Tulowitzki SS | TOR  $11 ,2
+146,* Blake Snell SP | TB  $11 ,2
+147,Dylan Bundy RP | BAL  $9 ,2
+148,John Lackey SP | CHC  $9 ,2
+149,* Sean Manaea SP | OAK  $9 ,2
+150,* Robbie Ray SP | ARI  $9 ,2
+151,Albert Pujols DH | LAA  $11 ,2
+152,Jameson Taillon SP | PIT  $8 ,2
+153,* Mike Napoli 1B | TEX  $9 ,2
+154,* Victor Martinez DH | DET  $8 ,2
+155,Matt Shoemaker SP | LAA  $8 ,2
+156,* Jason Heyward RF | CHC  $8 ,2
+157,* Miguel Sano 3B | MIN  $8 ,2
+158,* Lance Lynn SP | STL  $8 ,2
+159,Jake Lamb 3B | ARI  $11 ,2
+160,Kevin Gausman SP | BAL  $8 ,2
+161,Dustin Pedroia 2B | BOS  $8 ,2
+162,Jerad Eickhoff SP | PHI  $8 ,2
+163,Joe Ross SP | WAS  $8 ,2
+164,* Billy Hamilton CF | CIN  $8 ,2
+165,Yasmani Grandal C | LAD  $8 ,2
+166,Brandon Belt 1B | SF  $8 ,2
+167,J.A. Happ SP | TOR  $8 ,2
+168,Joe Panik 2B | SF  $8 ,2
+169,* Welington Castillo C | BAL  $8 ,2
+170,Josh Reddick RF | HOU  $8 ,2
+171,* Nomar Mazara RF | TEX  $8 ,2
+172,Ian Kennedy SP | KC  $5 ,2
+173,Michael Pineda SP | NYY  $8 ,2
+174,Jason Hammel SP | KC  $7 ,2
+175,Marco Estrada SP | TOR  $8 ,2
+176,J.T. Realmuto C | MIA  $5 ,2
+177,* Elvis Andrus SS | TEX  $5 ,2
+178,Gio Gonzalez SP | WAS  $8 ,2
+179,Drew Pomeranz SP | BOS  $9 ,2
+180,* Julio Urias SP | LAD  $8 ,2
+181,Jeff Samardzija SP | SF  $2 ,2
+182,Jordan Zimmermann SP | DET  $4 ,2
+183,Ervin Santana SP | MIN  $1 ,2
+184,Adam Wainwright SP | STL  $8 ,2
+185,Trevor Bauer SP | CLE  $8 ,2
+186,Hisashi Iwakuma SP | SEA  $6 ,2
+187,Jake Odorizzi SP | TB  $6 ,2
+188,Collin McHugh SP | HOU  $5 ,2
+189,* Drew Smyly SP | SEA  $5 ,2
+190,* Cameron Rupp C | PHI  $3 ,2
+191,* Russell Martin C | TOR  $2 ,2
+192,Matt Wieters C | WAS  $4 ,2
+193,Yadier Molina C | STL  $3 ,2
+194,* Devon Travis 2B | TOR  $2 ,2
+195,* Randal Grichuk CF | STL  $2 ,2
+196,Jason Kipnis 2B | CLE  $8 ,2
+197,Shin-Soo Choo RF | TEX  $2 ,2
+198,* Alex Gordon LF | KC  $2 ,2
+199,Kole Calhoun RF | LAA  $2 ,2
+200,Adam Duvall LF | CIN  $2 ,2
+201,* Dansby Swanson SS | ATL  $1 ,2
+202,* Tim Anderson SS | CHW  $1 ,2
+203,* Jose Peraza SS | CIN  $1 ,2
+204,Eduardo Nunez 3B | SF  $1 ,2
+205,Jose Reyes 3B | NYM  $1 ,2
+206,* Travis Shaw 3B | MIL  $1 ,2
+207,* Tommy Joseph 1B | PHI  $1 ,2
+208,* Greg Bird 1B | NYY  ,2
+209,Adrian Gonzalez 1B | LAD  $8 ,2
+210,Neil Walker 2B | NYM  $2 ,2
+211,* Yasmany Tomas RF | ARI  $11 ,2
+212,* Denard Span CF | SF  $2 ,2
+213,Jay Bruce RF | NYM  $2 ,2
+214,* Tony Wolters C | COL  ,2
+215,* Stephen Vogt C | OAK  $2 ,2
+216,Brian McCann C | HOU  $2 ,2
+217,Melky Cabrera LF | CHW  $2 ,2
+218,David Robertson RP | CHW  $2 ,2
+219,Alex Colome RP | TB  $2 ,2
+220,Jeurys Familia RP | NYM  $2 ,2
+221,* A.J. Ramos RP | MIA  $2 ,2
+222,Francisco Rodriguez RP | DET  $2 ,2
+223,* Sam Dyson RP | TEX  $1 ,2
+224,Tony Watson RP | PIT  $1 ,2
+225,Andrew Miller RP | CLE  $1 ,2
+226,* Joc Pederson CF | LAD  $1 ,2
+227,* Keon Broxton CF | MIL  ,2
+228,* David Dahl LF | COL  $1 ,2
+229,Carlos Gomez CF | TEX  $1 ,2
+230,* Jharel Cotton SP | OAK  $1 ,2
+231,* Yasiel Puig RF | LAD  $1 ,2
+232,* Ender Inciarte CF | ATL  $2 ,2
+233,Carlos Beltran DH | HOU  $1 ,2
+234,* Jose Berrios SP | MIN  $1 ,2
+235,* Jim Johnson RP | ATL  $1 ,2
+236,* Jonathan Schoop 2B | BAL  $1 ,2
+237,* Fernando Rodney RP | ARI  $1 ,2
+238,* Cam Bedrosian RP | LAA  $1 ,2
+239,Logan Forsythe 2B | LAD  $1 ,2
+240,* Cesar Hernandez 2B | PHI  $1 ,2
+241,* Kevin Kiermaier CF | TB  $1 ,2
+242,* Jorge Soler LF | KC  $1 ,2
+243,* Domingo Santana RF | MIL  $1 ,2
+244,Matt Holliday LF | NYY  $1 ,2
+245,* Hernan Perez 3B | MIL  $1 ,2
+246,* Ryon Healy 3B | OAK  $1 ,2
+247,Sonny Gray SP | OAK  $8 ,2
+248,* Mike Leake SP | STL  ,2
+249,* Robert Gsellman SP | NYM  ,2
+250,Matt Moore SP | SF  ,2
+251,* Michael Wacha SP | STL  ,2
+252,* Javier Baez 3B | CHC  ,2
+253,* Steven Souza RF | TB  $1 ,2
+254,* Jung Ho Kang 3B | PIT  ,2
+255,Starlin Castro 2B | NYY  ,2
+256,* Josh Harrison 2B | PIT  ,2
+257,* Ryan Schimpf 2B | SD  ,2
+258,Raisel Iglesias RP | CIN  ,2
+259,Dellin Betances RP | NYY  ,2
+260,* Mike Moustakas 3B | KC  ,2
+261,Nick Castellanos 3B | DET  ,2
+262,* Yoan Moncada 3B | CHW  ,2
+263,* Travis d'Arnaud C | NYM  ,2
+264,* Brandon Phillips 2B | ATL  ,2
+265,* Byron Buxton CF | MIN  ,2
+266,Brad Miller SS | TB  ,2
+267,* Josh Bell 1B | PIT  ,2
+268,* C.J. Cron 1B | LAA  ,2
+269,* Mitch Moreland 1B | BOS  ,2
+270,* Michael Conforto LF | NYM  ,2
+271,* Gerardo Parra LF | COL  ,2
+272,* Hunter Renfroe RF | SD  ,2
+273,* David Peralta RF | ARI  ,2
+274,* Mitch Haniger CF | SEA  ,2
+275,Jacoby Ellsbury CF | NYY  ,2
+276,Brett Gardner LF | NYY  ,2
+277,* Eric Thames LF | MIL  ,2
+278,* Tyler Naquin CF | CLE  ,2
+279,Michael Saunders LF | PHI  ,2
+280,* Jarrod Dyson CF | SEA  ,2
+281,Curtis Granderson RF | NYM  ,2
+282,Corey Dickerson LF | TB  ,2
+283,* Yuli Gurriel 3B | HOU  ,2
+284,* Brandon Drury LF | ARI  ,2
+285,* Junior Guerra SP | MIL  $1 ,2
+286,* Alex Cobb SP | TB  ,2
+287,Brandon Finnegan SP | CIN  ,2
+288,* Austin Hedges C | SD  ,2
+289,Max Kepler RF | MIN  ,2
+290,* Garrett Richards SP | LAA  $2 ,2
+291,* Tyler Glasnow SP | PIT  $2 ,2
+292,Adam Conley SP | MIA  $2 ,2
+293,* Joe Musgrove SP | HOU  ,2
+294,* Lucas Giolito SP | CHW  $1 ,2
+295,* Jose De Leon SP | TB  $2 ,2
+296,* Scott Schebler RF | CIN  ,2
+297,* Brandon Moss LF | KC  ,2
+298,* Travis Jankowski CF | SD  ,2
+299,Chris Carter 1B | NYY  ,2
+300,* Kevin Pillar CF | TOR ,2
+1,Mike Trout CF | LAA  $50 ,3
+2,Mookie Betts RF | BOS  $50 ,3
+3,Jose Altuve 2B | HOU  $48 ,3
+4,Nolan Arenado 3B | COL  $43 ,3
+5,Paul Goldschmidt 1B | ARI  $43 ,3
+6,Kris Bryant 3B | CHC  $43 ,3
+7,Josh Donaldson 3B | TOR  $38 ,3
+8,Manny Machado 3B | BAL  $38 ,3
+9,Anthony Rizzo 1B | CHC  $36 ,3
+10,Clayton Kershaw SP | LAD  $36 ,3
+11,Bryce Harper RF | WAS  $36 ,3
+12,Joey Votto 1B | CIN  $36 ,3
+13,Miguel Cabrera 1B | DET  $30 ,3
+14,Charlie Blackmon CF | COL  $30 ,3
+15,Corey Seager SS | LAD  $30 ,3
+16,* Trea Turner CF | WAS  $32 ,3
+17,Carlos Correa SS | HOU  $33 ,3
+18,Edwin Encarnacion DH | CLE  $33 ,3
+19,Max Scherzer SP | WAS  $33 ,3
+20,Madison Bumgarner SP | SF  $33 ,3
+21,Chris Sale SP | BOS  $29 ,3
+22,Corey Kluber SP | CLE  $27 ,3
+23,Daniel Murphy 2B | WAS  $27 ,3
+24,George Springer RF | HOU  $27 ,3
+25,A.J. Pollock CF | ARI  $27 ,3
+26,Noah Syndergaard SP | NYM  $27 ,3
+27,Ryan Braun LF | MIL  $27 ,3
+28,Giancarlo Stanton RF | MIA  $25 ,3
+29,Freddie Freeman 1B | ATL  $24 ,3
+30,Nelson Cruz DH | SEA  $25 ,3
+31,Brian Dozier 2B | MIN  $25 ,3
+32,Matt Carpenter 3B | STL  $25 ,3
+33,Jake Arrieta SP | CHC  $25 ,3
+34,Starling Marte LF | PIT  $24 ,3
+35,Jon Lester SP | CHC  $23 ,3
+36,Andrew McCutchen CF | PIT  $23 ,3
+37,Yoenis Cespedes LF | NYM  $22 ,3
+38,Johnny Cueto SP | SF  $22 ,3
+39,Francisco Lindor SS | CLE  $22 ,3
+40,Xander Bogaerts SS | BOS  $20 ,3
+41,Jonathan Villar SS | MIL  $22 ,3
+42,Robinson Cano 2B | SEA  $20 ,3
+43,Rougned Odor 2B | TEX  $20 ,3
+44,Chris Davis 1B | BAL  $21 ,3
+45,Adrian Beltre 3B | TEX  $18 ,3
+46,Trevor Story SS | COL  $23 ,3
+47,Kyle Seager 3B | SEA  $23 ,3
+48,J.D. Martinez RF | DET  $23 ,3
+49,Christian Yelich LF | MIA  $23 ,3
+50,Buster Posey C | SF  $20 ,3
+51,Carlos Gonzalez RF | COL  $20 ,3
+52,Justin Verlander SP | DET  $20 ,3
+53,Stephen Strasburg SP | WAS  $20 ,3
+54,Gregory Polanco RF | PIT  $20 ,3
+55,Yu Darvish SP | TEX  $20 ,3
+56,Jose Abreu 1B | CHW  $20 ,3
+57,Wil Myers 1B | SD  $19 ,3
+58,Jose Bautista RF | TOR  $19 ,3
+59,Jacob deGrom SP | NYM  $19 ,3
+60,Hanley Ramirez 1B | BOS  $19 ,3
+61,David Price SP | BOS  $19 ,3
+62,Jean Segura 2B | SEA  $19 ,3
+63,Dee Gordon 2B | MIA  $15 ,3
+64,Cole Hamels SP | TEX  $15 ,3
+65,Anthony Rendon 3B | WAS  $17 ,3
+66,Kenley Jansen RP | LAD  $17 ,3
+67,Zack Greinke SP | ARI  $17 ,3
+68,Carlos Carrasco SP | CLE  $17 ,3
+69,Jonathan Lucroy C | TEX  $17 ,3
+70,* Aledmys Diaz SS | STL  $17 ,3
+71,Adam Jones CF | BAL  $18 ,3
+72,Carlos Martinez SP | STL  $18 ,3
+73,Khris Davis LF | OAK  $17 ,3
+74,Mark Trumbo RF | BAL  $16 ,3
+75,Chris Archer SP | TB  $16 ,3
+76,Danny Duffy SP | KC  $16 ,3
+77,Ian Kinsler 2B | DET  $17 ,3
+78,Zach Britton RP | BAL  $16 ,3
+79,Masahiro Tanaka SP | NYY  $16 ,3
+80,Alex Bregman 3B | HOU  $16 ,3
+81,Jackie Bradley CF | BOS  $16 ,3
+82,* Kyle Schwarber LF | CHC  $16 ,3
+83,Kyle Hendricks SP | CHC  $16 ,3
+84,Gary Sanchez C | NYY  $16 ,3
+85,Aroldis Chapman RP | NYY  $15 ,3
+86,Danny Salazar SP | CLE  $15 ,3
+87,Maikel Franco 3B | PHI  $15 ,3
+88,Evan Longoria 3B | TB  $15 ,3
+89,Jose Quintana SP | CHW  $15 ,3
+90,Carlos Santana DH | CLE  $15 ,3
+91,Rick Porcello SP | BOS  $15 ,3
+92,Wade Davis RP | CHC  $15 ,3
+93,Gerrit Cole SP | PIT  $15 ,3
+94,Justin Turner 3B | LAD  $15 ,3
+95,* Miguel Sano 3B | MIN  $15 ,3
+96,* Andrew Benintendi LF | BOS  $15 ,3
+97,DJ LeMahieu 2B | COL  $15 ,3
+98,Ian Desmond CF | COL  $15 ,3
+99,Kenta Maeda SP | LAD  $15 ,3
+100,* James Paxton SP | SEA  $15 ,3
+101,Matt Kemp RF | ATL  $15 ,3
+102,Steven Matz SP | NYM  $15 ,3
+103,Aaron Sanchez SP | TOR  $15 ,3
+104,Adam Eaton RF | WAS  $15 ,3
+105,Mark Melancon RP | SF  $15 ,3
+106,Justin Upton LF | DET  $15 ,3
+107,Lance McCullers SP | HOU  $15 ,3
+108,Stephen Piscotty RF | STL  $15 ,3
+109,Julio Teheran SP | ATL  $15 ,3
+110,Jose Ramirez 3B | CLE  $15 ,3
+111,Craig Kimbrel RP | BOS  $15 ,3
+112,Lorenzo Cain CF | KC  $15 ,3
+113,Ben Zobrist 2B | CHC  $15 ,3
+114,* Addison Russell SS | CHC  $15 ,3
+115,Felix Hernandez SP | SEA  $15 ,3
+116,Dallas Keuchel SP | HOU  $14 ,3
+117,* Edwin Diaz RP | SEA  $14 ,3
+118,Eduardo Nunez 3B | SF  $13 ,3
+119,Brandon Belt 1B | SF  $13 ,3
+120,Adrian Gonzalez 1B | LAD  $12 ,3
+121,Todd Frazier 3B | CHW  $12 ,3
+122,Seung-Hwan Oh RP | STL  $12 ,3
+123,* Ken Giles RP | HOU  $12 ,3
+124,Odubel Herrera CF | PHI  $12 ,3
+125,* Michael Brantley LF | CLE  $12 ,3
+126,Matt Harvey SP | NYM  $11 ,3
+127,John Lackey SP | CHC  $11 ,3
+128,Michael Fulmer SP | DET  $11 ,3
+129,Tanner Roark SP | WAS  $11 ,3
+130,Rich Hill SP | LAD  $11 ,3
+131,Kevin Gausman SP | BAL  $11 ,3
+132,* Willson Contreras C | CHC  $11 ,3
+133,Dustin Pedroia 2B | BOS  $10 ,3
+134,* Evan Gattis DH | HOU  $10 ,3
+135,Troy Tulowitzki SS | TOR  $10 ,3
+136,Roberto Osuna RP | TOR  $9 ,3
+137,* Vince Velasquez SP | PHI  $8 ,3
+138,Aaron Nola SP | PHI  $8 ,3
+139,* Kelvin Herrera RP | KC  $7 ,3
+140,Joe Ross SP | WAS  $7 ,3
+141,Dexter Fowler CF | STL  $7 ,3
+142,Yasmani Grandal C | LAD  $7 ,3
+143,Carlos Rodon SP | CHW  $7 ,3
+144,* David Dahl LF | COL  $7 ,3
+145,* Sam Dyson RP | TEX  $7 ,3
+146,* Billy Hamilton CF | CIN  $7 ,3
+147,Jeurys Familia RP | NYM  $6 ,3
+148,Kole Calhoun RF | LAA  $6 ,3
+149,* Kendrys Morales DH | TOR  $6 ,3
+150,* Byron Buxton CF | MIN  $6 ,3
+151,* Yangervis Solarte 3B | SD  $6 ,3
+152,Cody Allen RP | CLE  $7 ,3
+153,Marcus Stroman SP | TOR  $7 ,3
+154,* Jose Peraza SS | CIN  $2 ,3
+155,Matt Shoemaker SP | LAA  $6 ,3
+156,Albert Pujols DH | LAA  $6 ,3
+157,Eric Hosmer 1B | KC  $7 ,3
+158,Michael Pineda SP | NYY  $7 ,3
+159,Taijuan Walker SP | ARI  $7 ,3
+160,Jon Gray SP | COL  $7 ,3
+161,Adam Duvall LF | CIN  $6 ,3
+162,* Sean Manaea SP | OAK  $6 ,3
+163,Jason Kipnis 2B | CLE  $6 ,3
+164,Dylan Bundy RP | BAL  $6 ,3
+165,* Dansby Swanson SS | ATL  $4 ,3
+166,Marcell Ozuna CF | MIA  $4 ,3
+167,* Russell Martin C | TOR  $4 ,3
+168,Jake Lamb 3B | ARI  $4 ,3
+169,Salvador Perez C | KC  $6 ,3
+170,Francisco Rodriguez RP | DET  $6 ,3
+171,J.A. Happ SP | TOR  $5 ,3
+172,Jameson Taillon SP | PIT  $4 ,3
+173,Drew Pomeranz SP | BOS  $4 ,3
+174,* Nomar Mazara RF | TEX  $4 ,3
+175,* Mike Napoli 1B | TEX  $4 ,3
+176,Jeff Samardzija SP | SF  $3 ,3
+177,* Greg Bird 1B | NYY  $3 ,3
+178,Carlos Gomez CF | TEX  $3 ,3
+179,Alex Colome RP | TB  $4 ,3
+180,* Victor Martinez DH | DET  $4 ,3
+181,* A.J. Ramos RP | MIA  $4 ,3
+182,* Hernan Perez 3B | MIL  $4 ,3
+183,* Yasmany Tomas RF | ARI  $4 ,3
+184,* Javier Baez 3B | CHC  $4 ,3
+185,Carlos Beltran DH | HOU  $3 ,3
+186,David Robertson RP | CHW  $3 ,3
+187,* Robbie Ray SP | ARI  $3 ,3
+188,Josh Reddick RF | HOU  $3 ,3
+189,Ian Kennedy SP | KC  $3 ,3
+190,* Elvis Andrus SS | TEX  $2 ,3
+191,Matt Wieters C | WAS  $2 ,3
+192,Jay Bruce RF | NYM  $2 ,3
+193,* Julio Urias SP | LAD  $2 ,3
+194,Marcus Semien SS | OAK  $2 ,3
+195,* Tommy Joseph 1B | PHI  $2 ,3
+196,Marco Estrada SP | TOR  $2 ,3
+197,* Yoan Moncada 3B | CHW  $2 ,3
+198,* Michael Wacha SP | STL  $2 ,3
+199,* Joc Pederson CF | LAD  $2 ,3
+200,Jose Reyes 3B | NYM  $1 ,3
+201,* Yasiel Puig RF | LAD  $1 ,3
+202,Logan Forsythe 2B | LAD  $2 ,3
+203,Brian McCann C | HOU  $2 ,3
+204,Matt Moore SP | SF  $2 ,3
+205,* Devon Travis 2B | TOR  $2 ,3
+206,Matt Holliday LF | NYY  $1 ,3
+207,* Ben Revere CF | LAA $1 ,3
+208,* Junior Guerra SP | MIL  $2 ,3
+209,Max Kepler RF | MIN  $2 ,3
+210,Tony Watson RP | PIT  $2 ,3
+211,Jacoby Ellsbury CF | NYY  $2 ,3
+212,* Blake Snell SP | TB  $1 ,3
+213,Ivan Nova SP | PIT  $2 ,3
+214,Jason Hammel SP | KC  $2 ,3
+215,Jake Odorizzi SP | TB  $1 ,3
+216,* Lance Lynn SP | STL  ,3
+217,* Ryon Healy 3B | OAK  $1 ,3
+218,* Randal Grichuk CF | STL  $1 ,3
+219,* Koda Glover RP | WAS  ,3
+220,J.T. Realmuto C | MIA  $1 ,3
+221,* Josh Harrison 2B | PIT  $1 ,3
+222,Adam Wainwright SP | STL  $1 ,3
+223,Yadier Molina C | STL  $1 ,3
+224,* Robert Gsellman SP | NYM  $1 ,3
+225,Trevor Bauer SP | CLE  $1 ,3
+226,* Jorge Soler LF | KC  $1 ,3
+227,* Jim Johnson RP | ATL  $1 ,3
+228,Sonny Gray SP | OAK  $1 ,3
+229,* Cam Bedrosian RP | LAA  $1 ,3
+230,Hunter Pence RF | SF  $1 ,3
+231,Melky Cabrera LF | CHW  $1 ,3
+232,Jerad Eickhoff SP | PHI  $1 ,3
+233,* Alex Gordon LF | KC  $1 ,3
+234,* Brandon Phillips 2B | ATL  $1 ,3
+235,* Jonathan Schoop 2B | BAL  $1 ,3
+236,* Keon Broxton CF | MIL  $1 ,3
+237,* Drew Smyly SP | SEA  $1 ,3
+238,* Leonys Martin CF | SEA  $1 ,3
+239,* Domingo Santana RF | MIL  $1 ,3
+240,Brandon Crawford SS | SF  $1 ,3
+241,Neil Walker 2B | NYM  $1 ,3
+242,* Jason Heyward RF | CHC  $1 ,3
+243,* Garrett Richards SP | LAA  $1 ,3
+244,* Nick Markakis RF | ATL  $1 ,3
+245,Francisco Liriano SP | TOR  ,3
+246,Starlin Castro 2B | NYY  $1 ,3
+247,Jayson Werth LF | WAS  $1 ,3
+248,Curtis Granderson RF | NYM  $1 ,3
+249,* Angel Pagan LF | SF  $1 ,3
+250,* Greg Holland RP | COL  ,3
+251,* Hector Neris RP | PHI  $1 ,3
+252,* Mitch Haniger CF | SEA  ,3
+253,Collin McHugh SP | HOU  ,3
+254,* Brandon Maurer RP | SD  ,3
+255,* Fernando Rodney RP | ARI  ,3
+256,* Eugenio Suarez 3B | CIN  ,3
+257,* Joe Musgrove SP | HOU  ,3
+258,* Jung Ho Kang 3B | PIT  ,3
+259,Bartolo Colon SP | ATL  ,3
+260,* Freddy Galvis SS | PHI  ,3
+261,Ryan Madson RP | OAK  ,3
+262,* Asdrubal Cabrera SS | NYM  ,3
+263,* Danny Espinosa SS | LAA  ,3
+264,* Ender Inciarte CF | ATL  ,3
+265,* Orlando Arcia SS | MIL  ,3
+266,Nick Castellanos 3B | DET  ,3
+267,* Jedd Gyorko 2B | STL  ,3
+268,* Martin Prado 3B | MIA  ,3
+269,Raisel Iglesias RP | CIN  ,3
+270,Ervin Santana SP | MIN  ,3
+271,Steven Wright SP | BOS  ,3
+272,* Michael Conforto LF | NYM  ,3
+273,Brett Gardner LF | NYY  ,3
+274,* C.J. Cron 1B | LAA  ,3
+275,* Brandon Drury LF | ARI  ,3
+276,* Yuli Gurriel 3B | HOU  ,3
+277,* Eduardo Rodriguez SP | BOS  ,3
+278,Brad Miller SS | TB  ,3
+279,Andrew Miller RP | CLE  ,3
+280,* Didi Gregorius SS | NYY  ,3
+281,Dellin Betances RP | NYY  ,3
+282,* Jose Berrios SP | MIN  ,3
+283,* Gerardo Parra LF | COL  ,3
+284,* Welington Castillo C | BAL  ,3
+285,* Travis Jankowski CF | SD  ,3
+286,* Josh Bell 1B | PIT  ,3
+287,Chris Carter 1B | NYY  ,3
+288,Lucas Duda 1B | NYM  ,3
+289,* Scott Schebler RF | CIN  ,3
+290,* Travis d'Arnaud C | NYM  ,3
+291,* Tyler Glasnow SP | PIT  ,3
+292,* Jose De Leon SP | TB  ,3
+293,* Denard Span CF | SF  ,3
+294,* Jharel Cotton SP | OAK  ,3
+295,Adam Conley SP | MIA  ,3
+296,* Corey Knebel RP | MIL  ,3
+297,* Eric Thames LF | MIL  ,3
+298,Michael Saunders LF | PHI  ,3
+299,* Manuel Margot CF | SD  ,3
+300,* Jeremy Hellickson SP | PHI  ,3

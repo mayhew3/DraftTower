@@ -74,7 +74,7 @@ public class ProjectionsUploader {
     File file = new File(pathname);
     FileReader fileReader = new FileReader(file);
 
-    PlayerListParser playerListParser = new PlayerListParser(fileReader, tmpStatTableFactory, statsDate, batterColumns);
-    playerListParser.uploadPlayersToDatabase(connection);
+    PlayerListParser playerListParser = new PlayerListParser(fileReader, tmpStatTableFactory, statsDate, batterColumns, connection);
+    playerListParser.uploadPlayersToDatabase();
   }
 }

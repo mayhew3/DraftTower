@@ -8,7 +8,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 public class DraftPrepRunner {
-  static LocalDate statsDate = new LocalDate(2016, 3, 24);
+  static LocalDate statsDate = new LocalDate(2019, 3, 14);
 
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
@@ -41,6 +41,10 @@ public class DraftPrepRunner {
     ConnectPlayerTable connectPlayerTable = new ConnectPlayerTable(connection);
     connectPlayerTable.updateDatabase();
 
+    // Update keepers
+    PopulateKeepers populateKeepers = new PopulateKeepers(connection);
+    populateKeepers.updateDatabase();
+
     // add custom rankings for each team based on averages
     InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
     initCustomRankings.updateDatabase();
@@ -64,11 +68,6 @@ public class DraftPrepRunner {
     // Get rid of DH noise in the Player eligibility strings
     TrimEligibilities trimEligibilities = new TrimEligibilities(connection);
     trimEligibilities.updateDatabase();
-
-    // Update keepers
-    PopulateKeepers populateKeepers = new PopulateKeepers(connection);
-    populateKeepers.updateDatabase();
-
 
     DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
     draftResultsClearer.updateDatabase();

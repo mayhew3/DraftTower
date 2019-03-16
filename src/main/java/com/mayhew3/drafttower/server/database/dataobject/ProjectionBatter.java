@@ -22,7 +22,7 @@ public class ProjectionBatter extends DataObject {
   public FieldValueInteger fpts = registerIntegerField("FPTS");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "projectionsbatting";
   }
 }

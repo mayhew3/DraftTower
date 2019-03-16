@@ -9,7 +9,7 @@ public class TmpDraftAverages extends TmpStatTable {
   public FieldValueInteger rank = registerIntegerField("Rank");
 
   @Override
-  protected String getTableName() {
+  public String getTableName() {
     return "cbs_draftaverages";
   }
 }
