@@ -1,7 +1,8 @@
 package com.mayhew3.drafttower.server.database;
 
 import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -2,9 +2,7 @@ package com.mayhew3.drafttower.server.database;
 
 import com.google.common.collect.Lists;
 import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
-import com.sun.istack.internal.NotNull;
-import com.sun.org.apache.xml.internal.resolver.helpers.Debug;
-import sun.util.logging.PlatformLogger;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.sql.*;

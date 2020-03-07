@@ -3,7 +3,6 @@ package com.mayhew3.drafttower.server.database;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.deploy.util.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -321,7 +320,7 @@ public class AddSourceData extends DatabaseUtility {
       while (hasMoreElements(sourceTeamResults)) {
         String teamName = getString(sourceTeamResults, mlbTeamCol);
         if (!systemTeamNames.contains(teamName)) {
-          String trimmed = StringUtils.trimWhitespace(teamName);
+          String trimmed = teamName.trim();
           if (!systemTeamNames.contains(trimmed)) {
             String replacementName = grabInput("Team not found: " + teamName + "... Replace with (N/A to skip)? ");
             if (!"N/A".equals(replacementName)) {

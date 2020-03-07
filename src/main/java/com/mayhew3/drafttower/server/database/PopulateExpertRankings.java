@@ -1,6 +1,6 @@
 package com.mayhew3.drafttower.server.database;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 
 import java.net.URISyntaxException;

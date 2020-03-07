@@ -2,7 +2,7 @@ package com.mayhew3.drafttower.server.database;
 
 
 import com.google.common.collect.Lists;
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.List;

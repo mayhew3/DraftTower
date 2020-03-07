@@ -8,7 +8,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 public class DraftPrepRunner {
-  static LocalDate statsDate = new LocalDate(2019, 3, 14);
+  static LocalDate statsDate = new LocalDate(2019, 3, 27);
 
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
