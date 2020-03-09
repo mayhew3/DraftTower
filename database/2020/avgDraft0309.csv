@@ -1,0 +1,307 @@
+Rank,Player,Trends,Avg Pick,HI/LO,% Drafted,
+1,Mike Trout CF | LAA ,,1.65, 1/4,92.6
+2,Christian Yelich RF | MIL ,,2.62, 1/5,91.6
+3,Mookie Betts RF | LAD , +1,5.33, 3/9,91.6
+4,Gerrit Cole SP | NYY , +1,5.64, 1/14,88.4
+5,Ronald Acuna CF | ATL, -2,5.91, 1/22,91.6
+6,Cody Bellinger RF | LAD ,,7.25, 3/14,91.6
+7,Jacob deGrom SP | NYM ,,7.51, 2/17,88.4
+8,Justin Verlander SP | HOU ,,8.56, 2/24,87.4
+9,Max Scherzer SP | WAS, +1,9.12, 4/27,88.4
+10,Alex Bregman 3B | HOU , -1,12.58, 5/26,91.6
+11,Nolan Arenado 3B | COL ,,13.00, 5/24,91.6
+12,Anthony Rendon 3B | LAA , +2,13.60, 5/24,93.7
+13,Walker Buehler SP | LAD ,,13.91, 7/28,89.5
+14,Francisco Lindor SS | CLE, -2,15.88, 8/29,91.6
+15,Stephen Strasburg SP | WAS ,,16.18, 8/28,88.4
+16,Juan Soto LF | WAS,,18.89, 6/33,91.6
+17,Jose Ramirez 3B | CLE,,20.00, 10/38,91.6
+18,Zack Greinke SP | HOU , +3,21.26, 10/56,88.4
+19,George Springer CF | HOU, -1,21.39, 10/42,92.6
+20,Jose Altuve 2B | HOU , -1,22.70, 8/44,92.6
+21,Freddie Freeman 1B | ATL , -1,23.74, 11/40,92.6
+22,Shane Bieber SP | CLE ,,24.70, 13/40,88.4
+23,Jack Flaherty SP | STL, +1,27.73, 13/57,88.4
+24,Patrick Corbin SP | WAS , +3,28.14, 16/56,89.5
+25,Clayton Kershaw SP | LAD , +1,28.32, 13/61,88.4
+26,Bryce Harper RF | PHI, -1,31.28, 16/55,91.6
+27,Xander Bogaerts SS | BOS , -4,31.57, 14/51,92.6
+28,Jose Berrios SP | MIN, +1,31.99, 17/65,88.4
+29,Trevor Story SS | COL, -1,35.37, 15/74,91.6
+30,Charlie Blackmon RF | COL, +8,36.36, 19/70,93.7
+31,Pete Alonso 1B | NYM, -1,36.47, 14/63,93.7
+32,Luis Castillo SP | CIN , +3,38.81, 22/69,89.5
+33,Rafael Devers 3B | BOS , -2,38.95, 16/71,91.6
+34,Ketel Marte CF | ARI,,39.91, 19/64,93.7
+35,Charlie Morton SP | TB , +9,41.59, 24/92,89.5
+36,Starling Marte CF | ARI, +3,41.92, 23/80,93.7
+37,Anthony Rizzo 1B | CHC , +3,42.04, 22/70,91.6
+38,Gleyber Torres SS | NYY, -6,42.52, 19/68,92.6
+39,Aaron Nola SP | PHI , +3,43.59, 24/80,88.4
+40,Javier Baez SS | CHC , +3,44.01, 19/88,92.6
+41,DJ LeMahieu 2B | NYY, +6,44.01, 15/77,92.6
+42,Blake Snell SP | TB , -6,45.26, 22/80,89.5
+43,Jose Abreu 1B | CHW, +11,46.03, 21/96,93.7
+44,Mike Clevinger SP | CLE , -11,47.42, 19/83,88.4
+45,Noah Syndergaard SP | NYM ,,48.21, 27/78,88.4
+46,Nelson Cruz DH | MIN, +10,48.35, 14/115,92.6
+47,J.D. Martinez DH | BOS , +5,49.91, 26/105,90.5
+48,Trea Turner SS | WAS, +1,50.23, 17/135,89.5
+49,Josh Hader RP | MIL , -1,51.87, 16/100,86.3
+50,Fernando Tatis SS | SD , -13,52.97, 19/83,91.6
+51,Lucas Giolito SP | CHW , +4,54.07, 31/91,88.4
+52,Kris Bryant 3B | CHC, -1,54.71, 34/85,91.6
+53,Chris Paddack SP | SD , -3,56.85, 33/97,89.5
+54,Zack Wheeler SP | PHI, +6,57.05, 21/98,88.4
+55,Yordan Alvarez DH | HOU , -9,57.43, 21/108,92.6
+56,J.T. Realmuto C | PHI , +5,57.68, 26/94,91.6
+57,Gary Sanchez C | NYY , -4,58.14, 27/90,92.6
+58,Eloy Jimenez LF | CHW , -1,62.69, 23/93,92.6
+59,Trevor Bauer SP | CIN , +6,63.76, 35/94,89.5
+60,Ozzie Albies 2B | ATL, -2,64.05, 31/110,91.6
+61,Max Muncy 2B | LAD, -2,64.06, 38/98,92.6
+62,Aaron Judge RF | NYY , -21,66.24, 23/128,91.6
+63,Whit Merrifield 2B | KC, +3,68.96, 38/101,91.6
+64,Austin Meadows RF | TB ,,69.43, 36/99,91.6
+65,Trey Mancini RF | BAL , +3,70.45, 41/112,93.7
+66,Josh Donaldson 3B | MIN, +10,73.04, 33/170,92.6
+67,Carlos Santana 1B | CLE,,74.14, 22/134,94.7
+68,Yoan Moncada 3B | CHW , -5,74.28, 38/115,91.6
+69,Lance McCullers SP | HOU  *, +4,74.79, 40/144,88.4
+70,Nick Castellanos RF | CIN ,,75.95, 44/109,91.6
+71,Tyler Glasnow SP | TB  *, +3,76.32, 43/137,84.2
+72,Mike Soroka SP | ATL , +5,77.04, 37/131,89.5
+73,Manny Machado 3B | SD, -2,77.70, 38/137,89.5
+74,Aroldis Chapman RP | NYY , +5,78.26, 23/138,89.5
+75,Paul Goldschmidt 1B | STL , +6,80.18, 46/136,91.6
+76,Willson Contreras C | CHC, +6,82.74, 44/125,91.6
+77,Marcus Semien SS | OAK , +1,83.66, 30/146,94.7
+78,Keston Hiura 2B | MIL  *, -9,83.69, 37/142,92.6
+79,Vladimir Guerrero 3B | TOR, -7,86.01, 16/147,89.5
+80,Kenley Jansen RP | LAD , +15,86.53, 33/175,87.4
+81,Jorge Soler DH | KC, +5,86.77, 41/139,92.6
+82,Yasmani Grandal C | CHW , +8,87.35, 50/131,94.7
+83,Sean Manaea SP | OAK  *, +5,87.55, 45/146,90.5
+84,Roberto Osuna RP | HOU, -4,87.96, 36/149,88.4
+85,Liam Hendriks RP | OAK, +2,88.80, 31/182,91.6
+86,Carlos Carrasco SP | CLE , +8,88.90, 49/143,88.4
+87,Yu Darvish SP | CHC , +4,89.99, 43/152,89.5
+88,Joey Gallo CF | TEX , -4,90.97, 52/154,93.7
+89,Max Kepler RF | MIN, +4,94.11, 46/136,95.8
+90,Corey Kluber SP | TEX  *, +14,94.89, 55/150,88.4
+91,Yuli Gurriel 1B | HOU , +7,96.96, 36/178,94.7
+92,Matt Olson 1B | OAK , -3,97.04, 49/187,89.5
+93,Ken Giles RP | TOR , +13,97.36, 29/165,88.4
+94,Chris Sale SP | BOS , -32,97.90, 23/199,81.1
+95,Josh Bell 1B | PIT , -12,98.04, 60/141,91.6
+96,Frankie Montas SP | OAK  *, +3,99.69, 58/152,89.5
+97,Madison Bumgarner SP | ARI , +3,100.96, 52/160,87.4
+98,Kirby Yates RP | SD , +4,101.51, 46/167,88.4
+99,Giancarlo Stanton LF | NYY , -7,102.11, 52/152,91.6
+100,Marcell Ozuna LF | ATL, +5,103.04, 62/137,91.6
+101,Jeff McNeil LF | NYM , +6,106.09, 51/156,92.6
+102,Carlos Correa SS | HOU , -17,106.11, 51/174,91.6
+103,Mitch Garver C | MIN, +5,107.67, 51/156,97.9
+104,Brandon Woodruff SP | MIL , +8,107.80, 64/179,82.1
+105,Max Fried SP | ATL , +8,110.40, 68/155,88.4
+106,Danny Santana CF | TEX  *, +5,110.44, 49/168,95.8
+107,Michael Brantley LF | HOU , +15,110.94, 53/193,93.7
+108,Sonny Gray SP | CIN, +13,112.11, 69/168,86.3
+109,Kyle Hendricks SP | CHC , +14,112.43, 54/169,90.5
+110,Hyun-Jin Ryu SP | TOR,,112.49, 54/171,88.4
+111,Eddie Rosario LF | MIN , +4,113.37, 70/160,90.5
+112,German Marquez SP | COL, +5,113.85, 65/179,89.5
+113,Adalberto Mondesi SS | KC , -10,114.90, 39/190,86.3
+114,Rhys Hoskins 1B | PHI, -5,116.09, 73/167,91.6
+115,Willie Calhoun LF | TEX  *, +1,116.87, 56/168,93.7
+116,Will Smith C | LAD, +2,116.90, 69/185,92.6
+117,Eugenio Suarez 3B | CIN , -20,117.45, 59/177,90.5
+118,Matt Chapman 3B | OAK, +8,118.27, 57/182,88.4
+119,Masahiro Tanaka SP | NYY , +28,120.32, 75/189,87.4
+120,David Price SP | LAD , +33,120.97, 63/206,86.3
+121,Bo Bichette SS | TOR  *, -25,121.60, 31/206,80.0
+122,Jorge Polanco SS | MIN , +6,122.94, 61/186,87.4
+123,Eduardo Escobar 3B | ARI , +16,123.79, 61/183,91.6
+124,Shohei Ohtani DH | LAA , -23,125.43, 46/198,75.8
+125,Dinelson Lamet SP | SD  *, +6,125.70, 74/197,88.4
+126,Jose Urquidy SP | HOU  *, -1,125.71, 65/194,87.4
+127,Hansel Robles RP | LAA *, +10,126.32, 56/239,85.3
+128,Edwin Diaz RP | NYM *, +7,126.45, 76/183,86.3
+129,Eduardo Rodriguez SP | BOS ,,127.83, 74/171,85.3
+130,Andrew Vaughn 1B | CHW *, +2,128.00, 1/324,21.1
+131,Andrew Benintendi LF | BOS , -17,129.42, 64/180,88.4
+132,Jesus Luzardo RP | OAK  *, -2,129.56, 68/211,76.8
+133,Cavan Biggio 2B | TOR  *, -13,129.88, 63/174,87.4
+134,Michael Conforto RF | NYM, -1,131.11, 76/179,91.6
+135,Kevin Pillar CF | BOS  *, +64,135.27, 54/237,74.7
+136,Tommy Edman 3B | STL *, -17,135.34, 36/188,91.6
+137,Zac Gallen SP | ARI , +3,136.48, 67/221,85.3
+138,Brandon Workman RP | BOS ,,136.63, 52/228,85.3
+139,Mike Moustakas 3B | CIN , +2,137.00, 71/209,85.3
+140,Luis Robert CF | CHW  *, +10,137.57, 48/210,73.7
+141,Lance Lynn SP | TEX , +3,138.56, 64/214,85.3
+142,Jonathan Villar 2B | MIA  *,,138.81, 53/207,87.4
+143,Robbie Ray SP | ARI , +5,138.83, 54/194,84.2
+144,Craig Kimbrel RP | CHC , +5,138.87, 48/238,84.2
+145,Taylor Rogers RP | MIN,,138.97, 56/223,81.1
+146,James Paxton SP | NYY , -19,139.65, 57/211,81.1
+147,Aristides Aquino RF | CIN  *, -23,139.89, 75/232,75.8
+148,Julio Urias RP | LAD  *, -2,140.51, 80/224,82.1
+149,Keibert Ruiz C | LAD  *, +66,141.65, 61/539,21.1
+150,Salvador Perez C | KC  *, +2,142.00, 85/203,93.7
+151,Kyle Schwarber LF | CHC , -15,143.32, 66/200,84.2
+152,Tommy La Stella 2B | LAA , +13,144.56, 54/213,90.5
+153,Jose Quintana SP | CHC , +18,145.13, 77/212,86.3
+154,Tommy Pham LF | SD , +1,146.56, 72/202,78.9
+155,Brad Hand RP | CLE, +5,147.30, 70/216,83.2
+156,Edwin Encarnacion 1B | CHW , +8,148.38, 42/203,88.4
+157,Dylan Bundy SP | LAA  *, +33,149.87, 66/236,82.1
+158,Mike Tauchman LF | NYY  *, +10,150.45, 72/220,90.5
+159,Luis Arraez 2B | MIN, +2,150.49, 66/259,73.7
+160,Ramon Laureano CF | OAK , -26,150.98, 82/218,71.6
+161,Justin Turner 3B | LAD , +5,151.40, 56/248,77.9
+162,Corey Seager SS | LAD , -11,153.34, 80/219,76.8
+163,Hector Neris RP | PHI, +4,154.20, 60/237,78.9
+164,Kenta Maeda SP | MIN, +8,154.44, 75/223,76.8
+165,Dallas Keuchel SP | CHW , +15,155.26, 60/233,83.2
+166,David Dahl CF | COL, +4,155.27, 95/204,83.2
+167,Jon Lester SP | CHC , +33,155.39, 51/248,83.2
+168,Mike Minor SP | TEX , -6,156.45, 99/211,85.3
+169,Starlin Castro 2B | WAS  *, +12,156.60, 87/243,75.8
+170,Carlos Martinez RP | STL , +13,156.64, 79/235,76.8
+171,Jon Gray SP | COL  *, -17,158.65, 103/215,78.9
+172,Marcus Stroman SP | NYM , -15,158.93, 80/225,85.3
+173,Tim Anderson SS | CHW , -15,159.56, 95/221,67.4
+174,Miguel Sano 3B | MIN  *, -18,159.79, 88/220,70.5
+175,Justin Upton LF | LAA  *, +16,161.60, 99/233,87.4
+176,Jake Odorizzi SP | MIN, +8,162.04, 81/209,82.1
+177,Buster Posey C | SF, +1,163.59, 72/243,78.9
+178,Victor Robles CF | WAS , -15,163.74, 74/254,65.3
+179,Matthew Boyd SP | DET, -6,164.36, 52/231,78.9
+180,Mark Canha CF | OAK , +26,164.98, 92/233,73.7
+181,Nick Anderson RP | TB  *, +4,165.73, 85/248,67.4
+182,Hunter Dozier 3B | KC, +4,165.89, 83/228,69.5
+183,Mike Foltynewicz SP | ATL  *, -1,166.50, 112/221,76.8
+184,Franmil Reyes RF | CLE *, -7,166.94, 77/239,60.0
+185,Lourdes Gurriel LF | TOR , -26,167.84, 88/229,67.4
+186,Archie Bradley RP | ARI  *, +2,170.24, 66/251,67.4
+187,Wilson Ramos C | NYM , +20,173.95, 78/239,76.8
+188,Ryan Yarbrough RP | TB , +29,174.90, 66/271,70.5
+189,Gavin Lux 2B | LAD *,,175.37, 64/247,55.8
+190,Brandon Lowe 2B | TB, +6,175.41, 85/248,53.7
+191,Byron Buxton CF | MIN  *, -17,175.48, 112/238,74.7
+192,Aaron Civale SP | CLE  *, +2,176.19, 99/252,70.5
+193,Didi Gregorius SS | PHI  *, +44,176.82, 92/259,53.7
+194,David Peralta LF | ARI , +28,176.91, 114/291,65.3
+195,Raisel Iglesias RP | CIN , +21,177.22, 101/239,50.5
+196,Yadier Molina C | STL, +7,177.97, 72/285,78.9
+197,Joc Pederson LF | LAD  *, +12,181.00, 109/251,60.0
+198,Joe Musgrove SP | PIT , +4,181.75, 114/261,76.8
+199,Joey Lucchesi SP | SD , +26,181.75, 128/229,71.6
+200,Omar Narvaez C | MIL , +59,181.96, 80/294,67.4
+201,Jean Segura SS | PHI , +12,182.23, 79/287,62.1
+202,Alex Colome RP | CHW, -7,182.37, 102/246,55.8
+203,Luke Voit 1B | NYY, +5,182.67, 32/262,48.4
+204,J.D. Davis LF | NYM  *, +17,183.75, 97/270,34.7
+205,Brian Anderson 3B | MIA  *, +13,184.37, 104/250,58.9
+206,Ryan Braun LF | MIL  *, +60,184.37, 118/276,61.1
+207,Ian Kennedy RP | KC  *, +25,185.18, 90/288,53.7
+208,Oscar Mercado CF | CLE , -29,185.82, 122/251,48.4
+209,Zach Eflin SP | PHI  *, +46,186.17, 85/295,65.3
+210,Scott Kingery CF | PHI  *, +23,186.36, 115/268,40.0
+211,Gio Urshela 3B | NYY *, +16,187.26, 76/269,47.4
+212,Garrett Hampson 2B | COL  *, -37,187.38, 36/271,32.6
+213,Luke Weaver SP | ARI  *, -12,187.78, 141/269,61.1
+214,Miguel Andujar DH | NYY  *,,187.93, 121/254,52.6
+215,Bryan Reynolds LF | PIT , +19,188.95, 110/245,53.7
+216,Joey Votto 1B | CIN , +22,189.63, 100/296,55.8
+217,Rougned Odor 2B | TEX  *, +19,189.79, 84/256,48.4
+218,Kyle Tucker LF | HOU  *, -31,190.96, 74/284,30.5
+219,Ryan McMahon 2B | COL *, -7,190.97, 78/262,49.5
+220,Dakota Hudson SP | STL , -15,191.30, 94/264,56.8
+221,Steven Matz SP | NYM , +66,191.64, 76/277,54.7
+222,Giovanny Gallegos RP | STL  *, +54,191.85, 146/273,49.5
+223,Nathan Eovaldi SP | BOS  *, +118,192.00, 93/350,33.7
+224,Travis d'Arnaud C | ATL  *, +72,192.72, 106/304,55.8
+225,Andrew Heaney SP | LAA  *, +15,193.12, 121/257,60.0
+226,A.J. Puk RP | OAK  *, +15,193.81, 137/292,46.3
+227,Michael Chavis 1B | BOS  *, -30,193.82, 114/253,34.7
+228,Will Smith RP | ATL, +17,194.42, 118/297,40.0
+229,Khris Davis DH | OAK , +53,194.71, 120/311,41.1
+230,Caleb Smith SP | MIA , -11,194.81, 81/266,51.6
+231,Jordan Montgomery SP | NYY  *, +30,195.40, 91/267,52.6
+232,Robinson Chirinos C | TEX , +65,196.27, 95/354,40.0
+233,Adrian Houser SP | MIL  *, -5,196.35, 69/283,55.8
+234,Andrelton Simmons SS | LAA  *, +73,196.91, 111/342,29.5
+235,Andrew McCutchen LF | PHI  *, -4,197.00, 103/289,49.5
+236,Josh James RP | HOU  *, +36,197.02, 39/310,54.7
+237,Josh Lindblom RP | MIL  *, +53,197.43, 53/339,36.8
+238,Kolten Wong 2B | STL  *, -27,197.44, 108/284,45.3
+239,Paul DeJong SS | STL , +3,198.24, 78/280,41.1
+240,MacKenzie Gore SP | SD  *, -5,198.29, 75/304,23.2
+241,Alex Wood SP | LAD  *, +58,198.44, 132/311,50.5
+242,Sandy Alcantara SP | MIA  *, -18,198.70, 111/298,52.6
+243,Jose Leclerc RP | TEX  *, +30,199.58, 124/251,32.6
+244,Tom Murphy C | SEA  *, -18,199.87, 102/294,55.8
+245,Nomar Mazara RF | CHW  *, -47,200.05, 95/254,47.4
+246,Nick Senzel CF | CIN  *, -26,200.09, 92/268,38.9
+247,Anibal Sanchez SP | WAS  *, +57,200.47, 115/344,47.4
+248,Amed Rosario SS | NYM  *, -55,200.50, 115/284,26.3
+249,Adam Eaton RF | WAS , +1,201.13, 109/280,36.8
+250,Carson Kelly C | ARI  *, +1,201.33, 116/291,51.6
+251,Hunter Renfroe RF | TB *, -4,201.56, 121/299,31.6
+252,Dylan Carlson CF | STL  *, -48,201.95, 10/456,20.0
+253,Brendan McKay SP | TB , -24,202.41, 112/297,33.7
+254,Mike Fiers SP | OAK , +38,202.49, 105/332,58.9
+255,Christian Vazquez C | BOS, +2,202.76, 133/267,46.3
+256,Mitch Keller SP | PIT  *, +2,202.77, 91/274,42.1
+257,Jo Adell RF | LAA  *, -5,203.14, 45/309,27.4
+258,J.A. Happ SP | NYY , +75,203.78, 120/318,55.8
+259,Robinson Cano 2B | NYM , +3,204.57, 71/296,36.8
+260,Nate Pearson SP | TOR  *, +8,205.00, 115/293,26.3
+261,Sean Doolittle RP | WAS , +9,205.10, 119/277,36.8
+262,Mike Yastrzemski LF | SF  *, +36,205.32, 93/299,41.1
+263,Sean Murphy C | OAK  *, +25,205.54, 61/337,30.5
+264,Anthony DeSclafani SP | CIN , +20,205.68, 79/303,41.1
+265,Homer Bailey SP | MIN  *, +78,205.69, 62/321,42.1
+266,Chris Archer SP | PIT , +29,207.97, 110/290,45.3
+267,Eric Hosmer 1B | SD , -18,208.13, 124/287,37.9
+268,Shin-Soo Choo RF | TEX, +17,208.37, 143/286,44.2
+269,Dustin May RP | LAD , -30,208.53, 113/449,20.0
+270,Julio Teheran SP | LAA , -47,209.06, 43/297,42.1
+271,Marco Gonzales SP | SEA , -6,209.86, 36/289,35.8
+272,Kyle Seager 3B | SEA  *, -5,210.50, 138/299,30.5
+273,Merrill Kelly SP | ARI , +44,210.50, 147/289,38.9
+274,Daniel Murphy 1B | COL, +17,211.69, 123/333,43.2
+275,Cole Hamels SP | ATL , -19,212.30, 103/313,40.0
+276,Alex Verdugo CF | BOS  *, -16,212.89, 116/291,34.7
+277,Johnny Cueto SP | SF  *, +51,213.11, 143/333,33.7
+278,Mark Melancon RP | ATL  *, +73,213.70, 108/417,29.5
+279,Lorenzo Cain CF | MIL , +35,214.53, 144/353,22.1
+280,A.J. Pollock CF | LAD  *, +29,214.86, 126/294,44.2
+281,Kole Calhoun RF | ARI , +42,215.71, 135/320,27.4
+282,Josh Phegley C | CHC *,,216.33, 162/254,24.2
+283,Dylan Cease SP | CHW , +3,217.46, 114/302,34.7
+284,Keone Kela RP | PIT  *, +17,217.91, 81/304,28.4
+285,Jose Peraza 2B | BOS  *, +18,218.08, 125/339,32.6
+286,Rick Porcello SP | NYM  *, +16,221.65, 98/316,29.5
+287,Christian Walker 1B | ARI  *, -23,222.53, 120/315,22.1
+288,Anthony Santander RF | BAL *, +1,223.19, 112/306,27.4
+289,Michael Kopech SP | CHW  *, -6,223.26, 116/353,29.5
+290,Miles Mikolas SP | STL , -9,224.79, 172/310,30.5
+291,Randal Grichuk RF | TOR  *, +45,226.58, 106/360,30.5
+292,Jake Arrieta SP | PHI  *, +57,227.68, 113/371,28.4
+293,Kevin Newman SS | PIT  *, -15,228.24, 138/300,27.4
+294,Hanser Alberto 2B | BAL  *, +35,229.71, 115/359,23.2
+295,Cesar Hernandez 2B | CLE, +15,230.14, 68/348,28.4
+296,Eric Sogard 2B | MIL  *, +68,230.38, 108/335,27.4
+297,Yandy Diaz 3B | TB *, +8,231.94, 112/340,21.1
+298,Garrett Richards SP | SD  *, +23,234.28, 61/340,24.2
+299,Brandon Nimmo CF | NYM  *, +16,235.00, 144/322,26.3
+300,Elvis Andrus SS | TEX, +11,237.68, 129/337,37.9
+301,Avisail Garcia RF | MIL *, -8,238.50, 119/310,30.5
+302,Welington Castillo C | WAS  *, +50,238.90, 183/334,26.3
+303,Zach Plesac SP | CLE , +29,241.24, 174/319,27.4
+304,Justin Smoak 1B | MIL , +41,249.88, 124/489,21.1
+305,Pedro Severino C | BAL  *, +58,272.21, 182/716,20.0
+306,Nick Markakis RF | ATL , +55,275.89, 119/594,20.0

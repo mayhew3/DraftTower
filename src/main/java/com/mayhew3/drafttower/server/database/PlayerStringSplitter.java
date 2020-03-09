@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.mayhew3.drafttower.server.database.dataobject.CbsID;
 import com.mayhew3.drafttower.server.database.dataobject.FieldValue;
 import com.mayhew3.drafttower.server.database.dataobject.Player;
+import org.joda.time.LocalDate;
 
 import java.net.URISyntaxException;
 import java.sql.ResultSet;
@@ -18,15 +19,18 @@ public class PlayerStringSplitter {
 
   private SQLConnection connection;
 
+  private LocalDate statDate;
+
   private static final Logger logger = Logger.getLogger(PlayerStringSplitter.class.getName());
 
   public static void main(String... args) throws URISyntaxException, SQLException {
-    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(new MySQLConnectionFactory().createConnection());
+    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(new MySQLConnectionFactory().createConnection(), DraftPrepRunner.statsDate);
     playerStringSplitter.updateDatabase();
   }
 
-  public PlayerStringSplitter(SQLConnection connection) {
+  public PlayerStringSplitter(SQLConnection connection, LocalDate statDate) {
     this.connection = connection;
+    this.statDate = statDate;
   }
 
   public void updateDatabase() throws SQLException {
@@ -92,13 +96,8 @@ public class PlayerStringSplitter {
 
 
   private void updatePlayerFields(Player player) throws FailedPlayer, SQLException {
-    String sql = "SELECT * FROM cbsids WHERE cbs_id = ?";
-    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, player.cbs_id.getValue());
 
-    resultSet.next();
-
-    CbsID cbsID = new CbsID();
-    cbsID.initializeFromDBObject(resultSet);
+    CbsID cbsID = getCBSID(player.cbs_id.getValue());
 
     Integer id = cbsID.cbs_id.getValue();
 
@@ -121,9 +120,56 @@ public class PlayerStringSplitter {
 
     if (player.hasChanged()) {
       player.updateTime.changeValue(new Date());
+
+      Player existing = existingWithChangedName(newPlayerString, cbsID.cbs_id.getValue());
+      if (existing != null) {
+        CbsID existingCBSID = getCBSID(existing.cbs_id.getValue());
+        Integer cbsYear = existingCBSID.year.getValue();
+        int statYear = statDate.getYear();
+        if (cbsYear != null && statYear == cbsYear) {
+          throw new RuntimeException("Found existing player with same name and current CBS year: " + newPlayerString);
+        } else {
+          removeCBSIDAndPlayer(existingCBSID, existing);
+        }
+      }
     }
 
     player.commit(connection);
+  }
+
+  private void removeCBSIDAndPlayer(CbsID cbsID, Player player) throws SQLException {
+    String sql = "DELETE FROM " + player.getTableName() + " WHERE ID = ? ";
+    connection.prepareAndExecuteStatementUpdate(sql, player.id.getValue());
+
+    sql = "DELETE FROM " + cbsID.getTableName() + " WHERE ID = ? ";
+    connection.prepareAndExecuteStatementUpdate(sql, cbsID.id.getValue());
+  }
+
+  private CbsID getCBSID(Integer cbsId) throws SQLException {
+    String sql = "SELECT * FROM cbsids WHERE cbs_id = ?";
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, cbsId);
+
+    resultSet.next();
+
+    CbsID cbsID = new CbsID();
+    cbsID.initializeFromDBObject(resultSet);
+
+    return cbsID;
+  }
+
+  private Player existingWithChangedName(String changedName, int cbs_id) throws SQLException {
+    String sql = "SELECT * " +
+        "FROM Players " +
+        "WHERE PlayerString = ? " +
+        "AND CBS_ID <> ? ";
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, changedName, cbs_id);
+    if (resultSet.next()) {
+      Player player = new Player();
+      player.initializeFromDBObject(resultSet);
+      return player;
+    } else {
+      return null;
+    }
   }
 
   private void validateChangesToExistingPlayer(Player player, Integer id, String newPlayerString, String oldPlayerString) throws SQLException, FailedPlayer {

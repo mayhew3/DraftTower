@@ -8,7 +8,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 public class DraftPrepRunner {
-  static LocalDate statsDate = new LocalDate(2019, 3, 27);
+  static LocalDate statsDate = new LocalDate(2020, 3, 9);
 
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
@@ -34,7 +34,7 @@ public class DraftPrepRunner {
     cbsIdScraper.updateDatabase();
 
     // update player table based on new CBS IDs and changed Player Strings.
-    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(connection);
+    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(connection, statsDate);
     playerStringSplitter.updateDatabase();
 
     // insert rows from temp tables into projection tables

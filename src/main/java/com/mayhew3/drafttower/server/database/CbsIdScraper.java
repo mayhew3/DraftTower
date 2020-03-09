@@ -12,6 +12,8 @@ import java.nio.charset.Charset;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -30,6 +32,8 @@ public class CbsIdScraper {
   private SQLConnection connection;
   private LocalDate localDate;
 
+  private int year;
+
   public static void main(String... args) throws Exception {
     LocalDate localDate = DraftPrepRunner.statsDate;
     CbsIdScraper cbsIdScraper = new CbsIdScraper(new MySQLConnectionFactory().createConnection(), localDate);
@@ -39,6 +43,7 @@ public class CbsIdScraper {
   public CbsIdScraper(SQLConnection connection, LocalDate localDate) {
     this.connection = connection;
     this.localDate = localDate;
+    this.year = localDate.getYear();
   }
 
   public void updateDatabase() throws IOException {
@@ -78,6 +83,7 @@ public class CbsIdScraper {
               }
             }
 
+            cbsID.year.changeValue(year);
             cbsID.commit(connection);
 
           } catch (SQLException e) {
@@ -93,8 +99,8 @@ public class CbsIdScraper {
       }
     };
 
-    String battersInputFilename = "database/" + localDate.getYear() + "/battersList" + dateString + ".html";
-    String pitchersInputFilename = "database/" + localDate.getYear() + "/pitchersList" + dateString + ".html";
+    String battersInputFilename = "database/" + year + "/battersList" + dateString + ".html";
+    String pitchersInputFilename = "database/" + year + "/pitchersList" + dateString + ".html";
 
     Files.readLines(new File(battersInputFilename), Charset.defaultCharset(), lineProcessor);
     Files.readLines(new File(pitchersInputFilename), Charset.defaultCharset(), lineProcessor);

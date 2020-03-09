@@ -7,6 +7,7 @@ public class CbsID extends DataObject {
   public FieldValueString injuryNote = registerStringField("InjuryNote");
   public FieldValueDate dateAdded = registerDateField("DateAdded");
   public FieldValueDate dateModified = registerDateField("DateModified");
+  public FieldValueInteger year = registerIntegerField("year");
 
   @Override
   public String getTableName() {
