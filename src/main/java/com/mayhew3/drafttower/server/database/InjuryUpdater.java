@@ -3,7 +3,7 @@ package com.mayhew3.drafttower.server.database;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
-public class InjuryUpdater {
+public class InjuryUpdater implements DraftDataStep {
   private SQLConnection connection;
 
   public InjuryUpdater(SQLConnection connection) {
@@ -15,6 +15,7 @@ public class InjuryUpdater {
     injuryUpdater.updateDatabase();
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     connection.prepareAndExecuteStatementUpdate("update players p\n" +
         "inner join cbsids cbs\n" +

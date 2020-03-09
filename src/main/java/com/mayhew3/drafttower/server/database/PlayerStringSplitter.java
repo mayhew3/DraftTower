@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PlayerStringSplitter {
+public class PlayerStringSplitter implements DraftDataStep {
 
   private SQLConnection connection;
 
@@ -33,6 +33,7 @@ public class PlayerStringSplitter {
     this.statDate = statDate;
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     insertNewPlayers();
     splitNames();

@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class ProjectionsUploader {
+public class ProjectionsUploader implements DraftDataStep {
   private SQLConnection connection;
   private LocalDate statsDate;
 
@@ -61,6 +61,7 @@ public class ProjectionsUploader {
     this.statsDate = statsDate;
   }
 
+  @Override
   public void updateDatabase() throws IOException, SQLException {
     updatePlayers("batter", statsDate, batterColumns, new TmpProjectionBatterFactory());
     updatePlayers("pitcher", statsDate, pitcherColumns, new TmpProjectionPitcherFactory());

@@ -7,7 +7,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PopulateDraftAverages {
+public class PopulateDraftAverages implements DraftDataStep {
   private SQLConnection connection;
   private Date statDate;
 
@@ -24,6 +24,7 @@ public class PopulateDraftAverages {
     populateDraftAverages.updateDatabase();
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     updatePlayerIDs();
 

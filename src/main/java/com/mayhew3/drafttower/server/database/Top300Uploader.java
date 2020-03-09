@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
-public class Top300Uploader {
+public class Top300Uploader implements DraftDataStep {
   private SQLConnection connection;
   private LocalDate statsDate;
 
@@ -28,6 +28,7 @@ public class Top300Uploader {
     this.statsDate = statsDate;
   }
 
+  @Override
   public void updateDatabase() throws IOException, SQLException {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMdd");
 

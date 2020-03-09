@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-public class InitCustomRankings {
+public class InitCustomRankings implements DraftDataStep {
 
   private Logger logger = Logger.getLogger(InitCustomRankings.class.getName());
 
@@ -22,6 +22,7 @@ public class InitCustomRankings {
     this.connection = connection;
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     logger.info("Initializing Custom Rankings.");
 

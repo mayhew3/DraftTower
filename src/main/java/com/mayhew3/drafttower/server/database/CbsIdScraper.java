@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Gets player IDs from CBS data
  */
-public class CbsIdScraper {
+public class CbsIdScraper implements DraftDataStep {
 
   private static final Logger logger = Logger.getLogger(CbsIdScraper.class.getName());
 
@@ -46,6 +46,7 @@ public class CbsIdScraper {
     this.year = localDate.getYear();
   }
 
+  @Override
   public void updateDatabase() throws IOException {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMdd");
     String dateString = simpleDateFormat.format(localDate.toDate());

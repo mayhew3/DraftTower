@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PopulateExpertRankings {
+public class PopulateExpertRankings implements DraftDataStep {
   private SQLConnection connection;
   private Date statDate;
 
@@ -32,6 +32,7 @@ public class PopulateExpertRankings {
     populateDraftAverages.updateDatabase();
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     ResultSet resultSet =  connection.prepareAndExecuteStatementFetch(
         "SELECT PlayerID, AVG(rank) as AvgRank, COUNT(1) as Rankings " +

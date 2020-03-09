@@ -6,7 +6,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ConnectPlayerTable {
+public class ConnectPlayerTable implements DraftDataStep {
   private SQLConnection connection;
   private Integer scoringSystemYear;
 
@@ -23,6 +23,7 @@ public class ConnectPlayerTable {
     connectPlayerTable.updateDatabase();
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     updateBattingProjections();
     updatePitchingProjections();

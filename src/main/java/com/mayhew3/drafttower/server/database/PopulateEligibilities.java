@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PopulateEligibilities {
+public class PopulateEligibilities implements DraftDataStep {
   private SQLConnection connection;
 
   public PopulateEligibilities(SQLConnection connection) {
@@ -21,6 +21,7 @@ public class PopulateEligibilities {
     populateEligibilities.updateDatabase();
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     validateEligibilitiesExist();
 

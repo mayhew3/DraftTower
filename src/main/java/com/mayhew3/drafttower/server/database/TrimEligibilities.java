@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TrimEligibilities {
+public class TrimEligibilities implements DraftDataStep {
   private SQLConnection connection;
   private Logger logger = Logger.getLogger(TrimEligibilities.class.getName());
 
@@ -24,6 +24,7 @@ public class TrimEligibilities {
     trimEligibilities.updateDatabase();
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
 
     String sql = "SELECT * \n" +

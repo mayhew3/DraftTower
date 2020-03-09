@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-public class DraftResultsClearer {
+public class DraftResultsClearer implements DraftDataStep {
 
   private Logger logger = Logger.getLogger(DraftResultsClearer.class.getName());
 
@@ -21,6 +21,7 @@ public class DraftResultsClearer {
     this.connection = connection;
   }
 
+  @Override
   public void updateDatabase() throws SQLException {
     logger.info("Clearing Draft Results.");
 

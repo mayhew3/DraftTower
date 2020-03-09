@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PopulateKeepers {
+public class PopulateKeepers implements DraftDataStep {
 
   private SQLConnection connection;
 
@@ -20,6 +20,7 @@ public class PopulateKeepers {
   }
 
   @SuppressWarnings("SpellCheckingInspection")
+  @Override
   public void updateDatabase() throws SQLException {
     System.out.println("Adding keepers.");
 
