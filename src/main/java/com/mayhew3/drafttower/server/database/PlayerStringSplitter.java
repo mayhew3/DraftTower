@@ -204,7 +204,7 @@ public class PlayerStringSplitter implements DraftDataStep {
     }
   }
 
-  private static boolean areCompatible(String position1, String position2) {
+  private boolean areCompatible(String position1, String position2) {
     List<Object> outFieldPositions = Lists.newArrayList((Object) "OF", "LF", "CF", "RF");
     List<Object> pitchingPositions = Lists.newArrayList((Object) "SP", "RP", "P");
 
@@ -217,7 +217,7 @@ public class PlayerStringSplitter implements DraftDataStep {
     return position1.equals(position2);
   }
 
-  private static PlayerInfo parseFromString(int id, String playerString, String previousLastName) throws FailedPlayer {
+  private PlayerInfo parseFromString(int id, String playerString, String previousLastName) throws FailedPlayer, SQLException {
     List<String> validPositions = Lists.newArrayList(
         "C",
         "1B",
@@ -275,13 +275,12 @@ public class PlayerStringSplitter implements DraftDataStep {
     }
   }
 
-  private static PlayerInfo parseExtraNames(int id, String playerString, String previousLastName, PlayerInfo playerInfo, List<String> parts) throws FailedPlayer {
+  private PlayerInfo parseExtraNames(int id, String playerString, String previousLastName, PlayerInfo playerInfo, List<String> parts) throws FailedPlayer, SQLException {
     // todo: check DB for existing multi-part names on other players
 
-    List<String> potentialLastNames = new ArrayList<>();
-    List<String> potentialFirstNames = new ArrayList<>();
+    List<NameInfo> potentialNames = new ArrayList<>();
 
-    Integer maxFirstName = parts.size() - 1;
+    int maxFirstName = parts.size() - 1;
     for (int firstNameSize = 1; firstNameSize <= maxFirstName; firstNameSize++) {
       List<String> lastNameStrings = parts.subList(firstNameSize, parts.size());
 
@@ -291,36 +290,112 @@ public class PlayerStringSplitter implements DraftDataStep {
       String potentialFirstName = joiner.join(firstNameStrings);
 
       if (Objects.equals(previousLastName, potentialLastName)) {
-
         playerInfo.firstName = potentialFirstName;
         playerInfo.lastName = potentialLastName;
 
         return playerInfo;
       }
 
-      potentialLastNames.add(potentialLastName);
-      potentialFirstNames.add(potentialFirstName);
+      NameInfo nameInfo = new NameInfo();
+      nameInfo.firstName = potentialFirstName;
+      nameInfo.lastName = potentialLastName;
+      nameInfo.firstNameMatches = findNumberOfPlayersWithFirstName(potentialFirstName);
+      nameInfo.lastNameMatches = findNumberOfPlayersWithLastName(potentialLastName);
+      potentialNames.add(nameInfo);
+    }
+
+    NameInfo obviousMatch = findObviousMatch(potentialNames);
+    if (obviousMatch != null) {
+      playerInfo.firstName = obviousMatch.firstName;
+      playerInfo.lastName = obviousMatch.lastName;
+
+      return playerInfo;
     }
 
     List<String> displayOptions = new ArrayList<>();
-    for (int i = 0; i < potentialLastNames.size(); i++) {
-      displayOptions.add(i+1 + ") '" + potentialLastNames.get(i) + "'");
+    int i = 1;
+    for (NameInfo potentialName : potentialNames) {
+      displayOptions.add(i + ") '" + potentialName.lastName + "'");
     }
     Joiner commaJoiner = Joiner.on(", ");
     String selectedOption = InputGetter.grabInput("'" + playerString + "'  Potential last names: " + commaJoiner.join(displayOptions) + ", 0) None of these. ");
     Integer selectedIndex = Integer.valueOf(selectedOption);
 
-    if (selectedIndex == null || selectedIndex == 0) {
+    if (selectedIndex == 0) {
       throw new FailedPlayer(id, "Full name had more than three parts, and no combination matched existing LastName field.");
     } else {
-      String selectedLastName = potentialLastNames.get(selectedIndex - 1);
-      String selectedFirstName = potentialFirstNames.get(selectedIndex - 1);
+      NameInfo selectedName = potentialNames.get(selectedIndex - 1);
 
-      playerInfo.lastName = selectedLastName;
-      playerInfo.firstName = selectedFirstName;
+      playerInfo.lastName = selectedName.lastName;
+      playerInfo.firstName = selectedName.firstName;
 
       return playerInfo;
     }
+  }
+
+  private NameInfo findObviousMatch(List<NameInfo> nameInfos) {
+    NameInfo lastNameMatch = lastNameMatchesMultipleAndNoOthersDo(nameInfos);
+    NameInfo firstNameMatch = firstNameMatchesMultipleAndNoOthersDo(nameInfos);
+    if (lastNameMatch != null && lastNameMatch.equals(firstNameMatch)) {
+      return lastNameMatch;
+    } else {
+      return null;
+    }
+  }
+
+  private NameInfo lastNameMatchesMultipleAndNoOthersDo(List<NameInfo> nameInfos) {
+    List<NameInfo> multipleMatches = new ArrayList<>();
+    List<NameInfo> singleMatches = new ArrayList<>();
+    for (NameInfo nameInfo : nameInfos) {
+      if (nameInfo.lastNameMatches == 1) {
+        singleMatches.add(nameInfo);
+      } else if (nameInfo.lastNameMatches > 1) {
+        multipleMatches.add(nameInfo);
+      }
+    }
+    if (multipleMatches.size() == 1 && singleMatches.size() == 0) {
+      return multipleMatches.get(0);
+    } else {
+      return null;
+    }
+  }
+
+  private NameInfo firstNameMatchesMultipleAndNoOthersDo(List<NameInfo> nameInfos) {
+    List<NameInfo> multipleMatches = new ArrayList<>();
+    List<NameInfo> singleMatches = new ArrayList<>();
+    for (NameInfo nameInfo : nameInfos) {
+      if (nameInfo.firstNameMatches == 1) {
+        singleMatches.add(nameInfo);
+      } else if (nameInfo.firstNameMatches > 1) {
+        multipleMatches.add(nameInfo);
+      }
+    }
+    if (multipleMatches.size() == 1 && singleMatches.size() == 0) {
+      return multipleMatches.get(0);
+    } else {
+      return null;
+    }
+  }
+
+  public static class NameInfo {
+    String firstName;
+    String lastName;
+    int firstNameMatches;
+    int lastNameMatches;
+  }
+
+  private int findNumberOfPlayersWithLastName(String lastName) throws SQLException {
+    String sql = "SELECT COUNT(1) AS nameCount FROM Players WHERE LastName = ? ";
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, lastName);
+    resultSet.next();
+    return resultSet.getInt("nameCount");
+  }
+
+  private int findNumberOfPlayersWithFirstName(String firstName) throws SQLException {
+    String sql = "SELECT COUNT(1) AS nameCount FROM Players WHERE FirstName = ? ";
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql, firstName);
+    resultSet.next();
+    return resultSet.getInt("nameCount");
   }
 
 
