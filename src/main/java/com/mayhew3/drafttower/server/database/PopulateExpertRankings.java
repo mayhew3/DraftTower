@@ -54,6 +54,11 @@ public class PopulateExpertRankings implements DraftDataStep {
     }
   }
 
+  @Override
+  public String getStepName() {
+    return "PopulateExpertRankings";
+  }
+
   private Integer getAdjustedRank(Integer rankings, @NotNull Integer averageRank) {
 
     Integer unrankedExperts = numberOfExperts - rankings;

@@ -48,6 +48,11 @@ public class PopulateKeepers implements DraftDataStep {
 
   }
 
+  @Override
+  public String getStepName() {
+    return "PopulateKeepers";
+  }
+
 
   private void addKeeper(String ownerName, String lastName, String firstName) throws SQLException {
     addKeeper(ownerName, getPlayerIDFromFirstAndLastName(firstName, lastName));

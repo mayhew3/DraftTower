@@ -29,4 +29,9 @@ public class DraftResultsClearer implements DraftDataStep {
 
   }
 
+  @Override
+  public String getStepName() {
+    return "DraftResultsClearer";
+  }
+
 }

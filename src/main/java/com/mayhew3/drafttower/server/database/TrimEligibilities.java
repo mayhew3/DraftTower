@@ -49,4 +49,10 @@ public class TrimEligibilities implements DraftDataStep {
       }
     }
   }
+
+  @Override
+  public String getStepName() {
+    return "TrimEligibilities";
+  }
+
 }

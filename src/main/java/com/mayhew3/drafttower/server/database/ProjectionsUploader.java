@@ -67,6 +67,11 @@ public class ProjectionsUploader implements DraftDataStep {
     updatePlayers("pitcher", statsDate, pitcherColumns, new TmpProjectionPitcherFactory());
   }
 
+  @Override
+  public String getStepName() {
+    return "ProjectionsUploader";
+  }
+
   private void updatePlayers(String playerType, LocalDate statsDate, List<String> batterColumns, TmpStatTableFactory tmpStatTableFactory) throws IOException, SQLException {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMdd");
 

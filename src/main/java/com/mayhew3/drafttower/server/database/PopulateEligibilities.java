@@ -31,6 +31,11 @@ public class PopulateEligibilities implements DraftDataStep {
     verifyNoMissingRows();
   }
 
+  @Override
+  public String getStepName() {
+    return "PopulateEligibilities";
+  }
+
   private void validateEligibilitiesExist() throws SQLException {
     validateEligibilitiesExist("projectionsbatting");
     validateEligibilitiesExist("projectionspitching");

@@ -41,4 +41,9 @@ public class Top300Uploader implements DraftDataStep {
     playerListParser.uploadPlayersToDatabase();
   }
 
+  @Override
+  public String getStepName() {
+    return "Top300Uploader";
+  }
+
 }

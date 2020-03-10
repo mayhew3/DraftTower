@@ -29,6 +29,11 @@ public class PopulateDraftAverages implements DraftDataStep {
     updatePitchers();
   }
 
+  @Override
+  public String getStepName() {
+    return "PopulateDraftAverages";
+  }
+
   private void updatePlayerIDs() throws SQLException {
     connection.prepareAndExecuteStatementUpdate("update cbs_draftaverages da\n" +
         "set da.playerid = (select p.id from players p where p.playerstring = da.player) " +

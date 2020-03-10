@@ -39,6 +39,11 @@ public class PlayerStringSplitter implements DraftDataStep {
     splitNames();
   }
 
+  @Override
+  public String getStepName() {
+    return "PlayerStringSplitter";
+  }
+
   private void insertNewPlayers() throws SQLException {
     String sql = "INSERT INTO players (PlayerString, CBS_ID, CreateTime, UpdateTime) " +
         "SELECT cbs.PlayerString, cbs.CBS_ID, NOW(), NOW() " +

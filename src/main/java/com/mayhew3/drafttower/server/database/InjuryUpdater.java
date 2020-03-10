@@ -25,4 +25,9 @@ public class InjuryUpdater implements DraftDataStep {
         "where not p.injury <=> cbs.injurynote");
   }
 
+  @Override
+  public String getStepName() {
+    return "InjuryUpdater";
+  }
+
 }

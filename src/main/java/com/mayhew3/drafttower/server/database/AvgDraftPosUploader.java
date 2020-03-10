@@ -41,4 +41,9 @@ public class AvgDraftPosUploader implements DraftDataStep {
     playerListParser.uploadPlayersToDatabase();
   }
 
+  @Override
+  public String getStepName() {
+    return "AvgDraftPosUploader";
+  }
+
 }

@@ -31,6 +31,11 @@ public class ConnectPlayerTable implements DraftDataStep {
     updateTop300();
   }
 
+  @Override
+  public String getStepName() {
+    return "ConnectPlayerTable";
+  }
+
   private void updateBattingProjections() throws SQLException {
     final String tmp_cbsbatting = "tmp_cbsbatting";
 

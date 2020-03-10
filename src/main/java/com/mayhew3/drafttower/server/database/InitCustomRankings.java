@@ -40,6 +40,11 @@ public class InitCustomRankings implements DraftDataStep {
 
   }
 
+  @Override
+  public String getStepName() {
+    return "InitCustomRankings";
+  }
+
   private void prepareTmpTable() throws SQLException {
     connection.prepareAndExecuteStatementUpdate("truncate table tmp_rankings");
     connection.prepareAndExecuteStatementUpdate("alter table tmp_rankings auto_increment = 1");

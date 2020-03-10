@@ -5,4 +5,5 @@ import java.sql.SQLException;
 
 public interface DraftDataStep {
   void updateDatabase() throws IOException, SQLException;
+  String getStepName();
 }

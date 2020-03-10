@@ -108,6 +108,11 @@ public class CbsIdScraper implements DraftDataStep {
 
   }
 
+  @Override
+  public String getStepName() {
+    return "CbsIdScraper";
+  }
+
   private void createHistoryEvent(CbsID cbsID) throws SQLException {
     PlayerNameHistory playerNameHistory = new PlayerNameHistory();
     playerNameHistory.initializeForInsert();

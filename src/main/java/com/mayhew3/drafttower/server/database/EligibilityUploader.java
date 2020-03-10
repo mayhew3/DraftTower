@@ -40,4 +40,9 @@ public class EligibilityUploader implements DraftDataStep {
     playerListParser.uploadPlayersToDatabase();
   }
 
+  @Override
+  public String getStepName() {
+    return "EligibilityUploader";
+  }
+
 }
