@@ -19,16 +19,13 @@ public class PopulateExpertRankings implements DraftDataStep {
 
   private Logger logger = Logger.getLogger(PopulateExpertRankings.class.getName());
 
-  public PopulateExpertRankings(SQLConnection connection, Date statDate) {
+  public PopulateExpertRankings(SQLConnection connection, LocalDate statDate) {
     this.connection = connection;
-    this.statDate = statDate;
+    this.statDate = new Date(statDate.toDate().getTime());
   }
 
   public static void main(String... args) throws URISyntaxException, SQLException {
-    LocalDate localDate = DraftPrepRunner.statsDate;
-    Date sqlDate = new Date(localDate.toDate().getTime());
-
-    PopulateExpertRankings populateDraftAverages = new PopulateExpertRankings(new MySQLConnectionFactory().createConnection(), sqlDate);
+    PopulateExpertRankings populateDraftAverages = new PopulateExpertRankings(new MySQLConnectionFactory().createConnection(), DraftPrepRunner.statsDate);
     populateDraftAverages.updateDatabase();
   }
 

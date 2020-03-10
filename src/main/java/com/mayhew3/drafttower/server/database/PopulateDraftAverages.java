@@ -11,16 +11,13 @@ public class PopulateDraftAverages implements DraftDataStep {
   private SQLConnection connection;
   private Date statDate;
 
-  public PopulateDraftAverages(SQLConnection connection, Date statDate) {
+  public PopulateDraftAverages(SQLConnection connection, LocalDate statDate) {
     this.connection = connection;
-    this.statDate = statDate;
+    this.statDate = new Date(statDate.toDate().getTime());
   }
 
   public static void main(String... args) throws URISyntaxException, SQLException {
-    LocalDate localDate = DraftPrepRunner.statsDate;
-    Date sqlDate = new Date(localDate.toDate().getTime());
-
-    PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(new MySQLConnectionFactory().createConnection(), sqlDate);
+    PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(new MySQLConnectionFactory().createConnection(), DraftPrepRunner.statsDate);
     populateDraftAverages.updateDatabase();
   }
 

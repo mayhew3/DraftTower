@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DraftPrepRunner {
   static LocalDate statsDate = new LocalDate(2020, 3, 9);
@@ -13,63 +15,55 @@ public class DraftPrepRunner {
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
 
+    List<DraftDataStep> steps = new ArrayList<>();
+
     // insert CBS projections into temp tables
-    ProjectionsUploader projectionsUploader = new ProjectionsUploader(connection, statsDate);
-    projectionsUploader.updateDatabase();
+    steps.add(new ProjectionsUploader(connection, statsDate));
 
     // insert CBS eligibilities into temp table
-    EligibilityUploader eligibilityUploader = new EligibilityUploader(connection, statsDate);
-    eligibilityUploader.updateDatabase();
+    steps.add(new EligibilityUploader(connection, statsDate));
 
     // insert CBS draft averages into temp table
-    AvgDraftPosUploader avgDraftPosUploader = new AvgDraftPosUploader(connection, statsDate);
-    avgDraftPosUploader.updateDatabase();
+    steps.add(new AvgDraftPosUploader(connection, statsDate));
 
     // insert CBS expert rankings into temp table
-    Top300Uploader top300Uploader = new Top300Uploader(connection, statsDate);
-    top300Uploader.updateDatabase();
+    steps.add(new Top300Uploader(connection, statsDate));
 
     // update mapping of CBS IDs to Player Strings.
-    CbsIdScraper cbsIdScraper = new CbsIdScraper(connection, statsDate);
-    cbsIdScraper.updateDatabase();
+    steps.add(new CbsIdScraper(connection, statsDate));
 
     // update player table based on new CBS IDs and changed Player Strings.
-    PlayerStringSplitter playerStringSplitter = new PlayerStringSplitter(connection, statsDate);
-    playerStringSplitter.updateDatabase();
+    steps.add(new PlayerStringSplitter(connection, statsDate));
 
     // insert rows from temp tables into projection tables
-    ConnectPlayerTable connectPlayerTable = new ConnectPlayerTable(connection);
-    connectPlayerTable.updateDatabase();
+    steps.add(new ConnectPlayerTable(connection));
 
     // Update keepers
-    PopulateKeepers populateKeepers = new PopulateKeepers(connection);
-    populateKeepers.updateDatabase();
+    steps.add(new PopulateKeepers(connection));
 
     // add custom rankings for each team based on averages
-    InitCustomRankings initCustomRankings = new InitCustomRankings(connection);
-    initCustomRankings.updateDatabase();
+    steps.add(new InitCustomRankings(connection));
 
     // Copy ranks from Draft Averages into projection tables
-    PopulateDraftAverages populateDraftAverages = new PopulateDraftAverages(connection, new Date(statsDate.toDate().getTime()));
-    populateDraftAverages.updateDatabase();
+    steps.add(new PopulateDraftAverages(connection, statsDate));
 
     // Clear and populate the Eligibilities table
-    PopulateEligibilities populateEligibilities = new PopulateEligibilities(connection);
-    populateEligibilities.updateDatabase();
+    steps.add(new PopulateEligibilities(connection));
 
     // Update projectionsbatting and projectionspitching Rank column based on average rank in temp table
-    PopulateExpertRankings populateExpertRankings = new PopulateExpertRankings(connection, new Date(statsDate.toDate().getTime()));
-    populateExpertRankings.updateDatabase();
+    steps.add(new PopulateExpertRankings(connection, statsDate));
 
     // Update player injury column
-    InjuryUpdater injuryUpdater = new InjuryUpdater(connection);
-    injuryUpdater.updateDatabase();
+    steps.add(new InjuryUpdater(connection));
 
     // Get rid of DH noise in the Player eligibility strings
-    TrimEligibilities trimEligibilities = new TrimEligibilities(connection);
-    trimEligibilities.updateDatabase();
+    steps.add(new TrimEligibilities(connection));
 
-    DraftResultsClearer draftResultsClearer = new DraftResultsClearer(connection);
-    draftResultsClearer.updateDatabase();
+    // Clear the draft results from last season
+    steps.add(new DraftResultsClearer(connection));
+
+    for (DraftDataStep step : steps) {
+      step.updateDatabase();
+    }
   }
 }
