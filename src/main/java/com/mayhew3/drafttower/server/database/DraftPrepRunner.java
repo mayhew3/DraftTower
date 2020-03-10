@@ -1,16 +1,21 @@
 package com.mayhew3.drafttower.server.database;
 
+import com.mayhew3.drafttower.server.database.dataobject.DraftPrepStatus;
 import org.joda.time.LocalDate;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class DraftPrepRunner {
   static LocalDate statsDate = new LocalDate(2020, 3, 9);
+
+  protected static final Logger logger = Logger.getLogger(DraftPrepRunner.class.getName());
 
   public static void main(String... args) throws IOException, SQLException, URISyntaxException {
     SQLConnection connection = new MySQLConnectionFactory().createConnection();
@@ -62,8 +67,36 @@ public class DraftPrepRunner {
     // Clear the draft results from last season
     steps.add(new DraftResultsClearer(connection));
 
-    for (DraftDataStep step : steps) {
-      step.updateDatabase();
+    DraftPrepStatus status = getStatus(connection);
+    String lastCompleted = status.lastCompletedStep.getValue();
+    boolean skip = (lastCompleted != null);
+
+    if (skip) {
+      logger.info("Draft Prep stopped after " + lastCompleted + "... skipping steps through that one.");
     }
+
+    for (DraftDataStep step : steps) {
+      String stepName = step.getStepName();
+      if (!skip) {
+        step.updateDatabase();
+        status.lastCompletedStep.changeValue(stepName);
+        status.commit(connection);
+      } else {
+        logger.info("Skipping step: '" + stepName + "'");
+        skip = !stepName.equals(lastCompleted);
+      }
+    }
+
+    status.lastCompletedStep.changeValue(null);
+    status.commit(connection);
+  }
+
+  private static DraftPrepStatus getStatus(SQLConnection connection) throws SQLException {
+    DraftPrepStatus draftPrepStatus = new DraftPrepStatus();
+    String sql = "SELECT * FROM " + draftPrepStatus.getTableName();
+    ResultSet resultSet = connection.prepareAndExecuteStatementFetch(sql);
+    resultSet.next();
+    draftPrepStatus.initializeFromDBObject(resultSet);
+    return draftPrepStatus;
   }
 }
