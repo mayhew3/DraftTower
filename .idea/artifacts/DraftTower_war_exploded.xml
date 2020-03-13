@@ -1,6 +1,13 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="DraftTower:war exploded">
     <output-path>$PROJECT_DIR$/target/draft-tower-1.0-SNAPSHOT</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <exploded>true</exploded>
+        <module>DraftTower</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
@@ -17,7 +24,6 @@
           <element id="library" level="project" name="Maven: com.google.guava:guava:18.0" />
           <element id="library" level="project" name="Maven: com.google.dagger:dagger:2.1" />
           <element id="library" level="project" name="Maven: javax.inject:javax.inject:1" />
-          <element id="library" level="project" name="Maven: com.google.dagger:dagger-producers:2.1" />
           <element id="library" level="project" name="Maven: com.google.dagger:dagger-gwt:2.1" />
           <element id="library" level="project" name="Maven: com.google.dagger:dagger:sources:2.1" />
           <element id="library" level="project" name="Maven: org.json:json:20090211" />
