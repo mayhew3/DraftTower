@@ -200,7 +200,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
             " pa.*\n" +
             "FROM (" + subselect + ") pa\n" +
             "INNER JOIN players p\n" +
-            " ON pa.PlayerID = p.ID\n" +
+            " ON pa.PlayerID = p.id\n" +
             "INNER JOIN data_sources ds\n" +
             " ON pa.DataSource = ds.ID\n";
     if (teamID != null) {
@@ -324,7 +324,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public void populateQueueEntry(final QueueEntry queueEntry) throws DataSourceException {
     String sql = "select PlayerString,Eligibility " +
         "from players " +
-        "where ID = " + queueEntry.getPlayerId();
+        "where id = " + queueEntry.getPlayerId();
 
     try {
       executeQuery(sql, new ResultSetCallback() {
@@ -345,7 +345,7 @@ public class PlayerDataSourceImpl implements PlayerDataSource {
   public void populateDraftPick(final DraftPick draftPick) throws DataSourceException {
     String sql = "select FirstName,LastName,Eligibility " +
         "from players " +
-        "where ID = " + draftPick.getPlayerId();
+        "where id = " + draftPick.getPlayerId();
 
     try {
       executeQuery(sql, new ResultSetCallback() {
