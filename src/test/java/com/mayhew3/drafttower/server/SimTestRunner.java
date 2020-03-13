@@ -5,6 +5,7 @@ import com.mayhew3.drafttower.shared.DraftPick;
 import com.mayhew3.drafttower.shared.DraftStatus;
 import org.junit.Assert;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -17,7 +18,7 @@ public class SimTestRunner {
 
   private static final int CYCLES_TIMER_EXPIRE = 10;
 
-  @Inject DataSource dataSource;
+  @Inject @Nullable DataSource dataSource;
   @Inject DraftStatus draftStatus;
   @Inject DraftTimer draftTimer;
   @Inject PlayerDataSource playerDataSource;
